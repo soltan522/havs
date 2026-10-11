@@ -18,3 +18,8 @@ alter table public.orders enable row level security;
 
 -- Create a PRIVATE bucket named plans-private (Storage > New bucket, "Public" OFF).
 -- Upload files under keys such as modern-villa-01/plan.pdf (matching lib/plans.ts).
+
+-- The server (service_role) must be able to read and update orders.
+-- Needed when the project does not auto-expose new tables; without it the site returns 403 on order lookups.
+grant usage on schema public to service_role;
+grant select, insert, update, delete on public.orders to service_role;
