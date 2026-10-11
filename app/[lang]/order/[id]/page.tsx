@@ -20,7 +20,7 @@ export default async function OrderPage({
   return (
     <>
       <Header locale={lang} path="" />
-      <main className="wrap" style={{ padding: "24px 0 48px" }}>
+      <main className="order">
         {order.status === "paid" ? (
           <>
             <h1>{t.success}</h1>

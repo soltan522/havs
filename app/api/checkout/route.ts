@@ -15,6 +15,8 @@ export async function POST(request: Request) {
 
   const plan = findPlan(slug);
   if (!plan) return NextResponse.json({ error: "plan_not_found" }, { status: 404 });
+  // Sample plans have no deliverable files yet, so they must never be sold.
+  if (plan.demo) return NextResponse.json({ error: "plan_not_for_sale" }, { status: 409 });
   if (!availableProviders().some((p) => p.id === provider))
     return NextResponse.json({ error: "provider_unavailable" }, { status: 400 });
 

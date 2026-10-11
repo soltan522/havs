@@ -4,7 +4,7 @@ Next.js storefront for villa plans and exterior designs (AZ / EN / RU). Deployed
 
 ## Adding a real plan
 
-1. **Metadata** — in `lib/plans.ts` add or edit a plan (slug, title, summary, area, floors, bedrooms, garage, price in cents, files).
+1. **Metadata** — in `data/plans.json` add or edit a plan (slug, title, summary, area, floors, bedrooms, garage, price in cents, files).
    The slug is the folder name used below.
 2. **Private files** — upload the sellable files to the Supabase bucket `plans-private` (Public OFF) with the keys from `files`:
    `<slug>/plan.pdf`, `<slug>/plan.dwg`, `<slug>/plan.cad`. Never commit these files.
@@ -14,7 +14,11 @@ Next.js storefront for villa plans and exterior designs (AZ / EN / RU). Deployed
    ```
    This writes watermarked JPEGs to `public/plans/<slug>/` and updates `lib/previews.generated.ts`. Plans without originals get a neutral placeholder.
    Commit `public/plans/` and `lib/previews.generated.ts`.
-4. Set `published: true` on the plan and deploy.
+4. Set `published: true` and `demo: false` on the plan and deploy.
+
+Plans with `demo: true` are sample projects: they show generated concept sheets (axonometric, elevation,
+floor plans — see `scripts/drawings.mjs`) and a "contact to order" button. Checkout refuses them, so a
+sample can never be sold without real files behind it.
 
 ## Local development
 

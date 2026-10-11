@@ -1,0 +1,242 @@
+[
+  {
+    "slug": "modern-villa-01",
+    "style": "modern",
+    "roof": "flat",
+    "title": {
+      "az": "Müasir villa — 01",
+      "en": "Modern Villa — 01",
+      "ru": "Современная вилла — 01"
+    },
+    "summary": {
+      "az": "İki mərtəbəli, panoramik şüşəli və konsol çıxıntılı müasir villa. Açıq qonaq-mətbəx zonası, ikinci mərtəbədə dörd yataq otağı.",
+      "en": "Two-storey modern villa with panoramic glazing and a cantilevered upper volume. Open living-kitchen space, four bedrooms upstairs.",
+      "ru": "Двухэтажная современная вилла с панорамным остеклением и консольным вторым этажом. Открытая гостиная-кухня, четыре спальни наверху."
+    },
+    "areaM2": 240,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 3,
+    "garage": true,
+    "pool": false,
+    "priceCents": 89000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "classic-villa-02",
+    "style": "classic",
+    "roof": "hip",
+    "title": {
+      "az": "Klassik villa — 02",
+      "en": "Classic Villa — 02",
+      "ru": "Классическая вилла — 02"
+    },
+    "summary": {
+      "az": "Simmetrik fasadlı, dördtərəfli damlı bir mərtəbəli klassik villa. Mərkəzi hol və bağa açılan geniş terras.",
+      "en": "Single-storey classic villa with a symmetric facade and hip roof. Central hall and a wide terrace opening to the garden.",
+      "ru": "Одноэтажная классическая вилла с симметричным фасадом и вальмовой крышей. Центральный холл и широкая терраса в сад."
+    },
+    "areaM2": 180,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 59000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "kub-03",
+    "style": "minimal",
+    "roof": "flat",
+    "title": {
+      "az": "Kub — 03",
+      "en": "Cube — 03",
+      "ru": "Куб — 03"
+    },
+    "summary": {
+      "az": "Kompakt kub formalı minimalist ev. Az sahədə maksimum işıq, damda istirahət terrası.",
+      "en": "Compact minimalist cube house. Maximum daylight on a small footprint, with a roof terrace.",
+      "ru": "Компактный минималистичный дом-куб. Максимум света на небольшой площади, терраса на крыше."
+    },
+    "areaM2": 145,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 49000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "xezer-04",
+    "style": "coastal",
+    "roof": "flat",
+    "title": {
+      "az": "Xəzər — 04",
+      "en": "Caspian — 04",
+      "ru": "Каспий — 04"
+    },
+    "summary": {
+      "az": "Dəniz kənarı üçün geniş terraslı villa. Hər yataq otağından mənzərə, hovuz və qaraj.",
+      "en": "Seaside villa with wide terraces. Views from every bedroom, a pool and a garage.",
+      "ru": "Вилла у моря с широкими террасами. Вид из каждой спальни, бассейн и гараж."
+    },
+    "areaM2": 320,
+    "floors": 2,
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": true,
+    "priceCents": 119000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "sahdag-05",
+    "style": "chalet",
+    "roof": "aframe",
+    "title": {
+      "az": "Şahdağ — 05",
+      "en": "Shahdag — 05",
+      "ru": "Шахдаг — 05"
+    },
+    "summary": {
+      "az": "Dağ kurortları üçün A-formalı şale. Hündür tavanlı qonaq otağı və antresol yataq.",
+      "en": "A-frame chalet for mountain retreats. Double-height living room and a mezzanine bedroom.",
+      "ru": "Шале A-образной формы для горного отдыха. Гостиная со вторым светом и спальня на антресоли."
+    },
+    "areaM2": 120,
+    "floors": 2,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 39000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "bag-06",
+    "style": "farmhouse",
+    "roof": "gable",
+    "title": {
+      "az": "Bağ evi — 06",
+      "en": "Garden House — 06",
+      "ru": "Садовый дом — 06"
+    },
+    "summary": {
+      "az": "İkiyamaclı damlı bir mərtəbəli ailə evi. Örtülü veranda, böyük mətbəx və qaraj.",
+      "en": "Single-storey family house with a gable roof. Covered veranda, large kitchen and a garage.",
+      "ru": "Одноэтажный семейный дом с двускатной крышей. Крытая веранда, большая кухня и гараж."
+    },
+    "areaM2": 160,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "priceCents": 52000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "panorama-07",
+    "style": "luxury",
+    "roof": "flat",
+    "title": {
+      "az": "Panorama — 07",
+      "en": "Panorama — 07",
+      "ru": "Панорама — 07"
+    },
+    "summary": {
+      "az": "Üç səviyyəli lüks villa: zirzəmidə SPA və kinozal, sonsuz hovuz, iki maşınlıq qaraj.",
+      "en": "Three-level luxury villa: basement spa and cinema, infinity pool, two-car garage.",
+      "ru": "Трёхуровневая люкс-вилла: спа и кинозал в цоколе, бассейн-инфинити, гараж на две машины."
+    },
+    "areaM2": 420,
+    "floors": 3,
+    "bedrooms": 6,
+    "bathrooms": 5,
+    "garage": true,
+    "pool": true,
+    "priceCents": 149000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "mini-08",
+    "style": "compact",
+    "roof": "shed",
+    "title": {
+      "az": "Mini — 08",
+      "en": "Mini — 08",
+      "ru": "Мини — 08"
+    },
+    "summary": {
+      "az": "Birtərəfli damlı kompakt ev. Gənc ailə və ya bağ evi üçün qənaətli həll.",
+      "en": "Compact house with a mono-pitch roof. An economical choice for a young family or a weekend home.",
+      "ru": "Компактный дом с односкатной крышей. Экономичное решение для молодой семьи или дачи."
+    },
+    "areaM2": 85,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 29000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "abseron-09",
+    "style": "mediterranean",
+    "roof": "hip",
+    "title": {
+      "az": "Abşeron — 09",
+      "en": "Absheron — 09",
+      "ru": "Апшерон — 09"
+    },
+    "summary": {
+      "az": "Aralıq dənizi üslubunda kirəmit damlı villa. Daxili həyət, tağlı qalereya və hovuz.",
+      "en": "Mediterranean-style villa with a tiled roof. Inner courtyard, arched gallery and a pool.",
+      "ru": "Вилла в средиземноморском стиле с черепичной крышей. Внутренний двор, арочная галерея и бассейн."
+    },
+    "areaM2": 260,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 3,
+    "garage": true,
+    "pool": true,
+    "priceCents": 94000,
+    "published": true,
+    "demo": true
+  },
+  {
+    "slug": "dupleks-10",
+    "style": "duplex",
+    "roof": "flat",
+    "title": {
+      "az": "Dupleks — 10",
+      "en": "Duplex — 10",
+      "ru": "Дуплекс — 10"
+    },
+    "summary": {
+      "az": "İki ailə üçün güzgü planlı dupleks. Hər blokda ayrıca giriş, üç yataq otağı və həyət.",
+      "en": "Mirror-plan duplex for two families. Each unit has its own entrance, three bedrooms and a yard.",
+      "ru": "Дуплекс с зеркальной планировкой на две семьи. В каждом блоке отдельный вход, три спальни и двор."
+    },
+    "areaM2": 300,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": false,
+    "priceCents": 109000,
+    "published": true,
+    "demo": true
+  }
+]

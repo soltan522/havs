@@ -2,100 +2,135 @@ import type { Locale } from "./i18n";
 
 type Landing = {
   eyebrow: string;
-  heroTitle: [string, string];
+  heroLines: [string, string, string];
   heroText: string;
   ctaPrimary: string;
   ctaSecondary: string;
+  scroll: string;
+  stats: { plans: string; formats: string; languages: string };
   marquee: string[];
-  featuredTitle: string;
-  featuredText: string;
+  statement: string;
+  featuredEyebrow: string;
+  featuredTitle: [string, string];
   viewAll: string;
-  processTitle: string;
+  processEyebrow: string;
+  processTitle: [string, string];
   steps: { title: string; text: string }[];
-  whyTitle: string;
+  stylesEyebrow: string;
+  stylesTitle: [string, string];
+  plansWord: (n: number) => string;
+  whyEyebrow: string;
+  whyTitle: [string, string];
   why: { title: string; text: string }[];
-  ctaTitle: string;
+  ctaTitle: [string, string];
   ctaText: string;
   ctaButton: string;
 };
 
 export const LANDING: Record<Locale, Landing> = {
   az: {
-    eyebrow: "Memarlıq · Villa layihələri",
-    heroTitle: ["Hər evin", "əsas planı burada"],
-    heroText: "Villa layihələri və exterior dizaynlar, peşəkar memarlar tərəfindən hazırlanıb. PDF, DWG və CAD formatlarında, dərhal yükləmə ilə.",
-    ctaPrimary: "Planlara bax",
+    eyebrow: "Memarlıq studiyası",
+    heroLines: ["Hər evin", "əsas planı", "buradan başlayır."],
+    heroText: "Villa layihələri və exterior dizaynlar — memarlar tərəfindən hazırlanmış, PDF, DWG və CAD formatlarında.",
+    ctaPrimary: "Kataloqa bax",
     ctaSecondary: "Necə işləyir",
-    marquee: ["Villa planları", "Exterior dizayn", "PDF", "DWG", "CAD", "Dərhal yükləmə", "Təhlükəsiz ödəniş"],
-    featuredTitle: "Seçilmiş layihələr",
-    featuredText: "Hər layihə sahə, mərtəbə və otaq planı ilə tam sənədləşdirilib.",
-    viewAll: "Bütün planlar →",
-    processTitle: "Üç addımda",
+    scroll: "Aşağı",
+    stats: { plans: "layihə", formats: "format", languages: "dil" },
+    marquee: ["Villa planları", "Exterior dizayn", "Aksonometriya", "Fasad", "DWG", "CAD", "PDF"],
+    statement:
+      "Biz evi kağız üzərində başlayırıq: düzgün plan, dəqiq ölçü və işığa açıq məkanlar. Hər layihə yaşamaq üçün düşünülüb — sonra isə sizin torpağınıza uyğunlaşdırılır.",
+    featuredEyebrow: "Seçilmiş layihələr",
+    featuredTitle: ["Kataloqdan", "seçmələr"],
+    viewAll: "Bütün kataloq",
+    processEyebrow: "Proses",
+    processTitle: ["Plandan", "evə qədər"],
     steps: [
-      { title: "Layihəni seçin", text: "Sahə, mərtəbə və stilə görə planlara baxın." },
-      { title: "Ödəyin", text: "Kartla, PayPal və ya bank köçürməsi ilə təhlükəsiz ödəniş." },
-      { title: "Yükləyin", text: "PDF, DWG və CAD fayllarını dərhal sifariş səhifənizdən götürün." },
+      { title: "Layihəni seçin", text: "Üslub, sahə və mərtəbə sayına görə kataloqa baxın. Hər layihədə aksonometriya, fasad və planlar var." },
+      { title: "Uyğunlaşdırın", text: "Torpaq sahəniz, iqlim və ehtiyaclarınıza görə dəyişikliklər üçün memarlarımızla əlaqə saxlayın." },
+      { title: "Faylları alın", text: "Tam paket — PDF çertyojlar, redaktə edilə bilən DWG və CAD faylları — sifariş səhifənizdə." },
     ],
-    whyTitle: "Niyə havs.dev",
+    stylesEyebrow: "Üslublar",
+    stylesTitle: ["Hər zövqə", "uyğun forma"],
+    plansWord: (n) => `${n} layihə`,
+    whyEyebrow: "Niyə havs.dev",
+    whyTitle: ["Dəqiqlik,", "detallarda"],
     why: [
-      { title: "Peşəkar sənədlər", text: "Hər plan tikintiyə hazır təqdimat və ölçülərlə hazırlanıb." },
-      { title: "Üç format", text: "Vizualizasiya üçün PDF, redaktə üçün DWG və CAD birlikdə." },
-      { title: "Ömürlük giriş", text: "Sifarişiniz hesabınızda qalır, fayllarınızı istənilən vaxt yükləyə bilərsiniz." },
+      { title: "Peşəkar çertyojlar", text: "Ox şəbəkəsi, ölçü zəncirləri, divar qalınlıqları və mebel yerləşdirməsi ilə tam sənədləşdirilmiş planlar." },
+      { title: "Üç format", text: "Təqdimat üçün PDF, redaktə üçün DWG və CAD — bir paketdə." },
+      { title: "Uyğunlaşdırma", text: "Hər layihə sahənizə, iqliminizə və büdcənizə görə dəyişdirilə bilər." },
     ],
-    ctaTitle: "Layihənizi bu gün başlayın",
-    ctaText: "Bəyəndiyiniz planı seçin, bir neçə dəqiqədə fayllarınız hazırdır.",
-    ctaButton: "Planlara keç",
+    ctaTitle: ["Layihənizi", "bu gün başlayın."],
+    ctaText: "Kataloqdan bəyəndiyiniz planı seçin və ya fərdi layihə üçün bizimlə əlaqə saxlayın.",
+    ctaButton: "Kataloqa keç",
   },
   en: {
-    eyebrow: "Architecture · Villa projects",
-    heroTitle: ["The foundation", "of every home"],
-    heroText: "Villa projects and exterior designs prepared by professional architects. Delivered as PDF, DWG and CAD for instant download.",
-    ctaPrimary: "Browse plans",
+    eyebrow: "Architecture studio",
+    heroLines: ["Every home", "begins with", "the right plan."],
+    heroText: "Villa projects and exterior designs prepared by architects — delivered as PDF, DWG and CAD.",
+    ctaPrimary: "Browse catalogue",
     ctaSecondary: "How it works",
-    marquee: ["Villa plans", "Exterior design", "PDF", "DWG", "CAD", "Instant download", "Secure payment"],
-    featuredTitle: "Featured projects",
-    featuredText: "Every project comes with a full set of area, floor and room information.",
-    viewAll: "All plans →",
-    processTitle: "In three steps",
+    scroll: "Scroll",
+    stats: { plans: "projects", formats: "formats", languages: "languages" },
+    marquee: ["Villa plans", "Exterior design", "Axonometric", "Elevation", "DWG", "CAD", "PDF"],
+    statement:
+      "We start every home on paper: a sound plan, precise dimensions and rooms open to daylight. Each project is designed to be lived in — and then adapted to your site.",
+    featuredEyebrow: "Featured projects",
+    featuredTitle: ["Selected", "from the catalogue"],
+    viewAll: "Full catalogue",
+    processEyebrow: "Process",
+    processTitle: ["From plan", "to home"],
     steps: [
-      { title: "Choose a project", text: "Browse plans by area, floors and style." },
-      { title: "Pay securely", text: "Card, PayPal or bank transfer." },
-      { title: "Download", text: "Get PDF, DWG and CAD files from your order page right away." },
+      { title: "Choose a project", text: "Browse by style, area and number of floors. Every project includes an axonometric view, elevation and plans." },
+      { title: "Adapt it", text: "Talk to our architects about changes for your site, climate and brief." },
+      { title: "Get the files", text: "The full package — PDF drawings plus editable DWG and CAD files — on your order page." },
     ],
-    whyTitle: "Why havs.dev",
+    stylesEyebrow: "Styles",
+    stylesTitle: ["A form", "for every taste"],
+    plansWord: (n) => `${n} ${n === 1 ? "project" : "projects"}`,
+    whyEyebrow: "Why havs.dev",
+    whyTitle: ["Precision", "in the details"],
     why: [
-      { title: "Professional documents", text: "Every plan is prepared with construction-ready drawings and dimensions." },
-      { title: "Three formats", text: "PDF for presentation, DWG and CAD for editing, all in one purchase." },
-      { title: "Lasting access", text: "Your orders stay in your account, so you can download files whenever you need." },
+      { title: "Professional drawings", text: "Fully documented plans with structural grids, dimension chains, wall thicknesses and furniture layouts." },
+      { title: "Three formats", text: "PDF for presentation, DWG and CAD for editing — in one package." },
+      { title: "Adaptation", text: "Every project can be adapted to your site, climate and budget." },
     ],
-    ctaTitle: "Start your project today",
-    ctaText: "Pick the plan you like and your files are ready in minutes.",
-    ctaButton: "Go to plans",
+    ctaTitle: ["Start your project", "today."],
+    ctaText: "Pick a plan from the catalogue or contact us for a bespoke design.",
+    ctaButton: "Go to catalogue",
   },
   ru: {
-    eyebrow: "Архитектура · Проекты вилл",
-    heroTitle: ["Основа каждого", "дома — здесь"],
-    heroText: "Проекты вилл и экстерьерные дизайны от профессиональных архитекторов. PDF, DWG и CAD с мгновенным скачиванием.",
-    ctaPrimary: "Смотреть проекты",
+    eyebrow: "Архитектурная студия",
+    heroLines: ["Каждый дом", "начинается", "с верного плана."],
+    heroText: "Проекты вилл и экстерьерные дизайны от архитекторов — в форматах PDF, DWG и CAD.",
+    ctaPrimary: "Смотреть каталог",
     ctaSecondary: "Как это работает",
-    marquee: ["Проекты вилл", "Экстерьер", "PDF", "DWG", "CAD", "Мгновенное скачивание", "Безопасная оплата"],
-    featuredTitle: "Избранные проекты",
-    featuredText: "Каждый проект включает полную информацию о площади, этажах и комнатах.",
-    viewAll: "Все проекты →",
-    processTitle: "В три шага",
+    scroll: "Вниз",
+    stats: { plans: "проектов", formats: "формата", languages: "языка" },
+    marquee: ["Проекты вилл", "Экстерьер", "Аксонометрия", "Фасад", "DWG", "CAD", "PDF"],
+    statement:
+      "Мы начинаем каждый дом на бумаге: продуманный план, точные размеры и помещения, открытые свету. Каждый проект создан для жизни — а затем адаптируется под ваш участок.",
+    featuredEyebrow: "Избранные проекты",
+    featuredTitle: ["Подборка", "из каталога"],
+    viewAll: "Весь каталог",
+    processEyebrow: "Процесс",
+    processTitle: ["От плана", "до дома"],
     steps: [
-      { title: "Выберите проект", text: "Смотрите проекты по площади, этажам и стилю." },
-      { title: "Оплатите", text: "Картой, PayPal или банковским переводом." },
-      { title: "Скачайте", text: "Файлы PDF, DWG и CAD — сразу на странице заказа." },
+      { title: "Выберите проект", text: "Фильтруйте по стилю, площади и этажности. В каждом проекте — аксонометрия, фасад и планы." },
+      { title: "Адаптируйте", text: "Обсудите с нашими архитекторами изменения под ваш участок, климат и задачи." },
+      { title: "Получите файлы", text: "Полный пакет — чертежи PDF и редактируемые файлы DWG и CAD — на странице заказа." },
     ],
-    whyTitle: "Почему havs.dev",
+    stylesEyebrow: "Стили",
+    stylesTitle: ["Форма", "на любой вкус"],
+    plansWord: (n) => `${n} проект${n === 1 ? "" : n < 5 ? "а" : "ов"}`,
+    whyEyebrow: "Почему havs.dev",
+    whyTitle: ["Точность", "в деталях"],
     why: [
-      { title: "Профессиональная документация", text: "Каждый проект готов к строительству, с размерами и чертежами." },
-      { title: "Три формата", text: "PDF для презентации, DWG и CAD для редактирования — в одной покупке." },
-      { title: "Постоянный доступ", text: "Заказы остаются в вашем аккаунте, файлы можно скачать в любой момент." },
+      { title: "Профессиональные чертежи", text: "Полностью оформленные планы с осями, размерными цепочками, толщинами стен и расстановкой мебели." },
+      { title: "Три формата", text: "PDF для презентации, DWG и CAD для редактирования — в одном пакете." },
+      { title: "Адаптация", text: "Любой проект можно адаптировать под ваш участок, климат и бюджет." },
     ],
-    ctaTitle: "Начните свой проект сегодня",
-    ctaText: "Выберите понравившийся проект, и файлы будут готовы за несколько минут.",
-    ctaButton: "К проектам",
+    ctaTitle: ["Начните свой проект", "сегодня."],
+    ctaText: "Выберите проект в каталоге или свяжитесь с нами для индивидуального проектирования.",
+    ctaButton: "В каталог",
   },
 };
