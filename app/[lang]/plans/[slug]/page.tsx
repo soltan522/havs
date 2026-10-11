@@ -22,7 +22,18 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
           <Link href={`/${lang}`}>{t.backToCatalog}</Link>
         </p>
         <div className="detail">
-          <Image src={plan.image} alt={plan.title[lang]} width={1200} height={900} priority />
+          <figure className="gallery">
+            <Image src={plan.gallery[0]} alt={plan.title[lang]} width={1600} height={1067} priority sizes="(max-width: 800px) 100vw, 60vw" />
+            {plan.gallery.length > 1 && (
+              <ul className="thumbs">
+                {plan.gallery.map((src, i) => (
+                  <li key={src}>
+                    <Image src={src} alt={`${plan.title[lang]} — ${i + 1}`} width={320} height={214} sizes="120px" />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </figure>
           <section>
             <h1>{plan.title[lang]}</h1>
             <p className="muted">{plan.summary[lang]}</p>

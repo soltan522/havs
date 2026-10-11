@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
 import { isLocale, UI } from "@/lib/i18n";
-import { formatPrice, publishedPlans } from "@/lib/plans";
+import { coverOf, formatPrice, publishedPlans } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 export default async function Catalog({ params }: { params: Promise<{ lang: string }> }) {
@@ -23,7 +23,7 @@ export default async function Catalog({ params }: { params: Promise<{ lang: stri
           {publishedPlans().map((plan) => (
             <article className="card" key={plan.slug}>
               <Link href={`/${lang}/plans/${plan.slug}`}>
-                <Image src={plan.image} alt={plan.title[lang]} width={800} height={600} />
+                <Image src={coverOf(plan)} alt={plan.title[lang]} width={1600} height={1067} sizes="(max-width: 700px) 100vw, 360px" />
               </Link>
               <div className="body">
                 <h2>

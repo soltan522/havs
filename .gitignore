@@ -3,3 +3,6 @@ node_modules
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+
+# Original plan files (PDF/DWG/CAD masters and full-resolution renders). Never commit.
+private-assets/
