@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
+import Lightbox from "@/components/motion/Lightbox";
 import Reveal, { MaskLines } from "@/components/Reveal";
-import { COPY } from "@/lib/copy";
+import { COPY, sheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
 import { findPlan, formatPrice, STYLE_LABELS } from "@/lib/plans";
 import { availableProviders, currency } from "@/lib/providers";
@@ -34,19 +35,25 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
           <div>
             <Link className="back" href={`/${lang}/plans`}>{t.backToCatalog}</Link>
             <figure className="gallery">
-              {plan.gallery.map((src, i) => (
-                <Reveal key={src} variant="clip" delay={i === 0 ? 0 : 80}>
-                  <Image
-                    src={src}
-                    alt={`${plan.title[lang]} — ${c.sheetNames[i] ?? i + 1}`}
-                    width={1600}
-                    height={1067}
-                    priority={i === 0}
-                    sizes="(max-width: 960px) 100vw, 58vw"
-                  />
+              {plan.gallery.map((item, i) => (
+                <Reveal key={item.src} variant="clip" delay={i === 0 ? 0 : 80}>
+                  <div className={`sheet sheet-${item.kind.startsWith("plan") ? "plan" : item.kind}`} data-sheet={i} data-cursor={c.zoom}>
+                    <Image
+                      src={item.src}
+                      alt={`${plan.title[lang]} — ${sheetName(c.sheetNames, item.kind)}`}
+                      width={1600}
+                      height={1067}
+                      priority={i === 0}
+                      sizes="(max-width: 960px) 100vw, 58vw"
+                    />
+                    <span className="sheet-label">
+                      <i>{String(i + 1).padStart(2, "0")}</i> {sheetName(c.sheetNames, item.kind)}
+                    </span>
+                  </div>
                 </Reveal>
               ))}
             </figure>
+            <Lightbox items={plan.gallery.map((item) => ({ src: item.src, label: sheetName(c.sheetNames, item.kind) }))} closeLabel={c.close} />
           </div>
           <aside className="detail-side">
             <span className="style-tag">{STYLE_LABELS[plan.style][lang]}{plan.demo ? ` · ${c.sampleBadge}` : ""}</span>

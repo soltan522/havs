@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import Cursor from "@/components/motion/Cursor";
+import HtmlLang from "@/components/motion/HtmlLang";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import { isLocale, LOCALES } from "@/lib/i18n";
 
@@ -28,9 +29,11 @@ export default async function LangLayout({
         <span className="word">havs</span>
         <span className="bar" />
       </div>
+      <HtmlLang lang={lang} />
       <SmoothScroll />
       <Cursor />
-      {children}
+      {/* lang on the wrapper makes CSS uppercase use the right rules (no Turkish dotted İ on EN/RU pages) */}
+      <div lang={lang}>{children}</div>
     </>
   );
 }

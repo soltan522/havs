@@ -83,8 +83,8 @@ export default async function Catalogue({
               <Reveal key={plan.slug} delay={(i % 3) * 110}>
                 <Link href={`/${lang}/plans/${plan.slug}`} className="card" data-cursor={c.view}>
                   <div className="media">
-                    <Image src={plan.cover} alt={plan.title[lang]} width={1200} height={900} sizes="(max-width: 760px) 100vw, 400px" />
-                    <Image className="second" src={plan.hover} alt="" width={1200} height={900} sizes="(max-width: 760px) 100vw, 400px" />
+                    <Image src={plan.cover} alt={plan.title[lang]} width={1200} height={800} sizes="(max-width: 760px) 100vw, 400px" />
+                    <Image className="second" src={plan.hover} alt="" width={1200} height={800} sizes="(max-width: 760px) 100vw, 400px" />
                   </div>
                   <span className="eyebrow" style={{ margin: "18px 0 0" }}>{STYLE_LABELS[plan.style][lang]}</span>
                   <h3>{plan.title[lang]}</h3>

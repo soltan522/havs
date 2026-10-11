@@ -8,17 +8,21 @@ Next.js storefront for villa plans and exterior designs (AZ / EN / RU). Deployed
    The slug is the folder name used below.
 2. **Private files** — upload the sellable files to the Supabase bucket `plans-private` (Public OFF) with the keys from `files`:
    `<slug>/plan.pdf`, `<slug>/plan.dwg`, `<slug>/plan.cad`. Never commit these files.
-3. **Preview images** — put the original renders in `private-assets/<slug>/` (this folder is git-ignored), then run:
+3. **Preview images** — put the drawings/renders you want to show (watermarked) in `private-assets/<slug>/`
+   (git-ignored), and optional unwatermarked concept visualisations in `renders/<slug>/` (committed). Then run:
    ```bash
    npm run previews
    ```
-   This writes watermarked JPEGs to `public/plans/<slug>/` and updates `lib/previews.generated.ts`. Plans without originals get a neutral placeholder.
-   Commit `public/plans/` and `lib/previews.generated.ts`.
+   This writes JPEGs to `public/plans/<slug>/` and updates `lib/previews.generated.ts`: renders first (the first one
+   becomes the catalogue card), then the watermarked images — or, for plans without private originals, the generated
+   concept sheets. Commit `public/plans/`, `renders/` and `lib/previews.generated.ts`.
 4. Set `published: true` and `demo: false` on the plan and deploy.
 
-Plans with `demo: true` are sample projects: they show generated concept sheets (axonometric, elevation,
-floor plans — see `scripts/drawings.mjs`) and a "contact to order" button. Checkout refuses them, so a
-sample can never be sold without real files behind it.
+Plans with `demo: true` are sample projects: they show a concept visualisation plus generated concept sheets
+(site plan, floor plans, rendered south elevation with material schedule, isometric — see `scripts/drawings.mjs`)
+and a "contact to order" button. Checkout refuses them, so a sample can never be sold without real files behind it.
+
+The sample visualisations in `renders/` are AI-generated concept images (Figma AI) and are labelled as such on the site.
 
 ## Local development
 

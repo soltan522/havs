@@ -36,7 +36,7 @@ export const LANDING: Record<Locale, Landing> = {
     ctaSecondary: "Necə işləyir",
     scroll: "Aşağı",
     stats: { plans: "layihə", formats: "format", languages: "dil" },
-    marquee: ["Villa planları", "Exterior dizayn", "Aksonometriya", "Fasad", "DWG", "CAD", "PDF"],
+    marquee: ["Lüks villalar", "Exterior vizualizasiya", "Baş plan", "Fasad", "Aksonometriya", "DWG", "CAD", "PDF"],
     statement:
       "Biz evi kağız üzərində başlayırıq: düzgün plan, dəqiq ölçü və işığa açıq məkanlar. Hər layihə yaşamaq üçün düşünülüb — sonra isə sizin torpağınıza uyğunlaşdırılır.",
     featuredEyebrow: "Seçilmiş layihələr",
@@ -45,7 +45,7 @@ export const LANDING: Record<Locale, Landing> = {
     processEyebrow: "Proses",
     processTitle: ["Plandan", "evə qədər"],
     steps: [
-      { title: "Layihəni seçin", text: "Üslub, sahə və mərtəbə sayına görə kataloqa baxın. Hər layihədə aksonometriya, fasad və planlar var." },
+      { title: "Layihəni seçin", text: "Üslub, sahə və mərtəbə sayına görə kataloqa baxın. Hər layihədə vizualizasiya, baş plan, mərtəbə planları, fasad və aksonometriya var." },
       { title: "Uyğunlaşdırın", text: "Torpaq sahəniz, iqlim və ehtiyaclarınıza görə dəyişikliklər üçün memarlarımızla əlaqə saxlayın." },
       { title: "Faylları alın", text: "Tam paket — PDF çertyojlar, redaktə edilə bilən DWG və CAD faylları — sifariş səhifənizdə." },
     ],
@@ -71,7 +71,7 @@ export const LANDING: Record<Locale, Landing> = {
     ctaSecondary: "How it works",
     scroll: "Scroll",
     stats: { plans: "projects", formats: "formats", languages: "languages" },
-    marquee: ["Villa plans", "Exterior design", "Axonometric", "Elevation", "DWG", "CAD", "PDF"],
+    marquee: ["Luxury villas", "Exterior visualisation", "Site plan", "Elevation", "Axonometric", "DWG", "CAD", "PDF"],
     statement:
       "We start every home on paper: a sound plan, precise dimensions and rooms open to daylight. Each project is designed to be lived in — and then adapted to your site.",
     featuredEyebrow: "Featured projects",
@@ -80,7 +80,7 @@ export const LANDING: Record<Locale, Landing> = {
     processEyebrow: "Process",
     processTitle: ["From plan", "to home"],
     steps: [
-      { title: "Choose a project", text: "Browse by style, area and number of floors. Every project includes an axonometric view, elevation and plans." },
+      { title: "Choose a project", text: "Browse by style, area and number of floors. Every project includes a visualisation, site plan, floor plans, elevation and axonometric view." },
       { title: "Adapt it", text: "Talk to our architects about changes for your site, climate and brief." },
       { title: "Get the files", text: "The full package — PDF drawings plus editable DWG and CAD files — on your order page." },
     ],
@@ -106,7 +106,7 @@ export const LANDING: Record<Locale, Landing> = {
     ctaSecondary: "Как это работает",
     scroll: "Вниз",
     stats: { plans: "проектов", formats: "формата", languages: "языка" },
-    marquee: ["Проекты вилл", "Экстерьер", "Аксонометрия", "Фасад", "DWG", "CAD", "PDF"],
+    marquee: ["Виллы люкс", "Визуализация экстерьера", "Генплан", "Фасад", "Аксонометрия", "DWG", "CAD", "PDF"],
     statement:
       "Мы начинаем каждый дом на бумаге: продуманный план, точные размеры и помещения, открытые свету. Каждый проект создан для жизни — а затем адаптируется под ваш участок.",
     featuredEyebrow: "Избранные проекты",
@@ -115,7 +115,7 @@ export const LANDING: Record<Locale, Landing> = {
     processEyebrow: "Процесс",
     processTitle: ["От плана", "до дома"],
     steps: [
-      { title: "Выберите проект", text: "Фильтруйте по стилю, площади и этажности. В каждом проекте — аксонометрия, фасад и планы." },
+      { title: "Выберите проект", text: "Фильтруйте по стилю, площади и этажности. В каждом проекте — визуализация, генплан, планы этажей, фасад и аксонометрия." },
       { title: "Адаптируйте", text: "Обсудите с нашими архитекторами изменения под ваш участок, климат и задачи." },
       { title: "Получите файлы", text: "Полный пакет — чертежи PDF и редактируемые файлы DWG и CAD — на странице заказа." },
     ],

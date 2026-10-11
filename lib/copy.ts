@@ -4,8 +4,10 @@ import type { Locale } from "./i18n";
 export const COPY = {
   az: {
     view: "Bax",
+    zoom: "Böyüt",
+    close: "Bağla",
     catalogTitle: "Planlar kataloqu",
-    catalogLead: "Villa və ev layihələri — hər biri aksonometriya, fasad və mərtəbə planları ilə.",
+    catalogLead: "Lüks villa layihələri — hər biri konsept vizualizasiya, baş plan, mərtəbə planları, fasad və aksonometriya ilə.",
     allStyles: "Hamısı",
     floorsLabel: "Mərtəbə",
     anyFloors: "Hər hansı",
@@ -22,16 +24,18 @@ export const COPY = {
     no: "Yoxdur",
     sampleBadge: "Nümunə layihə",
     sampleNote:
-      "Bu nümunə konsept layihədir: vərəqlər konsept mərhələsinə aiddir və tikinti üçün nəzərdə tutulmayıb. Qiymət tam paket (PDF, DWG, CAD) üçün bazar qiymətlərinə əsasən göstərilib. Sifariş və fərdiləşdirmə üçün bizimlə əlaqə saxlayın.",
+      "Bu nümunə konsept layihədir: vizualizasiya ideyanı göstərir, vərəqlər konsept mərhələsinə aiddir və tikinti üçün nəzərdə tutulmayıb. Qiymət tam paket (PDF, DWG, CAD) üçün bazar qiymətlərinə əsasən göstərilib. Sifariş və fərdiləşdirmə üçün bizimlə əlaqə saxlayın.",
     contactToOrder: "Sifariş üçün əlaqə",
     sheets: "Konsept vərəqləri",
-    sheetNames: ["Aksonometriya", "Ön fasad", "Birinci mərtəbə planı", "Yuxarı mərtəbə planı"],
+    sheetNames: { render: "Konsept vizualizasiya", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı"] },
     priceFrom: "Paket qiyməti",
   },
   en: {
     view: "View",
+    zoom: "Zoom",
+    close: "Close",
     catalogTitle: "Plan catalogue",
-    catalogLead: "Villa and house projects — each with an axonometric view, front elevation and floor plans.",
+    catalogLead: "Luxury villa projects — each with a concept visualisation, site plan, floor plans, elevation and axonometric view.",
     allStyles: "All",
     floorsLabel: "Floors",
     anyFloors: "Any",
@@ -48,16 +52,18 @@ export const COPY = {
     no: "No",
     sampleBadge: "Sample project",
     sampleNote:
-      "This is a sample concept project: the sheets are concept-stage drawings and not for construction. The price reflects the full package (PDF, DWG, CAD) based on market rates. Contact us to order or customise it.",
+      "This is a sample concept project: the visualisation illustrates the design intent and the sheets are concept-stage drawings, not for construction. The price reflects the full package (PDF, DWG, CAD) based on market rates. Contact us to order or customise it.",
     contactToOrder: "Contact to order",
     sheets: "Concept sheets",
-    sheetNames: ["Axonometric", "Front elevation", "Ground floor plan", "Upper floor plan"],
+    sheetNames: { render: "Concept visualisation", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", plans: ["Ground floor plan", "First floor plan", "Second floor plan"] },
     priceFrom: "Package price",
   },
   ru: {
     view: "Смотреть",
+    zoom: "Увеличить",
+    close: "Закрыть",
     catalogTitle: "Каталог проектов",
-    catalogLead: "Проекты вилл и домов — с аксонометрией, фасадом и планами этажей.",
+    catalogLead: "Проекты вилл класса люкс — с концептуальной визуализацией, генпланом, планами этажей, фасадом и аксонометрией.",
     allStyles: "Все",
     floorsLabel: "Этажи",
     anyFloors: "Любые",
@@ -74,13 +80,21 @@ export const COPY = {
     no: "Нет",
     sampleBadge: "Пример проекта",
     sampleNote:
-      "Это пример концептуального проекта: листы относятся к стадии концепции и не предназначены для строительства. Цена указана за полный пакет (PDF, DWG, CAD) по рыночным ставкам. Свяжитесь с нами, чтобы заказать или адаптировать проект.",
+      "Это пример концептуального проекта: визуализация показывает замысел, а листы относятся к стадии концепции и не предназначены для строительства. Цена указана за полный пакет (PDF, DWG, CAD) по рыночным ставкам. Свяжитесь с нами, чтобы заказать или адаптировать проект.",
     contactToOrder: "Связаться для заказа",
     sheets: "Концептуальные листы",
-    sheetNames: ["Аксонометрия", "Главный фасад", "План первого этажа", "План верхнего этажа"],
+    sheetNames: { render: "Концептуальная визуализация", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", plans: ["План первого этажа", "План второго этажа", "План третьего этажа"] },
     priceFrom: "Цена пакета",
   },
 } satisfies Record<Locale, unknown>;
+
+type SheetNames = { render: string; image: string; site: string; elevation: string; axonometric: string; plans: string[] };
+
+/** Human name of a gallery item, e.g. "First floor plan" for kind "plan-1". */
+export function sheetName(names: SheetNames, kind: string): string {
+  if (kind.startsWith("plan-")) return names.plans[Number(kind.slice(5))] ?? names.plans[names.plans.length - 1];
+  return names[kind as keyof Omit<SheetNames, "plans">] ?? kind;
+}
 
 /** "2 floors" / "1 floor" in the current language (AZ and RU labels do not change for the counts we use). */
 export function floorsText(lang: Locale, n: number, label: string): string {

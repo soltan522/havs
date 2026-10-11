@@ -1,19 +1,22 @@
 // Builds public preview images for every plan in data/plans.json.
-//   private-assets/<slug>/*.jpg|png|webp  ->  public/plans/<slug>/NN.jpg  (watermarked, max 1600px)
-// Plans without originals get generated concept sheets (see scripts/drawings.mjs):
-//   01 axonometric massing, 02 front elevation, 03+ floor plans.
-// Also writes lib/previews.generated.ts so the site knows each plan's gallery.
+//   renders/<slug>/*.jpg|png|webp         ->  public/plans/<slug>/render-NN.jpg  (concept visualisations, no watermark)
+//   private-assets/<slug>/*.jpg|png|webp  ->  public/plans/<slug>/NN.jpg         (real drawings/renders, watermarked)
+// Plans without private originals also get generated concept sheets (see scripts/drawings.mjs):
+//   A-001 site plan, A-101+ floor plans, A-201 south elevation, A-301 axonometric.
+// Also writes lib/previews.generated.ts so the site knows each plan's gallery and card images.
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, SHEET_H, SHEET_W } from "./drawings.mjs";
+import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, sitePlanSheet, SHEET_H, SHEET_W } from "./drawings.mjs";
 
 const root = process.cwd();
 const SOURCE = path.join(root, "private-assets");
+const RENDERS = path.join(root, "renders");
 const OUT = path.join(root, "public", "plans");
 const GENERATED = path.join(root, "lib", "previews.generated.ts");
 const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
+const CARD = { width: 1200, height: 800 };
 
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
 
@@ -41,58 +44,71 @@ async function writePreview(input, outFile) {
     .toFile(outFile);
 }
 
+const listImages = async (dir) => (existsSync(dir) ? (await readdir(dir)).filter((f) => IMAGE_EXT.test(f)).sort() : []);
 const render = (svg, file) => sharp(svg, { density: 96 }).jpeg({ quality: 88, mozjpeg: true }).toFile(file);
+const card = (input, file) => sharp(input, { density: 72 }).resize({ ...CARD, fit: "cover", position: "centre" }).jpeg({ quality: 84, mozjpeg: true }).toFile(file);
 
 const generated = {};
 for (const plan of plans) {
   const { slug } = plan;
-  const srcDir = path.join(SOURCE, slug);
   const outDir = path.join(OUT, slug);
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
+  const url = (f) => `/plans/${slug}/${f}`;
+  const items = [];
 
-  const sources = existsSync(srcDir) ? (await readdir(srcDir)).filter((f) => IMAGE_EXT.test(f)).sort() : [];
-  const files = [];
-  const covers = [];
-  if (sources.length === 0) {
-    const model = buildModel(plan);
-    const sheets = [axonometricSheet(model, "A-001"), elevationSheet(model, "A-201")];
-    model.levels.forEach((_, i) => sheets.push(floorPlanSheet(model, i, `A-10${i + 1}`)));
-    for (const [i, svg] of sheets.entries()) {
-      const file = `${String(i + 1).padStart(2, "0")}.jpg`;
-      await render(svg, path.join(outDir, file));
-      files.push(file);
-    }
-    // card covers: the same drawings centred on a plain sheet, without frame or title block
-    for (const [name, svg] of [["cover.jpg", axonometricSheet(model, "", true)], ["cover-2.jpg", elevationSheet(model, "", true)]]) {
-      await sharp(svg, { density: 72 }).resize(1200, 900).jpeg({ quality: 86, mozjpeg: true }).toFile(path.join(outDir, name));
-      covers.push(name);
-    }
-  } else {
+  // 1. concept visualisations (renders/<slug>)
+  const renders = await listImages(path.join(RENDERS, slug));
+  for (const [i, name] of renders.entries()) {
+    const file = `render-${String(i + 1).padStart(2, "0")}.jpg`;
+    await sharp(path.join(RENDERS, slug, name))
+      .rotate()
+      .resize({ width: SHEET_W, height: SHEET_H, fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 86, mozjpeg: true })
+      .toFile(path.join(outDir, file));
+    items.push({ src: url(file), kind: "render" });
+  }
+
+  // 2. real material (watermarked) or generated concept sheets
+  const sources = await listImages(path.join(SOURCE, slug));
+  const model = buildModel(plan);
+  if (sources.length) {
     for (const [i, name] of sources.entries()) {
       const file = `${String(i + 1).padStart(2, "0")}.jpg`;
-      await writePreview(path.join(srcDir, name), path.join(outDir, file));
-      files.push(file);
+      await writePreview(path.join(SOURCE, slug, name), path.join(outDir, file));
+      items.push({ src: url(file), kind: "image" });
+    }
+  } else {
+    const sheets = [["site", sitePlanSheet(model, "A-001")]];
+    model.levels.forEach((_, i) => sheets.push([`plan-${i}`, floorPlanSheet(model, i, `A-10${i + 1}`)]));
+    sheets.push(["elevation", elevationSheet(model, "A-201")], ["axonometric", axonometricSheet(model, "A-301")]);
+    for (const [i, [kind, svg]] of sheets.entries()) {
+      const file = `sheet-${String(i + 1).padStart(2, "0")}.jpg`;
+      await render(svg, path.join(outDir, file));
+      items.push({ src: url(file), kind });
     }
   }
-  const url = (f) => `/plans/${slug}/${f}`;
-  generated[slug] = {
-    cover: url(covers[0] ?? files[0]),
-    hover: url(covers[1] ?? files[1] ?? files[0]),
-    sheets: files.map(url),
-  };
-  console.log(`${slug}: ${sources.length ? `${sources.length} watermarked render(s)` : `${files.length} concept sheets`}`);
+
+  // 3. card images: the first render (or first image), and the rendered elevation on hover
+  const coverSrc = renders.length ? path.join(RENDERS, slug, renders[0]) : sources.length ? path.join(SOURCE, slug, sources[0]) : null;
+  if (coverSrc) await card(coverSrc, path.join(outDir, "cover.jpg"));
+  else await card(elevationSheet(model, "", true), path.join(outDir, "cover.jpg"));
+  await card(elevationSheet(model, "", true), path.join(outDir, "cover-2.jpg"));
+
+  generated[slug] = { cover: url("cover.jpg"), hover: url("cover-2.jpg"), sheets: items };
+  console.log(`${slug}: ${renders.length} render(s), ${sources.length ? `${sources.length} watermarked image(s)` : `${items.length - renders.length} concept sheets`}`);
 }
 
-// Folders in private-assets with no plan entry are probably typos.
-if (existsSync(SOURCE)) {
-  for (const dir of await readdir(SOURCE)) {
-    if (!plans.some((p) => p.slug === dir)) console.warn(`warning: private-assets/${dir} has no matching plan in data/plans.json`);
+// Folders with no plan entry are probably typos.
+for (const dir of [SOURCE, RENDERS]) {
+  if (!existsSync(dir)) continue;
+  for (const name of await readdir(dir)) {
+    if (!plans.some((p) => p.slug === name) && !name.includes(".")) console.warn(`warning: ${path.relative(root, dir)}/${name} has no matching plan in data/plans.json`);
   }
 }
 
 await writeFile(
   GENERATED,
-  `// Generated by scripts/build-previews.mjs — do not edit by hand.\nexport const PREVIEWS: Record<string, { cover: string; hover: string; sheets: string[] }> = ${JSON.stringify(generated, null, 2)};\n`,
+  `// Generated by scripts/build-previews.mjs — do not edit by hand.\nexport type SheetKind = "render" | "image" | "site" | "elevation" | "axonometric" | \`plan-\${number}\`;\nexport const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { src: string; kind: SheetKind }[] }> = ${JSON.stringify(generated, null, 2)};\n`,
 );
 console.log("wrote", path.relative(root, GENERATED));

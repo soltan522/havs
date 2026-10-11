@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
-import HeroBlueprint from "@/components/HeroBlueprint";
 import Counter from "@/components/motion/Counter";
 import HorizontalGallery from "@/components/motion/HorizontalGallery";
 import ProcessBlueprint from "@/components/motion/ProcessBlueprint";
@@ -21,6 +20,7 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
   const c = COPY[lang];
   const plans = publishedPlans();
   const featured = plans.slice(0, 6);
+  const heroPlan = plans.find((p) => p.gallery[0]?.kind === "render") ?? plans[0];
   const styles = Object.keys(STYLE_LABELS) as PlanStyle[];
   const styleCounts = styles.map((s) => ({ s, n: plans.filter((p) => p.style === s).length })).filter((x) => x.n > 0);
   const marquee = [...t.marquee, ...t.marquee];
@@ -30,8 +30,12 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
       <Header locale={lang} path="" overDark />
 
       <section className="hero">
+        {heroPlan?.gallery[0] && (
+          <div className="hero-media" aria-hidden="true">
+            <Image src={heroPlan.gallery[0].src} alt="" fill priority sizes="100vw" />
+          </div>
+        )}
         <div className="hero-grid" aria-hidden="true" />
-        <div className="hero-glow" aria-hidden="true" />
         <div className="wrap hero-inner intro-anim">
           <div>
             <p className="eyebrow fade-in" style={{ ["--i" as string]: 0 }}>{t.eyebrow}</p>
@@ -53,10 +57,13 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
               <div className="stat"><b><Counter to={3} delay={2000} /></b><span>{t.stats.languages}</span></div>
             </div>
           </div>
-          <div className="hero-drawing">
-            <HeroBlueprint />
-          </div>
         </div>
+        {heroPlan && (
+          <Link className="hero-caption" href={`/${lang}/plans/${heroPlan.slug}`}>
+            <span>{heroPlan.title[lang]}</span>
+            <small>{STYLE_LABELS[heroPlan.style][lang]} · {heroPlan.areaM2} m² · {c.sheetNames.render}</small>
+          </Link>
+        )}
         <div className="scroll-cue" aria-hidden="true"><span>{t.scroll}</span><i /></div>
       </section>
 
@@ -90,7 +97,7 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
           <Link key={plan.slug} href={`/${lang}/plans/${plan.slug}`} className="hcard" data-cursor={c.view}>
             <Reveal variant="clip" delay={i * 90}>
               <div className="media">
-                <Image src={coverOf(plan)} alt={plan.title[lang]} width={1200} height={900} sizes="(max-width: 900px) 78vw, 520px" />
+                <Image src={coverOf(plan)} alt={plan.title[lang]} width={1200} height={800} sizes="(max-width: 900px) 78vw, 520px" />
                 <span className="tag">{STYLE_LABELS[plan.style][lang]}</span>
               </div>
             </Reveal>

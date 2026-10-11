@@ -4,46 +4,46 @@
     "style": "modern",
     "roof": "flat",
     "title": {
-      "az": "Müasir villa — 01",
-      "en": "Modern Villa — 01",
-      "ru": "Современная вилла — 01"
+      "az": "Ağ Villa",
+      "en": "White Villa",
+      "ru": "Белая вилла"
     },
     "summary": {
-      "az": "İki mərtəbəli, panoramik şüşəli və konsol çıxıntılı müasir villa. Açıq qonaq-mətbəx zonası, ikinci mərtəbədə dörd yataq otağı.",
-      "en": "Two-storey modern villa with panoramic glazing and a cantilevered upper volume. Open living-kitchen space, four bedrooms upstairs.",
-      "ru": "Двухэтажная современная вилла с панорамным остеклением и консольным вторым этажом. Открытая гостиная-кухня, четыре спальни наверху."
+      "az": "Ağ suvaq, travertin üzlük və tunc rəngli alüminium çərçivələr. Konsol çıxıntılı damlar, ikinci mərtəbədə şüşə məhəccərli geniş terras, hovuza açılan panoramik qonaq-mətbəx zonası və iki maşınlıq qaraj.",
+      "en": "White render, travertine cladding and bronze aluminium frames. Cantilevered roof slabs, a wide upper terrace with frameless glass balustrades, a panoramic living-kitchen space opening onto the pool and a double garage.",
+      "ru": "Белая штукатурка, облицовка травертином и бронзовые алюминиевые рамы. Консольные плиты кровли, просторная терраса второго этажа со стеклянным ограждением, панорамная гостиная-кухня с выходом к бассейну и гараж на две машины."
     },
-    "areaM2": 240,
+    "areaM2": 380,
     "floors": 2,
-    "bedrooms": 4,
-    "bathrooms": 3,
+    "bedrooms": 5,
+    "bathrooms": 5,
     "garage": true,
-    "pool": false,
-    "priceCents": 89000,
+    "pool": true,
+    "priceCents": 189000,
     "published": true,
     "demo": true
   },
   {
     "slug": "classic-villa-02",
-    "style": "classic",
+    "style": "tuscan",
     "roof": "hip",
     "title": {
-      "az": "Klassik villa — 02",
-      "en": "Classic Villa — 02",
-      "ru": "Классическая вилла — 02"
+      "az": "Siena Villa",
+      "en": "Siena Villa",
+      "ru": "Вилла Сиена"
     },
     "summary": {
-      "az": "Simmetrik fasadlı, dördtərəfli damlı bir mərtəbəli klassik villa. Mərkəzi hol və bağa açılan geniş terras.",
-      "en": "Single-storey classic villa with a symmetric facade and hip roof. Central hall and a wide terrace opening to the garden.",
-      "ru": "Одноэтажная классическая вилла с симметричным фасадом и вальмовой крышей. Центральный холл и широкая терраса в сад."
+      "az": "Toskana üslubunda iki mərtəbəli villa: bal rəngli təbii daş, terrakota kirəmitli dörd maili dam, birinci mərtəbədə tağlı lociya və taxta jalüzlər. Travertin döşəməli hovuz terrası və qaraj.",
+      "en": "A two-storey Tuscan villa: honey-coloured natural stone, a terracotta-tiled hip roof, an arched ground-floor loggia and timber shutters. Travertine pool terrace and an attached garage.",
+      "ru": "Двухэтажная вилла в тосканском стиле: натуральный камень медового оттенка, вальмовая кровля из терракотовой черепицы, арочная лоджия на первом этаже и деревянные ставни. Терраса у бассейна из травертина и гараж."
     },
-    "areaM2": 180,
-    "floors": 1,
-    "bedrooms": 3,
-    "bathrooms": 2,
-    "garage": false,
-    "pool": false,
-    "priceCents": 59000,
+    "areaM2": 340,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": true,
+    "priceCents": 179000,
     "published": true,
     "demo": true
   },
@@ -52,22 +52,22 @@
     "style": "minimal",
     "roof": "flat",
     "title": {
-      "az": "Kub — 03",
-      "en": "Cube — 03",
-      "ru": "Куб — 03"
+      "az": "Kub Villa",
+      "en": "Cube Villa",
+      "ru": "Вилла Куб"
     },
     "summary": {
-      "az": "Kompakt kub formalı minimalist ev. Az sahədə maksimum işıq, damda istirahət terrası.",
-      "en": "Compact minimalist cube house. Maximum daylight on a small footprint, with a roof terrace.",
-      "ru": "Компактный минималистичный дом-куб. Максимум света на небольшой площади, терраса на крыше."
+      "az": "Təmiz həndəsə: ağ suvaq, dərinə çəkilmiş tavandan-döşəməyə şüşələr və şüşə məhəccərli dam terrası. Ön tərəfdə travertin döşəməli uzun üzgüçülük hovuzu.",
+      "en": "Pure geometry: white render, deeply recessed floor-to-ceiling glazing and a roof terrace with a glass balustrade. A long lap pool on a limestone deck in front of the house.",
+      "ru": "Чистая геометрия: белая штукатурка, глубоко утопленное остекление в пол и терраса на кровле со стеклянным ограждением. Длинный плавательный бассейн на известняковом настиле перед домом."
     },
-    "areaM2": 145,
+    "areaM2": 240,
     "floors": 2,
-    "bedrooms": 3,
-    "bathrooms": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
     "garage": false,
-    "pool": false,
-    "priceCents": 49000,
+    "pool": true,
+    "priceCents": 129000,
     "published": true,
     "demo": true
   },
@@ -76,46 +76,46 @@
     "style": "coastal",
     "roof": "flat",
     "title": {
-      "az": "Xəzər — 04",
-      "en": "Caspian — 04",
-      "ru": "Каспий — 04"
+      "az": "Xəzər Villa",
+      "en": "Caspian Villa",
+      "ru": "Вилла Каспий"
     },
     "summary": {
-      "az": "Dəniz kənarı üçün geniş terraslı villa. Hər yataq otağından mənzərə, hovuz və qaraj.",
-      "en": "Seaside villa with wide terraces. Views from every bedroom, a pool and a garage.",
-      "ru": "Вилла у моря с широкими террасами. Вид из каждой спальни, бассейн и гараж."
+      "az": "Dəniz kənarı üçün villa: ağ fasadlar, tik ağacından şaquli lamellər, dərin çıxıntılı nazik dam lövhələri altında örtülü terraslar və dənizə baxan sonsuz hovuz. İki maşınlıq qaraj.",
+      "en": "A beachfront villa: white facades, vertical teak louvres, covered terraces under thin, deeply overhanging roof slabs and an infinity pool facing the sea. Double garage.",
+      "ru": "Вилла у моря: белые фасады, вертикальные ламели из тика, крытые террасы под тонкими плитами с глубоким выносом и инфинити-бассейн с видом на море. Гараж на две машины."
     },
-    "areaM2": 320,
+    "areaM2": 420,
     "floors": 2,
     "bedrooms": 5,
-    "bathrooms": 4,
+    "bathrooms": 5,
     "garage": true,
     "pool": true,
-    "priceCents": 119000,
+    "priceCents": 219000,
     "published": true,
     "demo": true
   },
   {
     "slug": "sahdag-05",
     "style": "chalet",
-    "roof": "aframe",
+    "roof": "frontgable",
     "title": {
-      "az": "Şahdağ — 05",
-      "en": "Shahdag — 05",
-      "ru": "Шахдаг — 05"
+      "az": "Şahdağ Şale",
+      "en": "Shahdag Chalet",
+      "ru": "Шале Шахдаг"
     },
     "summary": {
-      "az": "Dağ kurortları üçün A-formalı şale. Hündür tavanlı qonaq otağı və antresol yataq.",
-      "en": "A-frame chalet for mountain retreats. Double-height living room and a mezzanine bedroom.",
-      "ru": "Шале A-образной формы для горного отдыха. Гостиная со вторым светом и спальня на антресоли."
+      "az": "Dağ şalesi: birinci mərtəbə təbii boz daşdan, ikinci mərtəbə tünd taxta üzlükdən, tünd metal örtüklü dik iki maili dam və fronton boyu panoramik şüşə. Şüşə məhəccərli taxta balkon.",
+      "en": "A mountain chalet: natural grey stone at ground level, dark timber cladding above, a steep standing-seam gable roof and full-height glazing in the gable end. Timber balcony with a glass balustrade.",
+      "ru": "Горное шале: натуральный серый камень на первом этаже, тёмная деревянная обшивка выше, крутая двускатная фальцевая кровля и остекление на всю высоту фронтона. Деревянный балкон со стеклянным ограждением."
     },
-    "areaM2": 120,
+    "areaM2": 230,
     "floors": 2,
-    "bedrooms": 2,
-    "bathrooms": 1,
+    "bedrooms": 4,
+    "bathrooms": 4,
     "garage": false,
     "pool": false,
-    "priceCents": 39000,
+    "priceCents": 119000,
     "published": true,
     "demo": true
   },
@@ -124,22 +124,22 @@
     "style": "farmhouse",
     "roof": "gable",
     "title": {
-      "az": "Bağ evi — 06",
-      "en": "Garden House — 06",
-      "ru": "Садовый дом — 06"
+      "az": "Toskana Bağ Evi",
+      "en": "Tuscan Farmhouse",
+      "ru": "Тосканская усадьба"
     },
     "summary": {
-      "az": "İkiyamaclı damlı bir mərtəbəli ailə evi. Örtülü veranda, böyük mətbəx və qaraj.",
-      "en": "Single-storey family house with a gable roof. Covered veranda, large kitchen and a garage.",
-      "ru": "Одноэтажный семейный дом с двускатной крышей. Крытая веранда, большая кухня и гараж."
+      "az": "Uzun, alçaq, bir mərtəbəli bağ evi: kobud təbii daş divarlar, terrakota kirəmitli iki maili dam və ön terras boyu üzüm tənəkli taxta perqola. Hovuz, zeytun bağı və qaraj.",
+      "en": "A long, low single-storey farmhouse: rough natural stone walls, a terracotta-tiled gable roof and a timber pergola with climbing vines along the front terrace. Pool, olive grove setting and garage.",
+      "ru": "Длинная низкая одноэтажная усадьба: стены из грубого натурального камня, двускатная кровля из терракотовой черепицы и деревянная пергола с виноградом вдоль террасы. Бассейн, оливковая роща и гараж."
     },
-    "areaM2": 160,
+    "areaM2": 260,
     "floors": 1,
     "bedrooms": 3,
     "bathrooms": 2,
     "garage": true,
-    "pool": false,
-    "priceCents": 52000,
+    "pool": true,
+    "priceCents": 139000,
     "published": true,
     "demo": true
   },
@@ -148,46 +148,46 @@
     "style": "luxury",
     "roof": "flat",
     "title": {
-      "az": "Panorama — 07",
-      "en": "Panorama — 07",
-      "ru": "Панорама — 07"
+      "az": "Panorama Villa",
+      "en": "Panorama Villa",
+      "ru": "Вилла Панорама"
     },
     "summary": {
-      "az": "Üç səviyyəli lüks villa: zirzəmidə SPA və kinozal, sonsuz hovuz, iki maşınlıq qaraj.",
-      "en": "Three-level luxury villa: basement spa and cinema, infinity pool, two-car garage.",
-      "ru": "Трёхуровневая люкс-вилла: спа и кинозал в цоколе, бассейн-инфинити, гараж на две машины."
+      "az": "Yamac üçün üç səviyyəli villa: ağ suvaq və tünd boz təbii daş, konsol çıxıntılı yuxarı həcm, sonsuz hovuz və bağa açılan aşağı səviyyədə SPA və kinozal. İki maşınlıq qaraj.",
+      "en": "A three-level villa for a sloping site: white render with dark grey natural stone, a cantilevered upper volume, an infinity pool and a garden-level spa and cinema. Double garage.",
+      "ru": "Трёхуровневая вилла для участка на склоне: белая штукатурка и тёмно-серый натуральный камень, консольный верхний объём, инфинити-бассейн и нижний уровень со SPA и кинозалом с выходом в сад. Гараж на две машины."
     },
-    "areaM2": 420,
+    "areaM2": 560,
     "floors": 3,
     "bedrooms": 6,
-    "bathrooms": 5,
+    "bathrooms": 6,
     "garage": true,
     "pool": true,
-    "priceCents": 149000,
+    "priceCents": 269000,
     "published": true,
     "demo": true
   },
   {
-    "slug": "mini-08",
-    "style": "compact",
-    "roof": "shed",
+    "slug": "pavilyon-08",
+    "style": "pavilion",
+    "roof": "flat",
     "title": {
-      "az": "Mini — 08",
-      "en": "Mini — 08",
-      "ru": "Мини — 08"
+      "az": "Pavilyon Villa",
+      "en": "Pavilion Villa",
+      "ru": "Вилла Павильон"
     },
     "summary": {
-      "az": "Birtərəfli damlı kompakt ev. Gənc ailə və ya bağ evi üçün qənaətli həll.",
-      "en": "Compact house with a mono-pitch roof. An economical choice for a young family or a weekend home.",
-      "ru": "Компактный дом с односкатной крышей. Экономичное решение для молодой семьи или дачи."
+      "az": "Bir mərtəbəli üfüqi villa: nazik polad sütunlara söykənən dərin konsollu yastı dam, tam şüşə divarlar və içəridən terrasa davam edən travertin döşəmə. Ön tərəfdə uzun hovuz.",
+      "en": "A single-storey horizontal villa: a flat roof with a deep cantilever on slender steel columns, full-height glass walls and a travertine floor that runs from inside onto the terrace. A long pool in front.",
+      "ru": "Одноэтажная горизонтальная вилла: плоская кровля с глубоким выносом на тонких стальных колоннах, стеклянные стены на всю высоту и травертиновый пол, переходящий на террасу. Длинный бассейн перед домом."
     },
-    "areaM2": 85,
+    "areaM2": 210,
     "floors": 1,
-    "bedrooms": 2,
-    "bathrooms": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
     "garage": false,
-    "pool": false,
-    "priceCents": 29000,
+    "pool": true,
+    "priceCents": 109000,
     "published": true,
     "demo": true
   },
@@ -196,22 +196,22 @@
     "style": "mediterranean",
     "roof": "hip",
     "title": {
-      "az": "Abşeron — 09",
-      "en": "Absheron — 09",
-      "ru": "Апшерон — 09"
+      "az": "Abşeron Villa",
+      "en": "Absheron Villa",
+      "ru": "Вилла Абшерон"
     },
     "summary": {
-      "az": "Aralıq dənizi üslubunda kirəmit damlı villa. Daxili həyət, tağlı qalereya və hovuz.",
-      "en": "Mediterranean-style villa with a tiled roof. Inner courtyard, arched gallery and a pool.",
-      "ru": "Вилла в средиземноморском стиле с черепичной крышей. Внутренний двор, арочная галерея и бассейн."
+      "az": "Aralıq dənizi üslubunda villa: ağ hamar suvaq, terrakota kirəmitli dörd maili dam, tağlı pəncərələr və döymə dəmir balkonlar. Qum daşı döşəməli hovuz terrası və qaraj.",
+      "en": "A Mediterranean villa: smooth white stucco, a terracotta-tiled hip roof, arched windows and wrought-iron balconies. Sandstone pool terrace and an attached garage.",
+      "ru": "Средиземноморская вилла: гладкая белая штукатурка, вальмовая кровля из терракотовой черепицы, арочные окна и кованые балконы. Терраса у бассейна из песчаника и гараж."
     },
-    "areaM2": 260,
+    "areaM2": 360,
     "floors": 2,
     "bedrooms": 4,
-    "bathrooms": 3,
+    "bathrooms": 4,
     "garage": true,
     "pool": true,
-    "priceCents": 94000,
+    "priceCents": 179000,
     "published": true,
     "demo": true
   },
@@ -220,22 +220,22 @@
     "style": "duplex",
     "roof": "flat",
     "title": {
-      "az": "Dupleks — 10",
-      "en": "Duplex — 10",
-      "ru": "Дуплекс — 10"
+      "az": "Əkiz Villalar",
+      "en": "Twin Villas",
+      "ru": "Виллы-близнецы"
     },
     "summary": {
-      "az": "İki ailə üçün güzgü planlı dupleks. Hər blokda ayrıca giriş, üç yataq otağı və həyət.",
-      "en": "Mirror-plan duplex for two families. Each unit has its own entrance, three bedrooms and a yard.",
-      "ru": "Дуплекс с зеркальной планировкой на две семьи. В каждом блоке отдельный вход, три спальни и двор."
+      "az": "Güzgü simmetriyalı iki villa: hər biri üç yataq otaqlı, ayrıca girişli və bağlı. Ağ suvaq, tunc rəngli çərçivələr və girişlərdə isti taxta üzlük.",
+      "en": "Two mirrored villas, each with three bedrooms, its own entrance and garden. White render, bronze window frames and warm timber cladding around the entrances.",
+      "ru": "Две зеркальные виллы, в каждой три спальни, отдельный вход и сад. Белая штукатурка, бронзовые рамы и тёплая деревянная обшивка у входов."
     },
-    "areaM2": 300,
+    "areaM2": 340,
     "floors": 2,
     "bedrooms": 6,
     "bathrooms": 4,
     "garage": false,
     "pool": false,
-    "priceCents": 109000,
+    "priceCents": 159000,
     "published": true,
     "demo": true
   }
