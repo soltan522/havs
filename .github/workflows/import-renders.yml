@@ -1,0 +1,29 @@
+name: Import concept renders
+on:
+  push:
+    branches: [render-import]
+    paths: [renders/manifest.json]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install sharp
+        run: mkdir -p /tmp/sharp && cd /tmp/sharp && npm init -y >/dev/null && npm install sharp@0.34.4 >/dev/null
+      - name: Download renders
+        run: node .github/scripts/import-renders.cjs
+        env:
+          SHARP_PATH: /tmp/sharp/node_modules/sharp
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add renders
+          git commit -m "Import concept renders" || exit 0
+          git push
