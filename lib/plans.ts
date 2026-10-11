@@ -1,0 +1,78 @@
+import type { Locale } from "./i18n";
+
+export type LocalizedText = Record<Locale, string>;
+
+export type Plan = {
+  slug: string;
+  title: LocalizedText;
+  summary: LocalizedText;
+  style: string;
+  areaM2: number;
+  floors: number;
+  bedrooms: number;
+  garage: boolean;
+  priceCents: number;
+  image: string;
+  /** Object keys inside the private Supabase bucket, e.g. "villa-01/plan.pdf" */
+  files: { pdf: string; dwg: string; cad: string };
+  published: boolean;
+};
+
+// Demo catalogue. Replace with real plans; keep file keys pointing at the PRIVATE bucket only.
+export const PLANS: Plan[] = [
+  {
+    slug: "modern-villa-01",
+    title: { az: "Müasir villa — 01", en: "Modern Villa — 01", ru: "Современная вилла — 01" },
+    summary: {
+      az: "İki mərtəbəli, panoramik pəncərəli müasir villa layihəsi.",
+      en: "Two-storey modern villa with panoramic glazing.",
+      ru: "Двухэтажная современная вилла с панорамным остеклением.",
+    },
+    style: "modern",
+    areaM2: 240,
+    floors: 2,
+    bedrooms: 4,
+    garage: true,
+    priceCents: 49900,
+    image: "/plans/modern-villa-01.jpg",
+    files: {
+      pdf: "modern-villa-01/plan.pdf",
+      dwg: "modern-villa-01/plan.dwg",
+      cad: "modern-villa-01/plan.cad",
+    },
+    published: true,
+  },
+  {
+    slug: "classic-villa-02",
+    title: { az: "Klassik villa — 02", en: "Classic Villa — 02", ru: "Классическая вилла — 02" },
+    summary: {
+      az: "Simmetrik fasadlı, mənzərəli terraslı klassik villa.",
+      en: "Classic villa with symmetric facade and scenic terrace.",
+      ru: "Классическая вилла с симметричным фасадом и террасой.",
+    },
+    style: "classic",
+    areaM2: 180,
+    floors: 1,
+    bedrooms: 3,
+    garage: false,
+    priceCents: 34900,
+    image: "/plans/classic-villa-02.jpg",
+    files: {
+      pdf: "classic-villa-02/plan.pdf",
+      dwg: "classic-villa-02/plan.dwg",
+      cad: "classic-villa-02/plan.cad",
+    },
+    published: true,
+  },
+];
+
+export const publishedPlans = () => PLANS.filter((p) => p.published);
+export const findPlan = (slug: string) => publishedPlans().find((p) => p.slug === slug);
+
+export function formatPrice(cents: number, locale: Locale, currency: string): string {
+  return new Intl.NumberFormat(locale === "az" ? "az-AZ" : locale === "ru" ? "ru-RU" : "en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
+}
