@@ -5,7 +5,7 @@ import type { Locale } from "@/lib/i18n";
 /** Renders one of the static information pages in the current locale. */
 export default function InfoPage({ page, locale }: { page: InfoPageKey; locale: Locale }) {
   const content = PAGES[page][locale];
-  const email = process.env.CONTACT_EMAIL;
+  const email = process.env.CONTACT_EMAIL ?? "info@havs.dev";
   return (
     <>
       <Header locale={locale} path={`/${page}`} />
