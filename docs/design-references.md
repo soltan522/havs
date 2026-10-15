@@ -90,3 +90,29 @@ in rhythm, slate or lead hip roof with deep eaves, waterfront terrace.
 Contemporary Istanbul villa in white plaster and local stone, flat roofs, roof terrace with Bosphorus view.
 - **style** `minimal` or `absheron`
 - **prompt cues** "white plaster and rough local stone", "roof terrace with a view", "cypress and olive"
+
+---
+
+Families for **multi-unit projects** (`"project"` in `data/plans.json`, see `docs/daily-villas.md`):
+
+### baku-townhouse — Baku hillside townhouse terrace
+Terraces of two-storey family townhouses in Baku's green hillside suburbs: clinker brick, thin white slab bands,
+floor-to-ceiling bronze-framed glazing, oak around the front doors, front courts with parking, private rear gardens.
+- **style** `townhouse` with `"project": { "kind": "row", "units": 4–8 }`
+- **prompt cues** "terrace of N attached two-storey townhouses", "warm red clinker brick", "white slab bands",
+  "front doors in mirrored pairs", "tree-lined residential street", "private rear gardens", "pocket park"
+
+### caucasus-farmstead — Caucasus foothill farm estate
+Stone farmhouses of the İsmayıllı and Şamaxı foothills: rough river stone, terracotta gable roofs, oak pergolas
+with vines, a stone winery barn, orchards and vineyards, walnut and cypress trees.
+- **style** `farmhouse` (or `tuscan` / `mediterranean`) with `"project": { "kind": "farm", "units": 3–6 }`
+- **prompt cues** "N single-storey stone farmhouses on a gentle arc", "terracotta gable roofs", "oak pergolas with
+  vines", "stone winery barn and stables around a farmyard", "cypress avenue", "vineyard rows", "pond"
+
+### shahdag-chalet — Greater Caucasus mountain chalet village
+Mountain resort chalets on forested slopes: grey stone ground floor, dark timber above, steep standing-seam gables
+with glazed gable ends facing the valley, timber balconies, a shared spa lodge.
+- **style** `chalet` (or `modern` / `absheron` / `minimal` / `coastal` for other village types) with
+  `"project": { "kind": "cluster", "units": 4–6 }`
+- **prompt cues** "N chalets staggered in two rows on a pine-forested slope", "glazed gables facing the valley",
+  "spa lodge at the entrance", "winding lanes", "snow-capped peaks"

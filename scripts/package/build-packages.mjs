@@ -1,5 +1,6 @@
 // Builds the downloadable drawing package of each sample villa into deliverables/<slug>/ (git-ignored):
 //   <slug>-drawings.pdf  vector A3 drawing set: cover, site plan, floor plans, elevation, isometric, schedules
+//                        (a multi-unit project: masterplan, typical house plans, street elevation, two isometrics)
 //   <slug>.dxf           layered CAD model (metres) with A3 paper-space layouts per floor   (python3 + ezdxf)
 //   <slug>.dwg           the same drawing as AutoCAD 2000 DWG                               (LibreDWG dxf2dwg)
 // and records file names, sizes and sheet counts in data/packages.json for the website.
@@ -41,10 +42,14 @@ const DWG2DXF = tool("DWG2DXF", "/usr/local/bin/dwg2dxf");
 const PYTHON = process.env.PYTHON || "python3";
 
 function sheetsFor(model, renderUri) {
-  const list = [{ no: "A-001", title: "Site plan", scale: "Graphic", svg: () => sitePlanSheet(model, "A-001") }];
-  model.levels.forEach((lv, i) => list.push({ no: `A-10${i + 1}`, title: lv.name.charAt(0) + lv.name.slice(1).toLowerCase(), scale: "Graphic", svg: () => floorPlanSheet(model, i, `A-10${i + 1}`) }));
-  list.push({ no: "A-201", title: "South elevation", scale: "Graphic", svg: () => elevationSheet(model, "A-201") });
-  list.push({ no: "A-301", title: "Isometric view", scale: "NTS", svg: () => axonometricSheet(model, "A-301") });
+  // a multi-unit project: masterplan, the typical house, the street front / ensemble, then the typical house in 3D
+  const project = model.project;
+  const typical = project ? "Typical house — " : "";
+  const list = [{ no: "A-001", title: project ? "Masterplan" : "Site plan", scale: "Graphic", svg: () => sitePlanSheet(model, "A-001") }];
+  model.levels.forEach((lv, i) => list.push({ no: `A-10${i + 1}`, title: typical + (project ? lv.name.toLowerCase() : lv.name.charAt(0) + lv.name.slice(1).toLowerCase()), scale: "Graphic", svg: () => floorPlanSheet(model, i, `A-10${i + 1}`) }));
+  list.push({ no: "A-201", title: project?.kind === "row" ? "Street elevation" : `${typical}${project ? "south" : "South"} elevation`, scale: "Graphic", svg: () => elevationSheet(model, "A-201") });
+  list.push({ no: "A-301", title: project ? "Isometric view — whole project" : "Isometric view", scale: "NTS", svg: () => axonometricSheet(model, "A-301") });
+  if (project) list.push({ no: "A-302", title: "Isometric view — typical house", scale: "NTS", svg: () => axonometricSheet(model, "A-302", { typical: true }) });
   list.push({ no: "A-401", title: "Area, room, door and window schedules", scale: "NTS", svg: () => scheduleSheet(model, "A-401") });
   const index = [{ no: "A-000", title: "Cover sheet", scale: "NTS" }, ...list.map(({ no, title, scale }) => ({ no, title, scale }))];
   return [{ no: "A-000", svg: () => coverSheet(model, renderUri, index) }, ...list];

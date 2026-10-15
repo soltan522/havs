@@ -69,6 +69,7 @@ const MAT = {
   bronzeFin: { fill: "#7b6349", pattern: "fins", label: "Bronze aluminium vertical fins" },
   clapboard: { fill: "#eee7db", pattern: "clapboard", label: "Painted timber weatherboarding" },
   slate: { fill: "#5e636a", pattern: "slatetiles", label: "Natural slate roof" },
+  brick: { fill: "#a8664c", pattern: "brick", label: "Hand-made clinker brick, warm red" },
 };
 
 // Per-style design language. walls[i] = cladding of storey i (last entry repeats).
@@ -89,12 +90,14 @@ const SPEC = {
   noir: { walls: ["charcoal"], fin: "bronzeFin", slabMat: "charcoal", frame: "bronze", glassy: true, slab: 1.3, terrace: true, garageDoor: "bronze", tree: "round" },
   // Bosphorus yalı: painted timber weatherboarding, slate hip roof, tall timber windows
   yali: { walls: ["clapboard"], roof: "slate", frame: "wood", shutters: "shutterWood", chimney: true, garageDoor: "wood", tree: "round" },
+  // terraced house (one unit of a row): clinker brick, white slab bands, timber around the entrance
+  townhouse: { walls: ["brick"], frame: "bronze", glassy: true, slab: 0.5, timberEntry: true, tree: "round" },
 };
 
 const STYLE_EN = {
   modern: "MODERN", tuscan: "TUSCAN", minimal: "MINIMALIST", coastal: "COASTAL", chalet: "CHALET",
   farmhouse: "FARMHOUSE", luxury: "CONTEMPORARY", pavilion: "PAVILION", mediterranean: "MEDITERRANEAN", duplex: "TWIN VILLA",
-  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI",
+  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI", townhouse: "TOWNHOUSE",
 };
 
 const wallMat = (spec, li) => spec.walls[Math.min(li, spec.walls.length - 1)];
@@ -114,6 +117,14 @@ export const STYLE_RULES = {
   absheron: { roofs: ["flat"], floors: [1, 2] },
   noir: { roofs: ["flat"], floors: [2] },
   yali: { roofs: ["hip"], floors: [2] },
+  townhouse: { roofs: ["flat"], floors: [2], projectOnly: true },
+};
+
+/** Multi-unit projects (plan.project.kind): how many houses each layout is drawn for. */
+export const PROJECT_RULES = {
+  row: { units: [4, 5, 6, 7, 8], styles: ["townhouse"], label: "TERRACE OF TOWNHOUSES" },
+  farm: { units: [3, 4, 5, 6], styles: ["farmhouse", "tuscan", "mediterranean"], label: "FARM ESTATE" },
+  cluster: { units: [4, 5, 6], styles: ["chalet", "modern", "absheron", "minimal", "coastal"], label: "VILLAGE CLUSTER" },
 };
 
 /** Planting symbols the elevation and site plan can draw (optional plan.tree). */
@@ -158,6 +169,7 @@ function materialDefs(s, seed = 7) {
     ${pat("p-seam", 0.5, 1, `<path d="M0.5 0V${m(1)}" stroke="#a9aeb3" stroke-opacity=".45" stroke-width="0.9"/>`)}
     ${pat("p-limestone", 1.2, 0.6, `<path d="M0 ${m(0.3)}H${m(1.2)}M0 ${m(0.6) - 0.5}H${m(1.2)}M0.4 0V${m(0.3)}M${m(0.6)} ${m(0.3)}V${m(0.6)}" stroke="#6b5a3f" stroke-opacity=".2" stroke-width="0.7" fill="none"/>`)}
     ${pat("p-fins", 0.25, 1, `<rect x="0" y="0" width="${m(0.06)}" height="${m(1)}" fill="#c9b08c" fill-opacity=".55"/>`)}
+    ${pat("p-brick", 0.6, 0.3, `<path d="M0 ${m(0.15)}H${m(0.6)}M0 ${m(0.3) - 0.5}H${m(0.6)}M0.4 0V${m(0.15)}M${m(0.3)} ${m(0.15)}V${m(0.3)}" stroke="#f1e6da" stroke-opacity=".5" stroke-width="0.7" fill="none"/>`)}
     ${pat("p-clapboard", 1, 0.18, `<path d="M0 ${m(0.18) - 0.5}H${m(1)}" stroke="#5b5146" stroke-opacity=".32" stroke-width="0.7"/>`)}
     ${pat("p-slatetiles", 0.3, 0.5, `<path d="M0 ${m(0.25)}H${m(0.3)}M0 ${m(0.5) - 0.5}H${m(0.3)}M0.4 0V${m(0.25)}M${m(0.15)} ${m(0.25)}V${m(0.5)}" stroke="#d6dade" stroke-opacity=".35" stroke-width="0.7" fill="none"/>`)}
     ${pat("p-earth", 0.3, 0.3, `<path d="M0 ${m(0.3)}L${m(0.3)} 0" stroke="${INK}" stroke-opacity=".35" stroke-width="0.7"/>`)}
@@ -179,12 +191,14 @@ export function buildModel(plan) {
   const above = plan.style === "luxury" ? plan.floors - 1 : plan.floors;
   const footprintArea = plan.areaM2 / plan.floors;
   // footprint proportion (width / depth); a plan may override it to vary the massing
-  const ratio = plan.ratio ?? (plan.style === "duplex" ? 2.0 : above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4);
+  // (a terraced house is deeper than it is wide)
+  const ratio = plan.style === "townhouse" ? 0.67 : plan.ratio ?? (plan.style === "duplex" ? 2.0 : above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4);
   const W = r1(Math.sqrt(footprintArea * ratio));
   const D = r1(footprintArea / W);
 
   let levels;
   if (plan.style === "duplex") levels = duplexLevels(spec);
+  else if (plan.style === "townhouse") levels = townhouseLevels(spec);
   else if (above === 1) levels = [singleStorey(plan, W, D, spec)];
   else levels = twoStorey(plan, W, D, spec);
 
@@ -217,6 +231,13 @@ export function buildModel(plan) {
   model.wallTop = above * STOREY;
   Object.assign(model, roofGeometry(model));
   model.site = siteLayout(model);
+  if (plan.project) {
+    const units = plan.project.units;
+    model.project = { kind: plan.project.kind, units, totalArea: units * plan.areaM2 };
+    // a terrace alternates the plan so front doors pair up; the other layouts repeat one orientation
+    if (plan.project.kind === "row") model.project.mirrored = buildModel({ ...plan, project: undefined, mirror: !plan.mirror });
+    model.project.layout = projectLayout(model);
+  }
   return model;
 }
 
@@ -443,11 +464,9 @@ function singleStorey(plan, W, D, spec) {
   };
 }
 
-function duplexLevels(spec) {
-  // Two mirrored units. Templates are written in unit fractions (0..1) and mapped onto each half.
+/** One three-bedroom unit over two floors (fractions of the unit): living across the plot, stair + services on the right. */
+function attachedUnit(spec) {
   const glassy = !!spec.glassy;
-  const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
-  const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
   const G = {
     spaces: [
       { id: "open", label: "LIVING / KITCHEN", kind: "open", x: 0, y: 0, w: 0.62, h: 1 },
@@ -490,21 +509,46 @@ function duplexLevels(spec) {
       { space: "b", side: "bottom", at: 0.5, w: 1.6 },
     ],
   };
-  const place = (tpl, target, offset, mirror, tag) => {
-    const flip = (side) => (mirror && side === "left" ? "right" : mirror && side === "right" ? "left" : side);
-    for (const sp of tpl.spaces) {
-      const x = mirror ? 1 - sp.x - sp.w : sp.x;
-      target.spaces.push({ ...sp, id: sp.id + tag, x: offset + x * 0.5, w: sp.w * 0.5 });
-    }
-    for (const d of tpl.doors) {
-      const horiz = d.side === "top" || d.side === "bottom";
-      target.doors.push({ ...d, space: d.space + tag, side: flip(d.side), at: mirror && horiz ? 1 - d.at : d.at });
-    }
-    for (const w of tpl.windows) {
-      const horiz = w.side === "top" || w.side === "bottom";
-      target.windows.push({ ...w, space: w.space + tag, side: flip(w.side), at: mirror && horiz ? 1 - w.at : w.at });
-    }
-  };
+  return { G, F };
+}
+
+/** Places a unit template into a level: offset and width as fractions of the footprint. */
+function placeUnit(tpl, target, offset, width, mirror, tag) {
+  const flip = (side) => (mirror && side === "left" ? "right" : mirror && side === "right" ? "left" : side);
+  for (const sp of tpl.spaces) {
+    const x = mirror ? 1 - sp.x - sp.w : sp.x;
+    target.spaces.push({ ...sp, id: sp.id + tag, x: offset + x * width, w: sp.w * width });
+  }
+  for (const d of tpl.doors) {
+    const horiz = d.side === "top" || d.side === "bottom";
+    target.doors.push({ ...d, space: d.space + tag, side: flip(d.side), at: mirror && horiz ? 1 - d.at : d.at });
+  }
+  for (const w of tpl.windows) {
+    const horiz = w.side === "top" || w.side === "bottom";
+    target.windows.push({ ...w, space: w.space + tag, side: flip(w.side), at: mirror && horiz ? 1 - w.at : w.at });
+  }
+}
+
+/** Mid-terrace townhouse: party walls left and right, so every window faces the street or the garden. */
+function townhouseLevels(spec) {
+  const { G, F } = attachedUnit(spec);
+  G.spaces.find((sp) => sp.id === "store").label = "UTILITY";
+  G.windows.push({ space: "store", side: "bottom", at: 0.5, w: 0.6 });
+  G.windows.find((w) => w.space === "open" && w.side === "top").w = 3.2;
+  F.windows.push({ space: "bath", side: "bottom", at: 0.5, w: 0.6 });
+  const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
+  const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
+  placeUnit(G, ground, 0, 1, false, "");
+  placeUnit(F, first, 0, 1, false, "");
+  return [ground, first];
+}
+
+function duplexLevels(spec) {
+  // Two mirrored units. Templates are written in unit fractions (0..1) and mapped onto each half.
+  const { G, F } = attachedUnit(spec);
+  const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
+  const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
+  const place = (tpl, target, offset, mirror, tag) => placeUnit(tpl, target, offset, 0.5, mirror, tag);
   place(G, ground, 0, false, "L");
   place(G, ground, 0.5, true, "R");
   place(F, first, 0, false, "L");
@@ -588,7 +632,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
     ["DRAWING", drawing],
     ["SCALE", scaleNote],
     ["SHEET / REV", `${sheetNo} / A`],
-    ["GROSS AREA", `${plan.areaM2} m²`],
+    ["GROSS AREA", plan.project ? `${plan.project.units} × ${plan.areaM2} = ${plan.project.units * plan.areaM2} m²` : `${plan.areaM2} m²`],
   ];
   let tb = `<g font-family="${FONT}">
     <line x1="${tbX}" y1="36" x2="${tbX}" y2="${SHEET_H - 36}" stroke="${INK}" stroke-width="1.2"/>
@@ -601,7 +645,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
     const y = 156 + i * 66;
     tb += `<line x1="${tbX}" y1="${y - 24}" x2="${SHEET_W - 36}" y2="${y - 24}" stroke="${LIGHT}"/>
       <text x="${tbX + 28}" y="${y}" font-size="10" fill="${MID}" letter-spacing="2">${k}</text>
-      <text x="${tbX + 28}" y="${y + 25}" font-size="${i === 0 ? 19 : 15}" font-weight="${i === 0 ? 600 : 500}" fill="${i === 4 ? ACCENT : INK}" letter-spacing="0.5">${esc(v)}</text>`;
+      <text x="${tbX + 28}" y="${y + 25}" font-size="${i === 0 ? (v.length > 18 ? 16.5 : 19) : 15}" font-weight="${i === 0 ? 600 : 500}" fill="${i === 4 ? ACCENT : INK}" letter-spacing="0.5">${esc(v)}</text>`;
   });
   const legendTop = 156 + rows.length * 66 - 24;
   tb += `<line x1="${tbX}" y1="${legendTop}" x2="${SHEET_W - 36}" y2="${legendTop}" stroke="${LIGHT}"/>`;
@@ -646,14 +690,15 @@ function sheetTitle(title, sub) {
     <text x="${36 + 60}" y="${SHEET_H - 48}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${sub}</text>`;
 }
 
-function scaleBar(x, y, s) {
-  const seg = [0, 1, 2, 5];
+/** Graphic scale 0–1–2–5 m, multiplied by k for large drawings. */
+function scaleBar(x, y, s, k = 1) {
+  const seg = [0, 1, 2, 5].map((v) => v * k);
   let g = `<g font-family="${FONT}" font-size="10" fill="${INK}">`;
   for (let i = 0; i < seg.length - 1; i++) {
     g += `<rect x="${x + seg[i] * s}" y="${y}" width="${(seg[i + 1] - seg[i]) * s}" height="6" fill="${i % 2 ? PAPER : INK}" stroke="${INK}" stroke-width="0.8"/>`;
   }
   seg.forEach((m) => (g += `<text x="${x + m * s}" y="${y + 20}" text-anchor="middle">${m}</text>`));
-  g += `<text x="${x + 5 * s + 12}" y="${y + 7}" >m</text></g>`;
+  g += `<text x="${x + seg[3] * s + 12}" y="${y + 7}" >m</text></g>`;
   return g;
 }
 
@@ -1085,14 +1130,68 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   }
 
   const gia = level.spaces.reduce((sum, sp) => sum + (sp.kind === "void" ? 0 : inner(model, sp).w * inner(model, sp).h), 0);
-  g += sheetTitle(level.name, `${plan.title.en.toUpperCase()} · NET INTERNAL AREA ${gia.toFixed(1)} m² · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
+  g += sheetTitle(level.name, `${plan.title.en.toUpperCase()}${unitNote(model)} · NET INTERNAL AREA ${gia.toFixed(1)} m² · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
   g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
   return sheet({ plan, drawing: level.name, sheetNo, scaleNote: "GRAPHIC SCALE", body: g, defs: materialDefs(s, hash(plan.slug)), north: true, preview });
 }
 
 // ------------------------------------------------------------------ site plan sheet
 
+/** Roof plan of one house (and its garage) through the plan-metre mappers X, Y at s px per metre. */
+function roofPlan(model, X, Y, s, { notes = true } = {}) {
+  const { W, D, plan, spec, site } = model;
+  const gW = model.garage?.w ?? 0;
+  const gD = model.garage?.d ?? 0;
+  const rect = (x, y, w, h, extra) => `<rect x="${X(x)}" y="${Y(y)}" width="${f1(w * s)}" height="${f1(h * s)}" ${extra}/>`;
+  const label = (x, y, str, size = 10, fill = MID) => `<text x="${X(x)}" y="${Y(y)}" text-anchor="middle" font-family="${FONT}" font-size="${size}" letter-spacing="2" fill="${fill}">${str}</text>`;
+  let g = "";
+  const roofCol = { terracotta: "#d9a283", seam: "#8d9195", slate: "#8c9198" }[spec.roof] ?? (spec.slabMat === "charcoal" ? "#9a9c9f" : "#ebe6dc");
+  const ov = model.roofOv;
+  if (plan.roof === "flat") {
+    const fo = spec.canopy ?? spec.slab ?? 0.2;
+    const sideOv = spec.canopy ? 1.6 : 0.3;
+    g += rect(-sideOv, -0.3, W + 2 * sideOv, D + 0.3 + fo, `fill="${roofCol}" stroke="${INK}" stroke-width="1.6"`);
+    g += rect(-sideOv + 0.35, 0.05, W + 2 * sideOv - 0.7, D - 0.1 + fo - 0.3, `fill="none" stroke="${MID}" stroke-width="0.7"`);
+    for (const [dx, dy] of [[0.25, 0.3], [0.75, 0.3], [0.25, 0.75], [0.75, 0.75]]) g += `<circle cx="${X(W * dx)}" cy="${Y(D * dy)}" r="3" fill="none" stroke="${MID}" stroke-width="0.8"/>`;
+    if (spec.roofTerrace) g += rect(W * 0.12, D * 0.15, W * 0.55, D * 0.6, `fill="#e6dfd2" stroke="#7fa3ad" stroke-width="2.2"`) + rect(W * 0.12, D * 0.15, W * 0.55, D * 0.6, `fill="url(#p-paving)"`) + label(W * 0.395, D * 0.47, "ROOF TERRACE", 9, INK);
+    if (notes) g += label(W / 2, D * (spec.roofTerrace ? 0.88 : 0.52), `FLAT ROOF  +${(model.wallTop + 0.45).toFixed(2)}`, 10, INK);
+  } else {
+    const x0 = -ov, x1 = W + ov, y0 = -ov, y1 = D + ov;
+    const poly = (pts, fill, pat) => `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="${fill}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>` + (pat ? `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="url(#${pat})"/>` : "");
+    if (plan.roof === "hip") {
+      const a = Math.min(D / 2, W / 2);
+      const r0 = [a, D / 2], r1p = [W - a, D / 2];
+      g += poly([[x0, y0], [x1, y0], r1p, r0], shade(roofCol, -0.12), "p-roofh");
+      g += poly([[x1, y0], [x1, y1], r1p], shade(roofCol, -0.05), "p-roofv");
+      g += poly([[x0, y1], [x1, y1], r1p, r0], roofCol, "p-roofh");
+      g += poly([[x0, y0], r0, [x0, y1]], shade(roofCol, -0.18), "p-roofv");
+    } else if (plan.roof === "gable") {
+      g += poly([[x0, y0], [x1, y0], [x1, D / 2], [x0, D / 2]], shade(roofCol, -0.12), "p-roofh");
+      g += poly([[x0, D / 2], [x1, D / 2], [x1, y1], [x0, y1]], roofCol, "p-roofh");
+    } else if (plan.roof === "frontgable") {
+      g += poly([[x0, y0], [W / 2, y0], [W / 2, y1], [x0, y1]], shade(roofCol, -0.15), "p-roofv");
+      g += poly([[W / 2, y0], [x1, y0], [x1, y1], [W / 2, y1]], roofCol, "p-roofv");
+    }
+    if (spec.chimney) g += rect(W * 0.7, D * 0.42, 0.9, 0.9, `fill="#c9b08b" stroke="${INK}" stroke-width="1"`);
+    if (level0(model).veranda) g += rect(-0.2, D, W + 0.4, site.T, `fill="none" stroke="${INK}" stroke-width="0.8" stroke-dasharray="6 3"`);
+    if (notes) g += `<rect x="${X(W / 2) - 52}" y="${Y(D * 0.5) - 9}" width="104" height="18" fill="${PAPER}" fill-opacity=".85"/><text x="${X(W / 2)}" y="${Y(D * 0.5) + 4}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${INK}">RIDGE +${model.H.toFixed(2)}</text>`;
+  }
+  if (model.garage) {
+    const gy = D - gD;
+    if (spec.roof === "terracotta" || spec.roof === "slate") {
+      g += `<polygon points="${X(W)},${Y(gy - 0.4)} ${X(W + gW + 0.4)},${Y(gy - 0.4)} ${X(W + gW + 0.4)},${Y(D + 0.4)} ${X(W)},${Y(D + 0.4)}" fill="${shade(roofCol, -0.06)}" stroke="${INK}" stroke-width="1.2"/>`;
+      g += rect(W, gy - 0.4, gW + 0.4, gD + 0.8, `fill="url(#p-roofh)"`);
+    } else {
+      g += rect(W, gy, gW, gD, `fill="${roofCol}" stroke="${INK}" stroke-width="1.4"`);
+    }
+    if (notes) g += label(W + gW / 2, gy + gD / 2 + 0.2, "GARAGE", 9, INK);
+  }
+
+  return g;
+}
+
 export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
+  if (model.project) return masterplanSheet(model, sheetNo, { preview });
   const { W, D, plan, spec, site } = model;
   const gW = model.garage?.w ?? 0;
   const gD = model.garage?.d ?? 0;
@@ -1145,48 +1244,7 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
     g += label(W + gW / 2, (D + plot.y1) / 2 + 1, "DRIVEWAY", 9);
   }
 
-  // ---- roof plan
-  const roofCol = { terracotta: "#d9a283", seam: "#8d9195", slate: "#8c9198" }[spec.roof] ?? (spec.slabMat === "charcoal" ? "#9a9c9f" : "#ebe6dc");
-  const ov = model.roofOv;
-  if (plan.roof === "flat") {
-    const fo = spec.canopy ?? spec.slab ?? 0.2;
-    const sideOv = spec.canopy ? 1.6 : 0.3;
-    g += rect(-sideOv, -0.3, W + 2 * sideOv, D + 0.3 + fo, `fill="${roofCol}" stroke="${INK}" stroke-width="1.6"`);
-    g += rect(-sideOv + 0.35, 0.05, W + 2 * sideOv - 0.7, D - 0.1 + fo - 0.3, `fill="none" stroke="${MID}" stroke-width="0.7"`);
-    for (const [dx, dy] of [[0.25, 0.3], [0.75, 0.3], [0.25, 0.75], [0.75, 0.75]]) g += `<circle cx="${X(W * dx)}" cy="${Y(D * dy)}" r="3" fill="none" stroke="${MID}" stroke-width="0.8"/>`;
-    if (spec.roofTerrace) g += rect(W * 0.12, D * 0.15, W * 0.55, D * 0.6, `fill="#e6dfd2" stroke="#7fa3ad" stroke-width="2.2"`) + rect(W * 0.12, D * 0.15, W * 0.55, D * 0.6, `fill="url(#p-paving)"`) + label(W * 0.395, D * 0.47, "ROOF TERRACE", 9, INK);
-    g += label(W / 2, D * (spec.roofTerrace ? 0.88 : 0.52), `FLAT ROOF  +${(model.wallTop + 0.45).toFixed(2)}`, 10, INK);
-  } else {
-    const x0 = -ov, x1 = W + ov, y0 = -ov, y1 = D + ov;
-    const poly = (pts, fill, pat) => `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="${fill}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>` + (pat ? `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="url(#${pat})"/>` : "");
-    if (plan.roof === "hip") {
-      const a = Math.min(D / 2, W / 2);
-      const r0 = [a, D / 2], r1p = [W - a, D / 2];
-      g += poly([[x0, y0], [x1, y0], r1p, r0], shade(roofCol, -0.12), "p-roofh");
-      g += poly([[x1, y0], [x1, y1], r1p], shade(roofCol, -0.05), "p-roofv");
-      g += poly([[x0, y1], [x1, y1], r1p, r0], roofCol, "p-roofh");
-      g += poly([[x0, y0], r0, [x0, y1]], shade(roofCol, -0.18), "p-roofv");
-    } else if (plan.roof === "gable") {
-      g += poly([[x0, y0], [x1, y0], [x1, D / 2], [x0, D / 2]], shade(roofCol, -0.12), "p-roofh");
-      g += poly([[x0, D / 2], [x1, D / 2], [x1, y1], [x0, y1]], roofCol, "p-roofh");
-    } else if (plan.roof === "frontgable") {
-      g += poly([[x0, y0], [W / 2, y0], [W / 2, y1], [x0, y1]], shade(roofCol, -0.15), "p-roofv");
-      g += poly([[W / 2, y0], [x1, y0], [x1, y1], [W / 2, y1]], roofCol, "p-roofv");
-    }
-    if (spec.chimney) g += rect(W * 0.7, D * 0.42, 0.9, 0.9, `fill="#c9b08b" stroke="${INK}" stroke-width="1"`);
-    if (level0(model).veranda) g += rect(-0.2, D, W + 0.4, site.T, `fill="none" stroke="${INK}" stroke-width="0.8" stroke-dasharray="6 3"`);
-    g += `<rect x="${X(W / 2) - 52}" y="${Y(D * 0.5) - 9}" width="104" height="18" fill="${PAPER}" fill-opacity=".85"/><text x="${X(W / 2)}" y="${Y(D * 0.5) + 4}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${INK}">RIDGE +${model.H.toFixed(2)}</text>`;
-  }
-  if (model.garage) {
-    const gy = D - gD;
-    if (spec.roof === "terracotta" || spec.roof === "slate") {
-      g += `<polygon points="${X(W)},${Y(gy - 0.4)} ${X(W + gW + 0.4)},${Y(gy - 0.4)} ${X(W + gW + 0.4)},${Y(D + 0.4)} ${X(W)},${Y(D + 0.4)}" fill="${shade(roofCol, -0.06)}" stroke="${INK}" stroke-width="1.2"/>`;
-      g += rect(W, gy - 0.4, gW + 0.4, gD + 0.8, `fill="url(#p-roofh)"`);
-    } else {
-      g += rect(W, gy, gW, gD, `fill="${roofCol}" stroke="${INK}" stroke-width="1.4"`);
-    }
-    g += label(W + gW / 2, gy + gD / 2 + 0.2, "GARAGE", 9, INK);
-  }
+  g += roofPlan(model, X, Y, s);
 
   // ---- soft landscaping: trees
   const trees = [];
@@ -1230,6 +1288,336 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
   g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
   const schedule = `<text x="${SHEET_W - 330 + 28}" y="${492}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">SITE SCHEDULE</text>` + rows.map(([k, v], i) => `<text x="${SHEET_W - 330 + 28}" y="${530 + i * 44}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">${k}</text><text x="${SHEET_W - 330 + 28}" y="${548 + i * 44}" font-family="${FONT}" font-size="14" font-weight="500" fill="${INK}">${esc(v)}</text>`).join("");
   return sheet({ plan, drawing: "SITE PLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true, preview });
+}
+
+// ------------------------------------------------------------------ multi-unit projects
+
+/**
+ * Masterplan of a project in plan metres (x east, y south): plot, house positions and the shared landscape.
+ * row = terrace of townhouses on a street; farm = farmhouses on an arc above a vineyard, barn yard behind;
+ * cluster = two staggered rows of houses on a slope with a lodge and parking at the entrance.
+ */
+function projectLayout(model) {
+  const { W, D, plan, site, spec } = model;
+  const { kind, units: N } = model.project;
+  const rand = rng(hash(plan.slug) + 99);
+  const front = Math.max(site.T, site.deck ? site.T + site.deck.h : 0);
+  const units = [];
+  const items = [];
+  let trees = [];
+  const tree = (x, y, r, k = spec.tree) => trees.push({ x, y, r, kind: k });
+  // parking bays for a house: on the wider side of its entrance path, along the lane at y = edge
+  const housePark = (u, m, edge, n) => {
+    const ex = u.x + m.site.entryX;
+    const right = u.x + W - ex >= ex - u.x;
+    for (let k = 0; k < n; k++) items.push({ t: "bay", x: right ? ex + 1.6 + k * 2.7 : ex - 1.6 - (k + 1) * 2.7, y: edge - 5.2, w: 2.6, h: 5.2 });
+  };
+  let plot;
+  let shared;
+  if (kind === "row") {
+    const court = 6.5, garden = 11, rowW = N * W;
+    plot = { x0: -9, y0: -garden - 1.6, x1: rowW + 16, y1: D + court };
+    for (let i = 0; i < N; i++) {
+      const mirror = i % 2 === 1;
+      const u = { x: i * W, y: 0, mirror, no: i + 1 };
+      units.push(u);
+      const m = mirror ? model.project.mirrored : model;
+      const ex = u.x + m.site.entryX;
+      items.push({ t: "paving", x: u.x, y: -3.2, w: W, h: 3.2 });
+      items.push({ t: "paving", x: ex - 0.7, y: D, w: 1.4, h: court });
+      const bx = mirror ? u.x + W - 3.1 : u.x + 0.4;
+      items.push({ t: "bay", x: bx, y: D + court - 5.2, w: 2.7, h: 5.2 });
+      // low front hedge, open at the path and the parking bay
+      let hx = u.x;
+      for (const [g0, g1] of [[ex - 0.7, ex + 0.7], [bx, bx + 2.7]].sort((a, b) => a[0] - b[0])) {
+        if (g0 - hx > 0.5) items.push({ t: "hedge", pts: [[hx + 0.15, D + court - 0.45], [g0 - 0.15, D + court - 0.45]] });
+        hx = g1;
+      }
+      if (u.x + W - hx > 0.5) items.push({ t: "hedge", pts: [[hx + 0.15, D + court - 0.45], [u.x + W - 0.15, D + court - 0.45]] });
+      tree(u.x + W * (mirror ? 0.3 : 0.7), -garden + 2.6, 1.7 + rand() * 0.5);
+    }
+    items.push({ t: "fence", lines: [[[0, -garden], [rowW, -garden]], ...Array.from({ length: N + 1 }, (_, i) => [[i * W, -garden], [i * W, 0]])] });
+    items.push({ t: "paving", x: plot.x0, y: plot.y0, w: plot.x1 - plot.x0, h: 1.6, label: "GARDEN PATH" });
+    // west end: bin + cycle store; east end: visitor parking and a pocket park with a play area
+    items.push({ t: "building", x: -7, y: D + 1.2, w: 5, h: 3, wallH: 2.6, roof: "flat", mat: wallMat(spec, 0), label: "BINS · CYCLES" });
+    items.push({ t: "paving", x: -5.2, y: D + 4.2, w: 1.4, h: court - 4.2 });
+    for (let k = 0; k < 4; k++) items.push({ t: "bay", x: rowW + 2 + k * 2.6, y: D + court - 5.2, w: 2.6, h: 5.2 });
+    items.push({ t: "paving", x: rowW + 12.8, y: plot.y0 + 1.6, w: 1.6, h: plot.y1 - plot.y0 - 1.6 });
+    items.push({ t: "play", x: rowW + 2.5, y: -garden + 1.5, w: 9, h: 7.5, label: "PLAY" });
+    items.push({ t: "label", x: rowW + 7, y: -0.4, text: "POCKET PARK" });
+    for (const [x, y] of [[rowW + 3, -1.6], [rowW + 9.5, -2.4], [rowW + 14.2, -6], [rowW + 14.2, 2.5], [-6.5, -8], [-6.5, -2.5], [-3, -10.5], [rowW + 13.5, -9.5]]) tree(x, y, 1.9 + rand() * 0.6);
+    for (let x = plot.x0 + 2; x < plot.x1; x += 9) tree(x, plot.y1 + 1.1, 1.3, "round");
+    shared = "Pocket park with play area · 4 visitor bays · bin and cycle store";
+  } else if (kind === "farm") {
+    const margin = 14, gap = 9;
+    const PW = 2 * margin + N * W + (N - 1) * gap;
+    const cx = PW / 2;
+    for (let i = 0; i < N; i++) {
+      const t = i - (N - 1) / 2;
+      units.push({ x: r1(margin + i * (W + gap)), y: r1(34 + 2.6 * t * t), mirror: false, no: i + 1 });
+    }
+    const laneY = r1(Math.max(...units.map((u) => u.y)) + D + front + 6);
+    const v0 = laneY + 5 + 24;
+    plot = { x0: 0, y0: 0, x1: PW, y1: v0 + 26 };
+    items.push({ t: "lane", x: margin - 8, y: laneY, w: PW - 2 * margin + 16, h: 5, label: "ESTATE LANE" });
+    items.push({ t: "lane", x: cx - 3, y: laneY + 5, w: 6, h: plot.y1 - laneY - 5 });
+    for (const u of units) {
+      const ex = u.x + site.entryX;
+      items.push({ t: "paving", x: ex - 0.8, y: u.y + D + front, w: 1.6, h: laneY - (u.y + D + front) });
+      housePark(u, model, laneY, 2);
+      items.push({ t: "hedge", pts: [[u.x - 2.5, u.y + 2], [u.x - 2.5, laneY - 0.6]] }, { t: "hedge", pts: [[u.x + W + 2.5, u.y + 2], [u.x + W + 2.5, laneY - 0.6]] });
+      tree(u.x + W * 0.15, u.y + D + front + 4, 2.2);
+    }
+    // farmyard with the winery barn and stables, reached by a service track along the east boundary
+    items.push({ t: "yard", x: cx - 24, y: 3, w: 48, h: 19, label: "FARMYARD" });
+    items.push({ t: "building", x: cx - 21, y: 5, w: 18, h: 12, wallH: 5.2, roof: "gable", mat: "rubble", roofMat: "terracotta", label: "WINERY · BARN" });
+    items.push({ t: "building", x: cx + 3, y: 6, w: 17, h: 9, wallH: 3.6, roof: "gable", mat: "rubble", roofMat: "terracotta", label: "STABLES" });
+    items.push({ t: "lane", x: PW - 9, y: 9, w: 4, h: laneY - 9 }, { t: "lane", x: cx + 24, y: 9, w: PW - 9 - cx - 24, h: 4 });
+    items.push({ t: "paddock", x: cx + 27, y: 16, w: PW - 13 - cx - 27, h: 14, label: "PADDOCK" });
+    items.push({ t: "orchard", x: 6, y: 4, w: cx - 34, h: 24, label: "ORCHARD" });
+    for (let x = 9; x < cx - 29; x += 5.5) for (let y = 7; y < 27; y += 5.5) tree(x + (rand() - 0.5) * 0.6, y + (rand() - 0.5) * 0.6, 1.6, "round");
+    // pond and estate pool either side of the cypress avenue
+    items.push({ t: "pond", cx: cx - 28, cy: laneY + 5 + 12, rx: 13, ry: 6.5, label: "POND" });
+    items.push({ t: "pool", x: cx + 10, y: laneY + 9, w: 20, h: 11, pool: { x: cx + 13, y: laneY + 12, w: 14, d: 5 } });
+    items.push({ t: "building", x: cx + 31.5, y: laneY + 10, w: 7, h: 5, wallH: 3, roof: "gable", mat: "rubble", roofMat: "terracotta", label: "POOL HOUSE" });
+    items.push({ t: "vineyard", x: margin, y: v0, w: cx - 5 - margin, h: plot.y1 - 5 - v0, label: "VINEYARD" });
+    items.push({ t: "vineyard", x: cx + 5, y: v0, w: PW - margin - cx - 5, h: plot.y1 - 5 - v0 });
+    for (let y = laneY + 9; y < plot.y1 - 1.5; y += 7) tree(cx - 4.6, y, 0.9, "cypress"), tree(cx + 4.6, y, 0.9, "cypress");
+    for (let y = 36; y < v0 - 3; y += 9 + rand() * 4) tree(4.5, y, 2.2, "olive"), tree(PW - 2.8, y + 4, 2.0, "olive");
+    shared = "Winery barn · stables · estate pool · pond · vineyard · orchard";
+  } else {
+    const margin = 15, gap = 7, deck = 3;
+    const perRow = Math.ceil(N / 2);
+    const step = W + gap;
+    const PW = 2 * margin + perRow * W + (perRow - 1) * gap + step / 2;
+    const yA = 18;
+    for (let i = 0; i < perRow; i++) units.push({ x: r1(margin + i * step), y: yA, mirror: false, no: i + 1 });
+    // deck, then a front garden with two parking bays, then the lane
+    const laneA = r1(yA + D + Math.max(front, deck) + 7);
+    const yB = laneA + 10;
+    for (let i = 0; i < N - perRow; i++) units.push({ x: r1(margin + step / 2 + i * step), y: yB, mirror: false, no: perRow + i + 1 });
+    const laneB = r1(yB + D + Math.max(front, deck) + 7);
+    const yP = laneB + 8;
+    plot = { x0: 0, y0: 0, x1: r1(PW), y1: r1(yP + 22) };
+    for (const [ly, label] of [[laneA, "UPPER LANE"], [laneB, "LOWER LANE"]]) items.push({ t: "lane", x: 5, y: ly, w: PW - 13, h: 5, label });
+    items.push({ t: "lane", x: 5, y: laneA, w: 5, h: plot.y1 - laneA });
+    for (const u of units) {
+      const edge = u.y === yA ? laneA : laneB;
+      if (!site.T) items.push({ t: "deck", x: u.x + 0.6, y: u.y + D, w: W - 1.2, h: deck });
+      const ex = u.x + site.entryX;
+      const from = u.y + D + Math.max(front, deck);
+      items.push({ t: "paving", x: ex - 0.7, y: from, w: 1.4, h: edge - from });
+      housePark(u, model, edge, 2);
+    }
+    // entrance: parking court, spa lodge and a fire-pit terrace
+    items.push({ t: "yard", x: 11, y: yP, w: 22, h: 16, label: "" });
+    for (let k = 0; k < 8; k++) items.push({ t: "bay", x: 11.4 + k * 2.65, y: yP + 0.4, w: 2.6, h: 5.2 }, { t: "bay", x: 11.4 + k * 2.65, y: yP + 10.4, w: 2.6, h: 5.2 });
+    items.push({ t: "building", x: 37, y: yP + 1, w: 24, h: 13, wallH: 6.2, roof: "gable", mat: wallMat(spec, 0), roofMat: spec.roof ?? null, label: "SPA LODGE · RECEPTION" });
+    items.push({ t: "firepit", cx: Math.min(PW - 12, 72), cy: yP + 8, r: 4, label: "FIRE PIT" });
+    // the slope falls to the south: contours every 2 m
+    for (let y = 6, z = 1262; y < plot.y1; y += 8, z -= 2) items.push({ t: "contour", y, z, phase: rand() * 6 });
+    for (let i = 0; i < 70; i++) {
+      const edge = rand();
+      const x = edge < 0.45 ? rand() * PW : edge < 0.7 ? 1.5 + rand() * 4 : PW - 1.5 - rand() * 4;
+      const y = edge < 0.45 ? 1.5 + rand() * (yA - 4) : 1.5 + rand() * (plot.y1 - 3);
+      tree(x, y, 1.7 + rand() * 0.7);
+    }
+    for (const u of units) tree(u.x - gap / 2, u.y + D * 0.5, 1.8), tree(u.x + W + gap / 2, u.y + D * 0.2, 1.6);
+    shared = "Spa lodge with reception · 16 parking bays · fire-pit terrace";
+  }
+  // keep trees clear of houses, buildings, lanes, parking and water
+  const solid = [
+    ...units.map((u) => ({ x: u.x - 0.8, y: u.y - 0.8, w: W + (model.garage?.w ?? 0) + 1.6, h: D + front + 1.6 })),
+    ...items.filter((it) => ["building", "lane", "bay", "pool", "deck", "yard", "play", "paddock"].includes(it.t)),
+    ...items.filter((it) => it.t === "pond" || it.t === "firepit").map((it) => ({ x: it.cx - (it.rx ?? it.r) - 1, y: it.cy - (it.ry ?? it.r) - 1, w: 2 * (it.rx ?? it.r) + 2, h: 2 * (it.ry ?? it.r) + 2 })),
+  ];
+  const clear = (t) => !solid.some((r) => t.x + t.r * 0.75 > r.x && t.x - t.r * 0.75 < r.x + r.w && t.y + t.r * 0.75 > r.y && t.y - t.r * 0.75 < r.y + r.h);
+  const inPlot = (t) => t.y > plot.y1 || (t.x > plot.x0 + t.r * 0.5 && t.x < plot.x1 - t.r * 0.5 && t.y > plot.y0 + t.r * 0.5 && t.y < plot.y1 - t.r * 0.5);
+  const kept = [];
+  for (const t of trees) if (clear(t) && inPlot(t) && !kept.some((k) => Math.hypot(k.x - t.x, k.y - t.y) < (k.r + t.r) * 0.75)) kept.push(t);
+  trees = kept;
+  const buildings = items.filter((it) => it.t === "building");
+  const footprint = units.length * (W * D + (model.garage ? model.garage.w * model.garage.d : 0)) + buildings.reduce((n, b) => n + b.w * b.h, 0);
+  return { plot, units, items, trees, shared, footprint };
+}
+
+const PROJECT_WORD = { row: "TOWNHOUSES", farm: "FARMHOUSES", cluster: "HOUSES" };
+/** "7 × 180 m² = 1260 m²" for a project, "180 m²" for a villa. */
+const grossArea = (model) => (model.project ? `${model.project.units} × ${model.plan.areaM2} = ${model.project.totalArea} m²` : `${model.plan.areaM2} m²`);
+const unitNote = (model) => (model.project ? ` · TYPICAL HOUSE, ${model.project.units} NO.` : "");
+
+/** A-001 for a project: every house, the lanes and the shared landscape on one sheet. */
+function masterplanSheet(model, sheetNo, { preview = false } = {}) {
+  const { plan, project, W, D } = model;
+  const { plot, units, items, trees } = project.layout;
+  const roadD = 9.2; // footway 2.2 + carriageway 7
+  const ext = { x0: plot.x0 - 4, x1: plot.x1 + 4, y0: plot.y0 - 4.5, y1: plot.y1 + roadD + 1 };
+  const EW = ext.x1 - ext.x0, ED = ext.y1 - ext.y0;
+  const areaW = SHEET_W - 330 - 36 - 100;
+  const areaH = SHEET_H - 72 - 170;
+  const s = Math.min(areaW / EW, areaH / ED, 30);
+  const ox = 36 + 50 + (areaW - EW * s) / 2 - ext.x0 * s;
+  const oy = 36 + 34 + (areaH - ED * s) / 2 - ext.y0 * s;
+  const X = (m) => f1(ox + m * s);
+  const Y = (m) => f1(oy + m * s);
+  const rect = (x, y, w, h, extra) => `<rect x="${X(x)}" y="${Y(y)}" width="${f1(w * s)}" height="${f1(h * s)}" ${extra}/>`;
+  const label = (x, y, str, size = 10, fill = MID, extra = "") => `<text x="${X(x)}" y="${Y(y)}" text-anchor="middle" font-family="${FONT}" font-size="${size}" letter-spacing="2" fill="${fill}" ${extra}>${str}</text>`;
+  const tag = (x, y, str, size = 9) => {
+    const w = str.length * size * 0.78 + 12;
+    return `<rect x="${f1(X(x) - w / 2)}" y="${f1(Y(y) - size - 2)}" width="${f1(w)}" height="${size + 8}" fill="${PAPER}" fill-opacity=".88"/>` + label(x, y, str, size, INK);
+  };
+  const seed = hash(plan.slug);
+  const PW = plot.x1 - plot.x0, PD = plot.y1 - plot.y0;
+  let g = "";
+
+  // public road along the south boundary
+  g += rect(ext.x0 + 1, plot.y1, EW - 2, 2.2, `fill="#e7e2d8" stroke="${MID}" stroke-width="0.6"`);
+  g += rect(ext.x0 + 1, plot.y1 + 2.2, EW - 2, 7, `fill="#d9d5cd"`);
+  g += `<line x1="${X(ext.x0 + 1)}" y1="${Y(plot.y1 + 5.7)}" x2="${X(ext.x1 - 1)}" y2="${Y(plot.y1 + 5.7)}" stroke="#ffffff" stroke-width="2" stroke-dasharray="18 12"/>`;
+  g += label((plot.x0 + plot.x1) / 2, plot.y1 + 8.2, project.kind === "row" ? "STREET" : "ACCESS ROAD", 11, INK);
+
+  // ground: grass, contours, hard and soft landscape
+  g += rect(plot.x0, plot.y0, PW, PD, `fill="#e3e5d4"`) + rect(plot.x0, plot.y0, PW, PD, `fill="url(#p-grass)"`);
+  const paved = (it, fill, pat) => rect(it.x, it.y, it.w, it.h, `fill="${fill}" stroke="${MID}" stroke-width="0.6"`) + rect(it.x, it.y, it.w, it.h, `fill="url(#${pat})"`);
+  const car = (b) => {
+    const vertical = b.h > b.w;
+    const cw = vertical ? 1.8 : 4.4, ch = vertical ? 4.4 : 1.8;
+    const x = b.x + (b.w - cw) / 2, y = b.y + (b.h - ch) / 2;
+    return rect(x, y, cw, ch, `rx="${f1(0.5 * s)}" fill="#c4c7c8" stroke="${INK}" stroke-width="0.7"`) + rect(x + (vertical ? 0.2 : 1.2), y + (vertical ? 1.2 : 0.2), vertical ? 1.4 : 1.1, vertical ? 1.1 : 1.4, `fill="#7f8f97" fill-opacity=".8"`);
+  };
+  let parked = 0;
+  for (const it of items) {
+    switch (it.t) {
+      case "contour": {
+        let d = "";
+        for (let x = plot.x0; x <= plot.x1 + 0.01; x += 2) d += `${d ? "L" : "M"}${X(x)} ${Y(it.y + Math.sin(x / 13 + it.phase) * 1.4)}`;
+        g += `<path d="${d}" fill="none" stroke="#a49a86" stroke-width="0.8" stroke-opacity=".7"/>`;
+        const ly = Y(it.y + Math.sin((plot.x1 - 3) / 13 + it.phase) * 1.4);
+        g += `<rect x="${f1(X(plot.x1 - 3) - 16)}" y="${f1(ly - 6)}" width="32" height="12" fill="#e3e5d4"/><text x="${X(plot.x1 - 3)}" y="${f1(ly + 3)}" text-anchor="middle" font-family="${FONT}" font-size="8.5" fill="#8a816f">+${it.z}</text>`;
+        break;
+      }
+      case "lane":
+        g += paved(it, "#e1dbcf", "p-setts");
+        break;
+      case "yard":
+        g += paved(it, "#e1dbcf", "p-setts");
+        break;
+      case "paving":
+        g += paved(it, "#ebe4d6", "p-paving");
+        break;
+      case "deck":
+        g += rect(it.x, it.y, it.w, it.h, `fill="#c9a882" stroke="${MID}" stroke-width="0.6"`) + rect(it.x, it.y, it.w, it.h, `fill="url(#p-boards)"`);
+        break;
+      case "bay":
+        g += rect(it.x, it.y, it.w, it.h, `fill="#e6e1d6" stroke="${MID}" stroke-width="0.7"`);
+        if (parked++ % 3 !== 1) g += car(it);
+        break;
+      case "play":
+        g += rect(it.x, it.y, it.w, it.h, `rx="${f1(1.2 * s)}" fill="#e7d3b6" stroke="${MID}" stroke-width="0.8"`);
+        g += `<circle cx="${X(it.x + it.w * 0.3)}" cy="${Y(it.y + it.h * 0.45)}" r="${f1(1.3 * s)}" fill="none" stroke="${INK}" stroke-width="0.8"/>` + rect(it.x + it.w * 0.58, it.y + it.h * 0.2, it.w * 0.28, 0.5, `fill="${INK}" fill-opacity=".5"`);
+        break;
+      case "vineyard":
+        g += rect(it.x, it.y, it.w, it.h, `fill="#e4e2c8"`);
+        for (let x = it.x + 1.2; x < it.x + it.w - 0.6; x += 2.6) g += `<line x1="${X(x)}" y1="${Y(it.y + 0.8)}" x2="${X(x)}" y2="${Y(it.y + it.h - 0.8)}" stroke="#76834f" stroke-width="${f1(Math.max(1.2, 0.55 * s))}" stroke-linecap="round" stroke-dasharray="${f1(0.7 * s)} ${f1(0.45 * s)}" stroke-opacity=".85"/>`;
+        break;
+      case "paddock":
+        g += rect(it.x, it.y, it.w, it.h, `fill="#dde2c5" stroke="#8a7a5a" stroke-width="1.1" stroke-dasharray="7 3"`);
+        break;
+      case "orchard":
+        g += rect(it.x, it.y, it.w, it.h, `fill="#dfe3c9" fill-opacity=".7"`);
+        break;
+      case "pond":
+        g += `<ellipse cx="${X(it.cx)}" cy="${Y(it.cy)}" rx="${f1((it.rx + 1) * s)}" ry="${f1((it.ry + 1) * s)}" fill="#cfd8c0"/>`;
+        g += `<ellipse cx="${X(it.cx)}" cy="${Y(it.cy)}" rx="${f1(it.rx * s)}" ry="${f1(it.ry * s)}" fill="url(#water)" stroke="${INK}" stroke-width="1.2"/>`;
+        g += `<ellipse cx="${X(it.cx - it.rx * 0.15)}" cy="${Y(it.cy - it.ry * 0.1)}" rx="${f1(it.rx * 0.7 * s)}" ry="${f1(it.ry * 0.6 * s)}" fill="none" stroke="#ffffff" stroke-opacity=".6" stroke-width="1"/>`;
+        break;
+      case "pool":
+        g += paved(it, "#ebe4d6", "p-paving") + planPool(X(it.pool.x), Y(it.pool.y), it.pool.w * s, it.pool.d * s, it.pool.w * s > 90 ? "POOL" : "");
+        break;
+      case "firepit":
+        g += `<circle cx="${X(it.cx)}" cy="${Y(it.cy)}" r="${f1(it.r * s)}" fill="#ebe4d6" stroke="${MID}" stroke-width="0.7"/><circle cx="${X(it.cx)}" cy="${Y(it.cy)}" r="${f1(it.r * 0.3 * s)}" fill="#8f7a64" stroke="${INK}" stroke-width="0.8"/>`;
+        break;
+    }
+  }
+
+  // shadows (sun from the south-west), then houses and shared buildings
+  const shadow = (x0, y0, w, h, ht) => {
+    const sh = ht * 0.28;
+    return `<polygon points="${X(x0)},${Y(y0 + h)} ${X(x0)},${Y(y0)} ${X(x0 + sh * 0.8)},${Y(y0 - sh)} ${X(x0 + w + sh * 0.8)},${Y(y0 - sh)} ${X(x0 + w + sh * 0.8)},${Y(y0 + h - sh)} ${X(x0 + w)},${Y(y0 + h)}" fill="${INK}" fill-opacity=".13"/>`;
+  };
+  const buildings = items.filter((it) => it.t === "building");
+  if (project.kind === "row") g += shadow(0, 0, units.length * W, D, model.H);
+  else for (const u of units) g += shadow(u.x, u.y, W, D, model.H);
+  for (const b of buildings) g += shadow(b.x, b.y, b.w, b.h, b.wallH + (b.roof === "gable" ? b.h * 0.25 : 0.4));
+  for (const u of units) {
+    const m = u.mirror ? project.mirrored : model;
+    const UX = (x) => X(u.x + x), UY = (y) => Y(u.y + y);
+    if (m.site.T > 0) g += rect(u.x, u.y + D, W, m.site.T, `fill="#ebe4d6" stroke="${MID}" stroke-width="0.6"`) + rect(u.x, u.y + D, W, m.site.T, `fill="url(#p-paving)"`);
+    if (m.site.deck) {
+      const { deck, pool } = m.site;
+      g += rect(u.x + deck.x, u.y + deck.y, deck.w, deck.h, `fill="#ebe4d6" stroke="${MID}" stroke-width="0.6"`) + planPool(UX(pool.x), UY(pool.y), pool.w * s, pool.d * s, "");
+    }
+    g += roofPlan(m, UX, UY, s, { notes: false });
+  }
+  for (const b of buildings) {
+    const col = b.roof === "gable" ? { terracotta: "#d9a283", seam: "#8d9195", slate: "#8c9198" }[b.roofMat] ?? "#b9b4ab" : "#ebe6dc";
+    if (b.roof === "gable") {
+      const ov = 0.5, along = b.w >= b.h;
+      const halves = along
+        ? [[b.x - ov, b.y - ov, b.w + 2 * ov, b.h / 2 + ov, shade(col, -0.12), "p-roofh"], [b.x - ov, b.y + b.h / 2, b.w + 2 * ov, b.h / 2 + ov, col, "p-roofh"]]
+        : [[b.x - ov, b.y - ov, b.w / 2 + ov, b.h + 2 * ov, shade(col, -0.15), "p-roofv"], [b.x + b.w / 2, b.y - ov, b.w / 2 + ov, b.h + 2 * ov, col, "p-roofv"]];
+      for (const [x, y, w, h, fill, pat] of halves) g += rect(x, y, w, h, `fill="${fill}" stroke="${INK}" stroke-width="1.2"`) + rect(x, y, w, h, `fill="url(#${pat})"`);
+    } else {
+      g += rect(b.x - 0.3, b.y - 0.3, b.w + 0.6, b.h + 0.6, `fill="${col}" stroke="${INK}" stroke-width="1.4"`);
+    }
+  }
+
+  // hedges, fences, trees
+  for (const it of items) {
+    if (it.t === "hedge") g += `<polyline points="${it.pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="none" stroke="#8e9b6f" stroke-width="${f1(Math.max(2, 0.7 * s))}" stroke-linecap="round" stroke-opacity=".85"/>`;
+    if (it.t === "fence") for (const [[x1, y1], [x2, y2]] of it.lines) g += `<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="#7a6a50" stroke-width="1" stroke-dasharray="5 2"/>`;
+  }
+  if (project.kind !== "row") g += `<path d="M${X(plot.x0 + 0.5)} ${Y(plot.y1 - 0.3)} V${Y(plot.y0 + 0.5)} H${X(plot.x1 - 0.5)} V${Y(plot.y1 - 0.3)}" fill="none" stroke="#9aa57f" stroke-width="${f1(Math.max(2, 0.8 * s))}" stroke-linejoin="round" stroke-opacity=".6"/>`;
+  trees.forEach((t, i) => (g += planTree(t.kind, X(t.x), Y(t.y), f1(t.r * s), seed + i)));
+
+  // plot boundary, labels, house numbers, dimensions
+  g += rect(plot.x0, plot.y0, PW, PD, `fill="none" stroke="${INK}" stroke-width="1.8" stroke-dasharray="22 5 4 5"`);
+  for (const [x, y] of [[plot.x0, plot.y0], [plot.x1, plot.y0], [plot.x1, plot.y1], [plot.x0, plot.y1]]) g += `<circle cx="${X(x)}" cy="${Y(y)}" r="4" fill="${PAPER}" stroke="${INK}" stroke-width="1.2"/>`;
+  for (const it of items) {
+    if (!it.label) continue;
+    if (it.t === "building") g += tag(it.x + it.w / 2, it.y + it.h / 2 + 0.3, it.label, 8.5);
+    else if (it.t === "pond" || it.t === "firepit") g += tag(it.cx, it.cy + (it.ry ?? it.r) + 2.4, it.label, 8.5);
+    else if (it.t === "label") g += tag(it.x, it.y, it.text, 9);
+    else if (it.t === "lane" && it.w > it.h) g += label(it.x + it.w * 0.5, it.y + it.h / 2 + 0.25, it.label, 8.5, INK, 'dominant-baseline="middle"');
+    else if (it.t === "pool") continue;
+    else if (it.t === "yard") g += tag(it.x + it.w / 2, it.y + it.h - 1.2, it.label, 8.5);
+    else g += tag(it.x + it.w / 2, it.y + it.h / 2 + 0.4, it.label, 8.5);
+  }
+  for (const u of units) {
+    const cx = X(u.x + W / 2), cy = Y(u.y + D / 2);
+    g += `<circle cx="${cx}" cy="${cy}" r="12" fill="${PAPER}" stroke="${INK}" stroke-width="1.1"/><text x="${cx}" y="${f1(cy + 4)}" text-anchor="middle" font-family="${FONT}" font-size="10.5" font-weight="600" fill="${INK}">${String(u.no).padStart(2, "0")}</text>`;
+  }
+  const unitChain = !preview && project.kind === "row";
+  g += dimChain([plot.x0, plot.x1], plot.y0 - (unitChain ? 3.6 : 2.2), s, ox, oy, true, 1);
+  g += dimChain([plot.y0, plot.y1], plot.x0 - 2.2, s, ox, oy, false);
+  if (unitChain) g += dimChain([plot.x0, ...units.map((u) => u.x), units.length * W, plot.x1], plot.y0 - 1.5, s, ox, oy, true, 1);
+
+  // schedule in the title block column
+  const plotArea = PW * PD;
+  const rows = [
+    ["PLOT (INDICATIVE)", `${PW.toFixed(0)} × ${PD.toFixed(0)} m · ${plotArea >= 10000 ? `${(plotArea / 10000).toFixed(2)} ha` : `${plotArea.toFixed(0)} m²`}`],
+    ["HOUSES", `${units.length} × ${plan.areaM2} m² · ${plan.bedrooms} bedrooms each`],
+    ["TOTAL GROSS FLOOR AREA", `${project.totalArea} m²`],
+    ["BUILT FOOTPRINT · COVERAGE", `${project.layout.footprint.toFixed(0)} m² · ${((project.layout.footprint / plotArea) * 100).toFixed(0)} %`],
+  ];
+  let schedule = `<text x="${SHEET_W - 330 + 28}" y="${492}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">PROJECT SCHEDULE</text>`;
+  rows.forEach(([k, v], i) => (schedule += `<text x="${SHEET_W - 330 + 28}" y="${528 + i * 42}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">${k}</text><text x="${SHEET_W - 330 + 28}" y="${546 + i * 42}" font-family="${FONT}" font-size="13.5" font-weight="500" fill="${INK}">${esc(v)}</text>`));
+  schedule += `<text x="${SHEET_W - 330 + 28}" y="${528 + rows.length * 42}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">SHARED FACILITIES</text>`;
+  wrap(project.layout.shared, 38).forEach((line, i) => (schedule += `<text x="${SHEET_W - 330 + 28}" y="${546 + rows.length * 42 + i * 17}" font-family="${FONT}" font-size="12" fill="${INK}">${esc(line)}</text>`));
+  const k = s >= 25 ? 1 : s >= 10 ? 2 : s >= 5 ? 5 : 10;
+  g += sheetTitle("MASTERPLAN", `${plan.title.en.toUpperCase()} · ${units.length} ${PROJECT_WORD[project.kind]} · ${PROJECT_RULES[project.kind].label}`);
+  g += scaleBar(SHEET_W - 330 - 60 - 5 * k * s, SHEET_H - 72, s, k);
+  return sheet({ plan, drawing: "MASTERPLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true, preview });
 }
 
 const level0 = (model) => model.levels[0];
@@ -1319,7 +1707,9 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   const { W, plan, above, spec, wallTop, H } = model;
   const garage = model.garage;
   const gW = garage ? garage.w : 0;
-  const totalW = W + gW;
+  // a terrace is drawn as its whole street front (three houses on the catalogue card)
+  const row = model.project?.kind === "row" ? (bare ? Math.min(3, model.project.units) : model.project.units) : 1;
+  const totalW = W * row + gW;
   const below = model.basement ? 4.6 : 2.4;
   const topRoom = bare ? 1.0 : 3.4;
   const leftPad = 4.8, rightPad = bare ? 5.2 : 6.6;
@@ -1380,20 +1770,23 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     return o;
   };
 
+  let env = "";
   let back = "";
   let g = "";
   let front = "";
+  let fg = "";
 
   // ---- ground: earth + basement
-  g += box(-leftPad + 0.3, -below + 1.5, totalW + leftPad + rightPad - 0.6, below - 1.5, "url(#p-earth)");
-  g += `<line x1="${X(-leftPad + 0.3)}" y1="${Y(0)}" x2="${X(totalW + rightPad - 0.3)}" y2="${Y(0)}" stroke="${INK}" stroke-width="2.4"/>`;
+  env += box(-leftPad + 0.3, -below + 1.5, totalW + leftPad + rightPad - 0.6, below - 1.5, "url(#p-earth)");
+  env += `<line x1="${X(-leftPad + 0.3)}" y1="${Y(0)}" x2="${X(totalW + rightPad - 0.3)}" y2="${Y(0)}" stroke="${INK}" stroke-width="2.4"/>`;
   if (model.basement) {
     g += box(0, -3.2, W, 3.2, PAPER, `stroke="${INK}" stroke-width="1.2" stroke-dasharray="10 6"`);
     g += `<text x="${X(W / 2)}" y="${Y(-1.75)}" text-anchor="middle" font-family="${FONT}" font-size="11" letter-spacing="2" fill="${MID}">LOWER LEVEL −3.30 · SPA · CINEMA · OPENS TO REAR GARDEN</text>`;
   }
 
-  // ---- background trees (behind the house)
-  if (!["cypress"].includes(spec.tree)) back += elevTree(spec.tree, W * 0.78, X, Y, s, seed + 3, 1.15);
+  // ---- background trees (behind the house; in the rear gardens of a terrace)
+  if (row > 1) for (let i = 1; i < row; i += 2) back += elevTree(spec.tree, i * W + (i % 4 === 1 ? 0.8 : -0.8), X, Y, s, seed + 20 + i, 1.55);
+  else if (!["cypress"].includes(spec.tree)) back += elevTree(spec.tree, W * 0.78, X, Y, s, seed + 3, 1.15);
   else back += elevTree("cypress", W * 0.82, X, Y, s, seed + 3, 1.25) + elevTree("cypress", W * 0.9, X, Y, s, seed + 4, 1.1);
 
   // ---- garage
@@ -1620,13 +2013,17 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
 
   // ---- foreground trees and planting
   const t = spec.tree;
-  front += elevTree(t, -2.6, X, Y, s, seed + 1, t === "cypress" ? 1.05 : 1);
-  if (t === "cypress") front += elevTree("olive", -4.2, X, Y, s, seed + 2, 0.85);
-  front += elevTree(t, totalW + 2.4, X, Y, s, seed + 5, t === "cypress" ? 0.95 : 0.92);
-  if (t === "cypress" || t === "palm") front += elevTree(t, totalW + 3.8, X, Y, s, seed + 6, 0.8);
-  front += shrubs(X, Y, s, -1.4, 0.4, seed + 7) + shrubs(X, Y, s, totalW - 0.2, totalW + 1.6, seed + 8);
+  fg += elevTree(t, -2.6, X, Y, s, seed + 1, t === "cypress" ? 1.05 : 1);
+  if (t === "cypress") fg += elevTree("olive", -4.2, X, Y, s, seed + 2, 0.85);
+  fg += elevTree(t, totalW + 2.4, X, Y, s, seed + 5, t === "cypress" ? 0.95 : 0.92);
+  if (t === "cypress" || t === "palm") fg += elevTree(t, totalW + 3.8, X, Y, s, seed + 6, 0.8);
+  fg += shrubs(X, Y, s, -1.4, 0.4, seed + 7) + shrubs(X, Y, s, totalW - 0.2, totalW + 1.6, seed + 8);
 
-  let out = back + g + front;
+  // the house; along a terrace every second house is mirrored so the front doors pair up
+  const house = g + front;
+  let houses = house;
+  for (let i = 1; i < row; i++) houses += `<g transform="${i % 2 ? `matrix(-1 0 0 1 ${f1(2 * ox + (i + 1) * W * s)} 0)` : `translate(${f1(i * W * s)} 0)`}">${house}</g>`;
+  let out = back + env + houses + fg;
 
   if (!bare) {
     // level markers
@@ -1638,12 +2035,12 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
         <text x="${lx + 12}" y="${Y(z) - 5}">${z === 0 ? "±0.00" : `${z > 0 ? "+" : "−"}${Math.abs(z).toFixed(2)}`}</text></g>`;
     });
     // overall dimension
-    if (!preview) out += dimChain([0, W, ...(garage ? [W + garage.w] : [])], below - 0.7, s, ox, gy, true, -1);
+    if (!preview) out += dimChain(row > 1 ? Array.from({ length: row + 1 }, (_, i) => i * W) : [0, W, ...(garage ? [W + garage.w] : [])], below - 0.7, s, ox, gy, true, -1);
     // material callouts: numbered tags above the building, leaders to sample points
     const keys = [...marks.keys()].filter((k) => MAT[k]);
     const pts = keys.map((k) => ({ k, p: marks.get(k) })).sort((a, b) => a.p[0] - b.p[0]);
     const tagZ = H + topRoom - 1.0;
-    const span = totalW + 2;
+    const span = (row > 1 ? Math.min(totalW, 2.5 * W) : totalW) + 2;
     pts.forEach((it, i) => {
       const tx = -1 + (span * (i + 0.5)) / pts.length;
       const n = keys.indexOf(it.k) + 1;
@@ -1652,22 +2049,35 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
       out += `<circle cx="${X(tx)}" cy="${Y(tagZ)}" r="11" fill="${PAPER}" stroke="${INK}" stroke-width="1"/><text x="${X(tx)}" y="${Y(tagZ) + 4}" text-anchor="middle" font-family="${FONT}" font-size="11" font-weight="600" fill="${INK}">${n}</text>`;
     });
     const defs = materialDefs(s, seed);
-    out += sheetTitle("SOUTH ELEVATION", `${plan.title.en.toUpperCase()} · ${STYLE_EN[plan.style]} · LEVELS IN METRES ABOVE FINISHED GROUND FLOOR`);
+    const elevName = row > 1 ? "STREET ELEVATION" : "SOUTH ELEVATION";
+    const what = row > 1 ? `${row} HOUSES IN MIRRORED PAIRS · LEVELS IN METRES` : model.project ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO. · LEVELS IN METRES ABOVE GROUND FLOOR` : `${STYLE_EN[plan.style]} · LEVELS IN METRES ABOVE FINISHED GROUND FLOOR`;
+    out += sheetTitle(elevName, `${plan.title.en.toUpperCase()} · ${what}`);
     out += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
     const legend = keys.map((k) => ({ fill: MAT[k].fill === "#7f949f" ? "url(#glass)" : MAT[k].fill, pattern: MAT[k].pattern ? `p-${MAT[k].pattern}` : null, label: MAT[k].label }));
     legend.title = "MATERIALS";
-    return sheet({ plan, drawing: "SOUTH ELEVATION", sheetNo, scaleNote: "GRAPHIC SCALE", body: out, defs, north: false, legend, preview });
+    return sheet({ plan, drawing: elevName, sheetNo, scaleNote: "GRAPHIC SCALE", body: out, defs, north: false, legend, preview });
   }
   return bareSvg(out, materialDefs(s, seed));
 }
 
 // ------------------------------------------------------------------ axonometric (coloured massing)
 
-export function axonometricSheet(model, sheetNo, { preview = false } = {}) {
-  const { W, D, plan, above, spec, wallTop, H, site } = model;
-  // isometric; b = depth measured from the front facade toward the back
-  const c30 = Math.cos(Math.PI / 6);
-  const proj = (x, b, z) => [x * c30 - b * c30, -(x * 0.5) - b * 0.5 - z];
+// isometric projection; b = depth measured from the front facade toward the back
+const C30 = Math.cos(Math.PI / 6);
+const isoProj = (x, b, z) => [x * C30 - b * C30, -(x * 0.5) - b * 0.5 - z];
+const isoPoly = (points, fill, extra = "") =>
+  `<polygon points="${points.join(" ")}" fill="${fill}" ${extra.includes('stroke="') ? "" : `stroke="${INK}"`} ${extra.includes("stroke-width") ? "" : 'stroke-width="1.1"'} stroke-linejoin="round" ${extra}/>`;
+const ISO_GLASS = "#4a5961";
+const isoColours = (key) => {
+  const base = MAT[key].fill;
+  return { front: base, side: shade(base, -0.16), top: shade(base, 0.25) };
+};
+
+export function axonometricSheet(model, sheetNo, { preview = false, typical = false } = {}) {
+  if (model.project && !typical) return ensembleSheet(model, sheetNo, { preview });
+  const { W, D, plan, site } = model;
+  const proj = isoProj;
+  const H = model.H;
 
   const gW = model.garage ? model.garage.w : 0;
   const frontB = -(Math.max(site.T, site.deck ? site.T + site.deck.h : 0) + 0.6);
@@ -1684,21 +2094,27 @@ export function axonometricSheet(model, sheetNo, { preview = false } = {}) {
     const [u, v] = proj(x, b, z);
     return `${(ox + u * s).toFixed(1)},${(oy + v * s).toFixed(1)}`;
   };
-  const poly = (points, fill, extra = "") =>
-    `<polygon points="${points.join(" ")}" fill="${fill}" ${extra.includes('stroke="') ? "" : `stroke="${INK}"`} ${extra.includes("stroke-width") ? "" : 'stroke-width="1.1"'} stroke-linejoin="round" ${extra}/>`;
-  const GLASS = "#4a5961";
-  const colours = (key) => {
-    const base = MAT[key].fill;
-    return { front: base, side: shade(base, -0.16), top: shade(base, 0.25) };
-  };
 
   let g = "";
   // ground plate
   g += `<polygon points="${[P(-2.5, frontB - 1, 0), P(W + gW + 2.5, frontB - 1, 0), P(W + gW + 2.5, D + 2.5, 0), P(-2.5, D + 2.5, 0)].join(" ")}" fill="#e6e7d8" fill-opacity=".8"/>`;
   for (let x = -2; x <= W + gW + 2; x += 1) g += `<polyline points="${P(x, frontB - 1, 0)} ${P(x, D + 2.5, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
   for (let b = Math.ceil(frontB - 1); b <= D + 2; b += 1) g += `<polyline points="${P(-2.5, b, 0)} ${P(W + gW + 2.5, b, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
+  g += isoGround(model, P) + isoHouse(model, P);
+
+  const what = model.project ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO.` : STYLE_EN[plan.style];
+  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${what} · VIEW FROM SOUTH-WEST`);
+  return sheet({ plan, drawing: "AXONOMETRIC VIEW", sheetNo, scaleNote: "NTS", body: g, north: false, preview });
+}
+
+/** Ground-level parts of one house in isometric (P maps house metres to px): shadow, terrace, deck and pool. */
+function isoGround(model, P, { shadow = true } = {}) {
+  const { W, D, site } = model;
+  const gW = model.garage ? model.garage.w : 0;
+  const poly = isoPoly;
+  let g = "";
   // soft shadow toward the north-east
-  g += `<polygon points="${[P(0, 0, 0), P(W + gW + 2.6, 2.2, 0), P(W + gW + 2.6, D + 2.2, 0), P(0, D, 0)].join(" ")}" fill="${INK}" fill-opacity=".1"/>`;
+  if (shadow) g += `<polygon points="${[P(0, 0, 0), P(W + gW + 2.6, 2.2, 0), P(W + gW + 2.6, D + 2.2, 0), P(0, D, 0)].join(" ")}" fill="${INK}" fill-opacity=".1"/>`;
 
   // deck + pool (plan y -> b = D - y)
   const B = (y) => D - y;
@@ -1708,6 +2124,17 @@ export function axonometricSheet(model, sheetNo, { preview = false } = {}) {
     g += poly([P(deck.x, B(deck.y), 0), P(deck.x + deck.w, B(deck.y), 0), P(deck.x + deck.w, B(deck.y + deck.h), 0), P(deck.x, B(deck.y + deck.h), 0)], "#e8dfcf", 'stroke-width="0.6"');
     g += poly([P(pool.x, B(pool.y), 0), P(pool.x + pool.w, B(pool.y), 0), P(pool.x + pool.w, B(pool.y + pool.d), 0), P(pool.x, B(pool.y + pool.d), 0)], "#8fbcc2", 'stroke-width="0.9"');
   }
+  return g;
+}
+
+/** One house in isometric through P (house metres -> px): garage, storeys, openings, terraces and roof. */
+function isoHouse(model, P) {
+  const { W, D, plan, above, spec, wallTop, H, site } = model;
+  const gW = model.garage ? model.garage.w : 0;
+  const poly = isoPoly;
+  const GLASS = ISO_GLASS;
+  const colours = isoColours;
+  let g = "";
 
   const box = (x0, x1, b0, b1, z0, z1, c, top = true) => {
     let o = poly([P(x0, b0, z0), P(x1, b0, z0), P(x1, b0, z1), P(x0, b0, z1)], c.front);
@@ -1827,8 +2254,144 @@ export function axonometricSheet(model, sheetNo, { preview = false } = {}) {
     g += poly([P(-ov, -ov, ez), P(W / 2, -ov, H), P(W / 2, D + ov, H), P(-ov, D + ov, ez)], R);
   }
   if (plan.style === "duplex") g += `<polyline points="${P(W / 2, 0, 0)} ${P(W / 2, 0, wallTop + 0.4)}" fill="none" stroke="${INK}" stroke-width="2"/>`;
+  return g;
+}
 
-  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${STYLE_EN[plan.style]} · VIEW FROM SOUTH-WEST`);
+/** A-301 for a project: every house, the shared buildings, lanes and planting in one isometric view. */
+function ensembleSheet(model, sheetNo, { preview = false } = {}) {
+  const { plan, project, W, D } = model;
+  const { plot, units, items, trees } = project.layout;
+  const refY = plot.y1; // b = refY - plan y: depth from the front boundary toward the back
+  const bOf = (y) => refY - y;
+  const tall = Math.max(model.H, ...items.filter((it) => it.t === "building").map((b) => b.wallH + Math.min(b.w, b.h) * 0.25)) + 3;
+  const corners = [];
+  for (const x of [plot.x0 - 3, plot.x1 + 3]) for (const y of [plot.y0 - 3, plot.y1 + 9.2]) for (const z of [0, y < plot.y1 ? tall : 0]) corners.push(isoProj(x, bOf(y), z));
+  const minX = Math.min(...corners.map((p) => p[0])), maxX = Math.max(...corners.map((p) => p[0]));
+  const minY = Math.min(...corners.map((p) => p[1])), maxY = Math.max(...corners.map((p) => p[1]));
+  const areaW = SHEET_W - 330 - 36 - 110;
+  const areaH = SHEET_H - 72 - 180;
+  const s = Math.min(areaW / (maxX - minX), areaH / (maxY - minY));
+  const ox = 36 + 55 + (areaW - (maxX - minX) * s) / 2 - minX * s;
+  const oy = 36 + 60 + (areaH - (maxY - minY) * s) / 2 - minY * s;
+  const xy = (x, b, z) => {
+    const [u, v] = isoProj(x, b, z);
+    return [ox + u * s, oy + v * s];
+  };
+  const P = (x, b, z) => xy(x, b, z).map((n) => n.toFixed(1)).join(",");
+  const flat = (x, y, w, h, fill, extra = 'stroke-width="0.5"') => isoPoly([P(x, bOf(y + h), 0), P(x + w, bOf(y + h), 0), P(x + w, bOf(y), 0), P(x, bOf(y), 0)], fill, extra);
+  const seed = hash(plan.slug);
+  let g = "";
+
+  // ground: plot, road, hard and soft landscape
+  g += flat(plot.x0 - 3, plot.y1, plot.x1 - plot.x0 + 6, 9.2, "#d9d5cd", 'stroke="none"');
+  g += flat(plot.x0 - 3, plot.y1, plot.x1 - plot.x0 + 6, 2.2, "#e7e2d8", 'stroke-width="0.4"');
+  g += flat(plot.x0, plot.y0, plot.x1 - plot.x0, plot.y1 - plot.y0, "#e3e6d2", 'stroke-width="0.8"');
+  for (const it of items) {
+    switch (it.t) {
+      case "lane":
+      case "yard":
+        g += flat(it.x, it.y, it.w, it.h, "#ddd6c8");
+        break;
+      case "paving":
+      case "pool":
+        g += flat(it.x, it.y, it.w, it.h, "#e8dfcf");
+        if (it.pool) g += flat(it.pool.x, it.pool.y, it.pool.w, it.pool.d, "#8fbcc2", 'stroke-width="0.8"');
+        break;
+      case "bay":
+        g += flat(it.x, it.y, it.w, it.h, "#e6e1d6", 'stroke="#9a9286" stroke-width="0.5"');
+        break;
+      case "deck":
+        g += flat(it.x, it.y, it.w, it.h, "#c9a882", 'stroke-width="0.5"');
+        break;
+      case "play":
+        g += flat(it.x, it.y, it.w, it.h, "#e7d3b6");
+        break;
+      case "paddock":
+      case "orchard":
+        g += flat(it.x, it.y, it.w, it.h, it.t === "paddock" ? "#dae0bf" : "#dde2c6", 'stroke="none"');
+        break;
+      case "vineyard":
+        g += flat(it.x, it.y, it.w, it.h, "#e2e0c4", 'stroke="none"');
+        for (let x = it.x + 1.2; x < it.x + it.w - 0.6; x += 2.6) g += `<polyline points="${P(x, bOf(it.y + it.h - 0.8), 0.9)} ${P(x, bOf(it.y + 0.8), 0.9)}" fill="none" stroke="#6f7d48" stroke-width="${f1(Math.max(1.4, 0.7 * s))}" stroke-linecap="round" stroke-opacity=".9"/>`;
+        break;
+      case "pond":
+      case "firepit": {
+        const rx = it.rx ?? it.r, ry = it.ry ?? it.r;
+        const pts = Array.from({ length: 28 }, (_, i) => P(it.cx + Math.cos((i / 28) * Math.PI * 2) * rx, bOf(it.cy + Math.sin((i / 28) * Math.PI * 2) * ry), 0));
+        g += isoPoly(pts, it.t === "pond" ? "#9cc4c9" : "#e8dfcf", 'stroke-width="0.8"');
+        break;
+      }
+    }
+  }
+  // shadows and private terraces of the houses (all on the ground, before anything stands up)
+  if (project.kind === "row") g += `<polygon points="${[P(0, bOf(D), 0), P(units.length * W + 2.6, bOf(D) + 2.2, 0), P(units.length * W + 2.6, bOf(0) + 2.2, 0), P(0, bOf(0), 0)].join(" ")}" fill="${INK}" fill-opacity=".1"/>`;
+  const unitP = (u) => (x, b, z) => P(u.x + x, bOf(u.y + D) + b, z);
+  for (const u of units) g += isoGround(u.mirror ? project.mirrored : model, unitP(u), { shadow: project.kind !== "row" });
+  for (const it of items) {
+    if (it.t === "hedge") g += `<polyline points="${it.pts.map(([x, y]) => P(x, bOf(y), 0.6)).join(" ")}" fill="none" stroke="#7f8d5f" stroke-width="${f1(Math.max(2.4, 0.9 * s))}" stroke-linecap="round"/>`;
+    if (it.t === "fence") for (const [[x1, y1], [x2, y2]] of it.lines) g += `<polyline points="${P(x1, bOf(y1), 1.5)} ${P(x2, bOf(y2), 1.5)}" fill="none" stroke="#7a6a50" stroke-width="0.9"/>`;
+    if (it.t === "paddock") g += `<polygon points="${[P(it.x, bOf(it.y + it.h), 1.2), P(it.x + it.w, bOf(it.y + it.h), 1.2), P(it.x + it.w, bOf(it.y), 1.2), P(it.x, bOf(it.y), 1.2)].join(" ")}" fill="none" stroke="#8a7a5a" stroke-width="0.9"/>`;
+  }
+
+  // everything that stands up, far to near
+  const solids = [];
+  for (const u of units) solids.push({ key: u.x + W / 2 + bOf(u.y + D / 2), svg: () => isoHouse(u.mirror ? project.mirrored : model, unitP(u)) });
+  for (const b of items.filter((it) => it.t === "building")) {
+    solids.push({
+      key: b.x + b.w / 2 + bOf(b.y + b.h / 2),
+      svg: () => {
+        const x0 = b.x, x1 = b.x + b.w, b0 = bOf(b.y + b.h), b1 = bOf(b.y), z1 = b.wallH;
+        const c = isoColours(b.mat);
+        let o = isoPoly([P(x0, b0, 0), P(x1, b0, 0), P(x1, b0, z1), P(x0, b0, z1)], c.front) + isoPoly([P(x0, b0, 0), P(x0, b1, 0), P(x0, b1, z1), P(x0, b0, z1)], c.side);
+        // doors and windows on the front
+        const door = Math.min(3.2, b.w * 0.25), dh = Math.min(3.4, z1 - 0.6);
+        o += isoPoly([P((x0 + x1) / 2 - door / 2, b0, 0), P((x0 + x1) / 2 + door / 2, b0, 0), P((x0 + x1) / 2 + door / 2, b0, dh), P((x0 + x1) / 2 - door / 2, b0, dh)], "#6b4e36", 'stroke-width="0.6"');
+        for (const fx of [0.18, 0.82]) if (b.w > 9) o += isoPoly([P(x0 + b.w * fx - 0.6, b0, 1.0), P(x0 + b.w * fx + 0.6, b0, 1.0), P(x0 + b.w * fx + 0.6, b0, 2.3), P(x0 + b.w * fx - 0.6, b0, 2.3)], ISO_GLASS, 'stroke-width="0.5"');
+        if (b.roof !== "gable") return o + isoPoly([P(x0 - 0.3, b0 - 0.3, z1), P(x1 + 0.3, b0 - 0.3, z1), P(x1 + 0.3, b1 + 0.3, z1), P(x0 - 0.3, b1 + 0.3, z1)], isoColours("render").top);
+        const R = MAT[b.roofMat ?? "terracotta"].fill, ov = 0.5;
+        if (b.w >= b.h) {
+          const bm = (b0 + b1) / 2, top = z1 + (b.h / 2) * 0.5, ez = z1 - ov * 0.5;
+          o += isoPoly([P(x0, b0, z1), P(x0, b1, z1), P(x0, bm, top)], c.side);
+          o += isoPoly([P(x0 - ov, b1 + ov, ez), P(x1 + ov, b1 + ov, ez), P(x1 + ov, bm, top), P(x0 - ov, bm, top)], shade(R, 0.1));
+          o += isoPoly([P(x0 - ov, b0 - ov, ez), P(x1 + ov, b0 - ov, ez), P(x1 + ov, bm, top), P(x0 - ov, bm, top)], R);
+        } else {
+          const xm = (x0 + x1) / 2, top = z1 + (b.w / 2) * 0.6, ez = z1 - ov * 0.6;
+          o += isoPoly([P(x0, b0, z1), P(x1, b0, z1), P(xm, b0, top)], c.front);
+          o += isoPoly([P(xm, b0 - ov, top), P(x1 + ov, b0 - ov, ez), P(x1 + ov, b1 + ov, ez), P(xm, b1 + ov, top)], shade(R, 0.18));
+          o += isoPoly([P(x0 - ov, b0 - ov, ez), P(xm, b0 - ov, top), P(xm, b1 + ov, top), P(x0 - ov, b1 + ov, ez)], R);
+        }
+        return o;
+      },
+    });
+  }
+  trees.forEach((t, i) => {
+    solids.push({
+      key: t.x + bOf(t.y),
+      svg: () => {
+        const rand = rng(seed + i);
+        const b = bOf(t.y);
+        const h = ({ cypress: 8.5, pine: 10, palm: 7.5, olive: 4.6, round: 5.8 }[t.kind] ?? 5.5) * (0.85 + rand() * 0.3);
+        const [bx, by] = xy(t.x, b, 0);
+        const [tx, ty] = xy(t.x, b, h * (t.kind === "cypress" ? 0.12 : t.kind === "palm" ? 0.92 : 0.5));
+        let o = `<line x1="${f1(bx)}" y1="${f1(by)}" x2="${f1(tx)}" y2="${f1(ty)}" stroke="#5a4733" stroke-width="${f1(Math.max(1.2, 0.25 * s))}"/>`;
+        const [cx, cy] = xy(t.x, b, h * (t.kind === "cypress" ? 0.55 : t.kind === "pine" ? 0.6 : 0.78));
+        const r = t.r * s;
+        if (t.kind === "cypress") o += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(r * 0.7)}" ry="${f1(h * 0.47 * s)}" fill="#56633f" stroke="${INK}" stroke-opacity=".4" stroke-width="0.7"/>`;
+        else if (t.kind === "pine") o += `<path d="M${f1(cx)} ${f1(cy - h * 0.42 * s)} L${f1(cx + r)} ${f1(cy + h * 0.3 * s)} L${f1(cx - r)} ${f1(cy + h * 0.3 * s)} Z" fill="#4c5b3c" stroke="${INK}" stroke-opacity=".4" stroke-width="0.7"/>`;
+        else o += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(r)}" ry="${f1(r * 0.82)}" fill="${t.kind === "olive" ? "#93a079" : "#7f8d5f"}" stroke="${INK}" stroke-opacity=".4" stroke-width="0.7"/><ellipse cx="${f1(cx - r * 0.25)}" cy="${f1(cy - r * 0.25)}" rx="${f1(r * 0.45)}" ry="${f1(r * 0.35)}" fill="#ffffff" fill-opacity=".14"/>`;
+        return o;
+      },
+    });
+  });
+  solids.sort((a, b) => b.key - a.key);
+  for (const it of solids) g += it.svg();
+
+  // house numbers above the roofs
+  for (const u of units) {
+    const [x, y] = xy(u.x + W / 2, bOf(u.y + D / 2), model.H + 2.2);
+    g += `<circle cx="${f1(x)}" cy="${f1(y)}" r="10" fill="${PAPER}" stroke="${INK}" stroke-width="1"/><text x="${f1(x)}" y="${f1(y + 3.5)}" text-anchor="middle" font-family="${FONT}" font-size="9.5" font-weight="600" fill="${INK}">${String(u.no).padStart(2, "0")}</text>`;
+  }
+  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${units.length} ${PROJECT_WORD[project.kind]} · VIEW FROM SOUTH-WEST`);
   return sheet({ plan, drawing: "AXONOMETRIC VIEW", sheetNo, scaleNote: "NTS", body: g, north: false, preview });
 }
 
@@ -1953,9 +2516,15 @@ export function scheduleSheet(model, sheetNo) {
   const totalGea = sc.areas.reduce((n, a) => n + a.gea, 0);
   const areaRows = sc.areas.map((a) => [a.level, a.nia.toFixed(1), a.gea.toFixed(1)]);
   if (sc.garageArea) areaRows.push(["GARAGE", "—", sc.garageArea.toFixed(1)]);
-  const totalRow = ["TOTAL", totalNia.toFixed(1), (totalGea + sc.garageArea).toFixed(1)];
+  const totalRow = [model.project ? "TOTAL PER HOUSE" : "TOTAL", totalNia.toFixed(1), (totalGea + sc.garageArea).toFixed(1)];
   totalRow.bold = true;
   areaRows.push(totalRow);
+  if (model.project) {
+    const n = model.project.units;
+    const projectRow = [`PROJECT · ${n} HOUSES`, (totalNia * n).toFixed(1), ((totalGea + sc.garageArea) * n).toFixed(1)];
+    projectRow.bold = true;
+    areaRows.push(projectRow);
+  }
   const area = table(L, 84, [{ label: "LEVEL", w: 210 }, { label: "NET INTERNAL m²", w: 130, right: true }, { label: "GROSS EXTERNAL m²", w: 150, right: true }], areaRows, { title: "AREA SCHEDULE" });
   g += area.svg;
   const many = sc.rooms.length > 22;
@@ -1970,7 +2539,7 @@ export function scheduleSheet(model, sheetNo) {
   const wins = table(R, doors.bottom + 36, [{ label: "NO.", w: 44 }, { label: "ROOM", w: 128 }, { label: "FAC.", w: 34 }, { label: "W × H", w: 86, right: true }, { label: "SILL", w: 50, right: true }, { label: "TYPE", w: 238 }], sc.windows.map((w) => [w.no, `${w.level ? `${w.level}F` : "GF"} · ${w.room}`, w.facade, `${(w.w * 1000).toFixed(0)}×${(w.h * 1000).toFixed(0)}`, (w.sill * 1000).toFixed(0), w.type]), { title: "WINDOW SCHEDULE", size, rowH });
   g += wins.svg;
   g += `<text x="${L}" y="${SHEET_H - 112}" font-family="${FONT}" font-size="10" fill="${MID}">Door and window sizes are structural openings in millimetres (width × height). Sill heights above finished floor level.</text>`;
-  g += sheetTitle("SCHEDULES", `${plan.title.en.toUpperCase()} · ${sc.rooms.length} ROOMS · ${sc.doors.length} DOORS · ${sc.windows.length} WINDOWS`);
+  g += sheetTitle("SCHEDULES", `${plan.title.en.toUpperCase()}${unitNote(model)} · ${sc.rooms.length} ROOMS · ${sc.doors.length} DOORS · ${sc.windows.length} WINDOWS`);
   return sheet({ plan, drawing: "SCHEDULES", sheetNo, scaleNote: "NTS", body: g, north: false });
 }
 
@@ -1999,12 +2568,15 @@ export function coverSheet(model, renderDataUri, sheetList) {
   }
   const rx = 870;
   g += `<text x="${rx}" y="${iy + 10}" font-family="${FONT}" font-size="10" letter-spacing="2.4" fill="${ACCENT}">CONCEPT DESIGN PACKAGE</text>`;
-  g += `<text x="${rx}" y="${iy + 52}" font-family="${FONT}" font-size="34" font-weight="600" letter-spacing="1" fill="${INK}">${esc(plan.title.en.toUpperCase())}</text>`;
-  g += `<text x="${rx}" y="${iy + 76}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${STYLE_EN[plan.style]} VILLA</text>`;
+  const titleSize = plan.title.en.length > 18 ? Math.floor(380 / (plan.title.en.length * 0.72)) : 34; // long project names
+  g += `<text x="${rx}" y="${iy + 52}" font-family="${FONT}" font-size="${titleSize}" font-weight="600" letter-spacing="1" fill="${INK}">${esc(plan.title.en.toUpperCase())}</text>`;
+  g += `<text x="${rx}" y="${iy + 76}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${model.project ? `${PROJECT_RULES[model.project.kind].label} · ${model.project.units} HOUSES` : `${STYLE_EN[plan.style]} VILLA`}</text>`;
   wrap(plan.summary.en, 58).forEach((line, i) => (g += `<text x="${rx}" y="${iy + 110 + i * 17}" font-family="${FONT}" font-size="11.5" fill="${INK}">${esc(line)}</text>`));
   const sc = schedules(model);
+  const project = model.project;
   const data = [
-    ["Gross floor area", `${plan.areaM2} m²`],
+    ...(project ? [["Houses", `${project.units} × ${STYLE_EN[plan.style].toLowerCase()}`], ["Total gross floor area", `${project.totalArea} m²`], ["Plot (indicative)", `${((project.layout.plot.x1 - project.layout.plot.x0) * (project.layout.plot.y1 - project.layout.plot.y0) / 10000).toFixed(2)} ha`]] : []),
+    [project ? "Gross floor area per house" : "Gross floor area", `${plan.areaM2} m²`],
     ["Net internal area", `${sc.rooms.reduce((n, r) => n + r.area, 0).toFixed(0)} m²`],
     ["Footprint", `${W.toFixed(2)} × ${D.toFixed(2)} m`],
     ["Levels", `${plan.floors}${model.basement ? " (incl. lower level)" : ""}`],
@@ -2012,7 +2584,7 @@ export function coverSheet(model, renderDataUri, sheetList) {
     ["Garage", model.garage ? `${model.garage.w > 5 ? "Double" : "Single"}, ${(model.garage.w * model.garage.d).toFixed(0)} m²` : "—"],
     ["Pool", model.site.pool ? `${model.site.pool.w.toFixed(1)} × ${model.site.pool.d.toFixed(1)} m` : "—"],
   ];
-  g += table(rx, iy + 230, [{ label: "PROJECT DATA", w: 190 }, { label: "", w: 180, right: true }], data, { size: 11 }).svg;
+  g += table(rx, iy + 230, [{ label: "PROJECT DATA", w: project ? 210 : 190 }, { label: "", w: 180, right: true }], data, { size: 11, rowH: project ? 15.5 : 17 }).svg;
   const list = table(ix, iy + ih + 70, [{ label: "SHEET", w: 90 }, { label: "TITLE", w: 330 }, { label: "SCALE", w: 120 }], sheetList.map((s) => [s.no, s.title, s.scale]), { title: "DRAWING LIST", size: 11 });
   g += list.svg;
   const notes = [
@@ -2023,7 +2595,7 @@ export function coverSheet(model, renderDataUri, sheetList) {
   ];
   g += `<text x="${rx}" y="${iy + ih + 82}" font-family="${FONT}" font-size="11" font-weight="600" letter-spacing="2" fill="${INK}">NOTES</text>`;
   notes.forEach((n, i) => wrap(n, 62).forEach((line, j) => (g += `<text x="${rx}" y="${iy + ih + 106 + i * 36 + j * 15}" font-family="${FONT}" font-size="10.5" fill="${INK}">${esc(line)}</text>`)));
-  g += sheetTitle("COVER SHEET", `${plan.title.en.toUpperCase()} · ${plan.areaM2} m² · ${sheetList.length} SHEETS`);
+  g += sheetTitle("COVER SHEET", `${plan.title.en.toUpperCase()} · ${grossArea(model)} · ${sheetList.length} SHEETS`);
   return sheet({ plan, drawing: "COVER SHEET", sheetNo: "A-000", scaleNote: "NTS", body: g, north: false });
 }
 
@@ -2246,14 +2818,61 @@ export function cadLevel(model, levelIndex) {
   };
 }
 
-/** Everything the DXF writer needs for one plan. */
+/** Masterplan of a project for the CAD export: plot, road, house footprints, shared buildings and landscape. */
+export function cadMasterplan(model) {
+  const { W, D, project } = model;
+  const { plot, units, items, trees } = project.layout;
+  const ents = [];
+  const add = (layer, e) => ents.push({ layer, ...e });
+  // text ~2.2 mm high on the A3 layout, at the scale make_dxf.py will pick for these extents
+  const wm = plot.x1 - plot.x0 + 10, hm = plot.y1 - plot.y0 + 18;
+  const scale = [100, 125, 150, 200, 250, 500, 1000].find((k) => [[260, 267], [390, 202]].some(([rw, rh]) => (wm * 1000) / k <= rw && (hm * 1000) / k <= rh)) ?? 1000;
+  const th = (2.2 * scale) / 1000;
+  add("C-PROP", { t: "rect", x: plot.x0, y: plot.y0, w: plot.x1 - plot.x0, h: plot.y1 - plot.y0 });
+  add("C-ROAD", { t: "rect", x: plot.x0 - 3, y: plot.y1, w: plot.x1 - plot.x0 + 6, h: 2.2 });
+  add("C-ROAD", { t: "rect", x: plot.x0 - 3, y: plot.y1 + 2.2, w: plot.x1 - plot.x0 + 6, h: 7 });
+  add("C-ROAD", { t: "line", x1: plot.x0 - 3, y1: plot.y1 + 5.7, x2: plot.x1 + 3, y2: plot.y1 + 5.7, dashed: true });
+  for (const it of items) {
+    if (["lane", "yard", "paving", "bay", "deck", "play", "pool"].includes(it.t)) add("L-PAVE", { t: "rect", x: it.x, y: it.y, w: it.w, h: it.h });
+    if (it.pool) add("L-POOL", { t: "rect", x: it.pool.x, y: it.pool.y, w: it.pool.w, h: it.pool.d });
+    if (it.t === "pond") add("L-POOL", { t: "ellipse", cx: it.cx, cy: it.cy, rx: it.rx, ry: it.ry });
+    if (it.t === "firepit") add("L-PAVE", { t: "circle", cx: it.cx, cy: it.cy, r: it.r });
+    if (it.t === "paddock" || it.t === "orchard" || it.t === "vineyard") add("L-PLNT", { t: "rect", x: it.x, y: it.y, w: it.w, h: it.h, dashed: it.t === "paddock" });
+    if (it.t === "vineyard") for (let x = it.x + 1.2; x < it.x + it.w - 0.6; x += 2.6) add("L-PLNT", { t: "line", x1: x, y1: it.y + 0.8, x2: x, y2: it.y + it.h - 0.8 });
+    if (it.t === "hedge") add("L-PLNT", { t: "poly", pts: it.pts });
+    if (it.t === "fence") for (const [[x1, y1], [x2, y2]] of it.lines) add("L-PLNT", { t: "line", x1, y1, x2, y2, dashed: true });
+    if (it.t === "building") add("A-BLDG", { t: "rect", x: it.x, y: it.y, w: it.w, h: it.h });
+    const text = it.label ?? it.text;
+    if (text) {
+      const at = it.t === "pond" || it.t === "firepit" ? [it.cx, it.cy + (it.ry ?? it.r) + th * 1.6] : it.t === "label" ? [it.x, it.y] : [it.x + it.w / 2, it.y + it.h / 2];
+      add("A-ANNO-TEXT", { t: "text", x: at[0], y: at[1], h: th * 0.8, text: text.replace(" · ", " / ") });
+    }
+  }
+  for (const u of units) {
+    const m = u.mirror ? project.mirrored : model;
+    add("A-BLDG", { t: "rect", x: u.x, y: u.y, w: W, h: D });
+    if (model.garage) add("A-BLDG", { t: "rect", x: u.x + W, y: u.y + D - model.garage.d, w: model.garage.w, h: model.garage.d });
+    if (m.site.T > 0) add("L-PAVE", { t: "rect", x: u.x, y: u.y + D, w: W, h: m.site.T });
+    if (m.site.pool) add("L-POOL", { t: "rect", x: u.x + m.site.pool.x, y: u.y + m.site.pool.y, w: m.site.pool.w, h: m.site.pool.d });
+    add("A-AREA-IDEN", { t: "text", x: u.x + W / 2, y: u.y + D / 2, h: th, text: `HOUSE ${String(u.no).padStart(2, "0")}` });
+    add("A-ANNO-TEXT", { t: "text", x: u.x + m.site.entryX, y: u.y + D + Math.max(m.site.T, 0) + th * 1.5, h: th * 0.6, text: "ENTRANCE" });
+  }
+  for (const t of trees) add("L-PLNT", { t: "circle", cx: t.x, cy: t.y, r: t.r });
+  add("A-ANNO-TEXT", { t: "text", x: (plot.x0 + plot.x1) / 2, y: plot.y1 + 8.3, h: th, text: project.kind === "row" ? "STREET" : "ACCESS ROAD" });
+  add("A-ANNO-TEXT", { t: "text", x: (plot.x0 + plot.x1) / 2, y: plot.y0 - th * 2, h: th, text: `PLOT ${(plot.x1 - plot.x0).toFixed(1)} x ${(plot.y1 - plot.y0).toFixed(1)} m (INDICATIVE)` });
+  return { name: "MASTERPLAN", sheet: "A-001", ffl: 0, extents: { x0: plot.x0 - 5, y0: plot.y0 - 4 * th, x1: plot.x1 + 5, y1: plot.y1 + 10 }, entities: ents };
+}
+
+/** Everything the DXF writer needs for one plan (a project adds its masterplan before the typical house). */
 export function cadModel(model) {
   const { plan } = model;
+  const levels = model.levels.map((_, i) => cadLevel(model, i));
+  if (model.project) levels.forEach((lv, i) => Object.assign(lv, { name: `TYPICAL HOUSE - ${lv.name}`, sheet: `A-10${i + 1}` }));
   return {
     slug: plan.slug,
     title: plan.title.en,
     style: STYLE_EN[plan.style],
     areaM2: plan.areaM2,
-    levels: model.levels.map((_, i) => cadLevel(model, i)),
+    levels: model.project ? [cadMasterplan(model), ...levels] : levels,
   };
 }

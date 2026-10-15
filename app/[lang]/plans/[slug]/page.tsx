@@ -5,9 +5,9 @@ import { Footer, Header } from "@/components";
 import Lightbox from "@/components/motion/Lightbox";
 import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
-import { COPY, sheetName } from "@/lib/copy";
+import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { findPlan, formatPrice, STYLE_LABELS } from "@/lib/plans";
+import { findPlan, formatPrice, planLabel } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 const LOCKED = new Set(["schedules"]);
@@ -23,8 +23,15 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
   // sheets that carry the sellable detail are shown locked; the rest open in the lightbox
   const open = plan.gallery.filter((item) => !LOCKED.has(item.kind));
 
+  const name = (kind: string) => planSheetName(c, plan, kind);
   const specs: [string, string][] = [
-    [t.area, `${plan.areaM2} m²`],
+    ...(plan.project
+      ? ([
+          [c.project.houses, String(plan.project.units)],
+          [c.project.perHouse, `${plan.areaM2} m²`],
+          [c.project.total, `${plan.project.units * plan.areaM2} m²`],
+        ] as [string, string][])
+      : ([[t.area, `${plan.areaM2} m²`]] as [string, string][])),
     [t.floors, String(plan.floors)],
     [t.bedrooms, String(plan.bedrooms)],
     [c.bathrooms, String(plan.bathrooms)],
@@ -44,9 +51,9 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                 <Reveal key={item.src} variant="clip" delay={i === 0 ? 0 : 80}>
                   {LOCKED.has(item.kind) ? (
                     <Link className="sheet sheet-locked" href={checkoutHref} data-cursor={c.toCheckout}>
-                      <Image src={item.src} alt={`${plan.title[lang]} — ${sheetName(c.sheetNames, item.kind)}`} width={1600} height={1067} sizes="(max-width: 960px) 100vw, 58vw" />
+                      <Image src={item.src} alt={`${plan.title[lang]} — ${name(item.kind)}`} width={1600} height={1067} sizes="(max-width: 960px) 100vw, 58vw" />
                       <span className="sheet-label">
-                        <i>{String(i + 1).padStart(2, "0")}</i> {sheetName(c.sheetNames, item.kind)}
+                        <i>{String(i + 1).padStart(2, "0")}</i> {name(item.kind)}
                       </span>
                       <span className="lock-overlay">
                         <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true">
@@ -61,24 +68,24 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                   <div className={`sheet sheet-${item.kind.startsWith("plan") ? "plan" : item.kind}`} data-sheet={open.indexOf(item)} data-cursor={c.zoom}>
                     <Image
                       src={item.src}
-                      alt={`${plan.title[lang]} — ${sheetName(c.sheetNames, item.kind)}`}
+                      alt={`${plan.title[lang]} — ${name(item.kind)}`}
                       width={1600}
                       height={1067}
                       priority={i === 0}
                       sizes="(max-width: 960px) 100vw, 58vw"
                     />
                     <span className="sheet-label">
-                      <i>{String(i + 1).padStart(2, "0")}</i> {sheetName(c.sheetNames, item.kind)}
+                      <i>{String(i + 1).padStart(2, "0")}</i> {name(item.kind)}
                     </span>
                   </div>
                   )}
                 </Reveal>
               ))}
             </figure>
-            <Lightbox items={open.map((item) => ({ src: item.src, label: sheetName(c.sheetNames, item.kind) }))} closeLabel={c.close} />
+            <Lightbox items={open.map((item) => ({ src: item.src, label: name(item.kind) }))} closeLabel={c.close} />
           </div>
           <aside className="detail-side">
-            <span className="style-tag">{STYLE_LABELS[plan.style][lang]}{plan.demo ? ` · ${c.sampleBadge}` : ""}</span>
+            <span className="style-tag">{planLabel(plan, lang)}{plan.demo ? ` · ${c.sampleBadge}` : ""}</span>
             <Reveal variant="mask">
               <h1><MaskLines lines={[plan.title[lang]]} /></h1>
             </Reveal>

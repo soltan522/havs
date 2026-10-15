@@ -51,7 +51,7 @@ npm ci
    (the mirrored variant flips the plan left-to-right, with the living rooms next to the garage).
    Read the titles and summaries of the last ten villas and write something different: other materials, other
    setting, other outdoor features. Allowed values per style are in `STYLE_RULES` in `scripts/drawings.mjs`
-   (roofs, floors); area per floor must be 80–320 m².
+   (roofs, floors; styles marked `projectOnly` are not single villas); area per floor must be 80–320 m².
    Optional `ratio` (footprint width / depth, 1.0–2.2) varies the massing between villas of the same style, and
    optional `tree` (`olive`, `cypress`, `palm`, `pine`, `round`) sets the planting drawn on the elevation and site
    plan — match it to the setting you describe in the render prompt.
@@ -125,6 +125,20 @@ npm ci
    `git show origin/main --stat` lists `public/plans/<slug>/…` for every new slug. If the Action fails, read its log
    (GitHub tools), fix the cause on the same branch and push again. The run is done when the new villas are on
    `main`; then check that https://havs.dev/en/plans/<slug> loads for each of them.
+
+## Multi-unit projects (only when asked)
+
+A catalogue entry can also be a whole development: a terrace of townhouses, a farm estate or a small village.
+Add `"project": { "kind": "row" | "farm" | "cluster", "units": N }` to the entry; `areaM2`, `floors`,
+`bedrooms` and `bathrooms` then describe **one** house, and the generator draws the masterplan (A-001), the typical
+house plans, the street elevation (row) or typical elevation, an isometric of the whole project and one of the
+typical house. Allowed kinds, unit counts and styles are in `PROJECT_RULES` in `scripts/drawings.mjs`
+(`townhouse` is only used in a `row`). Projects have no garages (`"garage": false` — parking is on the
+masterplan) and are priced by the rule in `suggestedPrice` (typical house + 35 % per further house).
+Use a family from the project section of `docs/design-references.md`. The render is an aerial three-quarter view
+of the whole project that shows exactly N houses in the arrangement the masterplan draws: a straight terrace in
+mirrored pairs (`row`), houses on a gentle arc above a vineyard with the barn behind (`farm`), two staggered rows
+on a slope with the lodge at the entrance (`cluster`). The daily routine adds single villas only.
 
 ## Do not
 

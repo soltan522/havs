@@ -31,12 +31,16 @@ LAYERS = {
     "A-COLS": (7, 35, "Continuous", "Columns and posts"),
     "L-PAVE": (33, 13, "Continuous", "Hard landscape"),
     "L-POOL": (140, 25, "Continuous", "Pool"),
+    "L-PLNT": (94, 13, "Continuous", "Planting, hedges, vineyard rows"),
+    "A-BLDG": (7, 35, "Continuous", "Building footprints (masterplan)"),
+    "C-ROAD": (8, 18, "Continuous", "Roads and footways"),
+    "C-PROP": (1, 35, "PHANTOM", "Plot boundary"),
     "G-ANNO-TTLB": (7, 35, "Continuous", "Title block"),
     "G-ANNO-VPRT": (8, 0, "Continuous", "Viewports (no plot)"),
 }
 
 A3 = (420.0, 297.0)
-SCALES = [50, 75, 100, 125, 150, 200]
+SCALES = [50, 75, 100, 125, 150, 200, 250, 500, 1000]
 
 
 def setup(doc):
@@ -190,7 +194,7 @@ def main(src, dst):
 
     # one A3 layout per level, viewport at the largest standard scale that fits
     for i, (level, ext, shift) in enumerate(placed):
-        sheet_no = f"A-10{i + 1}"
+        sheet_no = level.get("sheet", f"A-10{i + 1}")
         layout = doc.layouts.new(f"{sheet_no} {level['name']}")
         layout.page_setup(size=A3, margins=(0, 0, 0, 0), units="mm")
         w_m, h_m = ext["x1"] - ext["x0"], ext["y1"] - ext["y0"] + 1.5

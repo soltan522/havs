@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -18,17 +18,24 @@ const INSPIRATIONS = new Set(existsSync(refsFile) ? [...(await readFile(refsFile
 const errors = [];
 const warnings = [];
 
-/** Catalogue price rule for sample villas (USD): ~$300 + $4.2/m², rounded to …90, +$100 for premium styles. */
+/**
+ * Catalogue price rule for sample villas (USD): ~$300 + $4.2/m², rounded to …90, +$100 for premium styles.
+ * A multi-unit project: the typical house, plus 35 % of it for every further house on the masterplan.
+ */
 export function suggestedPrice(plan) {
   const premium = ["tuscan", "coastal", "luxury", "mediterranean", "absheron", "noir", "yali"].includes(plan.style) ? 100 : 0;
-  return Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
+  const house = Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
+  if (!plan.project) return house;
+  return Math.round(((house + 10) * (1 + 0.35 * (plan.project.units - 1))) / 100) * 100 - 10;
 }
 
 // ---- nothing may repeat an existing design
 const norm = (s) => s.toLocaleLowerCase("en").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\u0400-\u04ff]+/g, " ").trim();
 const stem = (slug) => slug.replace(/-\d+$/, "");
-const designKey = (p) => [p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-"].join("|");
-const layoutKey = (p) => [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|");
+// a multi-unit project is its own kind of design: it never collides with a single villa of the same style
+const projectTag = (p) => (p.project ? `${p.project.kind}×${p.project.units}` : "villa");
+const designKey = (p) => [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-"].join("|");
+const layoutKey = (p) => (p.project ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|"));
 const firstBy = (keyFn) => {
   const map = new Map();
   for (const p of plans) {
@@ -45,7 +52,7 @@ for (const [k, slugs] of firstBy(designKey)) if (slugs.length > 1) errors.push(`
 for (let i = 0; i < plans.length; i++) {
   for (let j = i + 1; j < plans.length; j++) {
     const a = plans[i], b = plans[j];
-    if (a.style === b.style && a.floors === b.floors && Math.abs(a.areaM2 - b.areaM2) < 25) errors.push(`${a.slug}, ${b.slug}: same style and floors with areas only ${Math.abs(a.areaM2 - b.areaM2)} m² apart — make them clearly different`);
+    if (a.style === b.style && a.floors === b.floors && projectTag(a) === projectTag(b) && Math.abs(a.areaM2 - b.areaM2) < 25) errors.push(`${a.slug}, ${b.slug}: same style and floors with areas only ${Math.abs(a.areaM2 - b.areaM2)} m² apart — make them clearly different`);
   }
 }
 // render prompts (the design brief) must differ, not just the names
@@ -107,6 +114,15 @@ for (const plan of plans) {
   const perFloor = plan.areaM2 / plan.floors;
   if (perFloor < 80 || perFloor > 320) err(`area per floor ${perFloor.toFixed(0)} m² is outside 80–320 m² — the generated plans would not be credible`);
   if (plan.style === "duplex" && plan.bedrooms !== 6) err("duplex template has exactly 6 bedrooms (3 per unit)");
+  if (plan.project !== undefined) {
+    const pr = PROJECT_RULES[plan.project?.kind];
+    if (!pr) err(`project.kind must be one of ${Object.keys(PROJECT_RULES).join(", ")}`);
+    else {
+      if (!pr.units.includes(plan.project.units)) err(`a ${plan.project.kind} project is drawn for ${pr.units.join(", ")} houses`);
+      if (!pr.styles.includes(plan.style)) err(`a ${plan.project.kind} project takes the styles ${pr.styles.join(", ")}`);
+    }
+    if (plan.garage) err("projects park cars on the masterplan: set garage to false");
+  } else if (rules.projectOnly) err(`style ${plan.style} is only drawn as part of a project (set "project")`);
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
@@ -119,7 +135,8 @@ for (const plan of plans) {
   let model;
   try {
     model = buildModel(plan);
-    const sheets = [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), ...model.levels.map((_, i) => floorPlanSheet(model, i, "x"))];
+    const sheets = [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), scheduleSheet(model, "x"), ...model.levels.map((_, i) => floorPlanSheet(model, i, "x"))];
+    if (model.project) sheets.push(axonometricSheet(model, "x", { typical: true }));
     for (const svg of sheets) {
       const s = svg.toString();
       if (/NaN|undefined|Infinity/.test(s)) err(`a generated sheet contains invalid numbers: …${s.match(/.{40}(NaN|undefined|Infinity).{10}/)?.[0]}…`);

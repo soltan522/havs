@@ -3,9 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
 import Reveal, { MaskLines } from "@/components/Reveal";
-import { COPY, floorsText } from "@/lib/copy";
-import { isLocale, UI } from "@/lib/i18n";
-import { formatPrice, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
+import { COPY, specsLine } from "@/lib/copy";
+import { isLocale } from "@/lib/i18n";
+import { formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 type Search = { style?: string; floors?: string; sort?: string };
@@ -86,10 +86,10 @@ export default async function Catalogue({
                     <Image src={plan.cover} alt={plan.title[lang]} width={1200} height={800} sizes="(max-width: 760px) 100vw, 400px" />
                     <Image className="second" src={plan.hover} alt="" width={1200} height={800} sizes="(max-width: 760px) 100vw, 400px" />
                   </div>
-                  <span className="eyebrow" style={{ margin: "18px 0 0" }}>{STYLE_LABELS[plan.style][lang]}</span>
+                  <span className="eyebrow" style={{ margin: "18px 0 0" }}>{planLabel(plan, lang)}</span>
                   <h3>{plan.title[lang]}</h3>
                   <p className="specs-line">
-                    {plan.areaM2} m² · {floorsText(lang, plan.floors, UI[lang].floors)} · {plan.bedrooms} {UI[lang].bedrooms.toLowerCase()}
+                    {specsLine(lang, plan)}
                   </p>
                   <div className="row">
                     <span className="price">{formatPrice(plan.priceCents, lang, currency())}</span>

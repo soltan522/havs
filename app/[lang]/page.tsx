@@ -7,10 +7,10 @@ import HorizontalGallery from "@/components/motion/HorizontalGallery";
 import ProcessBlueprint from "@/components/motion/ProcessBlueprint";
 import ScrollStatement from "@/components/motion/ScrollStatement";
 import Reveal, { MaskLines } from "@/components/Reveal";
-import { COPY, floorsText } from "@/lib/copy";
-import { isLocale, UI } from "@/lib/i18n";
+import { COPY, specsLine } from "@/lib/copy";
+import { isLocale } from "@/lib/i18n";
 import { LANDING } from "@/lib/landing";
-import { coverOf, formatPrice, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
+import { areaText, coverOf, formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 export default async function Landing({ params }: { params: Promise<{ lang: string }> }) {
@@ -61,7 +61,7 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
         {heroPlan && (
           <Link className="hero-caption" href={`/${lang}/plans/${heroPlan.slug}`}>
             <span>{heroPlan.title[lang]}</span>
-            <small>{STYLE_LABELS[heroPlan.style][lang]} · {heroPlan.areaM2} m² · {c.sheetNames.render}</small>
+            <small>{planLabel(heroPlan, lang)} · {areaText(heroPlan)} · {c.sheetNames.render}</small>
           </Link>
         )}
         <div className="scroll-cue" aria-hidden="true"><span>{t.scroll}</span><i /></div>
@@ -98,14 +98,14 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
             <Reveal variant="clip" delay={i * 90}>
               <div className="media">
                 <Image src={coverOf(plan)} alt={plan.title[lang]} width={1200} height={800} sizes="(max-width: 900px) 78vw, 520px" />
-                <span className="tag">{STYLE_LABELS[plan.style][lang]}</span>
+                <span className="tag">{planLabel(plan, lang)}</span>
               </div>
             </Reveal>
             <div className="meta">
               <div>
                 <span className="num">{String(i + 1).padStart(2, "0")} / {String(featured.length).padStart(2, "0")}</span>
                 <h3>{plan.title[lang]}</h3>
-                <span className="muted small">{plan.areaM2} m² · {floorsText(lang, plan.floors, UI[lang].floors)} · {plan.bedrooms} {UI[lang].bedrooms.toLowerCase()}</span>
+                <span className="muted small">{specsLine(lang, plan)}</span>
               </div>
               <span className="price">{formatPrice(plan.priceCents, lang, currency())}</span>
             </div>

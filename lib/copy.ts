@@ -1,4 +1,5 @@
-import type { Locale } from "./i18n";
+import { UI, type Locale } from "./i18n";
+import { areaText, type Plan } from "./plans";
 
 /** UI copy for the catalogue, plan pages and motion labels (AZ / EN / RU). */
 export const COPY = {
@@ -82,6 +83,13 @@ export const COPY = {
     yes: "Var",
     no: "Yoxdur",
     sampleBadge: "Konsept layihə",
+    project: {
+      houses: "Evlərin sayı",
+      perHouse: "Bir evin sahəsi",
+      total: "Ümumi sahə",
+      typical: "Tipik ev",
+      sheets: { site: "Ümumi baş plan", street: "Küçə fasadı", elevation: "Tipik evin fasadı", axonometric: "Layihənin aksonometriyası" },
+    },
     sampleNote:
       "Konsept layihə: vizualizasiya dizayn ideyasını göstərir, çertyojlar konsept mərhələsinə aiddir və tikintidən əvvəl yerli memar və mühəndis tərəfindən uyğunlaşdırılmalıdır. Paket (PDF, DWG, DXF) ödənişdən dərhal sonra yüklənir; layihəni sahənizə uyğunlaşdırmaq üçün bizimlə əlaqə saxlayın.",
     contactToOrder: "Sifariş üçün əlaqə",
@@ -170,6 +178,13 @@ export const COPY = {
     yes: "Yes",
     no: "No",
     sampleBadge: "Concept project",
+    project: {
+      houses: "Houses",
+      perHouse: "Area per house",
+      total: "Total area",
+      typical: "Typical house",
+      sheets: { site: "Masterplan", street: "Street elevation", elevation: "Typical house elevation", axonometric: "Whole project, axonometric" },
+    },
     sampleNote:
       "Concept project: the visualisation shows the design intent and the drawings are concept-stage, to be adapted by a local architect and engineer before construction. The package (PDF, DWG, DXF) downloads right after payment; contact us to adapt the design to your plot.",
     contactToOrder: "Contact to order",
@@ -258,6 +273,13 @@ export const COPY = {
     yes: "Есть",
     no: "Нет",
     sampleBadge: "Концептуальный проект",
+    project: {
+      houses: "Количество домов",
+      perHouse: "Площадь дома",
+      total: "Общая площадь",
+      typical: "Типовой дом",
+      sheets: { site: "Генплан проекта", street: "Уличный фасад", elevation: "Фасад типового дома", axonometric: "Аксонометрия проекта" },
+    },
     sampleNote:
       "Концептуальный проект: визуализация показывает замысел, чертежи — стадии концепции, перед строительством их адаптируют местный архитектор и инженер. Пакет (PDF, DWG, DXF) скачивается сразу после оплаты; чтобы адаптировать проект под ваш участок, свяжитесь с нами.",
     contactToOrder: "Связаться для заказа",
@@ -274,6 +296,23 @@ type SheetNames = { render: string; image: string; site: string; elevation: stri
 export function sheetName(names: SheetNames, kind: string): string {
   if (kind.startsWith("plan-")) return names.plans[Number(kind.slice(5))] ?? names.plans[names.plans.length - 1];
   return names[kind as keyof Omit<SheetNames, "plans">] ?? kind;
+}
+
+/** Gallery name of a sheet; a multi-unit project has a masterplan, a street / typical elevation and typical-house plans. */
+export function planSheetName(c: (typeof COPY)[Locale], plan: Plan, kind: string): string {
+  const base = sheetName(c.sheetNames, kind);
+  if (!plan.project) return base;
+  const p = c.project.sheets;
+  if (kind === "site") return p.site;
+  if (kind === "elevation") return plan.project.kind === "row" ? p.street : p.elevation;
+  if (kind === "axonometric") return p.axonometric;
+  if (kind.startsWith("plan-")) return `${c.project.typical}: ${base.charAt(0).toLowerCase()}${base.slice(1)}`;
+  return base;
+}
+
+/** Card line: "240 m² · 2 floors · 4 bedrooms", or "7 × 180 m² · …" for a project. */
+export function specsLine(lang: Locale, plan: Plan): string {
+  return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.bedrooms} ${UI[lang].bedrooms.toLowerCase()}`;
 }
 
 /** "2 floors" / "1 floor" in the current language (AZ and RU labels do not change for the counts we use). */

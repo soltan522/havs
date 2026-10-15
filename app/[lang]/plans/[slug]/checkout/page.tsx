@@ -6,7 +6,7 @@ import PackagePanel from "@/components/PackagePanel";
 import { PaymentIcon } from "@/components/PaymentIcon";
 import { COPY } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { coverOf, deliverables, findPlan, formatPrice, STYLE_LABELS } from "@/lib/plans";
+import { areaText, coverOf, deliverables, findPlan, formatPrice, planLabel } from "@/lib/plans";
 import { availableProviders, currency } from "@/lib/providers";
 import { objectsExist } from "@/lib/store";
 
@@ -56,7 +56,7 @@ export default async function CheckoutPage({
             </div>
             <h2>{plan.title[lang]}</h2>
             <p className="muted small">
-              {STYLE_LABELS[plan.style][lang]} · {plan.areaM2} m² · {t.floors}: {plan.floors} · {t.bedrooms}: {plan.bedrooms}
+              {planLabel(plan, lang)} · {areaText(plan)} · {t.floors}: {plan.floors} · {t.bedrooms}: {plan.bedrooms}
             </p>
             {plan.package && <PackagePanel pkg={plan.package} lang={lang} />}
             <ul className="checkout-notes">
