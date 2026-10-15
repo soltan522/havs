@@ -284,5 +284,93 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-15"
+  },
+  "bilgah-14": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bilgah-14-drawings.pdf",
+        "bytes": 585972,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "bilgah-14.dwg",
+        "bytes": 89129
+      },
+      {
+        "kind": "cad",
+        "name": "bilgah-14.dxf",
+        "bytes": 233068
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "pirshagi-15": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "pirshagi-15-drawings.pdf",
+        "bytes": 642757,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "pirshagi-15.dwg",
+        "bytes": 76475
+      },
+      {
+        "kind": "cad",
+        "name": "pirshagi-15.dxf",
+        "bytes": 194624
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "zugulba-16": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zugulba-16-drawings.pdf",
+        "bytes": 623997,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "zugulba-16.dwg",
+        "bytes": 63197
+      },
+      {
+        "kind": "cad",
+        "name": "zugulba-16.dxf",
+        "bytes": 156806
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "turkan-17": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "turkan-17-drawings.pdf",
+        "bytes": 585007,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "turkan-17.dwg",
+        "bytes": 80362
+      },
+      {
+        "kind": "cad",
+        "name": "turkan-17.dxf",
+        "bytes": 200839
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
   }
 }

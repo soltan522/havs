@@ -430,5 +430,137 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "bilgah-14": {
+    "cover": "/plans/bilgah-14/cover.jpg",
+    "hover": "/plans/bilgah-14/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/bilgah-14/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/bilgah-14/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/bilgah-14/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/bilgah-14/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/bilgah-14/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/bilgah-14/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/bilgah-14/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "pirshagi-15": {
+    "cover": "/plans/pirshagi-15/cover.jpg",
+    "hover": "/plans/pirshagi-15/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/pirshagi-15/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/pirshagi-15/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/pirshagi-15/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/pirshagi-15/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/pirshagi-15/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/pirshagi-15/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/pirshagi-15/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "zugulba-16": {
+    "cover": "/plans/zugulba-16/cover.jpg",
+    "hover": "/plans/zugulba-16/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/zugulba-16/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/zugulba-16/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/zugulba-16/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/zugulba-16/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/zugulba-16/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/zugulba-16/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "turkan-17": {
+    "cover": "/plans/turkan-17/cover.jpg",
+    "hover": "/plans/turkan-17/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/turkan-17/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/turkan-17/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/turkan-17/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/turkan-17/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/turkan-17/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/turkan-17/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/turkan-17/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
