@@ -40,7 +40,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ lang:
             </div>
             <h2>{plan.title[lang]}</h2>
             <p className="muted small">
-              {STYLE_LABELS[plan.style][lang]} · {plan.areaM2} m² · {plan.floors} {t.floors.toLowerCase()} · {plan.bedrooms} {t.bedrooms.toLowerCase()}
+              {STYLE_LABELS[plan.style][lang]} · {plan.areaM2} m² · {t.floors}: {plan.floors} · {t.bedrooms}: {plan.bedrooms}
             </p>
             {plan.package && <PackagePanel pkg={plan.package} lang={lang} demo={plan.demo} />}
             <ul className="checkout-notes">
