@@ -438,5 +438,71 @@
     ],
     "sheets": 6,
     "builtAt": "2026-10-15"
+  },
+  "shagan-21": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shagan-21-drawings.pdf",
+        "bytes": 648724,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shagan-21.dwg",
+        "bytes": 59326
+      },
+      {
+        "kind": "cad",
+        "name": "shagan-21.dxf",
+        "bytes": 145854
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "qala-22": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qala-22-drawings.pdf",
+        "bytes": 580619,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "qala-22.dwg",
+        "bytes": 84317
+      },
+      {
+        "kind": "cad",
+        "name": "qala-22.dxf",
+        "bytes": 209605
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "qebele-23": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qebele-23-drawings.pdf",
+        "bytes": 684323,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "qebele-23.dwg",
+        "bytes": 81890
+      },
+      {
+        "kind": "cad",
+        "name": "qebele-23.dxf",
+        "bytes": 206187
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
   }
 }

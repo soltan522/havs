@@ -660,5 +660,103 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "shagan-21": {
+    "cover": "/plans/shagan-21/cover.jpg",
+    "hover": "/plans/shagan-21/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/shagan-21/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/shagan-21/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/shagan-21/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/shagan-21/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/shagan-21/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/shagan-21/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "qala-22": {
+    "cover": "/plans/qala-22/cover.jpg",
+    "hover": "/plans/qala-22/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/qala-22/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/qala-22/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/qala-22/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/qala-22/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/qala-22/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/qala-22/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/qala-22/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "qebele-23": {
+    "cover": "/plans/qebele-23/cover.jpg",
+    "hover": "/plans/qebele-23/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/qebele-23/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/qebele-23/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/qebele-23/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/qebele-23/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/qebele-23/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/qebele-23/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/qebele-23/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
