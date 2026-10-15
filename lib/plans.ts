@@ -70,7 +70,8 @@ export const STYLE_LABELS: Record<PlanStyle, LocalizedText> = {
 
 export const coverOf = (plan: Plan) => plan.cover || plan.gallery[0]?.src;
 
-export const publishedPlans = () => PLANS.filter((p) => p.published);
+// A plan is listed only once its preview images exist (npm run previews), so a half-added plan never shows up broken.
+export const publishedPlans = () => PLANS.filter((p) => p.published && p.cover);
 export const findPlan = (slug: string) => publishedPlans().find((p) => p.slug === slug);
 
 export function formatPrice(cents: number, locale: Locale, currency: string): string {

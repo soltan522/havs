@@ -23,6 +23,8 @@ Plans with `demo: true` are sample projects: they show a concept visualisation p
 and a "contact to order" button. Checkout refuses them, so a sample can never be sold without real files behind it.
 
 The sample visualisations in `renders/` are AI-generated concept images (Figma AI) and are labelled as such on the site.
+New sample villas are added by a daily routine — see [`docs/daily-villas.md`](docs/daily-villas.md). `npm run validate`
+checks `data/plans.json` (styles, roofs, room counts against the generated plans, translations, price rule).
 
 ## Local development
 

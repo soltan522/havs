@@ -87,6 +87,23 @@ const STYLE_EN = {
 
 const wallMat = (spec, li) => spec.walls[Math.min(li, spec.walls.length - 1)];
 
+/** Roof forms and storey counts each style's drawings are designed for (checked by scripts/validate-plans.mjs). */
+export const STYLE_RULES = {
+  modern: { roofs: ["flat"], floors: [1, 2] },
+  tuscan: { roofs: ["hip", "gable"], floors: [1, 2] },
+  minimal: { roofs: ["flat"], floors: [1, 2] },
+  coastal: { roofs: ["flat"], floors: [1, 2] },
+  chalet: { roofs: ["frontgable"], floors: [2] },
+  farmhouse: { roofs: ["gable", "hip"], floors: [1] },
+  luxury: { roofs: ["flat"], floors: [2, 3] },
+  pavilion: { roofs: ["flat"], floors: [1] },
+  mediterranean: { roofs: ["hip", "gable"], floors: [1, 2] },
+  duplex: { roofs: ["flat"], floors: [2] },
+};
+
+/** Bathrooms, shower rooms and WCs in the generated plans — must equal plan.bathrooms. */
+export const wetRooms = (model) => model.levels.reduce((n, lv) => n + lv.spaces.filter((s) => ["bath", "shower", "wc"].includes(s.kind)).length, 0);
+
 /** SVG pattern + gradient library at scale `s` (px per metre). */
 function materialDefs(s, seed = 7) {
   const m = (v) => +(v * s).toFixed(2);
@@ -138,7 +155,8 @@ export function buildModel(plan) {
   if (!spec) throw new Error(`no drawing spec for style "${plan.style}"`);
   const above = plan.style === "luxury" ? plan.floors - 1 : plan.floors;
   const footprintArea = plan.areaM2 / plan.floors;
-  const ratio = plan.style === "duplex" ? 2.0 : above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4;
+  // footprint proportion (width / depth); a plan may override it to vary the massing
+  const ratio = plan.ratio ?? (plan.style === "duplex" ? 2.0 : above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4);
   const W = r1(Math.sqrt(footprintArea * ratio));
   const D = r1(footprintArea / W);
 

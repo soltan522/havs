@@ -10,23 +10,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/modern-villa-01/sheet-01.jpg",
+        "src": "/plans/modern-villa-01/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/modern-villa-01/sheet-02.jpg",
+        "src": "/plans/modern-villa-01/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/modern-villa-01/sheet-03.jpg",
+        "src": "/plans/modern-villa-01/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/modern-villa-01/sheet-04.jpg",
+        "src": "/plans/modern-villa-01/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/modern-villa-01/sheet-05.jpg",
+        "src": "/plans/modern-villa-01/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -40,23 +40,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/classic-villa-02/sheet-01.jpg",
+        "src": "/plans/classic-villa-02/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/classic-villa-02/sheet-02.jpg",
+        "src": "/plans/classic-villa-02/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/classic-villa-02/sheet-03.jpg",
+        "src": "/plans/classic-villa-02/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/classic-villa-02/sheet-04.jpg",
+        "src": "/plans/classic-villa-02/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/classic-villa-02/sheet-05.jpg",
+        "src": "/plans/classic-villa-02/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -70,23 +70,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/kub-03/sheet-01.jpg",
+        "src": "/plans/kub-03/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/kub-03/sheet-02.jpg",
+        "src": "/plans/kub-03/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/kub-03/sheet-03.jpg",
+        "src": "/plans/kub-03/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/kub-03/sheet-04.jpg",
+        "src": "/plans/kub-03/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/kub-03/sheet-05.jpg",
+        "src": "/plans/kub-03/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -100,23 +100,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/xezer-04/sheet-01.jpg",
+        "src": "/plans/xezer-04/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/xezer-04/sheet-02.jpg",
+        "src": "/plans/xezer-04/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/xezer-04/sheet-03.jpg",
+        "src": "/plans/xezer-04/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/xezer-04/sheet-04.jpg",
+        "src": "/plans/xezer-04/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/xezer-04/sheet-05.jpg",
+        "src": "/plans/xezer-04/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -130,23 +130,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/sahdag-05/sheet-01.jpg",
+        "src": "/plans/sahdag-05/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/sahdag-05/sheet-02.jpg",
+        "src": "/plans/sahdag-05/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/sahdag-05/sheet-03.jpg",
+        "src": "/plans/sahdag-05/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/sahdag-05/sheet-04.jpg",
+        "src": "/plans/sahdag-05/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/sahdag-05/sheet-05.jpg",
+        "src": "/plans/sahdag-05/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -160,19 +160,19 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/bag-06/sheet-01.jpg",
+        "src": "/plans/bag-06/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/bag-06/sheet-02.jpg",
+        "src": "/plans/bag-06/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/bag-06/sheet-03.jpg",
+        "src": "/plans/bag-06/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/bag-06/sheet-04.jpg",
+        "src": "/plans/bag-06/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -186,23 +186,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/panorama-07/sheet-01.jpg",
+        "src": "/plans/panorama-07/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/panorama-07/sheet-02.jpg",
+        "src": "/plans/panorama-07/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/panorama-07/sheet-03.jpg",
+        "src": "/plans/panorama-07/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/panorama-07/sheet-04.jpg",
+        "src": "/plans/panorama-07/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/panorama-07/sheet-05.jpg",
+        "src": "/plans/panorama-07/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -216,19 +216,19 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/pavilyon-08/sheet-01.jpg",
+        "src": "/plans/pavilyon-08/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/pavilyon-08/sheet-02.jpg",
+        "src": "/plans/pavilyon-08/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/pavilyon-08/sheet-03.jpg",
+        "src": "/plans/pavilyon-08/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/pavilyon-08/sheet-04.jpg",
+        "src": "/plans/pavilyon-08/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -242,23 +242,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/abseron-09/sheet-01.jpg",
+        "src": "/plans/abseron-09/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/abseron-09/sheet-02.jpg",
+        "src": "/plans/abseron-09/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/abseron-09/sheet-03.jpg",
+        "src": "/plans/abseron-09/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/abseron-09/sheet-04.jpg",
+        "src": "/plans/abseron-09/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/abseron-09/sheet-05.jpg",
+        "src": "/plans/abseron-09/axonometric.jpg",
         "kind": "axonometric"
       }
     ]
@@ -272,23 +272,23 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
-        "src": "/plans/dupleks-10/sheet-01.jpg",
+        "src": "/plans/dupleks-10/site.jpg",
         "kind": "site"
       },
       {
-        "src": "/plans/dupleks-10/sheet-02.jpg",
+        "src": "/plans/dupleks-10/plan-0.jpg",
         "kind": "plan-0"
       },
       {
-        "src": "/plans/dupleks-10/sheet-03.jpg",
+        "src": "/plans/dupleks-10/plan-1.jpg",
         "kind": "plan-1"
       },
       {
-        "src": "/plans/dupleks-10/sheet-04.jpg",
+        "src": "/plans/dupleks-10/elevation.jpg",
         "kind": "elevation"
       },
       {
-        "src": "/plans/dupleks-10/sheet-05.jpg",
+        "src": "/plans/dupleks-10/axonometric.jpg",
         "kind": "axonometric"
       }
     ]

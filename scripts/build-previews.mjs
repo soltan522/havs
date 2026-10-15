@@ -1,9 +1,15 @@
-// Builds public preview images for every plan in data/plans.json.
+// Builds public preview images for the plans in data/plans.json.
 //   renders/<slug>/*.jpg|png|webp         ->  public/plans/<slug>/render-NN.jpg  (concept visualisations, no watermark)
-//   private-assets/<slug>/*.jpg|png|webp  ->  public/plans/<slug>/NN.jpg         (real drawings/renders, watermarked)
+//   private-assets/<slug>/*.jpg|png|webp  ->  public/plans/<slug>/image-NN.jpg   (real drawings/renders, watermarked)
 // Plans without private originals also get generated concept sheets (see scripts/drawings.mjs):
-//   A-001 site plan, A-101+ floor plans, A-201 south elevation, A-301 axonometric.
-// Also writes lib/previews.generated.ts so the site knows each plan's gallery and card images.
+//   site.jpg, plan-0.jpg, plan-1.jpg…, elevation.jpg, axonometric.jpg
+// and every plan gets card images cover.jpg (main visual) and cover-2.jpg (rendered elevation, shown on hover).
+//
+//   npm run previews                    rebuild every plan
+//   npm run previews -- --missing       only plans that have no public/plans/<slug> folder yet
+//   npm run previews -- --only a,b      only the listed slugs
+//
+// lib/previews.generated.ts is always rewritten from the files on disk, so partial runs keep the other plans.
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -19,6 +25,13 @@ const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
 const CARD = { width: 1200, height: 800 };
 
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
+
+const args = process.argv.slice(2);
+const onlyArg = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
+const only = onlyArg ? new Set(onlyArg.split(",").map((s) => s.trim())) : null;
+const missing = args.includes("--missing");
+const selected = plans.filter((p) => (only ? only.has(p.slug) : missing ? !existsSync(path.join(OUT, p.slug)) : true));
+if (only) for (const slug of only) if (!plans.some((p) => p.slug === slug)) throw new Error(`--only: no plan "${slug}" in data/plans.json`);
 
 function watermarkSvg(width, height) {
   const text = "havs.dev · PREVIEW";
@@ -47,60 +60,63 @@ async function writePreview(input, outFile) {
 const listImages = async (dir) => (existsSync(dir) ? (await readdir(dir)).filter((f) => IMAGE_EXT.test(f)).sort() : []);
 const render = (svg, file) => sharp(svg, { density: 96 }).jpeg({ quality: 88, mozjpeg: true }).toFile(file);
 const card = (input, file) => sharp(input, { density: 72 }).resize({ ...CARD, fit: "cover", position: "centre" }).jpeg({ quality: 84, mozjpeg: true }).toFile(file);
+const nn = (i) => String(i + 1).padStart(2, "0");
 
-const generated = {};
-for (const plan of plans) {
+for (const plan of selected) {
   const { slug } = plan;
   const outDir = path.join(OUT, slug);
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
-  const url = (f) => `/plans/${slug}/${f}`;
-  const items = [];
 
   // 1. concept visualisations (renders/<slug>)
   const renders = await listImages(path.join(RENDERS, slug));
   for (const [i, name] of renders.entries()) {
-    const file = `render-${String(i + 1).padStart(2, "0")}.jpg`;
     await sharp(path.join(RENDERS, slug, name))
       .rotate()
       .resize({ width: SHEET_W, height: SHEET_H, fit: "inside", withoutEnlargement: true })
       .jpeg({ quality: 86, mozjpeg: true })
-      .toFile(path.join(outDir, file));
-    items.push({ src: url(file), kind: "render" });
+      .toFile(path.join(outDir, `render-${nn(i)}.jpg`));
   }
 
   // 2. real material (watermarked) or generated concept sheets
   const sources = await listImages(path.join(SOURCE, slug));
   const model = buildModel(plan);
   if (sources.length) {
-    for (const [i, name] of sources.entries()) {
-      const file = `${String(i + 1).padStart(2, "0")}.jpg`;
-      await writePreview(path.join(SOURCE, slug, name), path.join(outDir, file));
-      items.push({ src: url(file), kind: "image" });
-    }
+    for (const [i, name] of sources.entries()) await writePreview(path.join(SOURCE, slug, name), path.join(outDir, `image-${nn(i)}.jpg`));
   } else {
-    const sheets = [["site", sitePlanSheet(model, "A-001")]];
-    model.levels.forEach((_, i) => sheets.push([`plan-${i}`, floorPlanSheet(model, i, `A-10${i + 1}`)]));
-    sheets.push(["elevation", elevationSheet(model, "A-201")], ["axonometric", axonometricSheet(model, "A-301")]);
-    for (const [i, [kind, svg]] of sheets.entries()) {
-      const file = `sheet-${String(i + 1).padStart(2, "0")}.jpg`;
-      await render(svg, path.join(outDir, file));
-      items.push({ src: url(file), kind });
-    }
+    await render(sitePlanSheet(model, "A-001"), path.join(outDir, "site.jpg"));
+    for (const i of model.levels.keys()) await render(floorPlanSheet(model, i, `A-10${i + 1}`), path.join(outDir, `plan-${i}.jpg`));
+    await render(elevationSheet(model, "A-201"), path.join(outDir, "elevation.jpg"));
+    await render(axonometricSheet(model, "A-301"), path.join(outDir, "axonometric.jpg"));
   }
 
   // 3. card images: the first render (or first image), and the rendered elevation on hover
-  const coverSrc = renders.length ? path.join(RENDERS, slug, renders[0]) : sources.length ? path.join(SOURCE, slug, sources[0]) : null;
-  if (coverSrc) await card(coverSrc, path.join(outDir, "cover.jpg"));
-  else await card(elevationSheet(model, "", true), path.join(outDir, "cover.jpg"));
+  const coverSrc = renders.length ? path.join(RENDERS, slug, renders[0]) : sources.length ? path.join(SOURCE, slug, sources[0]) : elevationSheet(model, "", true);
+  await card(coverSrc, path.join(outDir, "cover.jpg"));
   await card(elevationSheet(model, "", true), path.join(outDir, "cover-2.jpg"));
+  console.log(`${slug}: ${renders.length} render(s), ${sources.length ? `${sources.length} watermarked image(s)` : `${model.levels.length + 3} concept sheets`}`);
+}
+if (!selected.length) console.log("nothing to build");
 
-  generated[slug] = { cover: url("cover.jpg"), hover: url("cover-2.jpg"), sheets: items };
-  console.log(`${slug}: ${renders.length} render(s), ${sources.length ? `${sources.length} watermarked image(s)` : `${items.length - renders.length} concept sheets`}`);
+// Gallery order: renders, real images, site plan, floor plans, elevation, axonometric.
+const KIND_ORDER = [/^render-/, /^image-/, /^site\./, /^plan-/, /^elevation\./, /^axonometric\./];
+const kindOf = (file) => file.replace(/\.jpg$/, "").replace(/^(render|image)-\d+$/, "$1");
+const generated = {};
+for (const { slug } of plans) {
+  const dir = path.join(OUT, slug);
+  if (!existsSync(dir)) {
+    console.warn(`warning: public/plans/${slug} is missing — run npm run previews -- --only ${slug}`);
+    continue;
+  }
+  const files = (await readdir(dir)).filter((f) => f.endsWith(".jpg") && !f.startsWith("cover"));
+  const rank = (f) => KIND_ORDER.findIndex((re) => re.test(f));
+  files.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, "en", { numeric: true }));
+  const url = (f) => `/plans/${slug}/${f}`;
+  generated[slug] = { cover: url("cover.jpg"), hover: url("cover-2.jpg"), sheets: files.map((f) => ({ src: url(f), kind: kindOf(f) })) };
 }
 
 // Folders with no plan entry are probably typos.
-for (const dir of [SOURCE, RENDERS]) {
+for (const dir of [SOURCE, RENDERS, OUT]) {
   if (!existsSync(dir)) continue;
   for (const name of await readdir(dir)) {
     if (!plans.some((p) => p.slug === name) && !name.includes(".")) console.warn(`warning: ${path.relative(root, dir)}/${name} has no matching plan in data/plans.json`);

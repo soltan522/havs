@@ -1,0 +1,44 @@
+name: Publish new villas
+# The daily routine (see docs/daily-villas.md) pushes a branch auto/villas-YYYYMMDD with new entries in
+# data/plans.json and renders/manifest.json listing their concept-render URLs. This job downloads the
+# renders, builds the preview sheets for the new villas only, validates and builds the site, then
+# publishes the result to main (Vercel deploys it) and deletes the branch.
+on:
+  push:
+    branches: ["auto/villas-*"]
+permissions:
+  contents: write
+concurrency:
+  group: publish-villas
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Download concept renders
+        run: node .github/scripts/import-renders.cjs
+      - name: Build previews for the new villas
+        run: npm run previews -- --missing
+      - name: Validate plans
+        run: npm run validate -- --require-renders
+      - name: Typecheck and build
+        run: npm run typecheck && npm run build
+      - name: Publish to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add renders public/plans lib/previews.generated.ts
+          git commit -m "Publish villas: $(node -p 'Object.keys(require("./renders/manifest.json")).join(", ")')"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+          git push origin --delete "$GITHUB_REF_NAME"
