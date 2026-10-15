@@ -1134,6 +1134,22 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "render"
       },
       {
+        "src": "/plans/avropa-qapilari-35/owner-01.jpg",
+        "kind": "owner"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/owner-02.jpg",
+        "kind": "owner"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/owner-03.jpg",
+        "kind": "owner"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/owner-04.jpg",
+        "kind": "owner"
+      },
+      {
         "src": "/plans/avropa-qapilari-35/site.jpg",
         "kind": "site"
       },

@@ -746,5 +746,27 @@
     ],
     "sheets": 6,
     "builtAt": "2026-10-15"
+  },
+  "avropa-qapilari-35": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "avropa-qapilari-35-drawings.pdf",
+        "bytes": 645479,
+        "pages": 11
+      },
+      {
+        "kind": "dwg",
+        "name": "avropa-qapilari-35.dwg",
+        "bytes": 309333
+      },
+      {
+        "kind": "cad",
+        "name": "avropa-qapilari-35.dxf",
+        "bytes": 848246
+      }
+    ],
+    "sheets": 11,
+    "builtAt": "2026-10-15"
   }
 }
