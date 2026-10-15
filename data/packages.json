@@ -504,5 +504,225 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-15"
+  },
+  "badamdar-24": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "badamdar-24-drawings.pdf",
+        "bytes": 780863,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "badamdar-24.dwg",
+        "bytes": 66820
+      },
+      {
+        "kind": "cad",
+        "name": "badamdar-24.dxf",
+        "bytes": 165728
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "ivanovka-25": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ivanovka-25-drawings.pdf",
+        "bytes": 784973,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "ivanovka-25.dwg",
+        "bytes": 72901
+      },
+      {
+        "kind": "cad",
+        "name": "ivanovka-25.dxf",
+        "bytes": 184064
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "laza-26": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "laza-26-drawings.pdf",
+        "bytes": 789547,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "laza-26.dwg",
+        "bytes": 80679
+      },
+      {
+        "kind": "cad",
+        "name": "laza-26.dxf",
+        "bytes": 199326
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "lankaran-27": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "lankaran-27-drawings.pdf",
+        "bytes": 514436,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "lankaran-27.dwg",
+        "bytes": 59685
+      },
+      {
+        "kind": "cad",
+        "name": "lankaran-27.dxf",
+        "bytes": 147351
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "nardaran-28": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nardaran-28-drawings.pdf",
+        "bytes": 553842,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "nardaran-28.dwg",
+        "bytes": 69776
+      },
+      {
+        "kind": "cad",
+        "name": "nardaran-28.dxf",
+        "bytes": 172983
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "shusha-29": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shusha-29-drawings.pdf",
+        "bytes": 641819,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "shusha-29.dwg",
+        "bytes": 74145
+      },
+      {
+        "kind": "cad",
+        "name": "shusha-29.dxf",
+        "bytes": 184357
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "shamakhi-30": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shamakhi-30-drawings.pdf",
+        "bytes": 618205,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shamakhi-30.dwg",
+        "bytes": 64932
+      },
+      {
+        "kind": "cad",
+        "name": "shamakhi-30.dxf",
+        "bytes": 162203
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "zaqatala-31": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zaqatala-31-drawings.pdf",
+        "bytes": 635801,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "zaqatala-31.dwg",
+        "bytes": 79555
+      },
+      {
+        "kind": "cad",
+        "name": "zaqatala-31.dxf",
+        "bytes": 200176
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "zira-32": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zira-32-drawings.pdf",
+        "bytes": 514012,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "zira-32.dwg",
+        "bytes": 77709
+      },
+      {
+        "kind": "cad",
+        "name": "zira-32.dxf",
+        "bytes": 192968
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "goygol-33": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "goygol-33-drawings.pdf",
+        "bytes": 597954,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "goygol-33.dwg",
+        "bytes": 65828
+      },
+      {
+        "kind": "cad",
+        "name": "goygol-33.dxf",
+        "bytes": 166593
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
   }
 }
