@@ -16,11 +16,16 @@ Next.js storefront for villa plans and exterior designs (AZ / EN / RU). Deployed
    This writes JPEGs to `public/plans/<slug>/` and updates `lib/previews.generated.ts`: renders first (the first one
    becomes the catalogue card), then the watermarked images — or, for plans without private originals, the generated
    concept sheets. Commit `public/plans/`, `renders/` and `lib/previews.generated.ts`.
-4. Set `published: true` and `demo: false` on the plan and deploy.
+4. Set `published: true` (and `demo: false` for a non-concept plan) and deploy.
 
-Plans with `demo: true` are sample projects: they show a concept visualisation plus generated concept sheets
+Plans with `demo: true` are concept projects: they show a concept visualisation plus generated concept sheets
 (site plan, floor plans, rendered south elevation with material schedule, isometric — see `scripts/drawings.mjs`)
-and a "contact to order" button. Checkout refuses them, so a sample can never be sold without real files behind it.
+and are labelled "Concept project". Any plan is sold only when its files are in the private bucket: the checkout page
+shows the payment form, and `/api/checkout` accepts an order, only after checking that every file exists.
+
+**Payments** — Lemon Squeezy (cards, Apple Pay, Google Pay, PayPal), NOWPayments (crypto), bank transfer, and Stripe /
+PayPal for a business in a country they support. Each method switches on when its keys are set; see
+[`docs/payments.md`](docs/payments.md).
 
 **Drawing packages.** `node scripts/package/build-packages.mjs` writes each plan's package to `deliverables/<slug>/`
 (git-ignored): a vector A3 PDF drawing set, a layered DXF with A3 paper-space layouts (python3 + `ezdxf`) and a DWG

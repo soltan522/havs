@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-export type Provider = "stripe" | "paypal" | "bank";
+export type Provider = "lemonsqueezy" | "stripe" | "paypal" | "crypto" | "bank";
 export type OrderStatus = "pending" | "paid" | "failed";
 
 export type Order = {
@@ -66,10 +66,24 @@ export async function updateOrder(id: string, patch: Partial<Pick<Order, "status
   if (!res.ok) throw new Error(`updateOrder failed: ${res.status}`);
 }
 
+const bucket = () => process.env.SUPABASE_PLANS_BUCKET ?? "plans-private";
+
+/** True when every object is in the PRIVATE bucket (Storage signs URLs only for objects that exist). Never throws. */
+export async function objectsExist(objectPaths: string[]): Promise<boolean> {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || objectPaths.length === 0) return false;
+  try {
+    const results = await Promise.all(
+      objectPaths.map((path) => sb(`/storage/v1/object/sign/${bucket()}/${path}`, { method: "POST", body: JSON.stringify({ expiresIn: 60 }) })),
+    );
+    return results.every((res) => res.ok);
+  } catch {
+    return false;
+  }
+}
+
 /** Short-lived signed URL for a file in the PRIVATE bucket. */
 export async function signedDownloadUrl(objectPath: string, expiresInSeconds = 600): Promise<string> {
-  const bucket = process.env.SUPABASE_PLANS_BUCKET ?? "plans-private";
-  const res = await sb(`/storage/v1/object/sign/${bucket}/${objectPath}`, {
+  const res = await sb(`/storage/v1/object/sign/${bucket()}/${objectPath}`, {
     method: "POST",
     body: JSON.stringify({ expiresIn: expiresInSeconds }),
   });

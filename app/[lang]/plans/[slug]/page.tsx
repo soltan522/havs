@@ -90,18 +90,16 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
             </div>
             <span className="muted small">{c.priceFrom} · {t.includes}: {t.formats}</span>
             <div className="price">{formatPrice(plan.priceCents, lang, currency())}</div>
-            {plan.package && <PackagePanel pkg={plan.package} lang={lang} demo={plan.demo} checkoutHref={checkoutHref} />}
+            {plan.package && <PackagePanel pkg={plan.package} lang={lang} checkoutHref={checkoutHref} />}
 
             {plan.demo && <p className="note">{c.sampleNote}</p>}
             <div className="detail-actions">
               <Link className="btn" href={checkoutHref} data-magnetic>
-                {plan.demo ? c.toCheckout : t.buy} <span className="arrow">→</span>
+                {c.toCheckout} <span className="arrow">→</span>
               </Link>
-              {plan.demo && (
-                <Link className="btn secondary" href={`/${lang}/contact`}>
-                  {c.contactToOrder}
-                </Link>
-              )}
+              <Link className="btn secondary" href={`/${lang}/contact`}>
+                {c.contactToCustomise}
+              </Link>
             </div>
           </aside>
         </div>

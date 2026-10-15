@@ -8,6 +8,8 @@
   --line: #dcd4c7;
   --accent: #8a5d31;
   --accent-soft: #c49a6c;
+  --ok: #3f6339;
+  --danger: #9a3f2b;
   --ink: #141311;
   --on-ink: #efe9df;
   --on-ink-muted: #a8a093;
@@ -28,6 +30,8 @@
     --muted: #a59d91;
     --line: #2f2c27;
     --accent: #c49a6c;
+    --ok: #8fbf84;
+    --danger: #e58b74;
     --ink: #0a0908;
     color-scheme: dark;
   }
@@ -40,6 +44,8 @@
   --muted: #a59d91;
   --line: #2f2c27;
   --accent: #c49a6c;
+  --ok: #8fbf84;
+  --danger: #e58b74;
   --ink: #0a0908;
   color-scheme: dark;
 }
@@ -327,14 +333,34 @@ img { display: block; max-width: 100%; }
 .checkout-summary h2 { font-family: var(--font-serif); font-weight: 500; font-size: 34px; margin: 22px 0 4px; }
 .checkout-notes { margin: 18px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.6; }
 .checkout-pay { position: sticky; top: 110px; padding: 28px; border: 1px solid var(--line); border-radius: 16px; background: color-mix(in srgb, var(--paper-2) 50%, transparent); }
-.checkout-pay .price { margin: 4px 0 18px; }
-.pay-form { display: grid; gap: 12px; }
-.pay-label { margin: 0; font-weight: 600; }
-.pay-option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
-.pay-option:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.pay-total { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.pay-total span { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.pay-total b { font-family: var(--font-serif); font-weight: 500; font-size: clamp(34px, 3.4vw, 46px); line-height: 1; }
+.pay-sub { margin: 8px 0 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.pay-error { margin: 0 0 16px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--danger); background: color-mix(in srgb, var(--danger) 9%, transparent); color: var(--danger); font-size: 14px; line-height: 1.45; }
+.pay-form { display: grid; gap: 16px; }
+.pay-field { display: grid; gap: 6px; }
+.pay-field span, .pay-methods legend { font-size: 13px; font-weight: 600; }
+.pay-field input { width: 100%; padding: 13px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface, #fff); color: var(--text); font: inherit; font-size: 15px; }
+.pay-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.pay-field small { font-size: 12px; line-height: 1.45; color: var(--muted); }
+.pay-methods { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.pay-methods legend { margin-bottom: 8px; padding: 0; }
+.pay-option { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: border-color 0.2s ease, background 0.2s ease; }
+.pay-option:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.pay-option:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.pay-option input { accent-color: var(--accent); margin: 0; }
+.pay-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--paper-2); color: var(--accent); }
+.pay-text { display: grid; gap: 2px; min-width: 0; }
+.pay-text b { font-size: 14.5px; font-weight: 600; }
+.pay-text small { font-size: 12px; line-height: 1.4; color: var(--muted); }
 .pay-terms { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--muted); }
+.pay-terms input { accent-color: var(--accent); margin-top: 3px; }
 .pay-terms a { color: var(--text); }
-.pay-form .btn { width: 100%; justify-content: center; margin-top: 6px; }
+.pay-form .btn { width: 100%; justify-content: center; margin-top: 2px; }
+.pay-instant { margin: 0; font-size: 13px; color: var(--text); display: flex; gap: 8px; align-items: flex-start; }
+.pay-instant::before { content: "✓"; color: var(--accent); font-weight: 700; }
+.pay-secure { margin: 0; }
 .package-note { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 
 /* ============ Lightbox ============ */
@@ -365,8 +391,19 @@ html.lightbox-open { overflow: hidden; }
 .info h1 { font-family: var(--font-serif); font-weight: 500; font-size: clamp(48px, 7vw, 92px); line-height: 1; margin: 0 0 24px; }
 .info h2 { font-family: var(--font-serif); font-weight: 500; font-size: 30px; margin: 48px 0 10px; }
 .info p { line-height: 1.75; font-size: 17px; }
-.order { padding: 150px var(--gutter) 120px; max-width: 820px; }
+.order { max-width: 1240px; margin: 0 auto; padding: 150px var(--gutter) 120px; }
+.order > * { max-width: 820px; }
 .order h1 { font-family: var(--font-serif); font-weight: 500; font-size: clamp(44px, 6vw, 80px); line-height: 1; margin: 0 0 16px; }
+.order-status { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 7px 14px; border-radius: 999px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--line); color: var(--muted); }
+.order-status.paid { border-color: var(--ok); color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, transparent); }
+.order-status.failed { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 9%, transparent); }
+.order-status .spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.order-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px 24px; margin: 26px 0; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.order-facts div { display: grid; gap: 4px; min-width: 0; }
+.order-facts dt { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.order-facts dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.order-files li .btn { padding: 10px 16px; font-size: 13px; }
 
 /* ============ Keyframes ============ */
 @keyframes fade { to { opacity: 1; } }

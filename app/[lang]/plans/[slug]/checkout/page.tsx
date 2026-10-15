@@ -3,21 +3,37 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
 import PackagePanel from "@/components/PackagePanel";
+import { PaymentIcon } from "@/components/PaymentIcon";
 import { COPY } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { coverOf, findPlan, formatPrice, STYLE_LABELS } from "@/lib/plans";
+import { coverOf, deliverables, findPlan, formatPrice, STYLE_LABELS } from "@/lib/plans";
 import { availableProviders, currency } from "@/lib/providers";
+import { objectsExist } from "@/lib/store";
 
-/** Payment step: what the buyer gets, the price and the payment methods. Files unlock on the order page. */
-export default async function CheckoutPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
+/**
+ * Payment step: what the buyer gets, the price, their email and the payment methods that are switched on.
+ * The form only appears when a provider is configured and every file of the package is in the private bucket,
+ * so the site never takes money for something it cannot deliver.
+ */
+export default async function CheckoutPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ lang: string; slug: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { lang, slug } = await params;
+  const { error } = await searchParams;
   if (!isLocale(lang)) notFound();
   const plan = findPlan(slug);
   if (!plan) notFound();
   const t = UI[lang];
   const c = COPY[lang];
   const k = c.checkout;
-  const providers = plan.demo ? [] : availableProviders();
+  const providers = availableProviders();
+  const stored = providers.length > 0 && (await objectsExist(deliverables(plan).map((d) => d.key)));
+  const price = formatPrice(plan.priceCents, lang, currency());
+  const errorText = error && error in k.errors ? k.errors[error as keyof typeof k.errors] : null;
 
   return (
     <>
@@ -42,7 +58,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ lang:
             <p className="muted small">
               {STYLE_LABELS[plan.style][lang]} · {plan.areaM2} m² · {t.floors}: {plan.floors} · {t.bedrooms}: {plan.bedrooms}
             </p>
-            {plan.package && <PackagePanel pkg={plan.package} lang={lang} demo={plan.demo} />}
+            {plan.package && <PackagePanel pkg={plan.package} lang={lang} />}
             <ul className="checkout-notes">
               {k.notes.map((n) => (
                 <li key={n}>{n}</li>
@@ -50,34 +66,41 @@ export default async function CheckoutPage({ params }: { params: Promise<{ lang:
             </ul>
           </section>
 
-          <section className="checkout-pay" aria-label={t.pay}>
-            <span className="muted small">{c.priceFrom}</span>
-            <div className="price">{formatPrice(plan.priceCents, lang, currency())}</div>
-            {plan.demo ? (
-              <>
-                <p className="note">{k.sample}</p>
-                <Link className="btn" href={`/${lang}/contact`} data-magnetic>
-                  {c.contactToOrder} <span className="arrow">→</span>
-                </Link>
-              </>
-            ) : providers.length === 0 ? (
-              <>
-                <p className="note">{k.noProviders}</p>
-                <Link className="btn" href={`/${lang}/contact`} data-magnetic>
-                  {c.contactToOrder} <span className="arrow">→</span>
-                </Link>
-              </>
-            ) : (
+          <section className="checkout-pay" aria-label={k.method}>
+            <div className="pay-total">
+              <span>{k.total}</span>
+              <b>{price}</b>
+            </div>
+            <p className="pay-sub muted small">
+              {plan.title[lang]} · {t.formats}
+            </p>
+            {errorText && (
+              <p className="pay-error" role="alert">
+                {errorText}
+              </p>
+            )}
+            {stored ? (
               <form method="POST" action="/api/checkout" className="pay-form">
                 <input type="hidden" name="slug" value={plan.slug} />
                 <input type="hidden" name="locale" value={lang} />
-                <p className="pay-label">{t.pay}</p>
-                {providers.map((p, i) => (
-                  <label key={p.id} className="pay-option">
-                    <input type="radio" name="provider" value={p.id} defaultChecked={i === 0} required />
-                    <span>{p.label}</span>
-                  </label>
-                ))}
+                <label className="pay-field">
+                  <span>{k.email}</span>
+                  <input type="email" name="email" required maxLength={254} autoComplete="email" inputMode="email" placeholder="name@example.com" />
+                  <small>{k.emailHint}</small>
+                </label>
+                <fieldset className="pay-methods">
+                  <legend>{k.method}</legend>
+                  {providers.map((id, i) => (
+                    <label key={id} className="pay-option">
+                      <input type="radio" name="provider" value={id} defaultChecked={i === 0} required />
+                      <PaymentIcon method={id} />
+                      <span className="pay-text">
+                        <b>{k.methods[id].name}</b>
+                        <small>{k.methods[id].hint}</small>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
                 <label className="pay-terms">
                   <input type="checkbox" required />
                   <span>
@@ -85,10 +108,18 @@ export default async function CheckoutPage({ params }: { params: Promise<{ lang:
                   </span>
                 </label>
                 <button className="btn" type="submit">
-                  {t.buy} — {formatPrice(plan.priceCents, lang, currency())} <span className="arrow">→</span>
+                  {k.pay} — {price} <span className="arrow">→</span>
                 </button>
-                <p className="muted small">{k.secure}</p>
+                <p className="pay-instant">{k.instant}</p>
+                <p className="muted small pay-secure">{k.secure}</p>
               </form>
+            ) : (
+              <>
+                <p className="note">{providers.length === 0 ? k.soon : k.unavailable}</p>
+                <Link className="btn" href={`/${lang}/contact`} data-magnetic>
+                  {c.contactToOrder} <span className="arrow">→</span>
+                </Link>
+              </>
             )}
           </section>
         </div>

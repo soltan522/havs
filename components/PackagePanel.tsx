@@ -14,7 +14,7 @@ const LockIcon = () => (
 );
 
 /** What the buyer gets: the package files with their sizes, each download locked until payment. */
-export default function PackagePanel({ pkg, lang, demo, checkoutHref }: { pkg: PlanPackage; lang: Locale; demo: boolean; checkoutHref?: string }) {
+export default function PackagePanel({ pkg, lang, checkoutHref }: { pkg: PlanPackage; lang: Locale; checkoutHref?: string }) {
   const c = COPY[lang];
   return (
     <section className="package" aria-label={c.packageTitle}>
@@ -43,7 +43,7 @@ export default function PackagePanel({ pkg, lang, demo, checkoutHref }: { pkg: P
           </li>
         ))}
       </ul>
-      <p className="package-note">{demo ? c.unlockNote : c.unlockNotePaid}</p>
+      <p className="package-note">{c.unlockNote}</p>
     </section>
   );
 }

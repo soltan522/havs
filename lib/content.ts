@@ -39,7 +39,8 @@ export const PAGES: Record<InfoPageKey, Record<Locale, Page>> = {
       intro: "Ən çox verilən sualların cavabları.",
       sections: [
         { heading: "Hansı formatlar alıram?", body: ["Hər planla birlikdə PDF, DWG və CAD faylları verilir."] },
-        { heading: "Ödənişdən sonra nə olur?", body: ["Fayllar dərhal sifariş səhifənizdə açılır. Bank köçürməsində ödəniş təsdiqləndikdən sonra açılır."] },
+        { heading: "Hansı ödəniş üsulları var?", body: ["Ödəniş səhifəsində aktiv olan üsullar göstərilir: bank kartı (Visa, Mastercard), Apple Pay, Google Pay, PayPal, kriptovalyuta (USDT, BTC, ETH və s.) və bank köçürməsi. Kart məlumatları havs.dev-də saxlanılmır."] },
+        { heading: "Ödənişdən sonra nə olur?", body: ["Fayllar ödəniş təsdiqlənən kimi sifariş səhifənizdə açılır. Kripto ödənişdə şəbəkə təsdiqindən sonra (adətən 5–30 dəqiqə), bank köçürməsində isə ödəniş təsdiqləndikdən sonra açılır."] },
         { heading: "Faylları neçə dəfə yükləyə bilərəm?", body: ["Yükləmə linkləri müvəqqətidir. Lazım olduqda sifariş səhifənizə qayıdıb yenidən yükləyə bilərsiniz."] },
         { heading: "Planı dəyişdirmək olar?", body: ["Planı tikintiyə uyğunlaşdırmaq üçün xidmət təklif edirik. Əlaqə səhifəsindən müraciət edin."] },
       ],
@@ -49,7 +50,8 @@ export const PAGES: Record<InfoPageKey, Record<Locale, Page>> = {
       intro: "Answers to the most common questions.",
       sections: [
         { heading: "Which formats do I get?", body: ["Each plan includes PDF, DWG and CAD files."] },
-        { heading: "What happens after payment?", body: ["Files open immediately on your order page. For bank transfers they open once the payment is confirmed."] },
+        { heading: "Which payment methods can I use?", body: ["The checkout shows the methods that are switched on: bank card (Visa, Mastercard), Apple Pay, Google Pay, PayPal, cryptocurrency (USDT, BTC, ETH and more) and bank transfer. havs.dev never stores card details."] },
+        { heading: "What happens after payment?", body: ["Files open on your order page as soon as the payment is confirmed. Crypto payments open after the network confirmation (usually 5–30 minutes); bank transfers once the payment is confirmed."] },
         { heading: "Can I download the files more than once?", body: ["Download links are temporary. You can return to your order page and download again whenever you need."] },
         { heading: "Can the plan be adapted?", body: ["We offer adaptation services for your site. Contact us through the contact page."] },
       ],
@@ -59,7 +61,8 @@ export const PAGES: Record<InfoPageKey, Record<Locale, Page>> = {
       intro: "Ответы на самые частые вопросы.",
       sections: [
         { heading: "Какие форматы я получу?", body: ["Каждый проект включает файлы PDF, DWG и CAD."] },
-        { heading: "Что происходит после оплаты?", body: ["Файлы сразу открываются на странице вашего заказа. При банковском переводе — после подтверждения оплаты."] },
+        { heading: "Какие способы оплаты доступны?", body: ["На странице оплаты показаны подключённые способы: банковская карта (Visa, Mastercard), Apple Pay, Google Pay, PayPal, криптовалюта (USDT, BTC, ETH и другие) и банковский перевод. havs.dev не хранит данные карт."] },
+        { heading: "Что происходит после оплаты?", body: ["Файлы открываются на странице заказа сразу после подтверждения оплаты. Криптоплатёж — после подтверждения в сети (обычно 5–30 минут), банковский перевод — после подтверждения оплаты."] },
         { heading: "Можно ли скачать файлы несколько раз?", body: ["Ссылки для скачивания временные. Вы можете вернуться на страницу заказа и скачать файлы снова."] },
         { heading: "Можно ли адаптировать проект?", body: ["Мы предлагаем услуги адаптации под ваш участок. Свяжитесь с нами через страницу контактов."] },
       ],

@@ -4,7 +4,8 @@ Every day three new **sample villas** are added to the havs.dev catalogue: a pho
 generated concept sheets (site plan, floor plans, south elevation, isometric). This file is the procedure the
 scheduled routine follows; a person can follow it too.
 
-Samples are `demo: true`: they are shown with a "sample project" note and cannot be bought online.
+Samples are `demo: true`: they are labelled "Concept project" and sold as concept packages; the checkout only takes
+payment once the villa's files are in the private bucket (see `docs/payments.md`).
 Never present them as built houses or real client work.
 
 ## How the pipeline works

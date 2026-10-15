@@ -9,6 +9,7 @@ export async function createStripeCheckout(args: {
   currency: string;
   successUrl: string;
   cancelUrl: string;
+  customerEmail?: string;
 }): Promise<string> {
   const body = new URLSearchParams({
     mode: "payment",
@@ -21,6 +22,7 @@ export async function createStripeCheckout(args: {
     "line_items[0][price_data][unit_amount]": String(args.amountCents),
     "line_items[0][price_data][product_data][name]": args.title,
   });
+  if (args.customerEmail) body.set("customer_email", args.customerEmail);
   const res = await fetch(`${API}/checkout/sessions`, {
     method: "POST",
     headers: {

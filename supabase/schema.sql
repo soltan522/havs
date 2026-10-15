@@ -3,7 +3,7 @@
 create table if not exists public.orders (
   id           uuid primary key,
   plan_slug    text not null,
-  provider     text not null check (provider in ('stripe', 'paypal', 'bank')),
+  provider     text not null check (provider in ('lemonsqueezy', 'stripe', 'paypal', 'crypto', 'bank')),
   status       text not null default 'pending' check (status in ('pending', 'paid', 'failed')),
   amount_cents integer not null check (amount_cents >= 0),
   currency     text not null,
@@ -23,3 +23,8 @@ alter table public.orders enable row level security;
 -- Needed when the project does not auto-expose new tables; without it the site returns 403 on order lookups.
 grant usage on schema public to service_role;
 grant select, insert, update, delete on public.orders to service_role;
+
+-- Upgrade for databases created before Lemon Squeezy and crypto payments were added:
+-- alter table public.orders drop constraint if exists orders_provider_check;
+-- alter table public.orders add constraint orders_provider_check
+--   check (provider in ('lemonsqueezy', 'stripe', 'paypal', 'crypto', 'bank'));
