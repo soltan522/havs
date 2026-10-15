@@ -9,7 +9,7 @@ is in the private Supabase bucket, so the site never takes money for files it ca
 |---|---|---|---|
 | **Lemon Squeezy** (recommended) | Card (Visa, Mastercard, Amex), Apple Pay on Safari, Google Pay on Chrome, PayPal | Yes — merchant of record, bank payouts to Azerbaijan | `LEMONSQUEEZY_API_KEY`, `LEMONSQUEEZY_STORE_ID`, `LEMONSQUEEZY_VARIANT_ID`, `LEMONSQUEEZY_WEBHOOK_SECRET` |
 | **NOWPayments** (crypto) | USDT, USDC, BTC, ETH and other coins | Yes — paid out to your own wallet | `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` (`NOWPAYMENTS_SANDBOX=1` for tests) |
-| **Bank transfer** | Your bank details; files unlock after you confirm | Yes — any bank account | `BANK_TRANSFER_DETAILS`, `ADMIN_TOKEN` |
+| **Bank transfer** | Your bank details; files unlock after you confirm | Yes — any bank account | `BANK_TRANSFER_DETAILS` (optional `ADMIN_TOKEN`) |
 | Stripe | Card, Apple Pay, Google Pay | Only with a company in a Stripe country | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` |
 | PayPal | PayPal | Only with an account that can receive payments | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENV=live` |
 
@@ -49,7 +49,8 @@ For tests use a sandbox account at account-sandbox.nowpayments.io with `NOWPAYME
 
 `BANK_TRANSFER_DETAILS` is shown on the order page (multi-line text: recipient, bank, IBAN, SWIFT). The buyer puts the
 order number in the payment reference. When the money arrives, find the order in Supabase (Table Editor → `orders`,
-filter by email) and confirm it:
+filter by email or by the first 8 characters of the id) and set `status` to `paid` — the buyer's order page then
+shows the downloads. With `ADMIN_TOKEN` set, the same can be done from a terminal:
 
 ```bash
 curl -X POST https://havs.dev/api/admin/orders/<order-id> -H "Authorization: Bearer <ADMIN_TOKEN>"
