@@ -514,5 +514,91 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of snow-white high-tech single-storey villa, smooth white walls and a razor-thin flat roof edge, deeply recessed glazing with thin black window frames, no garage, a private courtyard with a long rectangular decorative pool and a small timber terrace in front of the house, clipped green hedges, white gravel and slender cypress trees, bright clear midday light with crisp shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "shagan-21",
+    "style": "mediterranean",
+    "roof": "hip",
+    "inspiration": "absheron-classic",
+    "title": {
+      "az": "Şağan Villa",
+      "en": "Shagan Villa",
+      "ru": "Вилла Шаган"
+    },
+    "summary": {
+      "az": "Ağ əhəng suvaqlı, tağlı lociyalı və kirəmit dörd tərəfli damlı bir mərtəbəli Abşeron bağ evi. Terras üzərində üzüm talvarı, əncir ağacları arasında kiçik hovuz, üç yataq otağı.",
+      "en": "A single-storey Absheron summer house in white lime stucco with an arched loggia and a terracotta hip roof. A vine pergola over the terrace, a small pool among fig trees and three bedrooms.",
+      "ru": "Одноэтажная апшеронская дача из белой известковой штукатурки с арочной лоджией и черепичной вальмовой кровлей. Виноградная пергола над террасой, небольшой бассейн среди инжировых деревьев и три спальни."
+    },
+    "areaM2": 240,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": true,
+    "tree": "olive",
+    "ratio": 1.8,
+    "priceCents": 139000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of single-storey Absheron summer house in the Mediterranean tradition, white lime stucco walls, an arched loggia along the front, a terracotta tile hip roof with deep eaves, green timber shutters, no garage, a small rectangular pool with a sandstone deck in front of the house, a vine pergola over the terrace, fig and olive trees, a dry garden behind sand-coloured stone walls, warm late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "qala-22",
+    "style": "luxury",
+    "roof": "flat",
+    "inspiration": "mardakan-contemporary",
+    "mirror": true,
+    "title": {
+      "az": "Qala Villa",
+      "en": "Qala Villa",
+      "ru": "Вилла Гала"
+    },
+    "summary": {
+      "az": "Abşeron daşından bağ divarı arxasında üç mərtəbəli müasir villa: tünd təbii daş birinci mərtəbə, palıd üzlüklü çökəkləri və panoramik şüşələri olan ağ yuxarı həcmlər. Pilləli bağ terrasında sonsuz kənarlı hovuz, beş yataq otağı və iki yerlik qaraj.",
+      "en": "A three-storey contemporary villa behind an Absheron stone garden wall: a dark natural-stone ground floor and white upper volumes with oak-lined recesses and panoramic glazing. An infinity-edge pool on a stepped garden terrace, five bedrooms and a double garage.",
+      "ru": "Трёхэтажная современная вилла за оградой из апшеронского камня: первый этаж из тёмного натурального камня и белые верхние объёмы с дубовыми нишами и панорамным остеклением. Бассейн с переливом на ступенчатой террасе сада, пять спален и гараж на две машины."
+    },
+    "areaM2": 450,
+    "floors": 3,
+    "bedrooms": 5,
+    "bathrooms": 5,
+    "garage": true,
+    "pool": true,
+    "tree": "cypress",
+    "ratio": 1.4,
+    "priceCents": 229000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of luxury three-storey contemporary villa in a gated garden estate, dark grey natural stone ground floor, two crisp white upper floors with recessed oak-lined window bays and panoramic glazing, a thin flat roof slab, attached double garage on the right with an oak door, infinity-edge swimming pool on a stepped garden terrace with a pale limestone deck, a garden wall of Absheron stone, tall cypress trees and a clipped lawn, soft overcast morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "qebele-23",
+    "style": "modern",
+    "roof": "flat",
+    "inspiration": "istanbul-forest",
+    "mirror": true,
+    "title": {
+      "az": "Qəbələ Villa",
+      "en": "Gabala Villa",
+      "ru": "Вилла Габала"
+    },
+    "summary": {
+      "az": "Qoca palıd və şam ağacları arasında iki mərtəbəli meşə villası: ağ suvaq və kobud boz daş, taxta karnizaltı, hündür daş baca və çəmənliyə açılan tavana qədər şüşələr. Qoca ağacların altında çəmənlikdə hovuz, dörd yataq otağı və qaraj.",
+      "en": "A two-storey forest villa among mature oaks and pines: white render and rough grey stone, timber soffits, a tall stone chimney and full-height glazing to the lawn. A pool in the lawn under old trees, four bedrooms and a garage.",
+      "ru": "Двухэтажная лесная вилла среди старых дубов и сосен: белая штукатурка и грубый серый камень, деревянные софиты, высокий каменный дымоход и остекление в пол с выходом на газон. Бассейн на газоне под старыми деревьями, четыре спальни и гараж."
+    },
+    "areaM2": 300,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": true,
+    "tree": "pine",
+    "ratio": 1.3,
+    "priceCents": 159000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of two-storey modern villa set in a mature oak and pine forest, white render walls combined with rough grey stone, warm oak timber soffits under flat roofs, a tall stone chimney, full-height glazing opening to a lawn, attached single garage on the right with a timber door, rectangular swimming pool in the lawn under old trees, ferns and moss at the forest edge, misty soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
