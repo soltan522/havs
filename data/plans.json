@@ -238,5 +238,81 @@
     "priceCents": 159000,
     "published": true,
     "demo": true
+  },
+  {
+    "slug": "nabran-11",
+    "style": "coastal",
+    "roof": "flat",
+    "title": {
+      "az": "Nabran Villa",
+      "en": "Nabran Villa",
+      "ru": "Вилла Набран"
+    },
+    "summary": {
+      "az": "Şam meşəsi ilə dəniz arasında iki mərtəbəli villa: ağ suvaq, ikinci mərtəbədə tik ağacından şaquli lamellər və dərin çıxıntılı nazik dam lövhələri. Hovuza açılan sürüşən şüşə qapılar, şüşə məhəccərli terras və qaraj.",
+      "en": "A two-storey villa between the pine forest and the sea: white render, vertical teak louvres on the upper floor and thin, deeply overhanging roof slabs. Sliding glass doors open onto the pool, with a glass-balustraded terrace and a garage.",
+      "ru": "Двухэтажная вилла между сосновым лесом и морем: белая штукатурка, вертикальные ламели из тика на втором этаже и тонкие плиты кровли с глубоким выносом. Раздвижные стеклянные двери выходят к бассейну, терраса со стеклянным ограждением и гараж."
+    },
+    "areaM2": 320,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": true,
+    "ratio": 1.5,
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "tree": "pine"
+  },
+  {
+    "slug": "quba-12",
+    "style": "farmhouse",
+    "roof": "hip",
+    "title": {
+      "az": "Quba Bağ Evi",
+      "en": "Quba Orchard House",
+      "ru": "Усадьба Куба"
+    },
+    "summary": {
+      "az": "Alma bağında uzun, bir mərtəbəli ev: kobud təbii daş divarlar, geniş saçaqlı terrakota kirəmitli dörd maili dam və ön terras boyu üzüm tənəkli palıd perqola. Üç yataq otağı, ayrıca vanna otaqlı əsas yataq otağı və qaraj.",
+      "en": "A long single-storey house in an apple orchard: rough natural stone walls, a terracotta-tiled hip roof with deep eaves and an oak pergola with vines along the front terrace. Three bedrooms, a master suite with its own bathroom and a garage.",
+      "ru": "Длинный одноэтажный дом в яблоневом саду: стены из грубого натурального камня, вальмовая кровля из терракотовой черепицы с глубоким свесом и дубовая пергола с виноградом вдоль террасы. Три спальни, мастер-спальня с ванной и гараж."
+    },
+    "areaM2": 230,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "ratio": 1.9,
+    "priceCents": 129000,
+    "published": true,
+    "demo": true,
+    "tree": "round"
+  },
+  {
+    "slug": "mardakan-13",
+    "style": "mediterranean",
+    "roof": "hip",
+    "title": {
+      "az": "Mərdəkan Villa",
+      "en": "Mardakan Villa",
+      "ru": "Вилла Мардакан"
+    },
+    "summary": {
+      "az": "Abşeron sahilində iki mərtəbəli Aralıq dənizi villası: ağ əhəng suvağı, terrakota kirəmitli dörd maili dam, tağlı pəncərələr və döymə dəmir fransız balkonları. Qum daşı döşəməli hovuz terrası və zeytun bağı.",
+      "en": "A two-storey Mediterranean villa on the Absheron coast: white lime stucco, a terracotta-tiled hip roof, arched windows and wrought-iron French balconies. A sandstone pool terrace set in an olive garden.",
+      "ru": "Двухэтажная средиземноморская вилла на Абшеронском побережье: белая известковая штукатурка, вальмовая кровля из терракотовой черепицы, арочные окна и кованые французские балконы. Терраса у бассейна из песчаника в оливковом саду."
+    },
+    "areaM2": 280,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": true,
+    "priceCents": 159000,
+    "published": true,
+    "demo": true
   }
 ]
