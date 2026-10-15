@@ -893,5 +893,37 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey glass pavilion villa, honed travertine walls, a deep thin flat canopy roof on slender graphite steel columns, full-height glazing all along the front, attached single garage on the right, long narrow lap pool with a travertine deck in front of the house, tall pine forest around, mountain lake setting of Goygol, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "masazir-34",
+    "style": "market",
+    "roof": "flat",
+    "project": {
+      "kind": "retail",
+      "units": 1
+    },
+    "parking": 100,
+    "inspiration": "absheron-retail",
+    "title": {
+      "az": "Masazır Marketi",
+      "en": "Masazir Market",
+      "ru": "Маркет Масазыр"
+    },
+    "summary": {
+      "az": "Bir hündür mərtəbədə 2 100 m² məhəllə supermarketi — antrasit fasad panelləri, açıq rəngli fasya altında bütün en boyu vitrin və taxta giriş örtüyü. İçəridə təzə məhsul piştaxtaları ilə təxminən 1 000 m² satış zalı, doqquz kassa, çörəkxana-kafe, aptek köşkü, soyuducu kameralar və yükləmə rampası olan xidmət zonası; çöldə elektromobil şarjı olan 100 avtomobil yeri və ayrıca yükləmə həyəti.",
+      "en": "A neighbourhood supermarket of 2,100 m² on one tall storey: anthracite façade panels, a full-width shopfront under a light fascia and a timber entrance canopy. Inside, about 1,000 m² of sales floor with fresh counters, nine checkouts, a bakery café, a pharmacy kiosk and a back of house with cold rooms and a loading dock; outside, 100 parking bays with EV charging and a separate delivery yard.",
+      "ru": "Районный супермаркет 2 100 м² в одном высоком этаже: антрацитовые фасадные панели, витрина во всю ширину под светлым фризом и деревянный козырёк над входом. Внутри — около 1 000 м² торгового зала со свежими прилавками, девять касс, пекарня-кафе, аптечный киоск и служебная зона с холодильными камерами и разгрузочной рампой; снаружи — 100 парковочных мест с зарядкой для электромобилей и отдельный двор для разгрузки."
+    },
+    "areaM2": 2100,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "priceCents": 409000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic aerial three-quarter view from a drone at 30 metres of a modern single-storey neighbourhood supermarket building, a tall rectangular box clad in anthracite grey composite facade panels, a full-width glass shopfront under a plain light grey fascia band with no signage, a warm timber canopy over the entrance on slender steel columns, flat roof with rooflights and rooftop plant, a large car park in front with about one hundred marked parking bays, parked cars, planted islands with young trees and two small trolley shelters, a delivery yard with a white truck at the loading dock behind the building, Absheron suburb setting near Baku, clear late afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no logos, no text, no watermark"
   }
 ]
