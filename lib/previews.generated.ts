@@ -292,5 +292,91 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "axonometric"
       }
     ]
+  },
+  "nabran-11": {
+    "cover": "/plans/nabran-11/cover.jpg",
+    "hover": "/plans/nabran-11/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/nabran-11/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/nabran-11/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/nabran-11/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/nabran-11/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/nabran-11/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/nabran-11/axonometric.jpg",
+        "kind": "axonometric"
+      }
+    ]
+  },
+  "quba-12": {
+    "cover": "/plans/quba-12/cover.jpg",
+    "hover": "/plans/quba-12/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/quba-12/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/quba-12/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/quba-12/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/quba-12/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/quba-12/axonometric.jpg",
+        "kind": "axonometric"
+      }
+    ]
+  },
+  "mardakan-13": {
+    "cover": "/plans/mardakan-13/cover.jpg",
+    "hover": "/plans/mardakan-13/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/mardakan-13/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/mardakan-13/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/mardakan-13/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/mardakan-13/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/mardakan-13/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/mardakan-13/axonometric.jpg",
+        "kind": "axonometric"
+      }
+    ]
   }
 };
