@@ -394,7 +394,7 @@
     "garage": true,
     "pool": true,
     "tree": "olive",
-    "ratio": 2.0,
+    "ratio": 2,
     "priceCents": 149000,
     "published": true,
     "demo": true,
@@ -428,5 +428,91 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey villa seen over a tall Absheron limestone garden wall with a timber entrance gate, solid limestone facades with deep-set bronze-framed windows, a roof terrace with a spa pool and slim steel pergola, no garage, rectangular pool with travertine deck in the front garden, fig and mulberry trees, blue hour with warm interior lighting, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "shuvelan-18",
+    "style": "yali",
+    "roof": "hip",
+    "inspiration": "bosphorus-yali",
+    "title": {
+      "az": "Şüvəlan Villa",
+      "en": "Shuvelan Villa",
+      "ru": "Вилла Шувелан"
+    },
+    "summary": {
+      "az": "Yalı ənənəsində iki mərtəbəli sahil villası: açıq boz rəngə boyanmış taxta üzlük, taxta qapaqlı hündür pəncərələr və dərin saçaqlı şifer dörd tərəfli dam. Su kənarında daş terras, dörd yataq otağı və ərğəvan ağacları olan bağ.",
+      "en": "A two-storey waterfront villa in the yalı tradition: pale grey painted timber weatherboarding, tall sash windows with timber shutters and a slate hip roof with deep eaves. A stone quay terrace on the water, four bedrooms and a garden of Judas trees.",
+      "ru": "Двухэтажная вилла у воды в традиции ялы: деревянная обшивка, окрашенная в светло-серый цвет, высокие окна с деревянными ставнями и вальмовая сланцевая кровля с глубокими свесами. Каменная терраса-набережная у воды, четыре спальни и сад с иудиными деревьями."
+    },
+    "areaM2": 320,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.7,
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of two-storey waterfront villa in the Bosphorus yalı tradition on the Caspian shore, painted timber weatherboarding in pale grey with white trim, tall timber sash windows with timber shutters in a regular rhythm, a slate hip roof with deep eaves and a brick chimney, a stone quay terrace along the water with a small timber jetty, no garage, no pool, Judas trees in pink bloom and a lawn, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "buzovna-19",
+    "style": "noir",
+    "roof": "flat",
+    "inspiration": "seabreeze-noir",
+    "mirror": true,
+    "title": {
+      "az": "Buzovna Villa",
+      "en": "Buzovna Villa",
+      "ru": "Вилла Бузовна"
+    },
+    "summary": {
+      "az": "Tünd palitrada iki mərtəbəli müasir villa: qrafit rəngli suvaq, nazik tunc şaquli lamellər və incə yastı dam plitələri. Tavana qədər şüşələr, bazalt döşəməli hovuz, beş yataq otağı və qaraj.",
+      "en": "A two-storey contemporary villa in a dark palette: charcoal render, slim bronze vertical fins and crisp thin roof slabs. Full-height glazing, a pool on a basalt deck, five bedrooms and a garage.",
+      "ru": "Двухэтажная современная вилла в тёмной гамме: штукатурка цвета графита, тонкие бронзовые вертикальные ламели и тонкие плиты плоской кровли. Остекление в пол, бассейн с базальтовой террасой, пять спален и гараж."
+    },
+    "areaM2": 360,
+    "floors": 2,
+    "bedrooms": 5,
+    "bathrooms": 5,
+    "garage": true,
+    "pool": true,
+    "tree": "palm",
+    "ratio": 1.6,
+    "priceCents": 189000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of luxury two-storey contemporary villa with a dark sophisticated palette, charcoal render facades, rows of slim bronze vertical fins in front of the upper floor windows, crisp thin flat roof slabs with clean vertical lines, floor-to-ceiling glazing glowing with warm interior light, attached single garage on the right with a bronze door, rectangular swimming pool with a dark basalt deck in front of the house, royal palms and clipped boxwood, dusk with a deep blue sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "novxani-20",
+    "style": "minimal",
+    "roof": "flat",
+    "inspiration": "seabreeze-white",
+    "mirror": true,
+    "title": {
+      "az": "Novxanı Villa",
+      "en": "Novkhani Villa",
+      "ru": "Вилла Новханы"
+    },
+    "summary": {
+      "az": "Yastı damlı, qar kimi ağ bir mərtəbəli villa: içəri çəkilmiş şüşələr və nazik qara pəncərə çərçivələri. Dekorativ hovuzlu və budanmış çəpərli şəxsi həyət, üç yataq otağı.",
+      "en": "A snow-white single-storey villa with a flat roof, recessed glazing and thin black window frames. A private courtyard with a decorative pool and clipped hedges, three bedrooms.",
+      "ru": "Белоснежная одноэтажная вилла с плоской кровлей, утопленным остеклением и тонкими чёрными рамами. Частный двор с декоративным бассейном и стрижеными живыми изгородями, три спальни."
+    },
+    "areaM2": 230,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": true,
+    "tree": "cypress",
+    "ratio": 2.1,
+    "priceCents": 129000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of snow-white high-tech single-storey villa, smooth white walls and a razor-thin flat roof edge, deeply recessed glazing with thin black window frames, no garage, a private courtyard with a long rectangular decorative pool and a small timber terrace in front of the house, clipped green hedges, white gravel and slender cypress trees, bright clear midday light with crisp shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
