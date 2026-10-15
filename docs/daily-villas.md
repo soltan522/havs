@@ -128,8 +128,10 @@ npm ci
 
 ## Multi-unit projects (only when asked)
 
-A catalogue entry can also be a whole development: a terrace of townhouses, a farm estate or a small village.
-Add `"project": { "kind": "row" | "farm" | "cluster", "units": N }` to the entry; `areaM2`, `floors`,
+A catalogue entry can also be a whole development: a terrace of townhouses, a farm estate, a small village or a
+commercial building (`retail`: a neighbourhood supermarket with its car park — `"bedrooms": 0`, `"bathrooms"` = WCs,
+`"parking"` = bays on the masterplan, priced at ~$900 + $1.5/m²).
+Add `"project": { "kind": "row" | "farm" | "cluster" | "retail", "units": N }` to the entry; `areaM2`, `floors`,
 `bedrooms` and `bathrooms` then describe **one** house, and the generator draws the masterplan (A-001), the typical
 house plans, the street elevation (row) or typical elevation, an isometric of the whole project and one of the
 typical house. Allowed kinds, unit counts and styles are in `PROJECT_RULES` in `scripts/drawings.mjs`

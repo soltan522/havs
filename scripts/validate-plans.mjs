@@ -23,6 +23,8 @@ const warnings = [];
  * A multi-unit project: the typical house, plus 35 % of it for every further house on the masterplan.
  */
 export function suggestedPrice(plan) {
+  // commercial buildings: ~$900 + $1.5/m²
+  if (STYLE_RULES[plan.style]?.commercial) return Math.round((900 + 1.5 * plan.areaM2) / 100) * 100 - 10;
   const premium = ["tuscan", "coastal", "luxury", "mediterranean", "absheron", "noir", "yali"].includes(plan.style) ? 100 : 0;
   const house = Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
   if (!plan.project) return house;
@@ -109,10 +111,11 @@ for (const plan of plans) {
   if (!rules.roofs.includes(plan.roof)) err(`roof "${plan.roof}" does not fit style ${plan.style} (allowed: ${rules.roofs.join(", ")})`);
   if (!rules.floors.includes(plan.floors)) err(`${plan.floors} floor(s) does not fit style ${plan.style} (allowed: ${rules.floors.join(", ")})`);
   for (const field of ["title", "summary"]) for (const l of LANGS) if (!plan[field]?.[l]?.trim()) err(`missing ${field}.${l}`);
-  for (const field of ["areaM2", "floors", "bedrooms", "bathrooms", "priceCents"]) if (!Number.isInteger(plan[field]) || plan[field] <= 0) err(`${field} must be a positive integer`);
+  for (const field of ["areaM2", "floors", "bedrooms", "bathrooms", "priceCents"]) if (!Number.isInteger(plan[field]) || plan[field] <= 0) if (!(field === "bedrooms" && rules.commercial && plan[field] === 0)) err(`${field} must be a positive integer`);
   for (const field of ["garage", "pool", "published", "demo"]) if (typeof plan[field] !== "boolean") err(`${field} must be true or false`);
   const perFloor = plan.areaM2 / plan.floors;
-  if (perFloor < 80 || perFloor > 320) err(`area per floor ${perFloor.toFixed(0)} m² is outside 80–320 m² — the generated plans would not be credible`);
+  const [minFloor, maxFloor] = rules.commercial ? [1200, 3500] : [80, 320];
+  if (perFloor < minFloor || perFloor > maxFloor) err(`area per floor ${perFloor.toFixed(0)} m² is outside ${minFloor}–${maxFloor} m² — the generated plans would not be credible`);
   if (plan.style === "duplex" && plan.bedrooms !== 6) err("duplex template has exactly 6 bedrooms (3 per unit)");
   if (plan.project !== undefined) {
     const pr = PROJECT_RULES[plan.project?.kind];
@@ -153,6 +156,7 @@ for (const plan of plans) {
     err(`drawing generator failed: ${e.message}`);
     continue;
   }
+  if (model.project && rules.commercial && plan.parking !== model.project.layout.parking) err(`parking is ${plan.parking} but the masterplan draws ${model.project.layout.parking} bays — set parking to ${model.project.layout.parking}`);
   const wet = wetRooms(model);
   if (wet !== plan.bathrooms) err(`bathrooms is ${plan.bathrooms} but the generated plans have ${wet} bathrooms/WCs — set bathrooms to ${wet}`);
   const bedrooms = model.levels.reduce((n, lv) => n + lv.spaces.filter((s) => s.kind === "bedroom" || s.kind === "master").length, 0);

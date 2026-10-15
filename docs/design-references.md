@@ -116,3 +116,13 @@ with glazed gable ends facing the valley, timber balconies, a shared spa lodge.
   `"project": { "kind": "cluster", "units": 4–6 }`
 - **prompt cues** "N chalets staggered in two rows on a pine-forested slope", "glazed gables facing the valley",
   "spa lodge at the entrance", "winding lanes", "snow-capped peaks"
+
+### absheron-retail — Absheron neighbourhood supermarket
+A contemporary local supermarket for the growing Absheron suburbs: one tall storey, anthracite façade panels,
+a full-width shopfront under a plain fascia (the operator's signage goes there — never draw a real brand),
+a timber entrance canopy, a car park with planted islands and EV bays, and a separate delivery yard.
+- **style** `market` with `"project": { "kind": "retail", "units": 1 }`, `"bedrooms": 0`, `"bathrooms"` = WCs,
+  `"parking"` = bays drawn on the masterplan (`npm run validate` prints the number)
+- **prompt cues** "modern single-storey neighbourhood supermarket", "anthracite composite panels",
+  "full-width glass shopfront under a plain fascia with no signage", "timber entrance canopy",
+  "car park with planted islands", "delivery yard with a truck at the loading dock", "no logos, no text"

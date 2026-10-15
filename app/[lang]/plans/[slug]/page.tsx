@@ -7,7 +7,7 @@ import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { findPlan, formatPrice, planLabel } from "@/lib/plans";
+import { findPlan, formatPrice, isCommercial, planLabel } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 const LOCKED = new Set(["schedules"]);
@@ -24,20 +24,24 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
   const open = plan.gallery.filter((item) => !LOCKED.has(item.kind));
 
   const name = (kind: string) => planSheetName(c, plan, kind);
-  const specs: [string, string][] = [
-    ...(plan.project
-      ? ([
-          [c.project.houses, String(plan.project.units)],
-          [c.project.perHouse, `${plan.areaM2} m²`],
-          [c.project.total, `${plan.project.units * plan.areaM2} m²`],
-        ] as [string, string][])
-      : ([[t.area, `${plan.areaM2} m²`]] as [string, string][])),
-    [t.floors, String(plan.floors)],
-    [t.bedrooms, String(plan.bedrooms)],
-    [c.bathrooms, String(plan.bathrooms)],
-    [t.garage, plan.garage ? c.yes : c.no],
-    [c.pool, plan.pool ? c.yes : c.no],
-  ];
+  const area: [string, string][] = plan.project && plan.project.units > 1
+    ? [
+        [c.project.houses, String(plan.project.units)],
+        [c.project.perHouse, `${plan.areaM2} m²`],
+        [c.project.total, `${plan.project.units * plan.areaM2} m²`],
+      ]
+    : [[t.area, `${plan.areaM2} m²`]];
+  const specs: [string, string][] = isCommercial(plan)
+    ? [...area, [t.floors, String(plan.floors)], [c.project.wcs, String(plan.bathrooms)], [c.project.parking, String(plan.parking ?? 0)]]
+    : [
+        ...area,
+        [t.floors, String(plan.floors)],
+        [t.bedrooms, String(plan.bedrooms)],
+        [c.bathrooms, String(plan.bathrooms)],
+        [t.garage, plan.garage ? c.yes : c.no],
+        [c.pool, plan.pool ? c.yes : c.no],
+      ];
+
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { UI, type Locale } from "./i18n";
-import { areaText, type Plan } from "./plans";
+import { areaText, isCommercial, type Plan } from "./plans";
 
 /** UI copy for the catalogue, plan pages and motion labels (AZ / EN / RU). */
 export const COPY = {
@@ -89,6 +89,9 @@ export const COPY = {
       total: "Ümumi sahə",
       typical: "Tipik ev",
       sheets: { site: "Ümumi baş plan", street: "Küçə fasadı", elevation: "Tipik evin fasadı", axonometric: "Layihənin aksonometriyası" },
+      wcs: "Sanitar qovşaqlar",
+      parking: "Avtomobil yerləri",
+      parkingShort: "avtomobil yeri",
     },
     sampleNote:
       "Konsept layihə: vizualizasiya dizayn ideyasını göstərir, çertyojlar konsept mərhələsinə aiddir və tikintidən əvvəl yerli memar və mühəndis tərəfindən uyğunlaşdırılmalıdır. Paket (PDF, DWG, DXF) ödənişdən dərhal sonra yüklənir; layihəni sahənizə uyğunlaşdırmaq üçün bizimlə əlaqə saxlayın.",
@@ -184,6 +187,9 @@ export const COPY = {
       total: "Total area",
       typical: "Typical house",
       sheets: { site: "Masterplan", street: "Street elevation", elevation: "Typical house elevation", axonometric: "Whole project, axonometric" },
+      wcs: "WCs",
+      parking: "Parking bays",
+      parkingShort: "parking bays",
     },
     sampleNote:
       "Concept project: the visualisation shows the design intent and the drawings are concept-stage, to be adapted by a local architect and engineer before construction. The package (PDF, DWG, DXF) downloads right after payment; contact us to adapt the design to your plot.",
@@ -279,6 +285,9 @@ export const COPY = {
       total: "Общая площадь",
       typical: "Типовой дом",
       sheets: { site: "Генплан проекта", street: "Уличный фасад", elevation: "Фасад типового дома", axonometric: "Аксонометрия проекта" },
+      wcs: "Санузлы",
+      parking: "Парковочные места",
+      parkingShort: "парковочных мест",
     },
     sampleNote:
       "Концептуальный проект: визуализация показывает замысел, чертежи — стадии концепции, перед строительством их адаптируют местный архитектор и инженер. Пакет (PDF, DWG, DXF) скачивается сразу после оплаты; чтобы адаптировать проект под ваш участок, свяжитесь с нами.",
@@ -304,14 +313,16 @@ export function planSheetName(c: (typeof COPY)[Locale], plan: Plan, kind: string
   if (!plan.project) return base;
   const p = c.project.sheets;
   if (kind === "site") return p.site;
-  if (kind === "elevation") return plan.project.kind === "row" ? p.street : p.elevation;
   if (kind === "axonometric") return p.axonometric;
+  if (plan.project.units === 1) return base;
+  if (kind === "elevation") return plan.project.kind === "row" ? p.street : p.elevation;
   if (kind.startsWith("plan-")) return `${c.project.typical}: ${base.charAt(0).toLowerCase()}${base.slice(1)}`;
   return base;
 }
 
 /** Card line: "240 m² · 2 floors · 4 bedrooms", or "7 × 180 m² · …" for a project. */
 export function specsLine(lang: Locale, plan: Plan): string {
+  if (isCommercial(plan)) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.parking ?? 0} ${COPY[lang].project.parkingShort}`;
   return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.bedrooms} ${UI[lang].bedrooms.toLowerCase()}`;
 }
 
