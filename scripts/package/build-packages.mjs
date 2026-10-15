@@ -14,7 +14,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import SVGtoPDF from "svg-to-pdfkit";
-import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
+import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
 
 const require = createRequire(import.meta.url);
 const root = process.cwd();
@@ -42,6 +42,12 @@ const DWG2DXF = tool("DWG2DXF", "/usr/local/bin/dwg2dxf");
 const PYTHON = process.env.PYTHON || "python3";
 
 function sheetsFor(model, renderUri) {
+  if (model.interior) {
+    // interior set: layouts, finishes, ceilings and lighting, elevations, cutaway, schedules, materials board
+    const list = interiorSheets(model).map(({ no, title, scale, svg }) => ({ no, title, scale, svg: () => svg() }));
+    const index = [{ no: "A-000", title: "Cover sheet", scale: "NTS" }, ...list.map(({ no, title, scale }) => ({ no, title, scale }))];
+    return [{ no: "A-000", svg: () => coverSheet(model, renderUri, index) }, ...list];
+  }
   // a multi-unit project: masterplan, the typical house, the street front / ensemble, then the typical house in 3D
   const project = model.project;
   const several = !!project && project.units > 1;

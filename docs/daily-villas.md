@@ -147,6 +147,16 @@ A **surveyed building** (`urban`: the owner's existing office building) keeps it
 (`npm run validate` checks it against `areaM2` and `floors`); the owner's own photos and plans go in
 `renders/<slug>/owner/` and appear in the gallery after the concept renders.
 
+## Interior design projects (only when asked)
+
+An entry with `"style": "interior"` sells an interior design concept instead of a building:
+`"interior": { "type": "flat" | "penthouse" | "residence" | "cafe" | "workspace" | "boutique" | "clinic" | "salon",
+"palette": "<family id>" }`, `"inspiration"` = the palette id, `"roof": "flat"`, no garage or pool. `areaM2` is the
+floor area of the space; bedrooms and bathrooms (WCs for commercial spaces) must match the generated layout
+(`npm run validate` prints them); the price rule is ~$300 + $9/m². The package is an interior set: furniture layout,
+finishes plan, ceiling and lighting plan per level, interior elevations, a cutaway axonometric, finishes / lighting /
+FF&E schedules and the materials board. Two or three landscape interior renders per project.
+
 ## Do not
 
 - push to `main` directly, rewrite history, or delete anything except the branch the Action already deletes;

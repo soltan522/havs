@@ -108,13 +108,15 @@ const SPEC = {
   market: { walls: ["panel"], frame: "alu", glassy: true, slab: 0.5, slabMat: "coping", storey: 6.0, head: 4.2, fascia: true, entryCanopy: true, slidingEntry: true, rooflights: true, tree: "round" },
   // roadside door and window showroom: a double-height hall behind two tiers of steel-framed glazing between
   // rendered pilasters, a mezzanine at the back, the owner's sign band along the top
+  // interior design project: the shell only; the design language comes from plan.interior.palette
+  interior: { walls: ["render"], frame: "bronze", slab: 0.2, storey: 3.0, tree: "round" },
   showroom: { walls: ["render"], frame: "blackalu", glassy: true, slab: 0.3, slabMat: "coping", storey: 4.6, piers: true, pierMat: "pilaster", pierW: 0.8, pane: 0.95, transom: 1.25, signBand: true, entryCanopy: true, canopyGlass: true, slidingEntry: true, projectLabel: "DOOR AND WINDOW SHOWROOM", tree: "round" },
 };
 
 const STYLE_EN = {
   modern: "MODERN", tuscan: "TUSCAN", minimal: "MINIMALIST", coastal: "COASTAL", chalet: "CHALET",
   farmhouse: "FARMHOUSE", luxury: "CONTEMPORARY", pavilion: "PAVILION", mediterranean: "MEDITERRANEAN", duplex: "TWIN VILLA",
-  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI", townhouse: "TOWNHOUSE", market: "SUPERMARKET", office: "OFFICE AND SHOWROOM", showroom: "SHOWROOM",
+  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI", townhouse: "TOWNHOUSE", market: "SUPERMARKET", office: "OFFICE AND SHOWROOM", showroom: "SHOWROOM", interior: "INTERIOR DESIGN",
 };
 
 const wallMat = (spec, li) => spec.walls[Math.min(li, spec.walls.length - 1)];
@@ -138,6 +140,7 @@ export const STYLE_RULES = {
   market: { roofs: ["flat"], floors: [1], projectOnly: true, commercial: true, floorArea: [1200, 3500] },
   office: { roofs: ["flat"], floors: [6], projectOnly: true, commercial: true, floorArea: [200, 600] },
   showroom: { roofs: ["flat"], floors: [2], projectOnly: true, commercial: true, floorArea: [150, 600] },
+  interior: { roofs: ["flat"], floors: [1, 2], interior: true, floorArea: [40, 320] },
 };
 
 /** Multi-unit projects (plan.project.kind): how many houses each layout is drawn for. */
@@ -211,12 +214,17 @@ function materialDefs(s, seed = 7) {
 export function buildModel(plan) {
   if (!SPEC[plan.style]) throw new Error(`no drawing spec for style "${plan.style}"`);
   // a plan may pick the planting that fits its setting (e.g. pines for a forest site)
-  const spec = plan.tree ? { ...SPEC[plan.style], tree: plan.tree } : SPEC[plan.style];
+  let spec = plan.tree ? { ...SPEC[plan.style], tree: plan.tree } : SPEC[plan.style];
+  const itype = plan.style === "interior" ? INTERIOR_TYPES[plan.interior?.type] : null;
+  if (plan.style === "interior") {
+    if (!itype || !PALETTES[plan.interior.palette]) throw new Error(`interior: unknown type "${plan.interior?.type}" or palette "${plan.interior?.palette}"`);
+    spec = { ...spec, glassy: !!itype.glassy };
+  }
   const above = plan.style === "luxury" ? plan.floors - 1 : plan.floors;
   const footprintArea = plan.areaM2 / plan.floors;
   // footprint proportion (width / depth); a plan may override it to vary the massing
   // (a terraced house is deeper than it is wide)
-  const ratio = plan.style === "townhouse" ? 0.67 : plan.ratio ?? ({ duplex: 2.0, market: 1.4, office: 1.45 }[plan.style] ?? (above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4));
+  const ratio = plan.style === "townhouse" ? 0.67 : plan.ratio ?? (itype ? itype.ratio : null) ?? ({ duplex: 2.0, market: 1.4, office: 1.45 }[plan.style] ?? (above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4));
   // a surveyed building keeps its measured footprint
   const W = plan.footprint ? plan.footprint[0] : r1(Math.sqrt(footprintArea * ratio));
   const D = plan.footprint ? plan.footprint[1] : r1(footprintArea / W);
@@ -227,6 +235,7 @@ export function buildModel(plan) {
   else if (plan.style === "market") levels = [marketLevel(spec)];
   else if (plan.style === "office") levels = officeLevels(spec);
   else if (plan.style === "showroom") levels = showroomLevels(spec);
+  else if (itype) levels = interiorLevels(plan, W, D, spec);
   else if (above === 1) levels = [singleStorey(plan, W, D, spec)];
   else levels = twoStorey(plan, W, D, spec);
 
@@ -257,6 +266,7 @@ export function buildModel(plan) {
   const garage = plan.garage ? { w: plan.areaM2 >= 370 ? 6.6 : 3.9, d: 6.4 } : null;
   const model = { plan, spec, W, D, above, levels, garage, basement: plan.style === "luxury", storey: spec.storey ?? STOREY };
   model.wallTop = above * model.storey;
+  if (itype) model.interior = { type: plan.interior.type, palette: PALETTES[plan.interior.palette], ch: itype.ch };
   if (spec.survey) {
     // structural grid, chamfered street corner and the round stair tower of the surveyed building
     const xs = [0.25, ...OFFICE.back.map((f) => Math.round(f * W * 100) / 100), W - 0.25];
@@ -923,13 +933,13 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
     <g transform="translate(${tbX + 28} 74)">
       <rect x="0" y="-14" width="14" height="14" fill="none" stroke="${ACCENT}" stroke-width="1.6" transform="rotate(45 7 -7)"/>
       <text x="28" y="0" font-size="20" font-weight="600" fill="${INK}" letter-spacing="1">havs.dev</text>
-      <text x="0" y="26" font-size="10.5" fill="${MID}" letter-spacing="2">ARCHITECTURE · VILLA DESIGN</text>
+      <text x="0" y="26" font-size="10.5" fill="${MID}" letter-spacing="2">${plan.style === "interior" ? "ARCHITECTURE · INTERIOR DESIGN" : "ARCHITECTURE · VILLA DESIGN"}</text>
     </g>`;
   rows.forEach(([k, v], i) => {
     const y = 156 + i * 66;
     tb += `<line x1="${tbX}" y1="${y - 24}" x2="${SHEET_W - 36}" y2="${y - 24}" stroke="${LIGHT}"/>
       <text x="${tbX + 28}" y="${y}" font-size="10" fill="${MID}" letter-spacing="2">${k}</text>
-      <text x="${tbX + 28}" y="${y + 25}" font-size="${i === 0 ? (v.length > 18 ? 16.5 : 19) : 15}" font-weight="${i === 0 ? 600 : 500}" fill="${i === 4 ? ACCENT : INK}" letter-spacing="0.5">${esc(v)}</text>`;
+      <text x="${tbX + 28}" y="${y + 25}" font-size="${i === 0 ? (v.length > 24 ? 13.5 : v.length > 18 ? 16.5 : 19) : 15}" font-weight="${i === 0 ? 600 : 500}" fill="${i === 4 ? ACCENT : INK}" letter-spacing="0.5">${esc(v)}</text>`;
   });
   const legendTop = 156 + rows.length * 66 - 24;
   tb += `<line x1="${tbX}" y1="${legendTop}" x2="${SHEET_W - 36}" y2="${legendTop}" stroke="${LIGHT}"/>`;
@@ -940,7 +950,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
       tb += `<g transform="translate(${tbX + 28} ${y})">
         <circle cx="9" cy="-4" r="9" fill="none" stroke="${INK}" stroke-width="0.9"/>
         <text x="9" y="-0.5" text-anchor="middle" font-size="9" font-weight="600" fill="${INK}">${i + 1}</text>
-        <rect x="26" y="-13" width="18" height="18" fill="${item.fill}" stroke="${INK}" stroke-width="0.6"/>
+        ${item.symbol ? `<g transform="translate(35 -4)">${item.symbol}</g>` : `<rect x="26" y="-13" width="18" height="18" fill="${item.fill}" stroke="${INK}" stroke-width="0.6"/>`}
         ${item.pattern ? `<rect x="26" y="-13" width="18" height="18" fill="url(#${item.pattern})"/>` : ""}
         <text x="54" y="0" font-size="11.5" fill="${INK}">${esc(item.label)}</text>
       </g>`;
@@ -1303,6 +1313,51 @@ function furniture(d, kind, inn) {
     case "void":
       g += d.line(x, y, x + w, y + h, { dash: "8 5" }) + d.line(x + w, y, x, y + h, { dash: "8 5" });
       break;
+    // ---- interior fit-out fixtures
+    case "bar": {
+      // back bar along the wall, counter facing the room, stools
+      const cw = Math.min(w - 0.8, 6.0);
+      g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.45) + d.rect(x + (w - cw) / 2, y + 1.3, cw, 0.6, { round: 2 });
+      for (let sx = x + (w - cw) / 2 + 0.4; sx < x + (w + cw) / 2 - 0.2; sx += 0.75) g += d.circle(sx, y + 2.3, 0.2);
+      break;
+    }
+    case "boutique": {
+      // wall shelving, display tables, a round plinth and the cash desk by the door
+      g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.45) + d.rect(x + 0.1, y + 0.55, 0.45, h - 2.4);
+      for (let cx = x + w * 0.3; cx < x + w * 0.75; cx += w * 0.3) g += d.rect(cx - 0.8, y + h * 0.42, 1.6, 0.9, { round: 3 });
+      g += d.rect(x + w - 2.4, y + h - 1.9, 1.8, 0.7, { round: 4 });
+      if (h > 5) g += d.circle(x + w * 0.5, y + h * 0.75, 0.7);
+      break;
+    }
+    case "fitting": {
+      const n = Math.max(2, Math.floor(h / 1.5));
+      for (let i = 0; i < n; i++) g += d.rect(x + w - 1.6, y + 0.1 + (i * (h - 0.2)) / n, 1.5, (h - 0.2) / n);
+      g += d.rect(x + 0.4, y + h / 2 - 0.9, 0.5, 1.8, { round: 4 });
+      break;
+    }
+    case "treatment":
+      g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.6);
+      g += d.rect(x + w / 2 - 0.4, y + 1.2, 0.8, 1.9, { round: 8 }) + d.circle(x + w / 2 + 0.8, y + 1.7, 0.25) + d.circle(x + w / 2 - 0.8, y + 1.5, 0.22);
+      break;
+    case "styling":
+      for (let cx = x + 0.9; cx + 0.6 < x + w - 0.4; cx += 1.6) g += d.rect(cx - 0.45, y + 0.1, 0.9, 0.45) + d.circle(cx, y + 1.05, 0.3);
+      if (h > 3.4) g += d.rect(x + w / 2 - 1.2, y + h - 1.3, 2.4, 0.8, { round: 4 });
+      break;
+    case "wash":
+      for (let cx = x + 0.8; cx + 0.4 < x + w - 0.2; cx += 1.2) g += d.rect(cx - 0.35, y + 0.1, 0.7, 0.5, { round: 3 }) + d.rect(cx - 0.3, y + 0.65, 0.6, 1.3, { round: 6 });
+      g += d.rect(x + 0.1, y + h - 0.6, w - 0.2, 0.5);
+      break;
+    case "teahall":
+      g += d.rect(x + 0.1, y + 0.6, 0.6, h - 1.2, { round: 3 });
+      for (const [cx, cy] of teaTables(inn)) g += d.circle(cx, cy, 0.38) + d.circle(cx - 0.68, cy, 0.2) + d.circle(cx + 0.68, cy, 0.2);
+      break;
+    case "nails": {
+      const tw = Math.min(w - 1.6, 3.6);
+      g += d.rect(x + (w - tw) / 2, y + h * 0.4, tw, 0.7, { round: 3 });
+      for (let cx = x + (w - tw) / 2 + 0.4; cx < x + (w + tw) / 2 - 0.2; cx += 0.9) g += d.circle(cx, y + h * 0.4 - 0.35, 0.22) + d.circle(cx, y + h * 0.4 + 1.05, 0.22);
+      g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.35);
+      break;
+    }
     case "lift":
       g += d.rect(x + w / 2 - 0.8, y + 0.3, 1.6, 1.6) + d.line(x + w / 2 - 0.8, y + 0.3, x + w / 2 + 0.8, y + 1.9) + d.line(x + w / 2 + 0.8, y + 0.3, x + w / 2 - 0.8, y + 1.9);
       break;
@@ -1362,10 +1417,12 @@ function surveyPlanFeatures(model, level, px, s, rect) {
   return g;
 }
 
-export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } = {}) {
+export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mode = "layout" } = {}) {
   const ST = model.storey;
   const { W, D, plan, spec } = model;
   const level = model.levels[levelIndex];
+  // interior sets draw the same plan three ways: furniture layout, floor finishes, reflected ceiling and lighting
+  const drawingName = !model.interior || mode === "layout" ? level.name : `${level.floorName ? `${level.floorName} ` : ""}${mode === "finish" ? "FINISHES PLAN" : "CEILING PLAN"}`;
   const isGround = levelIndex === 0;
   const garage = isGround ? model.garage : null;
   const site = model.site;
@@ -1378,7 +1435,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   const areaW = SHEET_W - 330 - 36 - 90;
   const areaH = SHEET_H - 72 - 180;
   const sideOut = outside("right");
-  const s = Math.min(areaW / (W + extraW + sideOut + margin), areaH / (D + extraD + margin), 58);
+  const s = Math.min(areaW / (W + extraW + sideOut + margin), areaH / (D + extraD + margin), model.interior ? 80 : 58);
   const ox = 36 + 45 + (areaW - (W + extraW + sideOut + margin) * s) / 2 + margin * s;
   const oy = 36 + 40 + (areaH - (D + extraD + margin) * s) / 2 + (margin + backOut) * s;
   const px = { X: (m) => ox + m * s, Y: (m) => oy + m * s };
@@ -1459,6 +1516,11 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   for (const sp of level.spaces) {
     const inn = inner(model, sp);
     g += rect(inn.x, inn.y, inn.w, inn.h, `fill="${PAPER}"`);
+    if (mode === "finish" && sp.kind !== "void" && sp.kind !== "stair") {
+      const mt = matOf(model, roomFinish(model, sp).floor);
+      g += rect(inn.x, inn.y, inn.w, inn.h, `fill="${shade(mt.fill, 0.42)}"`);
+      if (patternFill(mt.pattern)) g += rect(inn.x, inn.y, inn.w, inn.h, `fill="${patternFill(mt.pattern)}"`);
+    }
   }
   // garage (attached on the right)
   if (garage) {
@@ -1521,13 +1583,13 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
       const wy = ext ? (d.side === "top" ? 0 : D - EXT) : seg.y1 - INT / 2;
       g += `<rect x="${f1(px.X(x0))}" y="${f1(px.Y(wy) - 1)}" width="${f1(w * s)}" height="${f1(t * s + 2)}" fill="${PAPER}"/>`;
       if (d.rail) for (const f of [0.3, 0.7]) g += `<line x1="${f1(px.X(x0))}" y1="${f1(px.Y(wy + t * f))}" x2="${f1(px.X(x0 + w))}" y2="${f1(px.Y(wy + t * f))}" stroke="${INK}" stroke-width="0.8"/>`; // glass balustrade
-      if (!d.open) {
+      if (!d.open && mode !== "ceiling") {
         const into = d.side === "top" ? 1 : -1; // swing into the space
         const hy = d.side === "top" ? wy + t : wy;
         g += `<line x1="${f1(px.X(x0))}" y1="${f1(px.Y(hy))}" x2="${f1(px.X(x0))}" y2="${f1(px.Y(hy + into * w))}" stroke="${INK}" stroke-width="1.6"/>`;
         g += `<path d="M${f1(px.X(x0))} ${f1(px.Y(hy + into * w))} A${f1(w * s)} ${f1(w * s)} 0 0 ${into > 0 ? 0 : 1} ${f1(px.X(x0 + w))} ${f1(px.Y(hy))}" fill="none" stroke="${MID}" stroke-width="0.7"/>`;
       }
-      if (d.entry) {
+      if (d.entry && d.side === "bottom") {
         const ay = D + (site.T > 0 ? site.T : 0) + 1.1;
         g += `<path d="M${f1(px.X(x0 + w / 2))} ${f1(px.Y(ay))} v${f1(-0.8 * s)} m-6 8 l6 -8 l6 8" fill="none" stroke="${ACCENT}" stroke-width="1.4"/><text x="${f1(px.X(x0 + w / 2))}" y="${f1(px.Y(ay + 0.45))}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${ACCENT}">ENTRANCE</text>`;
       }
@@ -1535,7 +1597,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
       const y0 = sp.y + c - w / 2;
       const wx = ext ? (d.side === "left" ? 0 : W - EXT) : seg.x1 - INT / 2;
       g += `<rect x="${f1(px.X(wx) - 1)}" y="${f1(px.Y(y0))}" width="${f1(t * s + 2)}" height="${f1(w * s)}" fill="${PAPER}"/>`;
-      if (!d.open) {
+      if (!d.open && mode !== "ceiling") {
         const into = d.side === "left" ? 1 : -1;
         const hx = d.side === "left" ? wx + t : wx;
         g += `<line x1="${f1(px.X(hx))}" y1="${f1(px.Y(y0))}" x2="${f1(px.X(hx + into * w))}" y2="${f1(px.Y(y0))}" stroke="${INK}" stroke-width="1.6"/>`;
@@ -1546,7 +1608,21 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
 
   // ---- furniture + room tags (numbers match the room schedule, sheet A-401)
   const pen = svgPen(s, px);
-  for (const sp of level.spaces) g += furniture(pen, sp.kind, inner(model, sp));
+  if (mode === "layout") for (const sp of level.spaces) g += furniture(pen, sp.kind, inner(model, sp));
+  else if (mode === "ceiling") for (const sp of level.spaces) if (sp.kind === "stair") g += furniture(pen, sp.kind, inner(model, sp));
+  if (mode === "ceiling") {
+    const c = ceilingLayout(model, level);
+    for (const r of c.cove) g += rect(r.x, r.y, r.w, r.h, `fill="none" stroke="${ACCENT}" stroke-width="1.1" stroke-dasharray="7 4"`);
+    for (const t of c.track) {
+      g += `<line x1="${f1(px.X(t.x1))}" y1="${f1(px.Y(t.y1))}" x2="${f1(px.X(t.x2))}" y2="${f1(px.Y(t.y2))}" stroke="${INK}" stroke-width="2"/>`;
+      const n = Math.max(2, Math.round(Math.hypot(t.x2 - t.x1, t.y2 - t.y1) / 1.2));
+      for (let i = 0; i <= n; i++) g += `<rect x="${f1(px.X(t.x1 + ((t.x2 - t.x1) * i) / n) - 3)}" y="${f1(px.Y(t.y1 + ((t.y2 - t.y1) * i) / n) - 3)}" width="6" height="6" fill="${ACCENT}"/>`;
+    }
+    for (const r of c.linear) g += rect(r.x, r.y, r.w, r.h, `fill="${PAPER}" stroke="${INK}" stroke-width="1.1"`) + `<line x1="${f1(px.X(r.x + 0.1))}" y1="${f1(px.Y(r.y + r.h / 2))}" x2="${f1(px.X(r.x + r.w - 0.1))}" y2="${f1(px.Y(r.y + r.h / 2))}" stroke="${ACCENT}" stroke-width="1.4"/>`;
+    for (const [x, y] of c.down) g += SYM.down(px.X(x), px.Y(y));
+    for (const [x, y] of c.pend) g += SYM.pend(px.X(x), px.Y(y));
+    for (const [x, y] of c.mirror) g += SYM.mirror(px.X(x), px.Y(y));
+  }
   const roomNo = Object.fromEntries(schedules(model).rooms.filter((r) => r.level === levelIndex).map((r) => [r.id, r.no]));
   for (const sp of level.spaces) {
     if (sp.kind === "stair") continue;
@@ -1565,15 +1641,16 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
     const tw = label.length * fs * 0.68 + 16;
     g += `<rect x="${f1(cx - tw / 2)}" y="${f1(cy - fs - 4)}" width="${f1(tw)}" height="${fs * 2 + 14}" fill="${PAPER}" fill-opacity=".92"/>`;
     g += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
-    if (sp.kind !== "void") g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${MID}">${roomNo[sp.id]} · ${area} m²</text>`;
+    const second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? `CH ${roomFinish(model, sp).ch.toFixed(2)}` : `${roomNo[sp.id]} · ${area} m²`;
+    if (sp.kind !== "void") g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
   }
   // finished floor level tag
   const ffl = levelIndex === 0 ? "±0.000" : `+${(levelIndex * ST).toFixed(3)}`;
-  const hall = level.spaces.find((sp) => sp.kind === "hall") ?? level.spaces[0];
+  const hall = level.spaces.find((sp) => sp.kind === "hall") ?? (model.interior && level.spaces.find((sp) => ["reception", "living", "open", "teahall", "boutique", "lounge"].includes(sp.kind))) ?? level.spaces[0];
   const hin = inner(model, hall);
   // a long corridor keeps its room label in the middle, so the tag moves towards its end
   const [tagX, tagY] = spec.survey && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
-  g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
+  if (mode !== "ceiling") g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
     <circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
     <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
     <text x="10" y="3">FFL ${ffl}</text></g>`;
@@ -1589,9 +1666,27 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   }
 
   const gia = level.spaces.reduce((sum, sp) => sum + (sp.kind === "void" ? 0 : inner(model, sp).w * inner(model, sp).h), 0);
-  g += sheetTitle(level.name, `${plan.title.en.toUpperCase()}${unitNote(model)} · NET INTERNAL AREA ${gia.toFixed(1)} m² · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
+  const what = mode === "finish" ? "FLOOR FINISHES, CODES AS ON THE MATERIALS BOARD" : mode === "ceiling" ? "REFLECTED CEILING · LIGHTING · CLEAR HEIGHTS" : `NET INTERNAL AREA ${gia.toFixed(1)} m²`;
+  g += sheetTitle(drawingName, `${plan.title.en.toUpperCase()}${unitNote(model)} · ${what} · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
   g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
-  return sheet({ plan, drawing: level.name, sheetNo, scaleNote: "GRAPHIC SCALE", body: g, defs: materialDefs(s, hash(plan.slug)), north: true, preview });
+  let legend;
+  if (mode === "finish") {
+    const used = [...new Set(level.spaces.filter((sp) => sp.kind !== "void" && sp.kind !== "stair").map((sp) => roomFinish(model, sp).floor))].sort();
+    legend = used.map((code) => matOf(model, code)).map((mt) => ({ fill: shade(mt.fill, 0.42), pattern: patternFill(mt.pattern) ? `ip-${mt.pattern}` : null, label: `${mt.code}  ${mt.name.split(",")[0]}` }));
+    legend.title = "FLOOR FINISHES";
+  } else if (mode === "ceiling") {
+    const c = ceilingLayout(model, level);
+    legend = [
+      c.down.length && { symbol: SYM.down(0, 0), label: "L1  Recessed LED downlight" },
+      c.pend.length && { symbol: SYM.pend(0, 0), label: "L2  Decorative pendant" },
+      c.cove.length && { symbol: `<rect x="-9" y="-7" width="18" height="14" fill="none" stroke="${ACCENT}" stroke-width="1.1" stroke-dasharray="4 2"/>`, label: "L3  LED cove at bulkhead edge" },
+      c.track.length && { symbol: `<line x1="-10" y1="0" x2="10" y2="0" stroke="${INK}" stroke-width="2"/><rect x="-3" y="-3" width="6" height="6" fill="${ACCENT}"/>`, label: "L4  Track with adjustable spots" },
+      c.linear.length && { symbol: `<rect x="-10" y="-3" width="20" height="6" fill="${PAPER}" stroke="${INK}"/>`, label: "L5  Linear LED pendant" },
+      c.mirror.length && { symbol: SYM.mirror(0, 0), label: "L6  Mirror / wall light, IP44" },
+    ].filter(Boolean);
+    legend.title = "LIGHTING";
+  }
+  return sheet({ plan, drawing: drawingName, sheetNo, scaleNote: "GRAPHIC SCALE", body: g, defs: materialDefs(s, hash(plan.slug)) + (model.interior ? interiorDefs(s) : ""), north: true, legend, preview });
 }
 
 // ------------------------------------------------------------------ site plan sheet
@@ -3433,12 +3528,21 @@ export function coverSheet(model, renderDataUri, sheetList) {
   g += `<text x="${rx}" y="${iy + 10}" font-family="${FONT}" font-size="10" letter-spacing="2.4" fill="${ACCENT}">CONCEPT DESIGN PACKAGE</text>`;
   const titleSize = plan.title.en.length > 18 ? Math.floor(380 / (plan.title.en.length * 0.72)) : 34; // long project names
   g += `<text x="${rx}" y="${iy + 52}" font-family="${FONT}" font-size="${titleSize}" font-weight="600" letter-spacing="1" fill="${INK}">${esc(plan.title.en.toUpperCase())}</text>`;
-  g += `<text x="${rx}" y="${iy + 76}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${model.project ? `${kindLabel(model)}${multi(model) ? ` · ${model.project.units} HOUSES` : ""}` : `${STYLE_EN[plan.style]} VILLA`}</text>`;
+  g += `<text x="${rx}" y="${iy + 76}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${model.interior ? `${INTERIOR_TYPES[model.interior.type].label} · ${model.interior.palette.name} INTERIOR` : model.project ? `${kindLabel(model)}${multi(model) ? ` · ${model.project.units} HOUSES` : ""}` : `${STYLE_EN[plan.style]} VILLA`}</text>`;
   const summary = wrap(plan.summary.en, 58);
   summary.forEach((line, i) => (g += `<text x="${rx}" y="${iy + 110 + i * 17}" font-family="${FONT}" font-size="11.5" fill="${INK}">${esc(line)}</text>`));
   const sc = schedules(model);
   const project = model.project;
-  const data = [
+  const itype = model.interior ? INTERIOR_TYPES[model.interior.type] : null;
+  const data = itype ? [
+    ["Project type", itype.label.charAt(0) + itype.label.slice(1).toLowerCase()],
+    ["Design style", model.interior.palette.name.charAt(0) + model.interior.palette.name.slice(1).toLowerCase()],
+    ["Floor area", `${plan.areaM2} m²`],
+    ["Net internal area", `${sc.rooms.reduce((n, r) => n + r.area, 0).toFixed(0)} m²`],
+    ["Levels", `${plan.floors}`],
+    ...(itype.commercial ? [["WCs", `${plan.bathrooms}`]] : [["Bedrooms / bathrooms", `${plan.bedrooms} / ${plan.bathrooms}`]]),
+    ["Clear ceiling height", `${model.interior.ch.toFixed(2)} m`],
+  ] : [
     ...(multi(model) ? [["Houses", `${project.units} × ${STYLE_EN[plan.style].toLowerCase()}`], ["Total gross floor area", `${project.totalArea} m²`]] : []),
     ...(project ? [["Plot (indicative)", `${((project.layout.plot.x1 - project.layout.plot.x0) * (project.layout.plot.y1 - project.layout.plot.y0) / 10000).toFixed(2)} ha`]] : []),
     [multi(model) ? "Gross floor area per house" : "Gross floor area", `${plan.areaM2} m²`],
@@ -3751,6 +3855,16 @@ export function cadLevel(model, levelIndex) {
 
   const extW = W + (garage ? garage.w : 0);
   const front = isGround ? Math.max(site.T, site.deck ? site.T + site.deck.h : 0, garage ? 3 : 0) : level.terrace?.depth ?? 0;
+  // interior sets: the lighting layout on its own layer (reflected ceiling plan)
+  if (model.interior) {
+    const c = ceilingLayout(model, level);
+    for (const [x, y] of c.down) add("A-LITE", { t: "circle", cx: x, cy: y, r: 0.08 });
+    for (const [x, y] of c.pend) add("A-LITE", { t: "circle", cx: x, cy: y, r: 0.18 }), add("A-LITE", { t: "circle", cx: x, cy: y, r: 0.06 });
+    for (const r of c.cove) add("A-LITE", { t: "rect", x: r.x, y: r.y, w: r.w, h: r.h, dashed: true });
+    for (const t of c.track) add("A-LITE", { t: "line", x1: t.x1, y1: t.y1, x2: t.x2, y2: t.y2 });
+    for (const r of c.linear) add("A-LITE", { t: "rect", x: r.x, y: r.y, w: r.w, h: r.h });
+    for (const [x, y] of c.mirror) add("A-LITE", { t: "rect", x: x - 0.25, y: y - 0.05, w: 0.5, h: 0.1 });
+  }
   return {
     name: level.name,
     ffl: levelIndex * ST,
@@ -3817,4 +3931,1243 @@ export function cadModel(model) {
     areaM2: plan.areaM2,
     levels: model.project ? [cadMasterplan(model), ...levels] : levels,
   };
+}
+
+// ================================================================== interior design projects
+//
+// plan.style === "interior", plan.interior = { type, palette }. The shell (rooms, doors, windows) comes from a layout
+// template per project type; the design language (finishes, joinery, stone, metal, textiles, colours, light) from a
+// palette. The package is an interior set: furniture layout, finishes plan, reflected ceiling and lighting plan,
+// interior elevations, a cutaway axonometric, the materials board and the finishes / FF&E / lighting schedules.
+
+/** Project types: layout template, footprint proportion and clear ceiling height (m). */
+export const INTERIOR_TYPES = {
+  flat: { label: "APARTMENT", floors: [1], bedrooms: [1, 2, 3], ratio: 1.45, ch: 2.8 },
+  penthouse: { label: "PENTHOUSE", floors: [1], bedrooms: [3], ratio: 1.65, ch: 3.0, glassy: true },
+  residence: { label: "VILLA INTERIOR", floors: [2], bedrooms: [3, 4, 5], ratio: 1.4, ch: 2.9 },
+  cafe: { label: "CAFE AND TEA HOUSE", floors: [1], bedrooms: [0], ratio: 1.5, ch: 3.2, commercial: true },
+  workspace: { label: "OFFICE INTERIOR", floors: [1], bedrooms: [0], ratio: 1.6, ch: 3.0, commercial: true },
+  boutique: { label: "FASHION BOUTIQUE", floors: [1], bedrooms: [0], ratio: 1.4, ch: 3.2, commercial: true },
+  clinic: { label: "DENTAL CLINIC", floors: [1], bedrooms: [0], ratio: 1.5, ch: 2.8, commercial: true },
+  salon: { label: "BEAUTY SALON", floors: [1], bedrooms: [0], ratio: 1.5, ch: 3.0, commercial: true },
+};
+
+// material row: [code, name, colour, pattern, where it is used]
+const mats = (rows) => rows.map(([code, name, fill, pattern, use]) => ({ code, name, fill, pattern, use }));
+
+/** Interior design languages (families in docs/design-references.md, "Interior design families"). */
+export const PALETTES = {
+  "baku-classic": {
+    name: "BAKU CLASSIC",
+    concept: "A neoclassical Baku apartment brought up to date: crisp plaster mouldings and panelled walls, oak herringbone and honed marble, bottle-green joinery, deep velvet and aged brass.",
+    materials: mats([
+      ["F1", "Oak herringbone parquet, natural oil", "#c49a68", "herring", "Living rooms, bedrooms, hall"],
+      ["F2", "Honed white marble 60×60", "#e8e4dc", "marble", "Bathrooms, kitchen"],
+      ["W1", "Warm white paint, plaster mouldings", "#f1ece2", "panels", "Walls"],
+      ["W2", "Silk wallcovering, sage", "#b9bfa8", "weave", "Feature walls"],
+      ["J1", "Painted joinery, bottle green", "#2f4a3a", "plain", "Kitchen, wardrobes, media wall"],
+      ["S1", "Calacatta-style marble", "#ece8e1", "marble", "Worktops, vanity tops, fireplace"],
+      ["M1", "Aged brass", "#b08d57", "plain", "Handles, taps, light fittings"],
+      ["T1", "Velvet, bottle green and ochre", "#2f5a45", "weave", "Upholstery, curtains"],
+    ]),
+    colours: [["Warm white", "#f1ece2"], ["Stone", "#d8cfc0"], ["Sage", "#b9bfa8"], ["Bottle green", "#2f4a3a"], ["Brass", "#b08d57"]],
+    ceiling: "Plaster ceiling with cornice and centre rose",
+    skirting: "Moulded oak skirting, 150 mm",
+    light: "2700 K warm white; crystal chandelier over the dining table, brass picture lights and wall lights",
+  },
+  japandi: {
+    name: "JAPANDI",
+    concept: "Japanese calm meets Scandinavian warmth: pale ash, rice-paper whites and charcoal, low furniture, washi light and natural textures, nothing that does not need to be there.",
+    materials: mats([
+      ["F1", "Ash wide plank, white oil", "#d8c3a0", "planks", "Living rooms, bedrooms, hall"],
+      ["F2", "Porcelain 60×120, warm stone", "#cfc6b8", "bigtile", "Bathrooms, kitchen"],
+      ["W1", "Limewash paint, rice paper", "#ece4d6", "plain", "Walls"],
+      ["W2", "Ash slatted panels", "#cbb08a", "slats", "Feature walls"],
+      ["J1", "Ash veneer joinery, matt", "#c9ad86", "grain", "Kitchen, wardrobes, media unit"],
+      ["S1", "Honed basalt", "#4a4846", "stone", "Worktops, vanity tops"],
+      ["M1", "Blackened steel", "#2f2e2c", "plain", "Handles, frames, light fittings"],
+      ["T1", "Linen and boucle, oat", "#ddd3c3", "weave", "Upholstery, curtains"],
+    ]),
+    colours: [["Rice paper", "#ece4d6"], ["Oat", "#ddd3c3"], ["Ash", "#cbb08a"], ["Moss", "#7d8466"], ["Charcoal", "#3a3835"]],
+    ceiling: "Flat plaster, matt white; ash slats over the dining area",
+    skirting: "Flush shadow-gap skirting",
+    light: "2700 K warm white; washi paper pendants, concealed LED in the slatted panels",
+  },
+  scandi: {
+    name: "SCANDINAVIAN",
+    concept: "A bright, practical Nordic home: white oak, soft whites and fjord blue, terrazzo in the wet rooms, wool and cotton textiles with a single mustard accent.",
+    materials: mats([
+      ["F1", "White oak plank, matt lacquer", "#dcc7a6", "planks", "Living room, bedroom, hall"],
+      ["F2", "Terrazzo tile, white with grey chips", "#e6e2db", "terrazzo", "Bathroom, kitchen"],
+      ["W1", "Soft white paint", "#f2f0eb", "plain", "Walls"],
+      ["W2", "Fjord blue paint", "#b9c5cc", "plain", "Feature walls"],
+      ["J1", "White oak and white lacquer joinery", "#e2d3b9", "grain", "Kitchen, wardrobe, shelving"],
+      ["S1", "Light grey quartz", "#d9d8d4", "stone", "Worktops, vanity top"],
+      ["M1", "Brushed steel", "#a7a9ab", "plain", "Handles, taps, light fittings"],
+      ["T1", "Wool and cotton, dove grey", "#cfcac2", "weave", "Upholstery, curtains, rugs"],
+    ]),
+    colours: [["Snow", "#f2f0eb"], ["Dove", "#cfcac2"], ["Fjord", "#b9c5cc"], ["Oak", "#dcc7a6"], ["Mustard", "#d2a64a"]],
+    ceiling: "Flat plaster, matt white",
+    skirting: "White oak skirting, 80 mm",
+    light: "3000 K; opal glass and paper pendants, generous daylight kept free of heavy curtains",
+  },
+  "luxury-dark": {
+    name: "DARK LUXURY",
+    concept: "An evening apartment above the city: smoked oak chevron, walnut panelling with bronze inlay, grey and black marble, cognac leather and champagne metal under dimmable light scenes.",
+    materials: mats([
+      ["F1", "Smoked oak chevron parquet", "#6e5440", "chevron", "Living rooms, bedrooms, hall"],
+      ["F2", "Grey marble 120×120, honed", "#8d8b88", "marble", "Bathrooms, kitchen"],
+      ["W1", "Taupe mineral paint", "#a39789", "plain", "Walls"],
+      ["W2", "Walnut panelling, bronze inlay", "#5a3f2d", "slats", "Feature walls"],
+      ["J1", "Dark walnut veneer joinery", "#4f3828", "grain", "Kitchen, wardrobes, bar"],
+      ["S1", "Black marble, white veining", "#2c2b2a", "marble", "Worktops, island, vanity tops"],
+      ["M1", "Champagne bronze", "#b5a07a", "plain", "Handles, trims, light fittings"],
+      ["T1", "Velvet and leather, cognac", "#7a4f33", "weave", "Upholstery, headboards"],
+    ]),
+    colours: [["Ivory", "#ece6da"], ["Taupe", "#a39789"], ["Cognac", "#8a5a38"], ["Champagne", "#b5a07a"], ["Graphite", "#3d3b39"]],
+    ceiling: "Plaster with recessed coves, dark-taupe paint in the dining area",
+    skirting: "Recessed shadow-gap skirting, bronze trim",
+    light: "2700 K dimmable scenes; linear coves, a glass chandelier over the island, bronze wall lights",
+  },
+  "mediterranean-calm": {
+    name: "MEDITERRANEAN",
+    concept: "A sunlit seaside house on the Absheron coast: lime plaster and terracotta, limed oak, travertine and rattan, olive and sea green, everything soft and hand-made.",
+    materials: mats([
+      ["F1", "Hand-made terracotta tiles", "#c98a62", "cotto", "Living rooms, bedrooms, hall"],
+      ["F2", "Zellige-style glazed tile, sea green", "#7fa59b", "cotto", "Bathrooms, kitchen splashback"],
+      ["W1", "Lime plaster, warm white", "#efe7da", "plain", "Walls"],
+      ["W2", "Tadelakt-effect plaster, sand", "#dccab0", "plain", "Feature walls, niches"],
+      ["J1", "Limed oak joinery", "#cdb592", "grain", "Kitchen, wardrobes, doors"],
+      ["S1", "Honed travertine", "#d8c8ad", "stone", "Worktops, vanity tops, stair"],
+      ["M1", "Black wrought iron", "#2e2c29", "plain", "Handles, rails, light fittings"],
+      ["T1", "Linen and rattan, natural", "#d9cdb8", "weave", "Upholstery, curtains, pendants"],
+    ]),
+    colours: [["Lime", "#efe7da"], ["Sand", "#dccab0"], ["Terracotta", "#c98a62"], ["Olive", "#7f8455"], ["Sea", "#7fa59b"]],
+    ceiling: "Lime plaster with exposed timber beams in the living room",
+    skirting: "Terracotta tile skirting",
+    light: "2700 K; rattan pendants, plaster wall lights and warm uplights in the niches",
+  },
+  "oriental-modern": {
+    name: "AZERBAIJANI MODERN",
+    concept: "A contemporary tea house that remembers Sheki and Old Baku: walnut and clay plaster, shebeke-inspired lattice screens, carpet motifs set in cement tiles, copper and pomegranate red.",
+    materials: mats([
+      ["F1", "Walnut plank, oiled", "#7a5639", "planks", "Cafe, tea lounge"],
+      ["F2", "Encaustic cement tile, carpet motif", "#b8735a", "motif", "Bar, kitchen, WCs"],
+      ["W1", "Warm clay plaster", "#e6d6c0", "plain", "Walls"],
+      ["W2", "Lattice screens after shebeke", "#8b5e3c", "lattice", "Screens, feature walls"],
+      ["J1", "Walnut joinery with carved panels", "#6b4a33", "grain", "Bar front, banquettes, shelving"],
+      ["S1", "Honed travertine", "#d6c6a8", "stone", "Bar top, tables, WC tops"],
+      ["M1", "Hammered copper", "#b06f45", "plain", "Pendants, samovar shelf, trims"],
+      ["T1", "Wool kilim and velvet, pomegranate", "#8c2f2b", "weave", "Banquettes, cushions, curtains"],
+    ]),
+    colours: [["Clay", "#e6d6c0"], ["Pomegranate", "#8c2f2b"], ["Saffron", "#d29b3e"], ["Walnut", "#6b4a33"], ["Copper", "#b06f45"]],
+    ceiling: "Clay plaster with a timber lattice raft over the tea lounge",
+    skirting: "Walnut skirting, 100 mm",
+    light: "2700 K; perforated copper pendants, lattice lanterns and candle-warm wall lights",
+  },
+  "art-deco": {
+    name: "ART DECO",
+    concept: "A small jewel box of a shop: emerald fluted panels, black lacquer and polished brass, terrazzo with brass inlay, curved display niches and soft blush velvet.",
+    materials: mats([
+      ["F1", "Terrazzo with brass inlay", "#e8e1d6", "terrazzo", "Sales floor"],
+      ["F2", "Black marble mosaic", "#2a2a2a", "hex", "Fitting rooms, WC"],
+      ["W1", "Ivory paint", "#f0e9dd", "plain", "Walls"],
+      ["W2", "Fluted panels, emerald lacquer", "#1f5a4a", "slats", "Feature walls, cash desk"],
+      ["J1", "Black lacquer joinery, brass trims", "#1f1f1f", "plain", "Shelving, display units"],
+      ["S1", "Green marble", "#2f5e4e", "marble", "Display tops, cash desk top"],
+      ["M1", "Polished brass", "#c9a24e", "plain", "Rails, trims, light fittings"],
+      ["T1", "Velvet, blush and emerald", "#d9b3a6", "weave", "Curtains, seating"],
+    ]),
+    colours: [["Ivory", "#f0e9dd"], ["Emerald", "#1f5a4a"], ["Black", "#1f1f1f"], ["Brass", "#c9a24e"], ["Blush", "#d9b3a6"]],
+    ceiling: "Plaster with a stepped central coffer",
+    skirting: "Black lacquer skirting with brass edge",
+    light: "2700 K; brass track spots over displays, opal globe pendants and fluted wall sconces",
+  },
+  "industrial-loft": {
+    name: "INDUSTRIAL LOFT",
+    concept: "A workspace with the bones of a warehouse: polished concrete, reclaimed brick and black steel, oiled oak desks, felt acoustics and cognac leather in the breakout.",
+    materials: mats([
+      ["F1", "Polished concrete, sealed", "#a9a6a0", "concrete", "Open office, reception, breakout"],
+      ["F2", "Porcelain 60×60, anthracite", "#5c5b59", "bigtile", "WCs, kitchenette"],
+      ["W1", "Off-white paint", "#e9e4dc", "plain", "Walls"],
+      ["W2", "Reclaimed brick", "#a4644a", "brick", "Feature walls"],
+      ["J1", "Oiled oak and black steel joinery", "#a8835a", "grain", "Desks, storage, reception desk"],
+      ["S1", "Concrete worktops", "#9c9a95", "concrete", "Kitchenette, reception top"],
+      ["M1", "Black steel", "#262626", "plain", "Frames, glazing, light fittings"],
+      ["T1", "Wool felt and leather, charcoal and cognac", "#8a5a38", "weave", "Acoustic panels, seating"],
+    ]),
+    colours: [["Concrete", "#a9a6a0"], ["Brick", "#a4644a"], ["Oak", "#a8835a"], ["Forest", "#3f5a46"], ["Steel", "#262626"]],
+    ceiling: "Exposed soffit painted dark, acoustic rafts over the desks",
+    skirting: "Black steel skirting",
+    light: "3500 K for work; black linear pendants over desks, track spots, warm pendants in the breakout",
+  },
+  biophilic: {
+    name: "BIOPHILIC",
+    concept: "A clinic that calms the nerves: daylight, birch and sage, moss walls in the waiting room, rounded corners and wipe-clean surfaces that never feel clinical.",
+    materials: mats([
+      ["F1", "Hygienic vinyl, pale oak effect", "#d7c4a5", "planks", "Reception, waiting, corridor, offices"],
+      ["F2", "Anti-slip porcelain, warm white", "#e5e1da", "bigtile", "Surgeries, sterilisation, WCs"],
+      ["W1", "Washable paint, warm white", "#f1eee8", "plain", "Walls"],
+      ["W2", "Preserved moss panels", "#6f7f4e", "moss", "Waiting room feature wall"],
+      ["J1", "Birch plywood and white laminate joinery", "#e0cfae", "grain", "Reception desk, cabinets"],
+      ["S1", "Solid surface, white", "#f2f2ef", "plain", "Worktops, basins"],
+      ["M1", "Brushed stainless steel", "#a9abad", "plain", "Handles, rails, fittings"],
+      ["T1", "Wipe-clean upholstery, sage", "#9fae8f", "weave", "Waiting seating"],
+    ]),
+    colours: [["Warm white", "#f1eee8"], ["Sage", "#9fae8f"], ["Moss", "#6f7f4e"], ["Birch", "#e0cfae"], ["Sky", "#bcd2db"]],
+    ceiling: "Acoustic plaster; timber baffles over the waiting area",
+    skirting: "Coved vinyl skirting, 100 mm",
+    light: "4000 K neutral in the surgeries, 3000 K in reception and waiting; circular pendants over the desk",
+  },
+  "mid-century": {
+    name: "MID-CENTURY",
+    concept: "A sixties salon with a smile: warm terrazzo, walnut slats, mustard and teal velvet, round mirrors, globe lights and brushed brass.",
+    materials: mats([
+      ["F1", "Terrazzo, cream with terracotta chips", "#e7dccb", "terrazzo", "Reception, styling, nail bar"],
+      ["F2", "Porcelain 30×60, sage green", "#9aa58c", "bigtile", "Wash area, treatment room, WC"],
+      ["W1", "Warm white paint", "#f0e9de", "plain", "Walls"],
+      ["W2", "Walnut slatted panels", "#6b4a33", "slats", "Feature walls, reception"],
+      ["J1", "Walnut veneer joinery", "#7a5639", "grain", "Stations, reception desk, shelving"],
+      ["S1", "Terracotta-pink quartz", "#d7a48c", "stone", "Counters, nail table"],
+      ["M1", "Brushed brass", "#b8955a", "plain", "Mirror frames, taps, light fittings"],
+      ["T1", "Boucle and velvet, mustard and teal", "#c99a3a", "weave", "Chairs, waiting sofa"],
+    ]),
+    colours: [["Cream", "#f0e9de"], ["Mustard", "#c99a3a"], ["Teal", "#2f6b6a"], ["Walnut", "#7a5639"], ["Blush", "#d7a48c"]],
+    ceiling: "Plaster with a curved bulkhead over the styling stations",
+    skirting: "Walnut skirting, 100 mm",
+    light: "2700 K for mood, 4000 K mirror lights at the stations; opal globe pendants",
+  },
+  "warm-minimal": {
+    name: "WARM MINIMAL",
+    concept: "Quiet luxury: travertine and white oak, linen whites and soft bronze, built-in everything and deep, even light.",
+    materials: mats([
+      ["F1", "White oak wide plank, matt", "#d4bf9c", "planks", "Living rooms, bedrooms, hall"],
+      ["F2", "Travertine 60×120, honed", "#ddd0b8", "stone", "Bathrooms, kitchen"],
+      ["W1", "Linen white paint", "#efe9df", "plain", "Walls"],
+      ["W2", "Travertine-effect plaster", "#e3d6c0", "plain", "Feature walls"],
+      ["J1", "White oak joinery, matt", "#cdb491", "grain", "Kitchen, wardrobes, media wall"],
+      ["S1", "Travertine", "#ddd0b8", "stone", "Worktops, island, vanity tops"],
+      ["M1", "Soft bronze", "#8a6e4f", "plain", "Handles, taps, light fittings"],
+      ["T1", "Linen and wool, ecru", "#e3dccf", "weave", "Upholstery, curtains"],
+    ]),
+    colours: [["Linen", "#efe9df"], ["Ecru", "#e3dccf"], ["Travertine", "#ddd0b8"], ["Oak", "#cdb491"], ["Bronze", "#8a6e4f"]],
+    ceiling: "Flat plaster with shadow-gap coves",
+    skirting: "Flush shadow-gap skirting",
+    light: "2700 K; concealed coves, plaster wall lights, a sculptural pendant over the table",
+  },
+};
+
+const paletteOf = (model) => model.interior.palette;
+const matOf = (model, code) => paletteOf(model).materials.find((m) => m.code === code);
+const WET_KINDS = ["bath", "shower", "wc", "wash", "treatment"];
+const KITCHEN_KINDS = ["kitchen", "kitchenette", "prep", "bar"];
+const SERVICE_KINDS = ["store", "racks", "staff", "dock"];
+const COVE_KINDS = ["living", "open", "master", "lounge", "reception", "director", "boutique", "teahall", "styling", "meeting"];
+/** Table centres of a tea hall: two or three rows clear of the banquette along the left wall. */
+const teaTables = ({ x, y, w, h }) => {
+  const out = [];
+  for (let cx = x + 1.9; cx < x + w - 1.0; cx += 2.3) for (let cy = y + 1.2; cy < y + h - 0.8; cy += 2.0) out.push([cx, cy]);
+  return out;
+};
+
+/** Finishes of one room: floor code, walls, ceiling and clear height. */
+function roomFinish(model, sp) {
+  const pal = paletteOf(model);
+  const ch = model.interior.ch;
+  const wet = WET_KINDS.includes(sp.kind);
+  const floor = wet || KITCHEN_KINDS.includes(sp.kind) || SERVICE_KINDS.includes(sp.kind) ? "F2" : "F1";
+  const feature = ["living", "open", "master", "reception", "bar", "lounge", "director", "boutique", "styling", "teahall"].includes(sp.kind);
+  const walls = wet ? "F2 tiling to 2.40, W1 above" : feature ? "W1, feature wall W2" : "W1";
+  return { floor, walls, ceiling: wet ? "Moisture-resistant plasterboard, matt white" : pal.ceiling, ch: wet ? Math.max(2.4, ch - 0.35) : ch };
+}
+
+// ------------------------------------------------------------------ layout templates (fractions; y = 1 is the window front)
+
+function flatOneBed() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "kitchen", label: "KITCHEN", kind: "kitchen", x: 0, y: 0, w: 0.3, h: 0.42 },
+      { id: "hall", label: "HALL", kind: "hall", x: 0.3, y: 0, w: 0.3, h: 0.42 },
+      { id: "bath", label: "BATH", kind: "bath", x: 0.6, y: 0, w: 0.4, h: 0.42 },
+      { id: "living", label: "LIVING / DINING", kind: "living", x: 0, y: 0.42, w: 0.6, h: 0.58 },
+      { id: "master", label: "BEDROOM", kind: "master", x: 0.6, y: 0.42, w: 0.4, h: 0.58 },
+    ],
+    doors: [
+      { space: "hall", side: "top", at: 0.5, w: 1.0, entry: true },
+      { space: "hall", side: "bottom", at: 0.5, w: 1.4, open: true },
+      { space: "kitchen", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "bath", side: "left", at: 0.5, w: 0.8 },
+      { space: "master", side: "left", at: 0.25, w: 0.9 },
+    ],
+    windows: [
+      { space: "living", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "living", side: "left", at: 0.5, w: 1.4 },
+      { space: "kitchen", side: "left", at: 0.5, w: 1.0 },
+      { space: "master", side: "bottom", at: 0.5, w: 1.8 },
+      { space: "bath", side: "right", at: 0.5, w: 0.6 },
+    ],
+  };
+}
+
+function cafeLevel() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "bar", label: "BAR COUNTER", kind: "bar", x: 0, y: 0, w: 0.36, h: 0.42 },
+      { id: "kit", label: "KITCHEN", kind: "prep", x: 0.36, y: 0, w: 0.26, h: 0.42 },
+      { id: "store", label: "STORE", kind: "store", x: 0.62, y: 0, w: 0.16, h: 0.42 },
+      { id: "wc1", label: "WC", kind: "wc", x: 0.78, y: 0, w: 0.11, h: 0.24 },
+      { id: "wc2", label: "WC", kind: "wc", x: 0.89, y: 0, w: 0.11, h: 0.24 },
+      { id: "lob", label: "LOBBY", kind: "hall", x: 0.78, y: 0.24, w: 0.22, h: 0.18 },
+      { id: "hall", label: "TEA HALL", kind: "teahall", x: 0, y: 0.42, w: 0.68, h: 0.58 },
+      { id: "tea", label: "TEA LOUNGE", kind: "lounge", x: 0.68, y: 0.42, w: 0.32, h: 0.58 },
+    ],
+    doors: [
+      { space: "hall", side: "bottom", at: 0.16, w: 1.8, entry: true },
+      { space: "bar", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "kit", side: "bottom", at: 0.5, w: 1.0 },
+      { space: "kit", side: "left", at: 0.3, w: 0.9 },
+      { space: "store", side: "left", at: 0.5, w: 0.9 },
+      { space: "store", side: "top", at: 0.5, w: 1.0 },
+      { space: "wc1", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "wc2", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "lob", side: "bottom", at: 0.5, w: 1.2, open: true },
+      { space: "tea", side: "left", at: 0.5, w: 99, open: true },
+    ],
+    windows: [
+      { space: "hall", side: "bottom", at: 0.45, w: 3.0 },
+      { space: "hall", side: "bottom", at: 0.82, w: 2.4 },
+      { space: "hall", side: "left", at: 0.5, w: 2.0 },
+      { space: "tea", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "tea", side: "right", at: 0.5, w: 1.8 },
+      { space: "kit", side: "top", at: 0.5, w: 1.2 },
+    ],
+  };
+}
+
+function workspaceLevel() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wc1", label: "WC", kind: "wc", x: 0, y: 0, w: 0.11, h: 0.25 },
+      { id: "wc2", label: "WC", kind: "wc", x: 0.11, y: 0, w: 0.11, h: 0.25 },
+      { id: "brk", label: "BREAKOUT", kind: "lounge", x: 0, y: 0.25, w: 0.22, h: 0.3 },
+      { id: "rec", label: "RECEPTION", kind: "reception", x: 0, y: 0.55, w: 0.22, h: 0.45 },
+      { id: "focus", label: "FOCUS ROOM", kind: "office", x: 0.22, y: 0, w: 0.18, h: 0.38 },
+      { id: "kit", label: "KITCHENETTE", kind: "kitchenette", x: 0.4, y: 0, w: 0.18, h: 0.38 },
+      { id: "srv", label: "SERVER / STORE", kind: "store", x: 0.58, y: 0, w: 0.14, h: 0.38 },
+      { id: "open", label: "OPEN OFFICE", kind: "openoffice", x: 0.22, y: 0.38, w: 0.5, h: 0.62 },
+      { id: "arch", label: "ARCHIVE", kind: "store", x: 0.72, y: 0, w: 0.28, h: 0.25 },
+      { id: "dir", label: "DIRECTOR", kind: "director", x: 0.72, y: 0.25, w: 0.28, h: 0.35 },
+      { id: "meet", label: "MEETING ROOM", kind: "meeting", x: 0.72, y: 0.6, w: 0.28, h: 0.4 },
+    ],
+    doors: [
+      { space: "rec", side: "bottom", at: 0.42, w: 1.6, entry: true },
+      { space: "rec", side: "top", at: 0.5, w: 99, open: true },
+      { space: "rec", side: "right", at: 0.5, w: 1.8, open: true },
+      { space: "brk", side: "right", at: 0.6, w: 1.4, open: true },
+      { space: "wc1", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "wc2", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "focus", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "kit", side: "bottom", at: 0.5, w: 1.2, open: true },
+      { space: "srv", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "arch", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "dir", side: "left", at: 0.5, w: 0.9 },
+      { space: "meet", side: "left", at: 0.5, w: 0.9 },
+    ],
+    windows: [
+      { space: "rec", side: "bottom", at: 0.84, w: 1.0 },
+      { space: "rec", side: "left", at: 0.5, w: 2.0 },
+      { space: "brk", side: "left", at: 0.5, w: 1.6 },
+      { space: "open", side: "bottom", at: 0.2, w: 2.4 },
+      { space: "open", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "open", side: "bottom", at: 0.8, w: 2.4 },
+      { space: "meet", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "meet", side: "right", at: 0.5, w: 2.0 },
+      { space: "dir", side: "right", at: 0.5, w: 1.8 },
+      { space: "kit", side: "top", at: 0.5, w: 1.2 },
+      { space: "focus", side: "top", at: 0.5, w: 1.2 },
+    ],
+  };
+}
+
+function boutiqueLevel() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "stock", label: "STOCK ROOM", kind: "racks", x: 0, y: 0, w: 0.45, h: 0.32 },
+      { id: "staff", label: "STAFF", kind: "staff", x: 0.45, y: 0, w: 0.3, h: 0.32 },
+      { id: "wc", label: "WC", kind: "wc", x: 0.75, y: 0, w: 0.25, h: 0.32 },
+      { id: "sales", label: "SALES FLOOR", kind: "boutique", x: 0, y: 0.32, w: 0.72, h: 0.68 },
+      { id: "fit", label: "FITTING ROOMS", kind: "fitting", x: 0.72, y: 0.32, w: 0.28, h: 0.68 },
+    ],
+    doors: [
+      { space: "sales", side: "bottom", at: 0.5, w: 1.6, entry: true },
+      { space: "stock", side: "bottom", at: 0.5, w: 1.0 },
+      { space: "staff", side: "bottom", at: 0.3, w: 0.9 },
+      { space: "wc", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "fit", side: "left", at: 0.5, w: 99, open: true },
+    ],
+    windows: [
+      { space: "sales", side: "bottom", at: 0.17, w: 2.0 },
+      { space: "sales", side: "bottom", at: 0.83, w: 2.0 },
+      { space: "staff", side: "top", at: 0.5, w: 1.0 },
+    ],
+  };
+}
+
+function clinicLevel() {
+  const surgery = (id, label, x) => ({ id, label, kind: "treatment", x, y: 0.58, w: 0.2333, h: 0.42 });
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wait", label: "WAITING", kind: "lounge", x: 0, y: 0, w: 0.3, h: 0.44 },
+      { id: "rec", label: "RECEPTION", kind: "reception", x: 0, y: 0.44, w: 0.3, h: 0.56 },
+      { id: "ster", label: "STERILISATION", kind: "prep", x: 0.3, y: 0, w: 0.18, h: 0.44 },
+      { id: "doc", label: "DOCTOR'S OFFICE", kind: "office", x: 0.48, y: 0, w: 0.2, h: 0.44 },
+      { id: "staff", label: "STAFF ROOM", kind: "staff", x: 0.68, y: 0, w: 0.18, h: 0.44 },
+      { id: "wc1", label: "WC", kind: "wc", x: 0.86, y: 0, w: 0.14, h: 0.2 },
+      { id: "wc2", label: "WC", kind: "wc", x: 0.86, y: 0.2, w: 0.14, h: 0.24 },
+      { id: "corr", label: "CORRIDOR", kind: "hall", x: 0.3, y: 0.44, w: 0.7, h: 0.14 },
+      surgery("s1", "SURGERY 1", 0.3),
+      surgery("s2", "SURGERY 2", 0.5333),
+      { ...surgery("s3", "SURGERY 3", 0.7666), w: 0.2334 },
+    ],
+    doors: [
+      { space: "rec", side: "bottom", at: 0.3, w: 1.2, entry: true },
+      { space: "rec", side: "top", at: 0.5, w: 99, open: true },
+      { space: "rec", side: "right", at: 0.125, w: 1.2, open: true },
+      { space: "ster", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "doc", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "staff", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "wc1", side: "left", at: 0.5, w: 0.8 },
+      { space: "wc2", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "s1", side: "top", at: 0.5, w: 1.0 },
+      { space: "s2", side: "top", at: 0.5, w: 1.0 },
+      { space: "s3", side: "top", at: 0.5, w: 1.0 },
+    ],
+    windows: [
+      { space: "rec", side: "bottom", at: 0.74, w: 1.8 },
+      { space: "rec", side: "left", at: 0.5, w: 1.8 },
+      { space: "wait", side: "left", at: 0.5, w: 1.8 },
+      { space: "wait", side: "top", at: 0.5, w: 1.6 },
+      { space: "s1", side: "bottom", at: 0.5, w: 1.8 },
+      { space: "s2", side: "bottom", at: 0.5, w: 1.8 },
+      { space: "s3", side: "bottom", at: 0.5, w: 1.8 },
+      { space: "s3", side: "right", at: 0.5, w: 1.4 },
+      { space: "ster", side: "top", at: 0.5, w: 1.2 },
+      { space: "doc", side: "top", at: 0.5, w: 1.2 },
+      { space: "staff", side: "top", at: 0.5, w: 1.2 },
+      { space: "wc2", side: "right", at: 0.5, w: 0.6 },
+    ],
+  };
+}
+
+function salonLevel() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wc", label: "WC", kind: "wc", x: 0, y: 0, w: 0.15, h: 0.22 },
+      { id: "store", label: "STORE", kind: "store", x: 0.15, y: 0, w: 0.15, h: 0.22 },
+      { id: "wait", label: "WAITING", kind: "lounge", x: 0, y: 0.22, w: 0.3, h: 0.33 },
+      { id: "rec", label: "RECEPTION", kind: "reception", x: 0, y: 0.55, w: 0.3, h: 0.45 },
+      { id: "wash", label: "WASH AREA", kind: "wash", x: 0.3, y: 0, w: 0.25, h: 0.5 },
+      { id: "nails", label: "NAIL BAR", kind: "nails", x: 0.55, y: 0, w: 0.23, h: 0.5 },
+      { id: "treat", label: "TREATMENT ROOM", kind: "treatment", x: 0.78, y: 0, w: 0.22, h: 0.5 },
+      { id: "style", label: "HAIR STYLING", kind: "styling", x: 0.3, y: 0.5, w: 0.7, h: 0.5 },
+    ],
+    doors: [
+      { space: "rec", side: "bottom", at: 0.4, w: 1.4, entry: true },
+      { space: "rec", side: "top", at: 0.5, w: 99, open: true },
+      { space: "rec", side: "right", at: 0.5, w: 99, open: true },
+      { space: "wc", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "store", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "wash", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "nails", side: "bottom", at: 0.5, w: 1.6, open: true },
+      { space: "treat", side: "bottom", at: 0.5, w: 0.9 },
+    ],
+    windows: [
+      { space: "rec", side: "bottom", at: 0.82, w: 1.0 },
+      { space: "rec", side: "left", at: 0.5, w: 1.6 },
+      { space: "wait", side: "left", at: 0.5, w: 1.4 },
+      { space: "style", side: "bottom", at: 0.25, w: 2.4 },
+      { space: "style", side: "bottom", at: 0.75, w: 2.4 },
+      { space: "style", side: "right", at: 0.5, w: 1.6 },
+      { space: "nails", side: "top", at: 0.5, w: 1.6 },
+      { space: "treat", side: "top", at: 0.5, w: 1.2 },
+    ],
+  };
+}
+
+/** Levels of an interior project, named for the interior set (FURNITURE LAYOUT / GROUND FLOOR LAYOUT …). */
+function interiorLevels(plan, W, D, spec) {
+  const type = plan.interior.type;
+  let levels;
+  if (type === "residence") levels = twoStorey(plan, W, D, spec);
+  else if (type === "flat" && plan.bedrooms === 1) levels = [flatOneBed()];
+  else if (type === "flat" || type === "penthouse") levels = [singleStorey(plan, W, D, spec)];
+  else levels = [{ cafe: cafeLevel, workspace: workspaceLevel, boutique: boutiqueLevel, clinic: clinicLevel, salon: salonLevel }[type]()];
+  const floors = levels.length > 1 ? ["GROUND FLOOR", "FIRST FLOOR"] : [""];
+  levels.forEach((lv, i) => {
+    lv.floorName = floors[i];
+    lv.name = floors[i] ? `${floors[i]} LAYOUT` : "FURNITURE LAYOUT";
+    lv.veranda = false;
+    lv.canopy = false;
+  });
+  return levels;
+}
+
+// ------------------------------------------------------------------ patterns for floors, swatches and elevations
+
+function interiorDefs(s, prefix = "ip") {
+  const m = (v) => +(v * s).toFixed(2);
+  const ln = (o = 0.3) => `stroke="#3b2f22" stroke-opacity="${o}" stroke-width="0.7" fill="none"`;
+  const pat = (id, w, h, body) => `<pattern id="${prefix}-${id}" patternUnits="userSpaceOnUse" width="${m(w)}" height="${m(h)}">${body}</pattern>`;
+  let terr = "";
+  const rnd = rng(11);
+  for (let i = 0; i < 26; i++) terr += `<circle cx="${m(rnd() * 0.5)}" cy="${m(rnd() * 0.5)}" r="${(0.6 + rnd() * 1.6).toFixed(1)}" fill="${["#8a7b6a", "#b88a6d", "#ffffff", "#5f5a55"][i % 4]}" fill-opacity=".55"/>`;
+  let conc = "";
+  for (let i = 0; i < 30; i++) conc += `<circle cx="${m(rnd() * 0.6)}" cy="${m(rnd() * 0.6)}" r="0.6" fill="#3b3833" fill-opacity=".18"/>`;
+  let moss = "";
+  for (let i = 0; i < 18; i++) moss += `<circle cx="${m(rnd() * 0.3)}" cy="${m(rnd() * 0.3)}" r="${(1.2 + rnd() * 2.2).toFixed(1)}" fill="#3f4d2b" fill-opacity=".35"/>`;
+  const herring = `<path d="M0 ${m(0.15)} L${m(0.15)} 0 M0 ${m(0.45)} L${m(0.45)} 0 M${m(0.15)} ${m(0.6)} L${m(0.6)} ${m(0.15)} M${m(0.45)} ${m(0.6)} L${m(0.6)} ${m(0.45)} M${m(0.15)} 0 L${m(0.6)} ${m(0.45)} M0 ${m(0.15)} L${m(0.45)} ${m(0.6)}" ${ln(0.32)}/>`;
+  return `<defs>
+    ${pat("planks", 1.2, 0.4, `<path d="M0 ${m(0.2)}H${m(1.2)}M0 ${m(0.4) - 0.4}H${m(1.2)}M${m(0.45)} 0V${m(0.2)}M${m(1.0)} ${m(0.2)}V${m(0.4)}" ${ln(0.3)}/>`)}
+    ${pat("herring", 0.6, 0.6, herring)}
+    ${pat("chevron", 0.6, 0.3, `<path d="M0 ${m(0.3)} L${m(0.3)} 0 L${m(0.6)} ${m(0.3)} M0 ${m(0.15)} L${m(0.15)} 0 M${m(0.45)} 0 L${m(0.6)} ${m(0.15)}" ${ln(0.32)}/>`)}
+    ${pat("bigtile", 0.6, 0.6, `<path d="M0 ${m(0.6) - 0.4}H${m(0.6)}M${m(0.6) - 0.4} 0V${m(0.6)}" ${ln(0.28)}/>`)}
+    ${pat("cotto", 0.3, 0.3, `<path d="M0 ${m(0.3) - 0.4}H${m(0.3)}M${m(0.3) - 0.4} 0V${m(0.3)}" ${ln(0.3)}/>`)}
+    ${pat("hex", 0.26, 0.3, `<path d="M0 ${m(0.075)} L${m(0.13)} 0 L${m(0.26)} ${m(0.075)} V${m(0.225)} L${m(0.13)} ${m(0.3)} L0 ${m(0.225)} Z" ${ln(0.35)}/>`)}
+    ${pat("terrazzo", 0.5, 0.5, terr)}
+    ${pat("concrete", 0.6, 0.6, conc)}
+    ${pat("moss", 0.3, 0.3, moss)}
+    ${pat("marble", 1.2, 1.2, `<path d="M0 ${m(0.3)} C${m(0.3)} ${m(0.2)} ${m(0.5)} ${m(0.6)} ${m(1.2)} ${m(0.45)} M${m(0.2)} ${m(1.2)} C${m(0.4)} ${m(0.9)} ${m(0.8)} ${m(1.0)} ${m(1.0)} ${m(0.7)}" stroke="#6d665e" stroke-opacity=".28" stroke-width="0.8" fill="none"/>`)}
+    ${pat("stone", 0.6, 1.2, `<path d="M0 ${m(1.2) - 0.4}H${m(0.6)}M${m(0.6) - 0.4} 0V${m(1.2)}M${m(0.1)} ${m(0.4)} q${m(0.2)} ${m(-0.05)} ${m(0.4)} 0" ${ln(0.22)}/>`)}
+    ${pat("weave", 0.08, 0.08, `<path d="M0 ${m(0.04)}H${m(0.08)}M${m(0.04)} 0V${m(0.08)}" stroke="#3b2f22" stroke-opacity=".14" stroke-width="0.6"/>`)}
+    ${pat("slats", 0.08, 1, `<path d="M${m(0.08) - 0.6} 0V${m(1)}" stroke="#2b2017" stroke-opacity=".35" stroke-width="1"/>`)}
+    ${pat("grain", 0.6, 0.2, `<path d="M0 ${m(0.06)} q${m(0.15)} ${m(-0.03)} ${m(0.3)} 0 t${m(0.3)} 0 M0 ${m(0.15)} q${m(0.15)} ${m(0.03)} ${m(0.3)} 0 t${m(0.3)} 0" ${ln(0.18)}/>`)}
+    ${pat("panels", 1.2, 1.4, `<rect x="${m(0.12)}" y="${m(0.12)}" width="${m(0.96)}" height="${m(1.16)}" ${ln(0.22)}/>`)}
+    ${pat("brick", 0.25, 0.14, `<path d="M0 ${m(0.07)}H${m(0.25)}M0 ${m(0.14) - 0.4}H${m(0.25)}M${m(0.125)} 0V${m(0.07)}M0.4 ${m(0.07)}V${m(0.14)}" stroke="#f3eee6" stroke-opacity=".6" stroke-width="0.9" fill="none"/>`)}
+    ${pat("motif", 0.4, 0.4, `<path d="M${m(0.2)} ${m(0.04)} L${m(0.36)} ${m(0.2)} L${m(0.2)} ${m(0.36)} L${m(0.04)} ${m(0.2)} Z M${m(0.2)} ${m(0.12)} L${m(0.28)} ${m(0.2)} L${m(0.2)} ${m(0.28)} L${m(0.12)} ${m(0.2)} Z" stroke="#f6efe4" stroke-opacity=".55" stroke-width="0.9" fill="none"/><path d="M0 ${m(0.4) - 0.4}H${m(0.4)}M${m(0.4) - 0.4} 0V${m(0.4)}" ${ln(0.25)}/>`)}
+    ${pat("lattice", 0.3, 0.3, `<path d="M${m(0.15)} 0 L${m(0.3)} ${m(0.15)} L${m(0.15)} ${m(0.3)} L0 ${m(0.15)} Z M0 0 L${m(0.3)} ${m(0.3)} M${m(0.3)} 0 L0 ${m(0.3)}" stroke="#f3e6d2" stroke-opacity=".55" stroke-width="1" fill="none"/>`)}
+  </defs>`;
+}
+const patternFill = (p, prefix = "ip") => (p && p !== "plain" ? `url(#${prefix}-${p})` : null);
+
+// ------------------------------------------------------------------ ceiling and lighting layout
+
+/** Pendants over tables, islands, counters and beside beds (plan metres), matching the furniture drawn on the plans. */
+function pendantsFor(kind, r) {
+  const { x, y, w, h } = r;
+  const out = [];
+  if (kind === "dining" && w > 3 && h > 3) out.push([x + w / 2 - 0.55, y + h / 2], [x + w / 2 + 0.55, y + h / 2]);
+  if (kind === "kitchen" && w > 3.6 && h > 3.4) {
+    const iw = Math.min(2.6, w - 2.0), ix = x + (w - iw) / 2 + 0.3;
+    out.push([ix + iw * 0.25, y + h * 0.5 + 0.47], [ix + iw * 0.75, y + h * 0.5 + 0.47]);
+  }
+  if (kind === "open" && h > 6) out.push([x + w / 2 - 0.5, y + h * 0.45 + 0.5], [x + w / 2 + 0.5, y + h * 0.45 + 0.5]);
+  if (kind === "master" || kind === "bedroom") {
+    const bw = kind === "master" ? 1.8 : w < 2.6 ? 0.9 : 1.6;
+    if (w >= bw + 0.4 && h >= 2.65) {
+      const bx = x + (w - bw) / 2;
+      out.push([bx - 0.32, y + 0.3], [bx + bw + 0.32, y + 0.3]);
+    }
+  }
+  if (kind === "bar") {
+    const cw = Math.min(w - 0.8, 6.0), n = Math.max(2, Math.floor(cw / 1.4));
+    for (let i = 0; i < n; i++) out.push([x + (w - cw) / 2 + (cw * (i + 0.5)) / n, y + 1.6]);
+  }
+  if (kind === "reception") {
+    const dw = Math.min(2.4, w - 0.8);
+    out.push([x + 0.4 + dw * 0.3, y + 0.95], [x + 0.4 + dw * 0.7, y + 0.95]);
+  }
+  if (kind === "meeting") {
+    const tw = Math.min(w - 2.0, 6.0);
+    if (tw > 1.5) for (const f of [0.25, 0.5, 0.75]) out.push([x + (w - tw) / 2 + tw * f, y + h / 2]);
+  }
+  if (kind === "teahall") out.push(...teaTables(r));
+  if (kind === "nails") {
+    const tw = Math.min(w - 1.6, 3.6);
+    for (let cx = x + (w - tw) / 2 + 0.6; cx < x + (w + tw) / 2 - 0.3; cx += 1.2) out.push([cx, y + h * 0.4 + 0.35]);
+  }
+  if (kind === "treatment") out.push([x + w / 2, y + 2.0]);
+  if (kind === "staff" && w > 3 && h > 3) out.push([x + w / 2, y + h / 2 + 0.3]);
+  if (kind === "kitchenette" && h > 3 && w > 2.4) out.push([x + w / 2, y + h * 0.62]);
+  if (kind === "boutique" && h > 5) out.push([x + w * 0.5, y + h * 0.75]);
+  return out;
+}
+
+/** Light fittings of one level: downlights, pendants, coves, tracks, linear pendants and mirror lights. */
+function ceilingLayout(model, level) {
+  const out = { down: [], pend: [], cove: [], track: [], linear: [], mirror: [] };
+  for (const sp of level.spaces) {
+    if (sp.kind === "stair" || sp.kind === "void") continue;
+    const r = inner(model, sp);
+    const wet = WET_KINDS.includes(sp.kind);
+    const cove = COVE_KINDS.includes(sp.kind) && r.w > 3 && r.h > 3;
+    if (cove) out.cove.push({ x: r.x + 0.45, y: r.y + 0.45, w: r.w - 0.9, h: r.h - 0.9 });
+    const pend = pendantsFor(sp.kind, r);
+    out.pend.push(...pend);
+    if (sp.kind === "boutique" || sp.kind === "showroom") {
+      for (const f of [0.3, 0.62]) out.track.push({ x1: r.x + 0.8, y1: r.y + r.h * f, x2: r.x + r.w - 0.8, y2: r.y + r.h * f });
+      continue;
+    }
+    if (sp.kind === "openoffice") {
+      for (let cx = r.x + 1.2; cx + 3.2 < r.x + r.w - 0.6; cx += 4.0) for (let cy = r.y + 1.2; cy + 1.6 < r.y + r.h - 1.0; cy += 3.4) out.linear.push({ x: cx + 0.2, y: cy + 0.7, w: 2.8, h: 0.2 });
+      continue;
+    }
+    // downlights on an even grid inside the room (inside the cove line when there is one), clear of the pendants
+    const inset = cove ? 0.95 : 0.6, step = wet ? 1.2 : 1.7;
+    const gw = r.w - 2 * inset, gh = r.h - 2 * inset;
+    const pts = [];
+    if (gw > 0.2 && gh > 0.2) {
+      const nx = Math.max(1, Math.round(gw / step) + 1), ny = Math.max(1, Math.round(gh / step) + 1);
+      for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) pts.push([r.x + inset + (nx === 1 ? gw / 2 : (gw * i) / (nx - 1)), r.y + inset + (ny === 1 ? gh / 2 : (gh * j) / (ny - 1))]);
+    } else pts.push([r.x + r.w / 2, r.y + r.h / 2]);
+    out.down.push(...pts.filter(([px, py]) => !pend.some(([qx, qy]) => Math.hypot(px - qx, py - qy) < 0.7)));
+    if (["bath", "shower", "wc"].includes(sp.kind)) out.mirror.push([r.x + Math.min(0.6, r.w / 2), r.y + r.h - 0.12]);
+  }
+  return out;
+}
+
+/** Fittings by type for the lighting schedule. */
+function lightingSchedule(model) {
+  const tot = { down: 0, pend: 0, cove: 0, track: 0, spots: 0, linear: 0, mirror: 0 };
+  for (const lv of model.levels) {
+    const c = ceilingLayout(model, lv);
+    tot.down += c.down.length;
+    tot.pend += c.pend.length;
+    tot.cove += c.cove.reduce((n, r) => n + 2 * (r.w + r.h), 0);
+    tot.track += c.track.length;
+    tot.spots += c.track.reduce((n, t) => n + Math.max(2, Math.round(Math.hypot(t.x2 - t.x1, t.y2 - t.y1) / 1.2)), 0);
+    tot.linear += c.linear.length;
+    tot.mirror += c.mirror.length;
+  }
+  const rows = [
+    ["L1", "Recessed LED downlight, 2700 K, IP44 in wet rooms", tot.down],
+    ["L2", "Decorative pendant (see palette)", tot.pend],
+    ["L3", "Concealed LED cove strip, m", Math.round(tot.cove)],
+    ["L4", `Track, ${tot.track} runs, with adjustable spots`, tot.spots],
+    ["L5", "Linear LED pendant over desks", tot.linear],
+    ["L6", "Mirror light / wall light, IP44", tot.mirror],
+  ];
+  return rows.filter((r) => r[2] > 0);
+}
+
+// plan symbols (px at s px per metre)
+const SYM = {
+  down: (x, y) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="4" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M${f1(x - 4)} ${f1(y)}H${f1(x + 4)}M${f1(x)} ${f1(y - 4)}V${f1(y + 4)}" stroke="${INK}" stroke-width="0.6"/>`,
+  pend: (x, y) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="7" fill="none" stroke="${ACCENT}" stroke-width="1.1"/><circle cx="${f1(x)}" cy="${f1(y)}" r="3.2" fill="${ACCENT}"/>`,
+  mirror: (x, y) => `<rect x="${f1(x - 7)}" y="${f1(y - 2.5)}" width="14" height="5" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/>`,
+};
+
+// ------------------------------------------------------------------ cutaway axonometric
+
+/** Loose furniture and built-ins of a room as boxes: [x, y, w, h, z0, z1, material] in plan metres. */
+function furnitureBlocks(kind, r) {
+  const { x, y, w, h } = r;
+  const B = [];
+  const add = (bx, by, bw, bh, z0, z1, c) => bw > 0.05 && bh > 0.05 && B.push([bx, by, bw, bh, z0, z1, c]);
+  const sofa = (cx, cy, sw) => {
+    add(cx - sw / 2, cy, sw, 0.95, 0, 0.42, "fabric");
+    add(cx - sw / 2, cy + 0.72, sw, 0.23, 0.42, 0.8, "fabric");
+    add(cx - 0.6, cy - 1.0, 1.2, 0.65, 0, 0.38, "wood");
+  };
+  const table = (cx, cy, tw, seats) => {
+    add(cx - tw / 2, cy - 0.5, tw, 1.0, 0, 0.75, "wood");
+    for (let i = 0; i < seats; i++) {
+      const sx = cx - tw / 2 + (tw / seats) * (i + 0.5) - 0.22;
+      add(sx, cy - 1.0, 0.44, 0.42, 0, 0.46, "fabric");
+      add(sx, cy + 0.58, 0.44, 0.42, 0, 0.46, "fabric");
+    }
+  };
+  const bed = (bw) => {
+    if (w < bw + 0.4 || h < 2.65) return;
+    const bx = x + (w - bw) / 2;
+    add(bx, y + 0.05, bw, 2.05, 0, 0.5, "white");
+    add(bx - 0.1, y + 0.02, bw + 0.2, 0.1, 0, 1.15, "fabric");
+    if (w > bw + 1.4) add(bx - 0.55, y + 0.1, 0.45, 0.4, 0, 0.5, "wood"), add(bx + bw + 0.1, y + 0.1, 0.45, 0.4, 0, 0.5, "wood");
+    if (h > 3.85) add(x + 0.2, y + h - 0.62, Math.min(w - 0.4, 2.4), 0.6, 0, 2.2, "wood");
+  };
+  switch (kind) {
+    case "master": bed(1.8); break;
+    case "bedroom": bed(w < 2.6 ? 0.9 : 1.6); break;
+    case "living": {
+      const sw = Math.min(3.4, w - 2.2);
+      if (sw > 2) sofa(x + w * 0.45, y + h * 0.42, sw);
+      add(x + w - 0.5, y + h * 0.15, 0.4, Math.min(2.4, h * 0.4), 0, 0.5, "wood");
+      break;
+    }
+    case "open": {
+      const kl = Math.min(w - 0.4, 4.2);
+      add(x + 0.1, y + 0.05, kl, 0.62, 0, 0.9, "wood");
+      if (h > 5.5 && w > 2.6) add(x + 0.1 + (kl - 2.2) / 2, y + 1.55, 2.2, 0.9, 0, 0.9, "stone");
+      if (h > 6) table(x + w / 2, y + h * 0.45 + 0.5, Math.min(2.0, w - 1.6), 3);
+      const sw = Math.min(2.8, w - 1);
+      const sy = y + h - 2.6;
+      add(x + (w - sw) / 2, sy, sw, 0.95, 0, 0.75, "fabric");
+      add(x + (w - 1.2) / 2, sy + 1.35, 1.2, 0.6, 0, 0.38, "wood");
+      break;
+    }
+    case "kitchen": {
+      add(x + 0.05, y + 0.05, w - 0.1, 0.62, 0, 0.9, "wood");
+      add(x + 0.05, y + 0.67, 0.62, Math.min(h * 0.55, h - 1.0), 0, 0.9, "wood");
+      if (w > 3.6 && h > 3.4) add(x + (w - Math.min(2.6, w - 2.0)) / 2 + 0.3, y + h * 0.5, Math.min(2.6, w - 2.0), 0.95, 0, 0.9, "stone");
+      break;
+    }
+    case "dining": {
+      const tw = Math.min(3.0, w - 1.6);
+      if (tw > 1.4 && h > 3) table(x + w / 2, y + h / 2, tw, tw >= 2.6 ? 4 : 3);
+      break;
+    }
+    case "bath":
+      if (w > 1.9 && h > 2.2) add(x + 0.05, y + 0.05, 1.7, 0.75, 0, 0.55, "white");
+      add(x + w - 0.55, y + h - 0.75, 0.45, 0.6, 0, 0.42, "white");
+      add(x + 0.1, y + h - 0.55, 0.9, 0.5, 0.3, 0.85, "wood");
+      break;
+    case "shower":
+    case "wc":
+      if (w > 5 && h > 3.5) break;
+      add(x + w - 0.5, y + h - 0.72, 0.42, 0.6, 0, 0.42, "white");
+      break;
+    case "study":
+    case "office":
+      if (w > 2 && h > 2) add(x + 0.1, y + 0.1, Math.min(1.8, w - 0.4), 0.7, 0, 0.75, "wood"), add(x + 0.6, y + 0.95, 0.5, 0.5, 0, 0.5, "fabric");
+      break;
+    case "director":
+      add(x + w / 2 - 1.0, y + 1.0, 2.0, 0.9, 0, 0.75, "wood");
+      add(x + 0.1, y + 0.1, 0.4, Math.min(3, h * 0.4), 0, 2.0, "wood");
+      if (h > 5) sofa(x + w / 2, y + h - 1.6, Math.min(2.6, w - 1.6));
+      break;
+    case "lounge":
+      if (w > 4 && h > 3) sofa(x + w * 0.35, y + h * 0.55, Math.min(3.0, w * 0.3)), table(x + w * 0.75, y + h / 2, Math.min(2.0, w * 0.2), 2);
+      else if (w > 2.5 && h > 2.5) add(x + 0.3, y + h - 1.2, w - 0.6, 0.8, 0, 0.45, "fabric");
+      break;
+    case "teahall":
+      add(x + 0.1, y + 0.6, 0.6, h - 1.2, 0, 0.45, "fabric");
+      add(x + 0.1, y + 0.6, 0.18, h - 1.2, 0.45, 0.95, "fabric");
+      for (const [cx, cy] of teaTables(r)) {
+        add(cx - 0.38, cy - 0.38, 0.76, 0.76, 0, 0.75, "stone");
+        add(cx - 0.88, cy - 0.2, 0.4, 0.4, 0, 0.46, "fabric");
+        add(cx + 0.48, cy - 0.2, 0.4, 0.4, 0, 0.46, "fabric");
+      }
+      break;
+    case "bar": {
+      const cw = Math.min(w - 0.8, 6.0);
+      add(x + 0.1, y + 0.1, w - 0.2, 0.45, 0, 2.1, "wood");
+      add(x + (w - cw) / 2, y + 1.3, cw, 0.6, 0, 1.1, "wood");
+      add(x + (w - cw) / 2 - 0.05, y + 1.25, cw + 0.1, 0.7, 1.1, 1.15, "stone");
+      for (let sx = x + (w - cw) / 2 + 0.4; sx < x + (w + cw) / 2 - 0.2; sx += 0.75) add(sx - 0.2, y + 2.1, 0.4, 0.4, 0, 0.75, "metal");
+      break;
+    }
+    case "prep":
+    case "kitchenette":
+      add(x + 0.1, y + 0.1, w - 0.2, 0.65, 0, 0.9, kind === "prep" ? "metal" : "wood");
+      if (kind === "kitchenette" && h > 3 && w > 2.4) table(x + w / 2, y + h * 0.62, Math.min(1.8, w - 1.4), 2);
+      break;
+    case "openoffice":
+      for (let cx = x + 1.2; cx + 3.2 < x + w - 0.6; cx += 4.0) for (let cy = y + 1.2; cy + 1.6 < y + h - 1.0; cy += 3.4) {
+        add(cx, cy, 3.2, 1.6, 0, 0.74, "wood");
+        add(cx + 1.57, cy, 0.06, 1.6, 0.74, 1.15, "fabric");
+      }
+      break;
+    case "meeting": {
+      const tw = Math.min(w - 2.0, 6.0), th = Math.min(h - 2.0, 1.4);
+      if (tw > 1.5 && th > 0.8) {
+        const tx = x + (w - tw) / 2, ty = y + (h - th) / 2;
+        add(tx, ty, tw, th, 0, 0.75, "wood");
+        for (let cx = tx + 0.45; cx < tx + tw - 0.2; cx += 0.9) add(cx - 0.22, ty - 0.57, 0.44, 0.44, 0, 0.46, "fabric"), add(cx - 0.22, ty + th + 0.13, 0.44, 0.44, 0, 0.46, "fabric");
+      }
+      break;
+    }
+    case "reception":
+      add(x + 0.4, y + 0.6, Math.min(2.4, w - 0.8), 0.7, 0, 1.1, "wood");
+      add(x + 0.4, y + h - 2.2, Math.min(2.2, w - 0.8), 0.85, 0, 0.45, "fabric");
+      break;
+    case "boutique":
+      add(x + 0.1, y + 0.1, w - 0.2, 0.45, 0, 2.3, "wood");
+      add(x + 0.1, y + 0.55, 0.45, h - 2.4, 0, 2.3, "wood");
+      for (let cx = x + w * 0.3; cx < x + w * 0.75; cx += w * 0.3) add(cx - 0.8, y + h * 0.42, 1.6, 0.9, 0, 0.85, "stone");
+      add(x + w - 2.4, y + h - 1.9, 1.8, 0.7, 0, 1.05, "feature");
+      break;
+    case "fitting": {
+      const n = Math.max(2, Math.floor(h / 1.5));
+      for (let i = 0; i <= n; i++) add(x + w - 1.6, y + 0.1 + (i * (h - 0.2)) / n - 0.03, 1.5, 0.06, 0, 2.2, "feature");
+      add(x + 0.4, y + h / 2 - 0.9, 0.5, 1.8, 0, 0.45, "fabric");
+      break;
+    }
+    case "treatment":
+      add(x + 0.1, y + 0.1, w - 0.2, 0.6, 0, 0.9, "white");
+      add(x + w / 2 - 0.4, y + 1.2, 0.8, 1.9, 0, 0.65, "fabric");
+      break;
+    case "styling":
+      for (let cx = x + 0.9; cx + 0.6 < x + w - 0.4; cx += 1.6) add(cx - 0.45, y + 0.1, 0.9, 0.45, 0, 0.8, "wood"), add(cx - 0.3, y + 0.75, 0.6, 0.6, 0, 0.55, "fabric");
+      break;
+    case "wash":
+      for (let cx = x + 0.8; cx + 0.4 < x + w - 0.2; cx += 1.2) add(cx - 0.35, y + 0.1, 0.7, 0.5, 0, 0.9, "white"), add(cx - 0.3, y + 0.65, 0.6, 1.3, 0, 0.55, "fabric");
+      break;
+    case "nails": {
+      const tw = Math.min(w - 1.6, 3.6);
+      add(x + (w - tw) / 2, y + h * 0.4, tw, 0.7, 0, 0.75, "stone");
+      break;
+    }
+    case "racks":
+      for (let ry = y + 0.4; ry + 1.1 < y + h - 0.6; ry += 2.4) add(x + 0.6, ry, w - 1.2, 0.6, 0, 2.1, "metal");
+      break;
+    case "store":
+      add(x + 0.1, y + 0.1, Math.min(1.2, w - 0.2), 0.6, 0, 2.0, "metal");
+      break;
+    case "staff":
+      if (w > 3 && h > 3) table(x + w / 2, y + h / 2 + 0.3, Math.min(2.4, w - 1.8), 3);
+      break;
+  }
+  return B;
+}
+
+/** Cutaway isometric of the interior: floors in their finishes, walls cut at 1.2 m, furniture as blocks. */
+export function cutawaySheet(model, sheetNo, { preview = false, bare = false } = {}) {
+  const { W, D, plan } = model;
+  const pal = paletteOf(model);
+  const col = {
+    wood: matOf(model, "J1").fill, fabric: matOf(model, "T1").fill, stone: matOf(model, "S1").fill, metal: matOf(model, "M1").fill,
+    white: "#f4f2ee", feature: matOf(model, "W2").fill, wall: matOf(model, "W1").fill,
+  };
+  const cut = 1.25;
+  const levels = bare ? [0] : model.levels.map((_, i) => i);
+  const proj = isoProj;
+  // extents of one level in projected units
+  const ext = [[0, 0], [W, 0], [0, D], [W, D]].flatMap(([x, b]) => [proj(x, b, 0), proj(x, b, cut)]);
+  const minX = Math.min(...ext.map((p) => p[0])), maxX = Math.max(...ext.map((p) => p[0]));
+  const minY = Math.min(...ext.map((p) => p[1])), maxY = Math.max(...ext.map((p) => p[1]));
+  const areaW = (bare ? COVER_W - 80 : SHEET_W - 330 - 36 - 120) / levels.length - (levels.length > 1 ? 40 : 0);
+  const areaH = bare ? COVER_H - 80 : SHEET_H - 72 - 210;
+  const s = Math.min(areaW / (maxX - minX), areaH / (maxY - minY));
+  let g = "";
+  levels.forEach((li, k) => {
+    const ox = (bare ? 40 : 36 + 60) + k * (areaW + 40) + (areaW - (maxX - minX) * s) / 2 - minX * s;
+    const oy = (bare ? 40 : 36 + 60) + (areaH - (maxY - minY) * s) / 2 - minY * s;
+    const P = (x, y, z) => {
+      const [u, v] = proj(x, D - y, z);
+      return `${(ox + u * s).toFixed(1)},${(oy + v * s).toFixed(1)}`;
+    };
+    const level = model.levels[li];
+    // floors in their finish colours
+    g += isoPoly([P(0, 0, -0.15), P(W, 0, -0.15), P(W, D, -0.15), P(0, D, -0.15)], "#d8d2c6", 'stroke-width="0.8"');
+    for (const sp of level.spaces) {
+      const r = inner(model, sp);
+      const fin = sp.kind === "void" ? null : matOf(model, roomFinish(model, sp).floor);
+      g += isoPoly([P(r.x, r.y, 0), P(r.x + r.w, r.y, 0), P(r.x + r.w, r.y + r.h, 0), P(r.x, r.y + r.h, 0)], fin ? fin.fill : PAPER, 'stroke-width="0.4"');
+    }
+    // walls (from the CAD wall cells) and furniture as boxes, painted far to near
+    const boxes = [];
+    // walls cut into ~1 m pieces so they sort correctly against the furniture
+    for (const e of cadLevel(model, li).entities) {
+      if (e.layer !== "A-WALL-PATT" || e.t !== "solid") continue;
+      const along = e.w >= e.h, len = along ? e.w : e.h, n = Math.max(1, Math.round(len / 1.0));
+      for (let k = 0; k < n; k++) boxes.push(along ? [e.x + (e.w * k) / n, e.y, e.w / n, e.h, 0, cut, "wallcut"] : [e.x, e.y + (e.h * k) / n, e.w, e.h / n, 0, cut, "wallcut"]);
+    }
+    for (const sp of level.spaces) for (const b of furnitureBlocks(sp.kind, inner(model, sp))) boxes.push(b);
+    boxes.sort((a, b) => a[0] + a[2] / 2 + (D - a[1] - a[3] / 2) - (b[0] + b[2] / 2 + (D - b[1] - b[3] / 2)) || a[4] - b[4]).reverse();
+    for (const [bx, by, bw, bh, z0, z1, c] of boxes) {
+      const base = c === "wallcut" ? col.wall : col[c] ?? col.white;
+      const front = shade(base, -0.08), side = shade(base, -0.2), top = c === "wallcut" ? "#3d3a36" : shade(base, 0.12);
+      // visible faces: front (y + h, toward the viewer), left (x) and top
+      g += isoPoly([P(bx, by + bh, z0), P(bx + bw, by + bh, z0), P(bx + bw, by + bh, z1), P(bx, by + bh, z1)], front, 'stroke-width="0.45"');
+      g += isoPoly([P(bx, by, z0), P(bx, by + bh, z0), P(bx, by + bh, z1), P(bx, by, z1)], side, 'stroke-width="0.45"');
+      g += isoPoly([P(bx, by, z1), P(bx + bw, by, z1), P(bx + bw, by + bh, z1), P(bx, by + bh, z1)], top, 'stroke-width="0.45"');
+    }
+    if (!bare && levels.length > 1) {
+      const [u, v] = proj(W / 2, -1.5, 0);
+      g += `<text x="${(ox + u * s).toFixed(1)}" y="${(oy + v * s + 30).toFixed(1)}" text-anchor="middle" font-family="${FONT}" font-size="12" letter-spacing="2.5" fill="${INK}">${level.floorName}</text>`;
+    }
+  });
+  if (bare) return bareSvg(g);
+  g += sheetTitle("CUTAWAY AXONOMETRIC", `${plan.title.en.toUpperCase()} · ${pal.name} · WALLS CUT AT 1.25 m · FLOORS SHOWN IN THEIR FINISHES`);
+  return sheet({ plan, drawing: "CUTAWAY AXONOMETRIC", sheetNo, scaleNote: "NTS", body: g, north: false, preview });
+}
+
+// ------------------------------------------------------------------ interior elevations
+
+const ELEVATIONS = {
+  media: "MEDIA WALL", kitchen: "KITCHEN RUN", bed: "BED WALL", vanity: "VANITY WALL", bar: "BAR AND BACK BAR", banquette: "BANQUETTE WALL",
+  desk: "RECEPTION DESK", storage: "STORAGE AND ACOUSTIC WALL", display: "DISPLAY WALL", fitting: "FITTING ROOMS", surgery: "SURGERY WALL",
+  bench: "WAITING WALL", stations: "STYLING STATIONS", wash: "WASH AREA", nails: "NAIL BAR",
+};
+const ELEVATION_PICKS = {
+  home: [["media", ["living", "open"]], ["kitchen", ["kitchen", "open"]], ["bed", ["master", "bedroom"]], ["vanity", ["bath", "shower"]]],
+  cafe: [["bar", ["bar"]], ["banquette", ["teahall"]], ["media", ["lounge"]], ["vanity", ["wc"]]],
+  workspace: [["desk", ["reception"]], ["storage", ["openoffice"]], ["media", ["meeting"]], ["kitchen", ["kitchenette"]]],
+  boutique: [["display", ["boutique"]], ["desk", ["boutique"]], ["fitting", ["fitting"]], ["vanity", ["wc"]]],
+  clinic: [["desk", ["reception"]], ["bench", ["lounge"]], ["surgery", ["treatment"]], ["vanity", ["wc"]]],
+  salon: [["desk", ["reception"]], ["stations", ["styling"]], ["wash", ["wash"]], ["nails", ["nails"]]],
+};
+
+/** The four walls drawn on A-201: [elevation type, space] picks for the project type. */
+function elevationPicks(model) {
+  const type = model.interior.type;
+  const picks = ELEVATION_PICKS[["flat", "penthouse", "residence"].includes(type) ? "home" : type];
+  const spaces = model.levels.flatMap((lv) => lv.spaces);
+  const out = [];
+  for (const [kind, kinds] of picks) {
+    const sp = kinds.map((k) => spaces.find((x) => x.kind === k)).find(Boolean);
+    if (sp) out.push({ kind, sp });
+  }
+  return out.slice(0, 4);
+}
+
+/** One wall elevation drawn into a panel (x0, y0 = top-left, pw × ph px). */
+function wallElevation(model, { kind, sp }, x0, y0, pw, ph, letter) {
+  const r = inner(model, sp);
+  const wallW = Math.min(Math.max(r.w, 2.4), 8.5);
+  const H = roomFinish(model, sp).ch;
+  const s = Math.min((pw - 90) / wallW, (ph - 120) / (H + 0.2));
+  const ox = x0 + 60 + (pw - 90 - wallW * s) / 2, gy = y0 + 46 + (H + 0.1) * s;
+  const X = (m) => f1(ox + m * s), Y = (z) => f1(gy - z * s);
+  const c = (code) => matOf(model, code);
+  const R = (x, z, w, h, fill, extra = "") => (w > 0 && h > 0 ? `<rect x="${X(x)}" y="${Y(z + h)}" width="${f1(w * s)}" height="${f1(h * s)}" fill="${fill}" ${extra.includes("stroke=") ? "" : `stroke="${INK}" stroke-width="0.8"`} ${extra}/>` : "");
+  const P = (x, z, w, h, code) => (patternFill(c(code).pattern) ? R(x, z, w, h, patternFill(c(code).pattern), 'stroke="none"') : "");
+  const M = (x, z, w, h, code, extra = "") => R(x, z, w, h, c(code).fill, extra) + P(x, z, w, h, code);
+  const tags = [];
+  const tag = (x, z, code) => tags.push([x, z, code]);
+  let g = "";
+  // wall, ceiling and floor
+  const wet = kind === "vanity" || kind === "wash" || kind === "surgery";
+  g += M(0, 0, wallW, H, "W1");
+  tag(0.3, H - 0.35, "W1");
+  if (wet) {
+    g += M(0, 0, wallW, Math.min(2.4, H), "F2");
+    tag(0.35, 2.0, "F2");
+  }
+  const feature = (x, w, z0 = 0, z1 = H) => {
+    g += M(x, z0, w, z1 - z0, "W2");
+    tag(x + w - 0.3, z1 - 0.45, "W2");
+  };
+  const pendant = (x, z) => (g += `<line x1="${X(x)}" y1="${Y(H)}" x2="${X(x)}" y2="${Y(z + 0.3)}" stroke="${INK}" stroke-width="0.8"/><path d="M${X(x - 0.22)} ${Y(z)} Q${X(x)} ${Y(z + 0.42)} ${X(x + 0.22)} ${Y(z)} Z" fill="${c("M1").fill}" stroke="${INK}" stroke-width="0.8"/>`);
+  const cab = (x, z, w, h, code, n) => {
+    g += M(x, z, w, h, code);
+    for (let i = 1; i < n; i++) g += `<line x1="${X(x + (w * i) / n)}" y1="${Y(z)}" x2="${X(x + (w * i) / n)}" y2="${Y(z + h)}" stroke="${INK}" stroke-width="0.6"/>`;
+  };
+  const mid = wallW / 2;
+  switch (kind) {
+    case "media": {
+      const fw = Math.min(wallW * 0.55, 3.6);
+      feature(mid - fw / 2, fw);
+      const uw = Math.min(wallW * 0.8, 4.2);
+      cab(mid - uw / 2, 0.12, uw, 0.42, "J1", 4);
+      tag(mid - uw / 2 + 0.3, 0.3, "J1");
+      g += R(mid - 0.75, 1.05, 1.5, 0.86, "#1d1d1d");
+      if (wallW > 4) for (let z = 0.8; z < H - 0.6; z += 0.55) g += M(mid + fw / 2 + 0.25, z, Math.min(1.2, wallW - mid - fw / 2 - 0.45), 0.04, "J1");
+      break;
+    }
+    case "kitchen": {
+      const tall = Math.min(1.2, wallW * 0.25);
+      const run = wallW - tall;
+      cab(0, 0.1, run, 0.8, "J1", Math.max(2, Math.round(run / 0.6)));
+      g += M(0, 0.9, run, 0.04, "S1");
+      g += M(0, 0.94, run, 0.6, "S1");
+      tag(0.4, 1.25, "S1");
+      cab(0, 1.54, run * 0.55, 0.72, "J1", Math.max(1, Math.round((run * 0.55) / 0.6)));
+      tag(0.35, 1.9, "J1");
+      g += R(run * 0.6, 1.62, 0.9, 0.62, c("M1").fill);
+      g += R(run * 0.6 + 0.05, 0.94, 0.8, 0.03, INK);
+      cab(run, 0, tall, 2.3, "J1", 2);
+      g += R(run * 0.25, 0.9, 0.6, 0.06, "#cfd4d6");
+      break;
+    }
+    case "bed": {
+      const bw = sp.kind === "master" ? 1.8 : 1.6;
+      const hw = Math.min(wallW - 0.4, bw + 1.6);
+      feature(mid - hw / 2 - 0.3, hw + 0.6, 0, H);
+      g += M(mid - hw / 2, 0.35, hw, 0.9, "T1");
+      for (let x = mid - hw / 2 + 0.25; x < mid + hw / 2; x += 0.25) g += `<line x1="${X(x)}" y1="${Y(0.35)}" x2="${X(x)}" y2="${Y(1.25)}" stroke="${INK}" stroke-opacity=".35" stroke-width="0.6"/>`;
+      tag(mid + hw / 2 - 0.25, 1.0, "T1");
+      g += R(mid - bw / 2, 0.15, bw, 0.4, "#f4f2ee");
+      for (const sx of [mid - bw / 2 - 0.55, mid + bw / 2 + 0.1]) g += M(sx, 0.05, 0.45, 0.48, "J1");
+      pendant(mid - bw / 2 - 0.32, 1.25);
+      pendant(mid + bw / 2 + 0.32, 1.25);
+      break;
+    }
+    case "vanity": {
+      const vw = Math.min(1.4, wallW * 0.45);
+      g += M(0.3, 0.45, vw, 0.4, "J1") + M(0.25, 0.85, vw + 0.1, 0.05, "S1");
+      tag(0.5, 0.65, "J1");
+      g += R(0.3 + vw / 2 - 0.25, 0.9, 0.5, 0.1, "#ffffff");
+      g += R(0.35, 1.15, vw - 0.1, 0.8, "#dfe7ea") + R(0.35, 1.97, vw - 0.1, 0.03, c("M1").fill);
+      if (wallW > 2.4) g += R(wallW - 1.0, 0, 0.9, 2.0, "#e4eef0", 'fill-opacity=".55"') + R(wallW - 1.4, 0.4, 0.38, 0.4, "#ffffff");
+      break;
+    }
+    case "bar": {
+      const cw = Math.min(wallW - 0.6, 6.0);
+      g += M(mid - cw / 2, 1.45, cw, 0.04, "S1") + M(mid - cw / 2, 1.9, cw, 0.04, "S1");
+      tag(mid - cw / 2 + 0.3, 1.7, "S1");
+      g += M(mid - cw / 2, 0, cw, 1.1, "J1");
+      for (let x = mid - cw / 2 + 0.12; x < mid + cw / 2; x += 0.12) g += `<line x1="${X(x)}" y1="${Y(0.05)}" x2="${X(x)}" y2="${Y(1.05)}" stroke="${INK}" stroke-opacity=".3" stroke-width="0.6"/>`;
+      g += M(mid - cw / 2 - 0.05, 1.1, cw + 0.1, 0.06, "S1");
+      tag(mid + cw / 2 - 0.4, 0.5, "J1");
+      for (let i = 0; i < 3; i++) pendant(mid - cw / 2 + (cw * (i + 0.5)) / 3, 2.05);
+      for (let sx = mid - cw / 2 + 0.4; sx < mid + cw / 2 - 0.2; sx += 0.75) g += R(sx - 0.18, 0.72, 0.36, 0.05, c("M1").fill) + `<line x1="${X(sx)}" y1="${Y(0)}" x2="${X(sx)}" y2="${Y(0.72)}" stroke="${INK}" stroke-width="1"/>`;
+      break;
+    }
+    case "banquette": {
+      feature(0, wallW, 0, 1.1);
+      g += M(0.1, 0.42, wallW - 0.2, 0.5, "T1") + M(0.1, 0, wallW - 0.2, 0.42, "J1");
+      tag(wallW * 0.5, 0.65, "T1");
+      for (let x = 0.9; x < wallW - 0.5; x += 1.6) g += R(x - 0.35, 0.72, 0.7, 0.04, c("S1").fill) + `<line x1="${X(x)}" y1="${Y(0)}" x2="${X(x)}" y2="${Y(0.72)}" stroke="${INK}" stroke-width="1"/>`;
+      for (let x = 0.9; x < wallW - 0.5; x += 1.6) g += R(x - 0.3, 1.5, 0.6, 0.8, c("W2").fill) + P(x - 0.3, 1.5, 0.6, 0.8, "W2");
+      break;
+    }
+    case "desk": {
+      const dw = Math.min(wallW * 0.6, 3.2);
+      feature(mid - dw / 2 - 0.4, dw + 0.8, 1.2, H - 0.2);
+      g += R(mid - 0.8, 1.7, 1.6, 0.45, PAPER, 'stroke-dasharray="4 3"');
+      g += M(mid - dw / 2, 0, dw, 1.05, "J1") + M(mid - dw / 2 - 0.05, 1.05, dw + 0.1, 0.06, "S1");
+      tag(mid - dw / 2 + 0.3, 0.5, "J1");
+      tag(mid + dw / 2 - 0.2, 1.08, "S1");
+      pendant(mid - dw * 0.25, 1.75);
+      pendant(mid + dw * 0.25, 1.75);
+      break;
+    }
+    case "storage": {
+      cab(0.1, 0, wallW - 0.2, 0.75, "J1", Math.max(2, Math.round((wallW - 0.2) / 0.8)));
+      tag(0.5, 0.4, "J1");
+      for (let x = 0.3; x + 0.9 < wallW - 0.2; x += 1.1) g += M(x, 1.3, 0.9, 0.9, "T1");
+      tag(1.2, 1.75, "T1");
+      break;
+    }
+    case "display": {
+      g += M(0.1, 0, wallW - 0.2, 2.4, "J1");
+      for (let x = 0.1; x < wallW - 0.1; x += 1.0) g += R(x, 0, 0.04, 2.4, c("M1").fill);
+      for (const z of [0.45, 1.05, 1.65, 2.2]) g += R(0.1, z, wallW - 0.2, 0.03, c("M1").fill);
+      g += M(wallW * 0.4, 0.3, Math.min(1.6, wallW * 0.2), 2.0, "W2");
+      tag(0.4, 1.3, "J1");
+      tag(wallW * 0.4 + 0.3, 2.0, "W2");
+      tag(1.2, 2.2, "M1");
+      break;
+    }
+    case "fitting": {
+      const n = Math.max(2, Math.floor(wallW / 1.3));
+      for (let i = 0; i < n; i++) {
+        const x = 0.15 + (i * (wallW - 0.3)) / n, w = (wallW - 0.3) / n - 0.08;
+        g += M(x, 0.1, w, 2.1, "T1") + R(x, 2.2, w, 0.05, c("M1").fill);
+      }
+      tag(0.5, 1.2, "T1");
+      tag(wallW - 0.5, 2.25, "M1");
+      break;
+    }
+    case "surgery": {
+      cab(0.1, 0.1, wallW - 0.2, 0.8, "J1", Math.max(2, Math.round(wallW / 0.6)));
+      g += M(0.1, 0.9, wallW - 0.2, 0.04, "S1");
+      cab(0.1, 1.5, wallW * 0.6, 0.7, "J1", 3);
+      g += R(wallW * 0.7, 1.3, 0.7, 0.45, "#1d1d1d");
+      g += R(0.4, 0.94, 0.5, 0.06, "#cfd4d6");
+      tag(0.5, 0.5, "J1");
+      tag(wallW * 0.3, 0.93, "S1");
+      break;
+    }
+    case "bench": {
+      feature(0.2, wallW - 0.4, 0.95, H - 0.3);
+      g += M(0.3, 0.45, wallW - 0.6, 0.05, "J1") + M(0.3, 0, wallW - 0.6, 0.45, "T1");
+      tag(0.6, 0.25, "T1");
+      break;
+    }
+    case "stations": {
+      for (let x = 0.5; x + 0.9 < wallW; x += 1.6) {
+        g += `<circle cx="${X(x + 0.45)}" cy="${Y(1.55)}" r="${f1(0.42 * s)}" fill="#dfe7ea" stroke="${c("M1").fill}" stroke-width="${f1(Math.max(1.5, 0.04 * s))}"/>`;
+        g += M(x, 0.75, 0.9, 0.06, "S1") + M(x + 0.05, 0.35, 0.8, 0.4, "J1");
+      }
+      tag(0.9, 0.55, "J1");
+      tag(1.2, 0.78, "S1");
+      tag(0.95, 1.95, "M1");
+      break;
+    }
+    case "wash": {
+      for (let x = 0.4; x + 0.8 < wallW; x += 1.2) g += M(x, 0, 0.8, 0.85, "J1") + R(x + 0.1, 0.85, 0.6, 0.12, "#ffffff");
+      g += M(0.2, 1.5, wallW - 0.4, 0.03, "J1");
+      tag(0.7, 0.4, "J1");
+      break;
+    }
+    case "nails": {
+      const tw = Math.min(wallW - 0.6, 3.6);
+      g += M(mid - tw / 2, 0.72, tw, 0.05, "S1") + M(mid - tw / 2, 0, tw, 0.72, "J1");
+      for (const z of [1.2, 1.5, 1.8]) g += M(0.3, z, wallW - 0.6, 0.03, "J1");
+      for (let i = 0; i < 4; i++) pendant(mid - tw / 2 + (tw * (i + 0.5)) / 4, 1.6);
+      tag(mid - tw / 2 + 0.3, 0.75, "S1");
+      tag(mid + tw / 2 - 0.3, 0.35, "J1");
+      break;
+    }
+  }
+  // skirting, ceiling and floor lines
+  g += R(0, 0, wallW, 0.08, shade(c("W1").fill, -0.18));
+  g += `<line x1="${X(-0.4)}" y1="${Y(0)}" x2="${X(wallW + 0.4)}" y2="${Y(0)}" stroke="${INK}" stroke-width="2.2"/><line x1="${X(-0.4)}" y1="${Y(H)}" x2="${X(wallW + 0.4)}" y2="${Y(H)}" stroke="${INK}" stroke-width="1.6"/>`;
+  g += `<rect x="${X(-0.4)}" y="${Y(0)}" width="${f1((wallW + 0.8) * s)}" height="8" fill="url(#p-earth)"/>`;
+  // material tags
+  for (const [tx, tz, code] of tags) g += `<g font-family="${FONT}"><circle cx="${X(tx)}" cy="${Y(tz)}" r="10" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><text x="${X(tx)}" y="${f1(+Y(tz) + 3.5)}" text-anchor="middle" font-size="8.5" font-weight="600" fill="${INK}">${code}</text></g>`;
+  // dimensions: width below, ceiling height on the left
+  const dy = +Y(0) + 26;
+  g += `<g stroke="${INK}" stroke-width="0.7" font-family="${FONT}" font-size="10" fill="${INK}"><line x1="${X(0)}" y1="${dy}" x2="${X(wallW)}" y2="${dy}"/><line x1="${X(0)}" y1="${dy - 6}" x2="${X(0)}" y2="${dy + 6}"/><line x1="${X(wallW)}" y1="${dy - 6}" x2="${X(wallW)}" y2="${dy + 6}"/>
+    <text x="${f1((+X(0) + +X(wallW)) / 2)}" y="${dy - 5}" text-anchor="middle" stroke="none">${(wallW * 1000).toFixed(0)}</text>
+    <line x1="${f1(+X(0) - 26)}" y1="${Y(0)}" x2="${f1(+X(0) - 26)}" y2="${Y(H)}"/><line x1="${f1(+X(0) - 32)}" y1="${Y(H)}" x2="${f1(+X(0) - 20)}" y2="${Y(H)}"/><line x1="${f1(+X(0) - 32)}" y1="${Y(0)}" x2="${f1(+X(0) - 20)}" y2="${Y(0)}"/>
+    <text x="${f1(+X(0) - 30)}" y="${f1((+Y(0) + +Y(H)) / 2)}" text-anchor="middle" stroke="none" transform="rotate(-90 ${f1(+X(0) - 30)} ${f1((+Y(0) + +Y(H)) / 2)})">CH ${(H * 1000).toFixed(0)}</text></g>`;
+  // panel title
+  g += `<g font-family="${FONT}"><circle cx="${x0 + 18}" cy="${y0 + 14}" r="13" fill="none" stroke="${INK}" stroke-width="1"/><text x="${x0 + 18}" y="${y0 + 19}" text-anchor="middle" font-size="13" font-weight="600" fill="${INK}">${letter}</text>
+    <text x="${x0 + 40}" y="${y0 + 12}" font-size="12" font-weight="600" letter-spacing="1.5" fill="${INK}">${esc(sp.label)} — ${ELEVATIONS[kind]}</text>
+    <text x="${x0 + 40}" y="${y0 + 28}" font-size="10" letter-spacing="1.2" fill="${MID}">INTERIOR ELEVATION · DIMENSIONS IN MILLIMETRES</text></g>`;
+  return g;
+}
+
+export function interiorElevationsSheet(model, sheetNo, { preview = false } = {}) {
+  const { plan } = model;
+  const picks = elevationPicks(model);
+  const areaW = SHEET_W - 330 - 36 - 50, areaH = SHEET_H - 72 - 130;
+  const pw = areaW / 2, ph = areaH / 2;
+  let g = "";
+  picks.forEach((pk, i) => (g += wallElevation(model, pk, 36 + 24 + (i % 2) * pw, 36 + 22 + Math.floor(i / 2) * ph, pw, ph, "ABCD"[i])));
+  const legend = paletteOf(model).materials.map((m) => ({ fill: m.fill, pattern: m.pattern && m.pattern !== "plain" ? `ip-${m.pattern}` : null, label: `${m.code}  ${m.name.split(",")[0]}` }));
+  legend.title = "MATERIALS";
+  g += sheetTitle("INTERIOR ELEVATIONS", `${plan.title.en.toUpperCase()} · ${paletteOf(model).name} · MATERIAL CODES AS ON THE MATERIALS BOARD (A-501)`);
+  return sheet({ plan, drawing: "INTERIOR ELEVATIONS", sheetNo, scaleNote: "GRAPHIC", body: g, defs: interiorDefs(60) + materialDefs(28), north: false, legend, preview });
+}
+
+// ------------------------------------------------------------------ materials board
+
+export function materialsSheet(model, sheetNo, { preview = false } = {}) {
+  const { plan } = model;
+  const pal = paletteOf(model);
+  const S = 210; // px per metre on the swatches
+  let g = "";
+  const x0 = 36 + 50, y0 = 36 + 46, tw = 250, th = 150, gx = 24, gy = 86;
+  g += `<text x="${x0}" y="${y0 - 10}" font-family="${FONT}" font-size="11" font-weight="600" letter-spacing="2.5" fill="${INK}">${pal.name} — MATERIALS</text>`;
+  pal.materials.forEach((mt, i) => {
+    const x = x0 + (i % 4) * (tw + gx), y = y0 + Math.floor(i / 4) * (th + gy);
+    g += `<rect x="${x}" y="${y}" width="${tw}" height="${th}" fill="${mt.fill}" stroke="${INK}" stroke-width="0.8"/>`;
+    if (patternFill(mt.pattern, "sw")) g += `<rect x="${x}" y="${y}" width="${tw}" height="${th}" fill="${patternFill(mt.pattern, "sw")}"/>`;
+    g += `<rect x="${x + 10}" y="${y + 10}" width="34" height="22" fill="${PAPER}" fill-opacity=".9"/><text x="${x + 27}" y="${y + 26}" text-anchor="middle" font-family="${FONT}" font-size="12" font-weight="600" fill="${INK}">${mt.code}</text>`;
+    wrap(mt.name, 36).forEach((line, j) => (g += `<text x="${x}" y="${y + th + 20 + j * 15}" font-family="${FONT}" font-size="11.5" font-weight="${j ? 400 : 600}" fill="${INK}">${esc(line)}</text>`));
+    g += `<text x="${x}" y="${y + th + 52}" font-family="${FONT}" font-size="10" fill="${MID}">${esc(mt.use)}</text>`;
+  });
+  // colour palette strip
+  const cy = y0 + 2 * (th + gy) + 6;
+  g += `<text x="${x0}" y="${cy}" font-family="${FONT}" font-size="11" font-weight="600" letter-spacing="2.5" fill="${INK}">COLOUR PALETTE</text>`;
+  pal.colours.forEach(([name, hex], i) => {
+    const x = x0 + i * 206;
+    g += `<rect x="${x}" y="${cy + 14}" width="190" height="64" fill="${hex}" stroke="${INK}" stroke-width="0.8"/><text x="${x}" y="${cy + 96}" font-family="${FONT}" font-size="11.5" font-weight="600" fill="${INK}">${esc(name)}</text><text x="${x}" y="${cy + 111}" font-family="${FONT}" font-size="10" fill="${MID}">${hex.toUpperCase()}</text>`;
+  });
+  // design statement and lighting
+  const ty = cy + 150;
+  g += `<text x="${x0}" y="${ty}" font-family="${FONT}" font-size="11" font-weight="600" letter-spacing="2.5" fill="${INK}">DESIGN INTENT</text>`;
+  wrap(pal.concept, 110).forEach((line, i) => (g += `<text x="${x0}" y="${ty + 22 + i * 17}" font-family="${FONT}" font-size="12" fill="${INK}">${esc(line)}</text>`));
+  g += `<text x="${x0}" y="${ty + 80}" font-family="${FONT}" font-size="11" fill="${MID}">LIGHTING: ${esc(pal.light)}</text>`;
+  g += sheetTitle("MATERIALS AND COLOUR PALETTE", `${plan.title.en.toUpperCase()} · ${pal.name} · SAMPLES TO BE APPROVED BEFORE ORDERING`);
+  return sheet({ plan, drawing: "MATERIALS BOARD", sheetNo, scaleNote: "NTS", body: g, defs: interiorDefs(S, "sw"), north: false, preview });
+}
+
+// ------------------------------------------------------------------ schedules
+
+/** Furniture, fixtures and equipment per room kind: [item, quantity, material codes]. */
+const FFE = {
+  master: [["Bed 180 × 200, upholstered headboard", 1, "T1"], ["Bedside table", 2, "J1"], ["Built-in wardrobe", 1, "J1"]],
+  bedroom: [["Bed 160 × 200 or single", 1, "T1"], ["Bedside table", 1, "J1"], ["Built-in wardrobe", 1, "J1"]],
+  living: [["Sofa, three-seat", 1, "T1"], ["Coffee table", 1, "J1 / S1"], ["Media unit", 1, "J1"], ["Rug", 1, "T1"]],
+  open: [["Kitchen run with appliances", 1, "J1 / S1"], ["Island", 1, "S1"], ["Dining table", 1, "J1"], ["Dining chair", 6, "T1"], ["Sofa, three-seat", 1, "T1"], ["Coffee table", 1, "J1"]],
+  kitchen: [["Kitchen run with appliances", 1, "J1 / S1"], ["Island with stools", 1, "S1"]],
+  dining: [["Dining table", 1, "J1"], ["Dining chair", 6, "T1"]],
+  bath: [["Vanity unit with basin", 1, "J1 / S1"], ["Bath or walk-in shower", 1, "F2"], ["WC, wall-hung", 1, "—"], ["Mirror with light", 1, "M1"]],
+  shower: [["Shower enclosure", 1, "F2"], ["WC, wall-hung", 1, "—"], ["Basin", 1, "S1"]],
+  wc: [["WC, wall-hung", 1, "—"], ["Basin with mirror", 1, "S1 / M1"]],
+  study: [["Desk with chair", 1, "J1"], ["Bookcase", 1, "J1"]],
+  hall: [["Console or bench", 1, "J1"]],
+  teahall: [["Banquette along the wall", 1, "T1 / J1"], ["Cafe table, round", 0, "S1"], ["Cafe chair", 0, "T1"]],
+  bar: [["Bar counter", 1, "J1 / S1"], ["Back bar shelving", 1, "J1 / M1"], ["Bar stool", 0, "M1 / T1"]],
+  lounge: [["Sofa or banquette", 1, "T1"], ["Low table", 1, "J1"], ["Armchair", 2, "T1"]],
+  prep: [["Stainless steel worktops and appliances", 1, "M1"]],
+  kitchenette: [["Kitchenette run", 1, "J1 / S1"], ["Table with chairs", 1, "J1"]],
+  reception: [["Reception desk", 1, "J1 / S1"], ["Visitor sofa", 1, "T1"]],
+  openoffice: [["Desk cluster of four", 0, "J1"], ["Task chair", 0, "T1"]],
+  meeting: [["Meeting table", 1, "J1"], ["Meeting chair", 0, "T1"], ["Screen", 1, "—"]],
+  director: [["Executive desk", 1, "J1"], ["Bookcase", 1, "J1"], ["Sofa", 1, "T1"]],
+  office: [["Desk with chair", 1, "J1"]],
+  boutique: [["Wall shelving and rails", 1, "J1 / M1"], ["Display table", 2, "S1"], ["Cash desk", 1, "W2 / S1"]],
+  fitting: [["Fitting cubicle with curtain and mirror", 0, "T1 / M1"], ["Bench", 1, "T1"]],
+  treatment: [["Treatment chair", 1, "T1"], ["Cabinet run with sink", 1, "J1 / S1"]],
+  styling: [["Styling station with mirror", 0, "J1 / M1"], ["Styling chair", 0, "T1"]],
+  wash: [["Backwash unit", 0, "J1 / T1"]],
+  nails: [["Nail table", 1, "S1 / J1"], ["Nail chair", 0, "T1"]],
+  staff: [["Table with chairs", 1, "J1"]],
+  racks: [["Shelving", 0, "M1"]],
+  store: [["Shelving", 1, "M1"]],
+};
+
+/** Quantities that depend on the room size (counted from the furniture blocks). */
+function ffeQuantity(kind, item, inn, qty) {
+  if (qty) return qty;
+  const blocks = furnitureBlocks(kind, inn);
+  if (/table, round/.test(item)) return blocks.filter((b) => b[6] === "stone").length;
+  if (/Cafe chair|Meeting chair|Task chair|Styling chair|Nail chair/.test(item)) return Math.max(2, blocks.filter((b) => b[6] === "fabric").length);
+  if (/Bar stool/.test(item)) return blocks.filter((b) => b[6] === "metal").length;
+  if (/Desk cluster/.test(item)) return blocks.filter((b) => b[6] === "wood").length;
+  if (/Fitting cubicle/.test(item)) return Math.max(2, Math.floor(inn.h / 1.5));
+  if (/Styling station/.test(item)) return blocks.filter((b) => b[6] === "wood").length;
+  if (/Backwash/.test(item)) return blocks.filter((b) => b[6] === "white").length;
+  if (/Shelving/.test(item)) return Math.max(1, blocks.length);
+  return 1;
+}
+
+export function interiorScheduleSheet(model, sheetNo) {
+  const { plan } = model;
+  const sc = schedules(model);
+  let g = "";
+  const L = 70;
+  // finishes by room (repeat rooms on several floors keep their own numbers)
+  const finRows = [];
+  model.levels.forEach((lv, li) => {
+    for (const sp of lv.spaces) {
+      if (sp.kind === "stair" || sp.kind === "void") continue;
+      const room = sc.rooms.find((r) => r.level === li && r.id === sp.id);
+      const f = roomFinish(model, sp);
+      finRows.push([room?.no ?? "", sp.label, room ? room.area.toFixed(1) : "", f.floor, f.walls, f.ch.toFixed(2)]);
+    }
+  });
+  const many = finRows.length > 18;
+  const fin = table(L, 84, [{ label: "NO.", w: 44 }, { label: "ROOM", w: 150 }, { label: "m²", w: 46, right: true }, { label: "FLOOR", w: 50 }, { label: "WALLS", w: 190 }, { label: "CH", w: 44, right: true }], finRows, { title: "FINISHES SCHEDULE", size: many ? 8.6 : 9.8, rowH: many ? 12.5 : 15 });
+  g += fin.svg;
+  const note = wrap(`Ceilings: ${paletteOf(model).ceiling}; wet rooms moisture-resistant plasterboard. Skirting: ${paletteOf(model).skirting}.`, 100);
+  note.forEach((line, i) => (g += `<text x="${L}" y="${fin.bottom + 18 + i * 13}" font-family="${FONT}" font-size="9.5" fill="${MID}">${esc(line)}</text>`));
+  // lighting
+  const lit = table(L, fin.bottom + 40 + note.length * 13, [{ label: "TYPE", w: 44 }, { label: "FITTING", w: 380 }, { label: "QTY", w: 60, right: true }], lightingSchedule(model).map(([a, b, n]) => [a, b, String(n)]), { title: "LIGHTING SCHEDULE", size: 9.8, rowH: 15 });
+  g += lit.svg;
+  // furniture, fixtures and equipment (aggregated)
+  const agg = new Map();
+  for (const lv of model.levels) for (const sp of lv.spaces) for (const [item, qty, codes] of FFE[sp.kind] ?? []) {
+    const n = ffeQuantity(sp.kind, item, inner(model, sp), qty);
+    const k = `${item}|${codes}`;
+    agg.set(k, (agg.get(k) ?? 0) + n);
+  }
+  const ffeRows = [...agg.entries()].map(([k, n], i) => {
+    const [item, codes] = k.split("|");
+    return [`FF${String(i + 1).padStart(2, "0")}`, item, codes, String(n)];
+  });
+  const R = 660;
+  const ffe = table(R, 84, [{ label: "NO.", w: 50 }, { label: "ITEM", w: 290 }, { label: "MATERIAL", w: 90 }, { label: "QTY", w: 50, right: true }], ffeRows, { title: "FURNITURE, FIXTURES AND EQUIPMENT", size: ffeRows.length > 24 ? 8.8 : 9.8, rowH: ffeRows.length > 24 ? 13 : 15.5 });
+  g += ffe.svg;
+  g += `<text x="${L}" y="${SHEET_H - 112}" font-family="${FONT}" font-size="10" fill="${MID}">Material codes refer to the materials board (A-501). Quantities are for the concept layout and are to be confirmed with the supplier.</text>`;
+  g += sheetTitle("SCHEDULES", `${plan.title.en.toUpperCase()} · FINISHES · LIGHTING · FURNITURE, FIXTURES AND EQUIPMENT`);
+  return sheet({ plan, drawing: "INTERIOR SCHEDULES", sheetNo, scaleNote: "NTS", body: g, north: false });
+}
+
+// ------------------------------------------------------------------ the interior drawing set
+
+/** Sheets of an interior package in order; kind = gallery key on the website. */
+export function interiorSheets(model) {
+  const list = [];
+  const L = model.levels;
+  const label = (lv, what) => (lv.floorName ? `${lv.floorName.charAt(0)}${lv.floorName.slice(1).toLowerCase()} — ${what}` : what.charAt(0).toUpperCase() + what.slice(1));
+  L.forEach((lv, i) => list.push({ kind: `plan-${i}`, no: `A-10${i + 1}`, title: label(lv, "furniture layout"), scale: "Graphic", svg: (o = {}) => floorPlanSheet(model, i, `A-10${i + 1}`, o) }));
+  L.forEach((lv, i) => list.push({ kind: `finish-${i}`, no: `A-11${i + 1}`, title: label(lv, "finishes plan"), scale: "Graphic", svg: (o = {}) => floorPlanSheet(model, i, `A-11${i + 1}`, { ...o, mode: "finish" }) }));
+  L.forEach((lv, i) => list.push({ kind: `ceiling-${i}`, no: `A-12${i + 1}`, title: label(lv, "ceiling and lighting plan"), scale: "Graphic", svg: (o = {}) => floorPlanSheet(model, i, `A-12${i + 1}`, { ...o, mode: "ceiling" }) }));
+  list.push({ kind: "interior", no: "A-201", title: "Interior elevations", scale: "Graphic", svg: (o = {}) => interiorElevationsSheet(model, "A-201", o) });
+  list.push({ kind: "cutaway", no: "A-301", title: "Cutaway axonometric", scale: "NTS", svg: (o = {}) => cutawaySheet(model, "A-301", o) });
+  list.push({ kind: "schedules", no: "A-401", title: "Finishes, lighting and FF&E schedules", scale: "NTS", svg: () => interiorScheduleSheet(model, "A-401") });
+  list.push({ kind: "materials", no: "A-501", title: "Materials and colour palette", scale: "NTS", svg: (o = {}) => materialsSheet(model, "A-501", o) });
+  return list;
 }

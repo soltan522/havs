@@ -1,5 +1,5 @@
 import { UI, type Locale } from "./i18n";
-import { areaText, isCommercial, type Plan } from "./plans";
+import { areaText, isCommercial, PALETTE_LABELS, type Plan } from "./plans";
 
 /** UI copy for the catalogue, plan pages and motion labels (AZ / EN / RU). */
 export const COPY = {
@@ -92,6 +92,19 @@ export const COPY = {
       wcs: "Sanitar qovşaqlar",
       parking: "Avtomobil yerləri",
       parkingShort: "avtomobil yeri",
+    },
+    interior: {
+      type: "Layihə növü",
+      palette: "Dizayn üslubu",
+      ceiling: "Tavan hündürlüyü",
+      layout: "Mebel planı",
+      finish: "Döşəmə örtükləri planı",
+      ceilingPlan: "Tavan və işıqlandırma planı",
+      elevations: "İnteryer açılışları (divarlar)",
+      cutaway: "Kəsik aksonometriya",
+      materials: "Materiallar və rəng palitrası",
+      schedules: "Bitirmə, işıq və mebel cədvəlləri",
+      floors: ["Birinci mərtəbə", "İkinci mərtəbə"],
     },
     sampleNote:
       "Konsept layihə: vizualizasiya dizayn ideyasını göstərir, çertyojlar konsept mərhələsinə aiddir və tikintidən əvvəl yerli memar və mühəndis tərəfindən uyğunlaşdırılmalıdır. Paket (PDF, DWG, DXF) ödənişdən dərhal sonra yüklənir; layihəni sahənizə uyğunlaşdırmaq üçün bizimlə əlaqə saxlayın.",
@@ -191,6 +204,19 @@ export const COPY = {
       parking: "Parking bays",
       parkingShort: "parking bays",
     },
+    interior: {
+      type: "Project type",
+      palette: "Design style",
+      ceiling: "Ceiling height",
+      layout: "Furniture layout",
+      finish: "Finishes plan",
+      ceilingPlan: "Ceiling and lighting plan",
+      elevations: "Interior elevations",
+      cutaway: "Cutaway axonometric",
+      materials: "Materials and colour palette",
+      schedules: "Finishes, lighting and FF&E schedules",
+      floors: ["Ground floor", "First floor"],
+    },
     sampleNote:
       "Concept project: the visualisation shows the design intent and the drawings are concept-stage, to be adapted by a local architect and engineer before construction. The package (PDF, DWG, DXF) downloads right after payment; contact us to adapt the design to your plot.",
     contactToOrder: "Contact to order",
@@ -289,6 +315,19 @@ export const COPY = {
       parking: "Парковочные места",
       parkingShort: "парковочных мест",
     },
+    interior: {
+      type: "Тип проекта",
+      palette: "Стиль",
+      ceiling: "Высота потолка",
+      layout: "План расстановки мебели",
+      finish: "План отделки полов",
+      ceilingPlan: "План потолков и освещения",
+      elevations: "Развёртки стен",
+      cutaway: "Аксонометрия в разрезе",
+      materials: "Материалы и цветовая палитра",
+      schedules: "Ведомости отделки, освещения и мебели",
+      floors: ["Первый этаж", "Второй этаж"],
+    },
     sampleNote:
       "Концептуальный проект: визуализация показывает замысел, чертежи — стадии концепции, перед строительством их адаптируют местный архитектор и инженер. Пакет (PDF, DWG, DXF) скачивается сразу после оплаты; чтобы адаптировать проект под ваш участок, свяжитесь с нами.",
     contactToOrder: "Связаться для заказа",
@@ -309,6 +348,14 @@ export function sheetName(names: SheetNames, kind: string): string {
 
 /** Gallery name of a sheet; a multi-unit project has a masterplan, a street / typical elevation and typical-house plans. */
 export function planSheetName(c: (typeof COPY)[Locale], plan: Plan, kind: string): string {
+  if (plan.interior) {
+    const n = c.interior;
+    const [what, li] = kind.split("-");
+    const named: Record<string, string> = { plan: n.layout, finish: n.finish, ceiling: n.ceilingPlan, interior: n.elevations, cutaway: n.cutaway, materials: n.materials, schedules: n.schedules };
+    const label = named[what] ?? sheetName(c.sheetNames, kind);
+    // a two-level interior names the floor first
+    return li !== undefined && plan.floors > 1 ? `${n.floors[Number(li)] ?? ""} — ${label.charAt(0).toLowerCase()}${label.slice(1)}` : label;
+  }
   const base = sheetName(c.sheetNames, kind);
   if (!plan.project) return base;
   const p = c.project.sheets;
@@ -323,6 +370,7 @@ export function planSheetName(c: (typeof COPY)[Locale], plan: Plan, kind: string
 
 /** Card line: "240 m² · 2 floors · 4 bedrooms", or "7 × 180 m² · …" for a project. */
 export function specsLine(lang: Locale, plan: Plan): string {
+  if (plan.interior) return `${areaText(plan)} · ${PALETTE_LABELS[plan.interior.palette][lang]}${plan.bedrooms ? ` · ${plan.bedrooms} ${UI[lang].bedrooms.toLowerCase()}` : ""}`;
   if (isCommercial(plan)) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.parking ?? 0} ${COPY[lang].project.parkingShort}`;
   return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.bedrooms} ${UI[lang].bedrooms.toLowerCase()}`;
 }

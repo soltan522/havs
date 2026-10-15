@@ -30,6 +30,7 @@ LAYERS = {
     "A-ROOF-OTLN": (6, 18, "DASHED", "Roof / slab above"),
     "A-COLS": (7, 35, "Continuous", "Columns and posts"),
     "A-BALC": (5, 25, "Continuous", "Balconies"),
+    "A-LITE": (2, 18, "Continuous", "Lighting layout (reflected ceiling)"),
     "L-PAVE": (33, 13, "Continuous", "Hard landscape"),
     "L-POOL": (140, 25, "Continuous", "Pool"),
     "L-PLNT": (94, 13, "Continuous", "Planting, hedges, vineyard rows"),

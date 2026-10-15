@@ -154,3 +154,70 @@ the owner's sign band along the top, a mezzanine gallery inside, forecourt parki
   five slender rounded pilasters", "two tiers of tall glazing in a fine black steel grid", "long deep green sign band
   with gilded capital letters", "glass canopy on steel tie rods", "paved forecourt with a row of parking bays"; add an
   interior view of the double-height showroom from the mezzanine
+
+---
+
+Families for **interior design projects** (`"style": "interior"`, `"interior": { "type": …, "palette": "<id>" }`,
+`"inspiration"` = the same id). The palette sets the materials board, finishes, joinery, colours and light; the
+`type` sets the rooms: `flat` (1–3 bedrooms), `penthouse` (3), `residence` (two-level villa, 3–5), `cafe`, `workspace`,
+`boutique`, `clinic`, `salon` (commercial: `"bedrooms": 0`, `"bathrooms"` = WCs). The materials themselves are listed
+in `PALETTES` in `scripts/drawings.mjs`. Renders are interior views (two or three per project, landscape) that show
+the materials of the palette and the furniture of the layout; never a real brand or logo.
+
+### baku-classic — Baku classic apartment
+Neoclassical Baku apartments refreshed: plaster mouldings and panelled walls, oak herringbone, honed marble,
+bottle-green joinery, velvet and aged brass.
+- **prompt cues** "high ceilings with plaster cornices", "oak herringbone parquet", "bottle-green panelled kitchen",
+  "Calacatta-style marble", "brass picture lights", "tall double windows onto a Baku street"
+
+### japandi — Japandi
+Pale ash, rice-paper whites and charcoal, low furniture, washi pendants, linen and boucle.
+- **prompt cues** "pale ash plank floor", "slatted ash feature wall", "low linen sofa", "washi paper pendant",
+  "basalt worktop", "a single bonsai or branch"
+
+### scandi — Scandinavian
+White oak, soft whites and fjord blue, terrazzo in the wet rooms, wool textiles, one mustard accent.
+- **prompt cues** "white oak floor", "soft white walls", "fjord-blue accent wall", "terrazzo bathroom", "mustard
+  armchair", "opal glass pendants"
+
+### luxury-dark — Dark luxury
+Smoked oak chevron, walnut panelling with bronze inlay, grey and black marble, cognac leather, champagne metal.
+- **prompt cues** "smoked oak chevron parquet", "walnut panelling with bronze inlay", "black marble island",
+  "cognac leather", "linear cove lighting", "night view over the city"
+
+### mediterranean-calm — Absheron Mediterranean
+Lime plaster and terracotta, limed oak, travertine and rattan, olive and sea green.
+- **prompt cues** "hand-made terracotta floor", "lime-plastered walls", "exposed timber beams", "rattan pendants",
+  "sea-green zellige tiles", "arched niches", "olive branches"
+
+### oriental-modern — Azerbaijani modern
+Walnut and clay plaster, shebeke-inspired lattice screens, carpet motifs in cement tiles, copper and pomegranate red.
+- **prompt cues** "walnut and clay plaster", "geometric timber lattice screens inspired by shebeke windows",
+  "encaustic cement tiles with carpet motifs", "hammered copper pendants", "pomegranate-red velvet banquettes",
+  "pear-shaped tea glasses on the tables"
+
+### art-deco — Art Deco
+Emerald fluted panels, black lacquer, polished brass, terrazzo with brass inlay, blush velvet.
+- **prompt cues** "emerald fluted panels", "black lacquer shelving with brass trims", "terrazzo floor with brass
+  inlay", "curved display niches", "blush velvet curtains", "opal globe pendants"
+
+### industrial-loft — Industrial loft
+Polished concrete, reclaimed brick, black steel, oiled oak desks, felt acoustics, cognac leather.
+- **prompt cues** "polished concrete floor", "reclaimed brick wall", "black steel glazed partitions", "oak desk
+  clusters", "black linear pendants", "felt acoustic panels"
+
+### biophilic — Biophilic clinic
+Daylight, birch and sage, preserved moss walls, rounded corners, wipe-clean surfaces.
+- **prompt cues** "birch plywood reception desk", "preserved moss wall", "sage upholstery", "rounded corners",
+  "soft daylight", "calm and hygienic"
+
+### mid-century — Mid-century
+Warm terrazzo, walnut slats, mustard and teal velvet, round mirrors, globe lights, brushed brass.
+- **prompt cues** "cream terrazzo floor", "walnut slatted walls", "round brass-framed mirrors", "mustard and teal
+  velvet chairs", "opal globe pendants"
+
+### warm-minimal — Warm minimal
+Travertine and white oak, linen whites, soft bronze, built-in joinery, even concealed light.
+- **prompt cues** "travertine and white oak", "linen-white walls", "built-in joinery", "shadow-gap details",
+  "concealed coves", "sculptural pendant"
+

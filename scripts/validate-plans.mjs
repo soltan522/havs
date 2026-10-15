@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, grossFloorArea, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, grossFloorArea, INTERIOR_TYPES, interiorSheets, PALETTES, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -23,6 +23,8 @@ const warnings = [];
  * A multi-unit project: the typical house, plus 35 % of it for every further house on the masterplan.
  */
 export function suggestedPrice(plan) {
+  // interior design package: ~$300 + $9/m²
+  if (plan.interior) return Math.round((300 + 9 * plan.areaM2) / 100) * 100 - 10;
   // commercial buildings: ~$900 + $1.5/m²
   if (STYLE_RULES[plan.style]?.commercial) return Math.round((900 + 1.5 * plan.areaM2) / 100) * 100 - 10;
   const premium = ["tuscan", "coastal", "luxury", "mediterranean", "absheron", "noir", "yali"].includes(plan.style) ? 100 : 0;
@@ -35,9 +37,10 @@ export function suggestedPrice(plan) {
 const norm = (s) => s.toLocaleLowerCase("en").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\u0400-\u04ff]+/g, " ").trim();
 const stem = (slug) => slug.replace(/-\d+$/, "");
 // a multi-unit project is its own kind of design: it never collides with a single villa of the same style
-const projectTag = (p) => (p.project ? `${p.project.kind}×${p.project.units}` : "villa");
-const designKey = (p) => [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-"].join("|");
-const layoutKey = (p) => (p.project ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|"));
+const projectTag = (p) => (p.interior ? `interior:${p.interior.type}` : p.project ? `${p.project.kind}×${p.project.units}` : "villa");
+// an interior repeats a design when the same kind of space has the same palette and bedrooms
+const designKey = (p) => (p.interior ? [projectTag(p), p.interior.palette, p.bedrooms].join("|") : [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-"].join("|"));
+const layoutKey = (p) => (p.project || p.interior ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|"));
 const firstBy = (keyFn) => {
   const map = new Map();
   for (const p of plans) {
@@ -110,8 +113,19 @@ for (const plan of plans) {
   }
   if (!rules.roofs.includes(plan.roof)) err(`roof "${plan.roof}" does not fit style ${plan.style} (allowed: ${rules.roofs.join(", ")})`);
   if (!rules.floors.includes(plan.floors)) err(`${plan.floors} floor(s) does not fit style ${plan.style} (allowed: ${rules.floors.join(", ")})`);
+  const itype = plan.interior ? INTERIOR_TYPES[plan.interior.type] : null;
+  if (rules.interior) {
+    if (!itype) err(`interior.type must be one of ${Object.keys(INTERIOR_TYPES).join(", ")}`);
+    else {
+      if (!itype.floors.includes(plan.floors)) err(`a ${plan.interior.type} interior is drawn on ${itype.floors.join(" or ")} level(s)`);
+      if (!itype.bedrooms.includes(plan.bedrooms)) err(`a ${plan.interior.type} interior is drawn with ${itype.bedrooms.join(", ")} bedroom(s)`);
+    }
+    if (!PALETTES[plan.interior?.palette]) err(`interior.palette must be one of ${Object.keys(PALETTES).join(", ")}`);
+    if (plan.inspiration !== undefined && plan.inspiration !== plan.interior?.palette) err("an interior's inspiration is its palette id");
+    if (plan.garage || plan.pool) err("interior projects have no garage or pool");
+  } else if (plan.interior !== undefined) err(`"interior" needs style "interior"`);
   for (const field of ["title", "summary"]) for (const l of LANGS) if (!plan[field]?.[l]?.trim()) err(`missing ${field}.${l}`);
-  for (const field of ["areaM2", "floors", "bedrooms", "bathrooms", "priceCents"]) if (!Number.isInteger(plan[field]) || plan[field] <= 0) if (!(field === "bedrooms" && rules.commercial && plan[field] === 0)) err(`${field} must be a positive integer`);
+  for (const field of ["areaM2", "floors", "bedrooms", "bathrooms", "priceCents"]) if (!Number.isInteger(plan[field]) || plan[field] <= 0) if (!(field === "bedrooms" && (rules.commercial || itype?.commercial) && plan[field] === 0)) err(`${field} must be a positive integer`);
   for (const field of ["garage", "pool", "published", "demo"]) if (typeof plan[field] !== "boolean") err(`${field} must be true or false`);
   const perFloor = plan.areaM2 / plan.floors;
   const [minFloor, maxFloor] = rules.floorArea ?? [80, 320];
@@ -144,7 +158,9 @@ for (const plan of plans) {
   let model;
   try {
     model = buildModel(plan);
-    const sheets = [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), scheduleSheet(model, "x"), ...model.levels.map((_, i) => floorPlanSheet(model, i, "x"))];
+    const sheets = model.interior
+      ? [...interiorSheets(model).flatMap((sh) => [sh.svg(), sh.kind === "schedules" ? null : sh.svg({ preview: true })]).filter(Boolean), cutawaySheet(model, "", { bare: true })]
+      : [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), scheduleSheet(model, "x"), ...model.levels.map((_, i) => floorPlanSheet(model, i, "x"))];
     if (model.project) sheets.push(axonometricSheet(model, "x", { typical: true }));
     for (const svg of sheets) {
       const s = svg.toString();

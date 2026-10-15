@@ -7,7 +7,7 @@ import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { findPlan, formatPrice, isCommercial, planLabel } from "@/lib/plans";
+import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, PALETTE_LABELS, planLabel } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 const LOCKED = new Set(["schedules"]);
@@ -31,7 +31,17 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
         [c.project.total, `${plan.project.units * plan.areaM2} m²`],
       ]
     : [[t.area, `${plan.areaM2} m²`]];
-  const specs: [string, string][] = isCommercial(plan)
+  const specs: [string, string][] = plan.interior
+    ? [
+        [c.interior.type, INTERIOR_TYPE_LABELS[plan.interior.type][lang]],
+        [c.interior.palette, PALETTE_LABELS[plan.interior.palette][lang]],
+        ...area,
+        [t.floors, String(plan.floors)],
+        ...(isCommercialInterior(plan)
+          ? [[c.project.wcs, String(plan.bathrooms)] as [string, string]]
+          : [[t.bedrooms, String(plan.bedrooms)] as [string, string], [c.bathrooms, String(plan.bathrooms)] as [string, string]]),
+      ]
+    : isCommercial(plan)
     ? [...area, [t.floors, String(plan.floors)], [c.project.wcs, String(plan.bathrooms)], [c.project.parking, String(plan.parking ?? 0)]]
     : [
         ...area,
