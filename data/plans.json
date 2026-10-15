@@ -962,5 +962,42 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a tall slender six-storey corner office building in Baku, viewed at eye level from the street corner with the whole building in frame and sky above. Count of floors: one tall glazed ground floor, then FIVE rows of windows above it (floors two to six), so six storeys in total. The building corner is cut at 45 degrees and is a full-height glazed bay between two wide black anodised aluminium vertical frames, with a black spandrel band at each of the six floors. The long facade on the right is white with black aluminium vertical frames and black-framed windows; three stacked black-clad balconies sit on floors three, four and five, with one more ordinary window floor above the top balcony; further right a round silver stair tower with narrow windows rises a little above the roof. The shorter facade on the left is white with three black-framed windows on each of the five upper floors. The ground floor is a glazed showroom of premium entrance doors with a glass canopy on steel tie rods over the entrance next to the corner. On the roof edge above the corner a light steel frame holds big green letters in two lines reading AVROPA and QAPILARI. Glass roof balustrade, plane trees on a clean empty pavement, soft late-afternoon light, warm interior lighting, 24mm lens, Corona render quality, no people, no cars, no other text, no watermark"
+  },
+  {
+    "slug": "xirdalan-36",
+    "style": "showroom",
+    "roof": "flat",
+    "project": {
+      "kind": "urban",
+      "units": 1
+    },
+    "footprint": [
+      23,
+      15
+    ],
+    "parking": 11,
+    "sign": "AVROPA QAPILARI",
+    "inspiration": "absheron-showroom",
+    "title": {
+      "az": "Avropa Qapıları Xırdalan Şourumu",
+      "en": "Xirdalan Door Showroom",
+      "ru": "Шоурум Avropa Qapıları в Хырдалане"
+    },
+    "summary": {
+      "az": "Avropa Qapıları-nın Xırdalandakı mövcud ikiqat hündürlüklü binasının (təxminən 23 × 15 m) sifarişçinin fotoları əsasında yeni qapı və pəncərə şourumu kimi konsept yenilənməsi — ağ suvaqlı pilyastrlar arasında dörd aralıq, hər aralıqda nazik qara polad şəbəkəli iki qat şüşə, sol aralıqda şüşə örtüklü giriş və fasad boyu tünd yaşıl zolaqda qızılı AVROPA QAPILARI yazısı. İçəridə ikiqat hündürlükdə qapı şourumu və pəncərə nümunələri zalı, arxada anbar, göndərmə, heyət otağı və iki S/Q; asma mərtəbədə şüşə məhəccərli qalereya, iclas otağı və satış ofisi; qarşıda 11 avtomobil yeri, arxada xidmət həyəti.",
+      "en": "A concept refurbishment of Avropa Qapıları's existing double-height building in Xırdalan (about 23 × 15 m) as its new door and window showroom, drawn from the owner's photos: four bays between warm-white rendered pilasters, each glazed in two tiers of fine black steel grid, a glass-canopied entrance in the left bay and a deep green sign band with gilded AVROPA QAPILARI lettering along the top. Inside, a double-height door showroom and a window samples bay, with the warehouse, dispatch, staff room and two WCs at the back; a mezzanine gallery behind a glass balustrade, a meeting room and the sales office upstairs; 11 forecourt parking bays and a service yard.",
+      "ru": "Концепция обновления существующего здания Avropa Qapıları в Хырдалане (около 23 × 15 м) с двусветным залом под новый шоурум дверей и окон по фотографиям заказчика: четыре пролёта между белыми оштукатуренными пилястрами, в каждом — двухъярусное остекление в тонкой чёрной стальной раскладке, вход под стеклянным козырьком в левом пролёте и тёмно-зелёная вывеска с золотыми буквами AVROPA QAPILARI по верху фасада. Внутри — двусветный шоурум дверей и зал образцов окон, сзади склад, экспедиция, комната персонала и два санузла; на антресоли — галерея за стеклянным ограждением, переговорная и отдел продаж; 11 парковочных мест перед фасадом и хозяйственный двор."
+    },
+    "areaM2": 524,
+    "floors": 2,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a refurbished roadside door and window showroom in Xirdalan near Baku, eye-level three-quarter view from across a paved forecourt. A flat-roofed rectangular building about 23 metres wide and 9 metres tall with one double-height storey: the street facade is divided into four equal bays by five slender rounded pilasters in warm white render; every bay is filled with two tiers of tall glazing in a fine black steel grid of small panes, separated by a slim horizontal band; in the lower tier of the left bay a pair of glass entrance doors under a small glass canopy on steel tie rods; a slim light grey parapet coping; along the top of the facade a long deep green sign band with gilded capital letters reading AVROPA QAPILARI. Through the glass a bright double-height showroom with premium entrance doors on display and a mezzanine gallery at the back. In front a clean paved forecourt with a row of empty perpendicular parking bays, a low single-storey neighbouring building on the left, older apartment blocks in the background, a few street trees, clear spring afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no cars, no other text, no watermark"
   }
 ]
