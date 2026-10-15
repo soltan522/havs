@@ -835,6 +835,28 @@
     "sheets": 8,
     "builtAt": "2026-10-15"
   },
+  "genclik-39": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "genclik-39-drawings.pdf",
+        "bytes": 455762,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "genclik-39.dwg",
+        "bytes": 41331
+      },
+      {
+        "kind": "cad",
+        "name": "genclik-39.dxf",
+        "bytes": 95468
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
   "bayil-40": {
     "files": [
       {
@@ -879,6 +901,28 @@
     "sheets": 11,
     "builtAt": "2026-10-15"
   },
+  "narimanov-42": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "narimanov-42-drawings.pdf",
+        "bytes": 586409,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "narimanov-42.dwg",
+        "bytes": 51706
+      },
+      {
+        "kind": "cad",
+        "name": "narimanov-42.dxf",
+        "bytes": 122506
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
   "icherisheher-43": {
     "files": [
       {
@@ -896,6 +940,226 @@
         "kind": "cad",
         "name": "icherisheher-43.dxf",
         "bytes": 87093
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "khatai-44": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "khatai-44-drawings.pdf",
+        "bytes": 604276,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "khatai-44.dwg",
+        "bytes": 61839
+      },
+      {
+        "kind": "cad",
+        "name": "khatai-44.dxf",
+        "bytes": 151252
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "ganja-45": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ganja-45-drawings.pdf",
+        "bytes": 513554,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "ganja-45.dwg",
+        "bytes": 59222
+      },
+      {
+        "kind": "cad",
+        "name": "ganja-45.dxf",
+        "bytes": 142216
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "sheki-46": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sheki-46-drawings.pdf",
+        "bytes": 578682,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "sheki-46.dwg",
+        "bytes": 51356
+      },
+      {
+        "kind": "cad",
+        "name": "sheki-46.dxf",
+        "bytes": 121526
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "nasimi-47": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nasimi-47-drawings.pdf",
+        "bytes": 475100,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "nasimi-47.dwg",
+        "bytes": 47401
+      },
+      {
+        "kind": "cad",
+        "name": "nasimi-47.dxf",
+        "bytes": 110081
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "zigh-48": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zigh-48-drawings.pdf",
+        "bytes": 522694,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "zigh-48.dwg",
+        "bytes": 62597
+      },
+      {
+        "kind": "cad",
+        "name": "zigh-48.dxf",
+        "bytes": 153574
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "qusar-49": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qusar-49-drawings.pdf",
+        "bytes": 587224,
+        "pages": 11
+      },
+      {
+        "kind": "dwg",
+        "name": "qusar-49.dwg",
+        "bytes": 74780
+      },
+      {
+        "kind": "cad",
+        "name": "qusar-49.dxf",
+        "bytes": 189294
+      }
+    ],
+    "sheets": 11,
+    "builtAt": "2026-10-15"
+  },
+  "nizami-50": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nizami-50-drawings.pdf",
+        "bytes": 531845,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "nizami-50.dwg",
+        "bytes": 62735
+      },
+      {
+        "kind": "cad",
+        "name": "nizami-50.dxf",
+        "bytes": 154891
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "sahil-51": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sahil-51-drawings.pdf",
+        "bytes": 526170,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "sahil-51.dwg",
+        "bytes": 65584
+      },
+      {
+        "kind": "cad",
+        "name": "sahil-51.dxf",
+        "bytes": 164875
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "sumqayit-52": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sumqayit-52-drawings.pdf",
+        "bytes": 524651,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "sumqayit-52.dwg",
+        "bytes": 45864
+      },
+      {
+        "kind": "cad",
+        "name": "sumqayit-52.dxf",
+        "bytes": 107587
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "torqovi-53": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "torqovi-53-drawings.pdf",
+        "bytes": 482493,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "torqovi-53.dwg",
+        "bytes": 49973
+      },
+      {
+        "kind": "cad",
+        "name": "torqovi-53.dxf",
+        "bytes": 120015
       }
     ],
     "sheets": 8,

@@ -1676,5 +1676,311 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "nasimi-47": {
+    "cover": "/plans/nasimi-47/cover.jpg",
+    "hover": "/plans/nasimi-47/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/nasimi-47/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/nasimi-47/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/nasimi-47/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/nasimi-47/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/nasimi-47/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/nasimi-47/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/nasimi-47/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/nasimi-47/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/nasimi-47/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "zigh-48": {
+    "cover": "/plans/zigh-48/cover.jpg",
+    "hover": "/plans/zigh-48/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/zigh-48/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/zigh-48/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/zigh-48/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/zigh-48/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/zigh-48/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/zigh-48/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/zigh-48/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/zigh-48/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/zigh-48/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "qusar-49": {
+    "cover": "/plans/qusar-49/cover.jpg",
+    "hover": "/plans/qusar-49/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/qusar-49/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/qusar-49/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/qusar-49/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/qusar-49/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/qusar-49/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/qusar-49/finish-1.jpg",
+        "kind": "finish-1"
+      },
+      {
+        "src": "/plans/qusar-49/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/qusar-49/ceiling-1.jpg",
+        "kind": "ceiling-1"
+      },
+      {
+        "src": "/plans/qusar-49/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/qusar-49/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/qusar-49/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/qusar-49/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "nizami-50": {
+    "cover": "/plans/nizami-50/cover.jpg",
+    "hover": "/plans/nizami-50/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/nizami-50/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/nizami-50/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/nizami-50/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/nizami-50/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/nizami-50/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/nizami-50/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/nizami-50/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/nizami-50/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/nizami-50/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "sahil-51": {
+    "cover": "/plans/sahil-51/cover.jpg",
+    "hover": "/plans/sahil-51/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/sahil-51/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sahil-51/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sahil-51/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/sahil-51/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/sahil-51/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/sahil-51/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/sahil-51/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/sahil-51/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/sahil-51/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "sumqayit-52": {
+    "cover": "/plans/sumqayit-52/cover.jpg",
+    "hover": "/plans/sumqayit-52/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/sumqayit-52/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sumqayit-52/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sumqayit-52/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/sumqayit-52/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/sumqayit-52/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/sumqayit-52/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/sumqayit-52/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/sumqayit-52/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/sumqayit-52/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "torqovi-53": {
+    "cover": "/plans/torqovi-53/cover.jpg",
+    "hover": "/plans/torqovi-53/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/torqovi-53/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/torqovi-53/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/torqovi-53/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/torqovi-53/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/torqovi-53/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/torqovi-53/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/torqovi-53/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/torqovi-53/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/torqovi-53/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
