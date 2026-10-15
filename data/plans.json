@@ -999,5 +999,305 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a refurbished roadside door and window showroom in Xirdalan near Baku, eye-level three-quarter view from across a paved forecourt. A flat-roofed rectangular building about 23 metres wide and 9 metres tall with one double-height storey: the street facade is divided into four equal bays by five slender rounded pilasters in warm white render; every bay is filled with two tiers of tall glazing in a fine black steel grid of small panes, separated by a slim horizontal band; in the lower tier of the left bay a pair of glass entrance doors under a small glass canopy on steel tie rods; a slim light grey parapet coping; along the top of the facade a long deep green sign band with gilded capital letters reading AVROPA QAPILARI. Through the glass a bright double-height showroom with premium entrance doors on display and a mezzanine gallery at the back. In front a clean paved forecourt with a row of empty perpendicular parking bays, a low single-storey neighbouring building on the left, older apartment blocks in the background, a few street trees, clear spring afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no cars, no other text, no watermark"
+  },
+  {
+    "slug": "sebail-37",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "flat",
+      "palette": "baku-classic"
+    },
+    "inspiration": "baku-classic",
+    "title": {
+      "az": "Səbail Klassik Mənzili",
+      "en": "Sabail Classic Apartment",
+      "ru": "Классическая квартира в Сабаиле"
+    },
+    "summary": {
+      "az": "Səbaildə tarixi binada 140 m²-lik üç otaqlı mənzilin Bakı klassikası üslubunda interyer dizaynı: palıd «yolka» parket, karnizli panel divarlar, şüşə-yaşıl mətbəx mebeli, Kalakatta tipli mərmər və köhnəlmiş bürünc detallar. Açıq qonaq otağı ilə mətbəx, əsas yataq otağı, iki yataq otağı və iki hamam üçün mebel, döşəmə və tavan-işıqlandırma planları, divar açılışları və material lövhəsi hazırlanıb.",
+      "en": "Interior design for a 140 m² three-bedroom apartment in a historic Sabail building, in a Baku classic palette: oak herringbone parquet, panelled walls with plaster cornices, bottle-green joinery, Calacatta-style marble and aged brass. The open living room and kitchen, the master suite, two bedrooms and two bathrooms come with furniture, finishes and ceiling-lighting plans, wall elevations and a materials board.",
+      "ru": "Дизайн интерьера трёхкомнатной квартиры 140 м² в историческом доме в Сабаиле в стиле бакинской классики: дубовый паркет ёлочкой, стены с панелями и лепными карнизами, мебель бутылочно-зелёного цвета, мрамор типа Калакатта и состаренная латунь. Для гостиной с кухней, главной спальни, двух спален и двух санузлов подготовлены планы мебели, полов, потолков и освещения, развёртки стен и доска материалов."
+    },
+    "areaM2": 140,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 159000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of the living room of a classic Baku apartment in a historic building: high ceilings with plaster cornices and warm white wall panelling, oak herringbone parquet, a bottle-green velvet sofa, a fireplace surround in Calacatta-style marble, aged brass picture lights, a crystal chandelier over a walnut dining table, tall double windows onto a leafy Baku street, sage silk wallcovering on the feature wall, soft afternoon light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "yasamal-38",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "flat",
+      "palette": "japandi"
+    },
+    "inspiration": "japandi",
+    "title": {
+      "az": "Yasamal Japandi Mənzili",
+      "en": "Yasamal Japandi Apartment",
+      "ru": "Квартира джапанди в Ясамале"
+    },
+    "summary": {
+      "az": "Yasamalda 86 m²-lik iki otaqlı mənzilin japandi üslubunda interyeri: açıq rəngli göyrüş taxta döşəmə, düyü kağızı rəngli əhəng boya, lamelli göyrüş panel divar, bazalt səthlər və vaşi kağızından asma lampalar. Mətbəx-qonaq otağı, iki yataq otağı, hamam və camaşırxana alçaq mebel və gizli LED işıqla sakit, sadə məkanlar kimi planlaşdırılıb.",
+      "en": "A Japandi interior for an 86 m² two-bedroom apartment in Yasamal: pale ash plank floors, rice-paper limewash, a slatted ash feature wall, basalt worktops and washi paper pendants. The kitchen-living room, two bedrooms, the bathroom and laundry are planned around low furniture and concealed LED light.",
+      "ru": "Интерьер в стиле джапанди для двухкомнатной квартиры 86 м² в Ясамале: светлый пол из ясеня, известковая краска цвета рисовой бумаги, реечная стена из ясеня, столешницы из базальта и подвесные светильники из бумаги васи. Кухня-гостиная, две спальни, ванная и постирочная спланированы вокруг низкой мебели и скрытой LED-подсветки."
+    },
+    "areaM2": 86,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 109000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a Japandi open kitchen and living room in a Baku apartment: pale ash plank floor, rice-paper limewashed walls, a slatted ash feature wall with a low media unit, a low oat linen sofa, ash veneer kitchen with a honed basalt worktop, a washi paper pendant over a small round dining table, a single branch in a ceramic vase, soft morning light through linen curtains, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "genclik-39",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "flat",
+      "palette": "scandi"
+    },
+    "inspiration": "scandi",
+    "title": {
+      "az": "Gənclik Studiya Mənzili",
+      "en": "Ganjlik Studio Flat",
+      "ru": "Студия в Гянджлике"
+    },
+    "summary": {
+      "az": "Gənclikdə 58 m²-lik bir otaqlı mənzilin skandinav üslubunda interyeri: ağ palıd döşəmə, yumşaq ağ və fyord mavisi divarlar, terrazzo hamam, ağ palıd və ağ lak mebel, bircə xardal rəngli aksent. Kompakt mətbəx, qonaq-yemək otağı, yataq otağı və hamam kiçik sahənin imkan verdiyi qədər çox daxili saxlama yeri ilə həll olunub.",
+      "en": "A Scandinavian interior for a 58 m² one-bedroom flat in Ganjlik: white oak floors, soft white and fjord-blue walls, a terrazzo bathroom, white oak and lacquer joinery and a single mustard accent. The compact kitchen, living and dining room, bedroom and bathroom get as much built-in storage as the small plan allows.",
+      "ru": "Скандинавский интерьер для однокомнатной квартиры 58 м² в Гянджлике: пол из белого дуба, мягкие белые и северно-голубые стены, ванная с терраццо, мебель из белого дуба и белого лака и один горчичный акцент. Компактная кухня, гостиная-столовая, спальня и ванная получили столько встроенных систем хранения, сколько позволяет небольшая площадь."
+    },
+    "areaM2": 58,
+    "floors": 1,
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 79000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a small Scandinavian one-bedroom flat with an open kitchen and living room: white oak floor, soft white walls with one fjord-blue accent wall, white lacquer and oak kitchen with a light grey quartz worktop, a dove-grey wool sofa and a mustard armchair, an opal glass pendant over a round oak table for two, built-in shelving around the window, bright daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "bayil-40",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "penthouse",
+      "palette": "luxury-dark"
+    },
+    "inspiration": "luxury-dark",
+    "title": {
+      "az": "Bayıl Penthausu",
+      "en": "Bayil Penthouse",
+      "ru": "Пентхаус в Баиле"
+    },
+    "summary": {
+      "az": "Bayılda dənizə baxan 190 m²-lik penthausun tünd lüks üslubunda interyeri: hisə verilmiş palıd «şevron» parket, bürünc xətli qoz panellər, qara və boz mərmər, konyak rəngli dəri və şampan rəngli metal. Panoram şüşəli qonaq otağı ilə mərmər mətbəx adası, əsas yataq otağı, iki yataq otağı və iki hamam tənzimlənən işıq ssenariləri ilə planlaşdırılıb.",
+      "en": "A dark-luxury interior for a 190 m² sea-view penthouse in Bayil: smoked oak chevron parquet, walnut panelling with bronze inlay, black and grey marble, cognac leather and champagne metal. The glazed living room with a marble island, the master suite, two bedrooms and two bathrooms are lit in dimmable scenes.",
+      "ru": "Интерьер в стиле тёмного люкса для пентхауса 190 м² с видом на море в Баиле: паркет «шеврон» из копчёного дуба, ореховые панели с бронзовыми вставками, чёрный и серый мрамор, коньячная кожа и металл цвета шампань. Остеклённая гостиная с мраморным островом, главная спальня, две спальни и две ванные освещены сценариями с диммированием."
+    },
+    "areaM2": 190,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 199000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a dark luxury penthouse living room and kitchen at dusk with floor-to-ceiling windows over the Caspian Sea and city lights: smoked oak chevron parquet, walnut wall panelling with thin bronze inlays, a black marble kitchen island with white veining, cognac leather lounge chairs, a taupe velvet sofa, champagne bronze details, linear cove lighting and a glass chandelier, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "shikhov-41",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "residence",
+      "palette": "mediterranean-calm"
+    },
+    "inspiration": "mediterranean-calm",
+    "title": {
+      "az": "Şıxov Dənizkənarı Villa İnteryeri",
+      "en": "Shikhov Seaside Villa Interior",
+      "ru": "Интерьер виллы у моря в Шихово"
+    },
+    "summary": {
+      "az": "Şıxovda iki mərtəbəli dənizkənarı villanın 280 m²-lik Aralıq dənizi üslubunda interyeri: əl işi terrakota döşəmə, əhəng suvağı, açıq taxta tirlər, ağardılmış palıd mebel, travertin, dəniz yaşılı zellij plitələr və rattan. Birinci mərtəbədə qonaq otağı, mətbəx, yemək zalı və qonaq yataq otağı, ikinci mərtəbədə əsas yataq otağı, iki yataq otağı və kabinet otaq-otaq işlənib.",
+      "en": "A Mediterranean interior for a 280 m² two-level seaside villa in Shikhov: hand-made terracotta floors, lime plaster, exposed timber beams, limed oak joinery, travertine, sea-green zellige-style tiles and rattan. The living room, kitchen, dining room and guest bedroom downstairs and the master suite, two bedrooms and study upstairs are planned room by room.",
+      "ru": "Средиземноморский интерьер двухэтажной виллы у моря 280 м² в Шихово: терракотовая плитка ручной работы, известковая штукатурка, открытые деревянные балки, мебель из белёного дуба, травертин, плитка зеллидж цвета морской волны и ротанг. Гостиная, кухня, столовая и гостевая спальня внизу, главная спальня, две спальни и кабинет наверху проработаны по комнатам."
+    },
+    "areaM2": 280,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": false,
+    "priceCents": 279000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a Mediterranean seaside villa living room on the Absheron coast: hand-made terracotta tile floor, warm white lime-plastered walls with arched niches, exposed timber ceiling beams, a linen slipcovered sofa, rattan pendant lights, a travertine coffee table, limed oak shelving, olive branches in a clay vase, glazed doors open to a terrace and the sea, bright summer light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "narimanov-42",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "cafe",
+      "palette": "oriental-modern"
+    },
+    "inspiration": "oriental-modern",
+    "title": {
+      "az": "Nərimanov Çayxanası",
+      "en": "Narimanov Tea House",
+      "ru": "Чайхана в Наримановском районе"
+    },
+    "summary": {
+      "az": "Nərimanovda 140 m²-lik çayxana-kafenin Azərbaycan müasir üslubunda interyeri: qoz ağacı və gil suvağı, şəbəkədən ilhamlanmış taxta qəfəs arakəsmələr, xalça naxışlı sement plitələr, döyülmüş mis lampalar və nar qırmızısı məxmər divanlar. Bar piştaxtası, mətbəx, çay zalı, çay lounge-u və iki S/Q üçün tam interyer dəsti hazırlanıb.",
+      "en": "An Azerbaijani-modern interior for a 140 m² tea house and café in Narimanov: walnut and clay plaster, lattice screens inspired by shebeke windows, cement tiles with carpet motifs, hammered copper lamps and pomegranate-red velvet banquettes. The bar counter, kitchen, tea hall, tea lounge and two WCs come with a full interior set.",
+      "ru": "Интерьер в азербайджанском современном стиле для чайханы-кафе 140 м² в Наримановском районе: орех и глиняная штукатурка, решётчатые перегородки по мотивам шебеке, цементная плитка с ковровыми узорами, кованые медные светильники и банкетки из гранатово-красного бархата. Для барной стойки, кухни, чайного зала, чайного лаунжа и двух санузлов подготовлен полный комплект чертежей интерьера."
+    },
+    "areaM2": 140,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 159000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a contemporary Azerbaijani tea house interior: walnut floor and clay-plastered walls, geometric timber lattice screens inspired by shebeke windows, pomegranate-red velvet banquettes along the wall, small round travertine tables with pear-shaped tea glasses, hammered copper pendant lamps, a walnut bar counter with carved panels, encaustic cement tiles with carpet motifs at the bar, warm evening light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "icherisheher-43",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "boutique",
+      "palette": "art-deco"
+    },
+    "inspiration": "art-deco",
+    "title": {
+      "az": "İçərişəhər Butiki",
+      "en": "Icherisheher Boutique",
+      "ru": "Бутик в Ичеришехер"
+    },
+    "summary": {
+      "az": "İçərişəhərdə 92 m²-lik geyim butikinin art-deko üslubunda interyeri: zümrüd rəngli yivli panellər, qara lak rəflər və cilalanmış bürünc, bürünc zolaqlı terrazzo döşəmə, tağlı vitrin taxçaları və çəhrayı məxmər pərdələr. Satış zalı, kassa masası, soyunma kabinələri, anbar, heyət otağı və S/Q planlaşdırılıb.",
+      "en": "An Art Deco interior for a 92 m² fashion boutique in Icherisheher: emerald fluted panels, black lacquer shelving with polished brass, terrazzo with brass inlay, curved display niches and blush velvet curtains. The sales floor, cash desk, fitting rooms, stock room, staff room and WC are fully planned.",
+      "ru": "Интерьер в стиле ар-деко для бутика одежды 92 м² в Ичеришехер: изумрудные рифлёные панели, стеллажи из чёрного лака с полированной латунью, терраццо с латунными вставками, арочные витринные ниши и бархатные шторы пудрового цвета. Спланированы торговый зал, касса, примерочные, склад, комната персонала и санузел."
+    },
+    "areaM2": 92,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 109000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a small Art Deco fashion boutique: emerald green fluted wall panels, black lacquer shelving with polished brass trims and curved display niches, a terrazzo floor with brass inlay lines, a round display plinth, blush velvet curtains at the fitting rooms, a cash desk clad in emerald with a green marble top, opal globe pendants and brass track spots, clothes hanging on brass rails, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "khatai-44",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "workspace",
+      "palette": "industrial-loft"
+    },
+    "inspiration": "industrial-loft",
+    "title": {
+      "az": "Xətai Loft Ofisi",
+      "en": "Khatai Loft Office",
+      "ru": "Лофт-офис в Хатаи"
+    },
+    "summary": {
+      "az": "Xətaidə 260 m²-lik ofisin industrial loft üslubunda interyeri: cilalanmış beton döşəmə, köhnə kərpic divar, qara polad şüşə arakəsmələr, yağlanmış palıd masalar, keçə akustik panellər və konyak rəngli dəri. Resepsiya, açıq ofis, direktor otağı, iclas otağı, fokus otağı, mətbəxçə, istirahət zonası, server otağı və arxiv tam planlaşdırılıb.",
+      "en": "An industrial-loft interior for a 260 m² office in Khatai: polished concrete, reclaimed brick, black steel glazed partitions, oiled oak desk clusters, felt acoustic panels and cognac leather. Reception, open office, director's room, meeting room, focus room, kitchenette, breakout, server room and archive are fully planned.",
+      "ru": "Интерьер в стиле индустриального лофта для офиса 260 м² в Хатаи: полированный бетон, старый кирпич, остеклённые перегородки из чёрной стали, столы из промасленного дуба, войлочные акустические панели и коньячная кожа. Спланированы ресепшн, опенспейс, кабинет директора, переговорная, комната для концентрации, кухня, зона отдыха, серверная и архив."
+    },
+    "areaM2": 260,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 259000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of an industrial loft office: polished concrete floor, a reclaimed red brick wall, black steel framed glass partitions to a meeting room, clusters of oiled oak desks with charcoal felt dividers under black linear pendant lights, a cognac leather sofa in the breakout corner, green plants, large windows with daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "ganja-45",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "clinic",
+      "palette": "biophilic"
+    },
+    "inspiration": "biophilic",
+    "title": {
+      "az": "Gəncə Stomatologiya Klinikası",
+      "en": "Ganja Dental Clinic",
+      "ru": "Стоматологическая клиника в Гяндже"
+    },
+    "summary": {
+      "az": "Gəncədə 150 m²-lik stomatologiya klinikasının biofilik üslubda interyeri: ağcaqayın kontrplak, adaçayı yaşılı və isti ağ rənglər, gözləmə zalında stabilləşdirilmiş mamır divarı, yumru künclər və asan təmizlənən səthlər. Resepsiya, gözləmə zalı, üç müalicə kabineti, sterilizasiya, həkim otağı, heyət otağı və iki S/Q planlaşdırılıb.",
+      "en": "A biophilic interior for a 150 m² dental clinic in Ganja: birch plywood, sage and warm white, a preserved moss wall in the waiting room, rounded corners and wipe-clean surfaces. Reception, waiting room, three surgeries, sterilisation, the doctor's office, staff room and two WCs are fully planned.",
+      "ru": "Биофильный интерьер стоматологической клиники 150 м² в Гяндже: берёзовая фанера, шалфейный и тёплый белый цвета, стена из стабилизированного мха в зоне ожидания, скруглённые углы и легко моющиеся поверхности. Спланированы ресепшн, зона ожидания, три кабинета, стерилизационная, кабинет врача, комната персонала и два санузла."
+    },
+    "areaM2": 150,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a calm biophilic dental clinic reception and waiting area: a rounded birch plywood reception desk, a preserved green moss wall, sage upholstered seating, warm white walls, pale oak vinyl floor, circular pendant lights, soft daylight through large windows, indoor plants, spotless and welcoming, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "sheki-46",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "salon",
+      "palette": "mid-century"
+    },
+    "inspiration": "mid-century",
+    "title": {
+      "az": "Şəki Gözəllik Salonu",
+      "en": "Sheki Beauty Salon",
+      "ru": "Салон красоты в Шеки"
+    },
+    "summary": {
+      "az": "Şəkidə 110 m²-lik gözəllik salonunun mid-century üslubunda interyeri: krem rəngli terrazzo, qoz lamelləri, xardal və firuzəyi məxmər kreslolar, bürünc çərçivəli dairəvi güzgülər və opal kürə lampalar. Resepsiya, gözləmə zonası, saç ustası yerləri, yuyma zonası, manikür masası, prosedur otağı, anbar və S/Q planlaşdırılıb.",
+      "en": "A mid-century interior for a 110 m² beauty salon in Sheki: cream terrazzo, walnut slats, mustard and teal velvet chairs, round brass-framed mirrors and opal globe pendants. Reception, waiting area, hair styling stations, wash area, nail bar, treatment room, store and WC are fully planned.",
+      "ru": "Интерьер в стиле мид-сенчури для салона красоты 110 м² в Шеки: кремовое терраццо, ореховые рейки, горчичные и бирюзовые бархатные кресла, круглые зеркала в латунных рамах и опаловые шары-светильники. Спланированы ресепшн, зона ожидания, места парикмахеров, мойка, маникюрный стол, процедурный кабинет, склад и санузел."
+    },
+    "areaM2": 110,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 129000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a mid-century modern beauty salon: cream terrazzo floor with terracotta chips, walnut slatted walls, styling stations with round brass-framed mirrors and walnut counters, mustard and teal velvet salon chairs, opal globe pendant lights, a reception desk with a terracotta-pink quartz top, warm light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
   }
 ]
