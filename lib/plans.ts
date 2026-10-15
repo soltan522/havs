@@ -21,12 +21,14 @@ export type PlanStyle =
   | "yali"
   | "townhouse"
   | "market"
-  | "office";
+  | "office"
+  | "showroom";
 
 /**
  * row = terrace of townhouses on a street; farm = farmhouses around a vineyard and barn; cluster = houses on a slope
  * around a lodge; retail = one commercial building (supermarket) with its car park and delivery yard;
- * urban = a multi-storey showroom and office building on a corner plot in town.
+ * urban = a commercial building in town: a multi-storey showroom and office building on a corner plot, or a
+ * roadside showroom with a mezzanine and forecourt parking.
  */
 export type ProjectKind = "row" | "farm" | "cluster" | "retail" | "urban";
 
@@ -107,6 +109,7 @@ export const STYLE_LABELS: Record<PlanStyle, LocalizedText> = {
   townhouse: { az: "Taunhaus", en: "Townhouse", ru: "Таунхаус" },
   market: { az: "Supermarket", en: "Supermarket", ru: "Супермаркет" },
   office: { az: "Ofis və şourum", en: "Office and showroom", ru: "Офис и шоурум" },
+  showroom: { az: "Şourum", en: "Showroom", ru: "Шоурум" },
 };
 
 export const PROJECT_LABELS: Record<ProjectKind, LocalizedText> = {

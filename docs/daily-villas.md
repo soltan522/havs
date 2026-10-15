@@ -130,7 +130,7 @@ npm ci
 
 A catalogue entry can also be a whole development: a terrace of townhouses, a farm estate, a small village or a
 commercial building (`retail`: a neighbourhood supermarket with its car park, `urban`: a corner office and showroom
-building — `"bedrooms": 0`, `"bathrooms"` = WCs,
+building or a roadside showroom — `"bedrooms": 0`, `"bathrooms"` = WCs,
 `"parking"` = bays on the masterplan, priced at ~$900 + $1.5/m²).
 Add `"project": { "kind": "row" | "farm" | "cluster" | "retail" | "urban", "units": N }` to the entry; `areaM2`, `floors`,
 `bedrooms` and `bathrooms` then describe **one** house, and the generator draws the masterplan (A-001), the typical

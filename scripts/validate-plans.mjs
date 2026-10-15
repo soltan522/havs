@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, grossFloorArea, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -129,10 +129,9 @@ for (const plan of plans) {
   } else if (rules.projectOnly) err(`style ${plan.style} is only drawn as part of a project (set "project")`);
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
   if (plan.footprint !== undefined) {
-    // surveyed buildings keep their measured footprint instead of one derived from the area
+    // existing buildings keep their measured footprint instead of one derived from the area
     const [fw, fd] = Array.isArray(plan.footprint) ? plan.footprint : [];
     if (!(fw >= 6 && fw <= 60 && fd >= 6 && fd <= 40)) err("footprint must be [width, depth] in metres, as surveyed");
-    else if (Math.abs(fw * fd * plan.floors - plan.areaM2) / plan.areaM2 > 0.1) err(`footprint ${fw} × ${fd} m on ${plan.floors} floors is ${(fw * fd * plan.floors).toFixed(0)} m², not ${plan.areaM2} m²`);
   }
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
@@ -162,6 +161,11 @@ for (const plan of plans) {
   } catch (e) {
     err(`drawing generator failed: ${e.message}`);
     continue;
+  }
+  if (plan.footprint !== undefined) {
+    // the area must be what the drawings show: every level's footprint less any double-height void
+    const gross = grossFloorArea(model);
+    if (Math.abs(gross - plan.areaM2) / plan.areaM2 > 0.05) err(`the drawings have ${gross.toFixed(0)} m² of floor area (footprint ${plan.footprint.join(" × ")} m on ${plan.floors} levels, less voids) — set areaM2 to ${Math.round(gross)}`);
   }
   if (model.project && rules.commercial && plan.parking !== model.project.layout.parking) err(`parking is ${plan.parking} but the masterplan draws ${model.project.layout.parking} bays — set parking to ${model.project.layout.parking}`);
   const wet = wetRooms(model);

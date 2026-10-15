@@ -88,7 +88,7 @@ export const COPY = {
       perHouse: "Bir evin sahəsi",
       total: "Ümumi sahə",
       typical: "Tipik ev",
-      sheets: { site: "Ümumi baş plan", street: "Küçə fasadı", elevation: "Tipik evin fasadı", axonometric: "Layihənin aksonometriyası" },
+      sheets: { site: "Ümumi baş plan", street: "Küçə fasadı", elevation: "Tipik evin fasadı", axonometric: "Layihənin aksonometriyası", mezzanine: "Asma mərtəbə planı" },
       wcs: "Sanitar qovşaqlar",
       parking: "Avtomobil yerləri",
       parkingShort: "avtomobil yeri",
@@ -186,7 +186,7 @@ export const COPY = {
       perHouse: "Area per house",
       total: "Total area",
       typical: "Typical house",
-      sheets: { site: "Masterplan", street: "Street elevation", elevation: "Typical house elevation", axonometric: "Whole project, axonometric" },
+      sheets: { site: "Masterplan", street: "Street elevation", elevation: "Typical house elevation", axonometric: "Whole project, axonometric", mezzanine: "Mezzanine plan" },
       wcs: "WCs",
       parking: "Parking bays",
       parkingShort: "parking bays",
@@ -284,7 +284,7 @@ export const COPY = {
       perHouse: "Площадь дома",
       total: "Общая площадь",
       typical: "Типовой дом",
-      sheets: { site: "Генплан проекта", street: "Уличный фасад", elevation: "Фасад типового дома", axonometric: "Аксонометрия проекта" },
+      sheets: { site: "Генплан проекта", street: "Уличный фасад", elevation: "Фасад типового дома", axonometric: "Аксонометрия проекта", mezzanine: "План антресоли" },
       wcs: "Санузлы",
       parking: "Парковочные места",
       parkingShort: "парковочных мест",
@@ -314,6 +314,7 @@ export function planSheetName(c: (typeof COPY)[Locale], plan: Plan, kind: string
   const p = c.project.sheets;
   if (kind === "site") return p.site;
   if (kind === "axonometric") return p.axonometric;
+  if (plan.style === "showroom" && kind === "plan-1") return p.mezzanine;
   if (plan.project.units === 1) return base;
   if (kind === "elevation") return plan.project.kind === "row" ? p.street : p.elevation;
   if (kind.startsWith("plan-")) return `${c.project.typical}: ${base.charAt(0).toLowerCase()}${base.slice(1)}`;

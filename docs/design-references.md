@@ -140,3 +140,17 @@ glass canopy, a roof terrace and a gated forecourt car park.
   frames", "white facades with black aluminium frames", "three stacked black balconies", "round silver stair tower",
   "glazed ground-floor showroom", "glass canopy on steel tie rods", "count of floors: one tall ground floor, then five
   rows of windows"; add interior views (showroom, office corridor, manager's office) as extra renders
+
+### absheron-showroom — Absheron roadside door and window showroom
+An existing double-height commercial hall on a busy Absheron road refreshed as a showroom: four equal bays between
+warm-white rendered pilasters, two tiers of tall glazing in a fine black steel grid, a glass canopy over the entrance,
+the owner's sign band along the top, a mezzanine gallery inside, forecourt parking off the road and a service yard.
+- **style** `showroom` with `"project": { "kind": "urban", "units": 1 }`, two levels (the hall and its mezzanine),
+  `"footprint": [w, d]`; `areaM2` counts the mezzanine without the double-height void (`npm run validate` prints it);
+  `"sign"` only with the owner's own company name
+- the owner's photos go in `renders/<slug>/owner/` (blur licence plates, people, other companies' signs and phone
+  numbers, strip metadata)
+- **prompt cues** "flat-roofed rectangular building about 23 metres wide and 9 metres tall", "four equal bays divided by
+  five slender rounded pilasters", "two tiers of tall glazing in a fine black steel grid", "long deep green sign band
+  with gilded capital letters", "glass canopy on steel tie rods", "paved forecourt with a row of parking bays"; add an
+  interior view of the double-height showroom from the mezzanine

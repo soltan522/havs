@@ -78,6 +78,8 @@ const MAT = {
   silver: { fill: "#cdd0d3", label: "Silver aluminium floor bands" },
   canopyGlass: { fill: "#bcd3da", label: "Glass canopy, steel tie rods" },
   blackalu: { fill: "#25272a", label: "Black anodised aluminium frames" },
+  pilaster: { fill: "#efe8dc", label: "Rendered pilasters, warm white" },
+  signGreen: { fill: "#1f4d3a", label: "Sign band, deep green, gilded letters" },
 };
 
 // Per-style design language. walls[i] = cladding of storey i (last entry repeats).
@@ -104,12 +106,15 @@ const SPEC = {
   // office building with a ground-floor showroom: champagne panels, silver floor bands, round stair tower, glass canopy
   office: { walls: ["render"], frame: "blackalu", glassy: true, slab: 0.6, storey: 3.5, survey: true, piers: true, tower: true, entryCanopy: true, canopyGlass: true, slidingEntry: true, roofTerrace: true, signTwoLines: true, tree: "round" },
   market: { walls: ["panel"], frame: "alu", glassy: true, slab: 0.5, slabMat: "coping", storey: 6.0, head: 4.2, fascia: true, entryCanopy: true, slidingEntry: true, rooflights: true, tree: "round" },
+  // roadside door and window showroom: a double-height hall behind two tiers of steel-framed glazing between
+  // rendered pilasters, a mezzanine at the back, the owner's sign band along the top
+  showroom: { walls: ["render"], frame: "blackalu", glassy: true, slab: 0.3, slabMat: "coping", storey: 4.6, piers: true, pierMat: "pilaster", pierW: 0.8, pane: 0.95, transom: 1.25, signBand: true, entryCanopy: true, canopyGlass: true, slidingEntry: true, projectLabel: "DOOR AND WINDOW SHOWROOM", tree: "round" },
 };
 
 const STYLE_EN = {
   modern: "MODERN", tuscan: "TUSCAN", minimal: "MINIMALIST", coastal: "COASTAL", chalet: "CHALET",
   farmhouse: "FARMHOUSE", luxury: "CONTEMPORARY", pavilion: "PAVILION", mediterranean: "MEDITERRANEAN", duplex: "TWIN VILLA",
-  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI", townhouse: "TOWNHOUSE", market: "SUPERMARKET", office: "OFFICE AND SHOWROOM",
+  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI", townhouse: "TOWNHOUSE", market: "SUPERMARKET", office: "OFFICE AND SHOWROOM", showroom: "SHOWROOM",
 };
 
 const wallMat = (spec, li) => spec.walls[Math.min(li, spec.walls.length - 1)];
@@ -132,6 +137,7 @@ export const STYLE_RULES = {
   townhouse: { roofs: ["flat"], floors: [2], projectOnly: true },
   market: { roofs: ["flat"], floors: [1], projectOnly: true, commercial: true, floorArea: [1200, 3500] },
   office: { roofs: ["flat"], floors: [6], projectOnly: true, commercial: true, floorArea: [200, 600] },
+  showroom: { roofs: ["flat"], floors: [2], projectOnly: true, commercial: true, floorArea: [150, 600] },
 };
 
 /** Multi-unit projects (plan.project.kind): how many houses each layout is drawn for. */
@@ -140,7 +146,7 @@ export const PROJECT_RULES = {
   farm: { units: [3, 4, 5, 6], styles: ["farmhouse", "tuscan", "mediterranean"], label: "FARM ESTATE" },
   cluster: { units: [4, 5, 6], styles: ["chalet", "modern", "absheron", "minimal", "coastal"], label: "VILLAGE CLUSTER" },
   retail: { units: [1], styles: ["market"], label: "NEIGHBOURHOOD SUPERMARKET" },
-  urban: { units: [1], styles: ["office"], label: "SHOWROOM AND OFFICE BUILDING" },
+  urban: { units: [1], styles: ["office", "showroom"], label: "SHOWROOM AND OFFICE BUILDING" },
 };
 
 /** Planting symbols the elevation and site plan can draw (optional plan.tree). */
@@ -220,6 +226,7 @@ export function buildModel(plan) {
   else if (plan.style === "townhouse") levels = townhouseLevels(spec);
   else if (plan.style === "market") levels = [marketLevel(spec)];
   else if (plan.style === "office") levels = officeLevels(spec);
+  else if (plan.style === "showroom") levels = showroomLevels(spec);
   else if (above === 1) levels = [singleStorey(plan, W, D, spec)];
   else levels = twoStorey(plan, W, D, spec);
 
@@ -257,6 +264,11 @@ export function buildModel(plan) {
     model.chamfer = { a: 1.8, b: 1.9 };
     const st = levels[0].spaces.find((sp) => sp.kind === "stair");
     model.towerArc = { cx: st.x + st.w / 2, r: st.w / 2 + 0.1 };
+  }
+  if (plan.style === "showroom") {
+    // rendered pilasters between the four glazed bays, front and back
+    const xs = SHOWROOM.bays.map((f, i, a) => (i === 0 ? 0.4 : i === a.length - 1 ? W - 0.4 : Math.round(f * W * 100) / 100));
+    model.columns = xs.flatMap((x) => [[x, 0.4], [x, D - 0.4]]);
   }
   Object.assign(model, roofGeometry(model));
   model.site = siteLayout(model);
@@ -761,6 +773,76 @@ function officeLevels(spec) {
   ];
 }
 
+/**
+ * Roadside door and window showroom on two levels (fractions of the footprint; the street front at y = 1): a
+ * double-height showroom behind the three left-hand glazed bays, window samples in the fourth bay, the warehouse,
+ * dispatch, staff room and WCs along the back; upstairs a mezzanine gallery over the warehouse, a meeting room and
+ * the sales and design office in the fourth bay, the rest open to the showroom below.
+ */
+const SHOWROOM = { bays: [0, 0.25, 0.5, 0.75, 1], back: 0.36 };
+
+function showroomLevels() {
+  const bk = SHOWROOM.back;
+  const level = (name, sill, head) => ({ name, spaces: [], doors: [], windows: [], sill, head });
+  const g = level("GROUND FLOOR PLAN", 0.4, 4.0);
+  g.spaces.push(
+    { id: "show", label: "DOOR SHOWROOM", kind: "showroom", x: 0, y: bk, w: 0.75, h: 1 - bk, labelY: 0.62 },
+    { id: "samp", label: "WINDOW SAMPLES", kind: "showroom", x: 0.75, y: bk, w: 0.25, h: 1 - bk },
+    { id: "stair", label: "STAIR", kind: "stair", x: 0, y: 0, w: 0.14, h: bk },
+    { id: "store", label: "WAREHOUSE", kind: "racks", x: 0.14, y: 0, w: 0.36, h: bk },
+    { id: "disp", label: "DISPATCH", kind: "dock", x: 0.5, y: 0, w: 0.25, h: bk },
+    { id: "wc1", label: "WC", kind: "wc", x: 0.75, y: 0, w: 0.125, h: 0.17 },
+    { id: "wc2", label: "WC", kind: "wc", x: 0.875, y: 0, w: 0.125, h: 0.17 },
+    { id: "staff", label: "STAFF ROOM", kind: "staff", x: 0.75, y: 0.17, w: 0.25, h: bk - 0.17 },
+  );
+  g.doors.push(
+    { space: "show", side: "bottom", at: 0.1783, w: 2.0, entry: true, open: true, sliding: true },
+    { space: "show", side: "right", at: 0.5, w: 99, open: true },
+    { space: "stair", side: "bottom", at: 0.5, w: 99, open: true },
+    { space: "store", side: "bottom", at: 0.5, w: 1.6 },
+    { space: "store", side: "right", at: 0.5, w: 1.6, open: true },
+    { space: "disp", side: "top", at: 0.5, w: 3.2, open: true },
+    { space: "disp", side: "bottom", at: 0.5, w: 1.6 },
+    { space: "staff", side: "bottom", at: 0.5, w: 0.9 },
+    { space: "wc1", side: "bottom", at: 0.5, w: 0.8 },
+    { space: "wc2", side: "bottom", at: 0.5, w: 0.8 },
+  );
+  // two glazed bays either side of the entrance, then one per bay
+  g.windows.push(
+    { space: "show", side: "bottom", at: 0.0826, w: 1.15 },
+    { space: "show", side: "bottom", at: 0.2739, w: 1.15 },
+    { space: "show", side: "bottom", at: 0.5, w: 4.4 },
+    { space: "show", side: "bottom", at: 0.8333, w: 4.4 },
+    { space: "samp", side: "bottom", at: 0.4652, w: 4.4 },
+    { space: "store", side: "top", at: 0.3, w: 2.0 },
+    { space: "staff", side: "top", at: 0.5, w: 1.2 },
+  );
+  const m = level("MEZZANINE PLAN", 0.3, 3.6);
+  m.spaces.push(
+    { id: "void", label: "OPEN TO SHOWROOM BELOW", kind: "void", x: 0, y: bk, w: 0.75, h: 1 - bk },
+    { id: "stair", label: "STAIR", kind: "stair", x: 0, y: 0, w: 0.14, h: bk },
+    { id: "gal", label: "GALLERY", kind: "showroom", x: 0.14, y: 0, w: 0.61, h: bk },
+    { id: "meet", label: "MEETING ROOM", kind: "meeting", x: 0.75, y: 0, w: 0.25, h: 0.2 },
+    { id: "off", label: "SALES OFFICE", kind: "openoffice", x: 0.75, y: 0.2, w: 0.25, h: 0.8 },
+  );
+  m.doors.push(
+    { space: "gal", side: "bottom", at: 0.5, w: 99, open: true, rail: true },
+    { space: "gal", side: "left", at: 0.5, w: 99, open: true },
+    { space: "meet", side: "left", at: 0.5, w: 0.9 },
+    { space: "off", side: "left", at: 0.1, w: 0.9 },
+  );
+  m.windows.push(
+    { space: "void", side: "bottom", at: 0.1783, w: 4.4 },
+    { space: "void", side: "bottom", at: 0.5, w: 4.4 },
+    { space: "void", side: "bottom", at: 0.8333, w: 4.4 },
+    { space: "off", side: "bottom", at: 0.4652, w: 4.4 },
+    { space: "gal", side: "top", at: 0.3, w: 2.0 },
+    { space: "gal", side: "top", at: 0.75, w: 2.0 },
+    { space: "meet", side: "top", at: 0.5, w: 2.0 },
+  );
+  return [g, m];
+}
+
 // ------------------------------------------------------------------ geometry helpers
 
 function sideSegment(s, side) {
@@ -1218,6 +1300,9 @@ function furniture(d, kind, inn) {
       if (h > 5) g += sofa(x + w / 2, y + h - 1.6, Math.min(2.6, w - 1.6));
       g += d.rect(x + 0.1, y + 0.1, 0.4, Math.min(3, h * 0.4));
       break;
+    case "void":
+      g += d.line(x, y, x + w, y + h, { dash: "8 5" }) + d.line(x + w, y, x, y + h, { dash: "8 5" });
+      break;
     case "lift":
       g += d.rect(x + w / 2 - 0.8, y + 0.3, 1.6, 1.6) + d.line(x + w / 2 - 0.8, y + 0.3, x + w / 2 + 0.8, y + 1.9) + d.line(x + w / 2 + 0.8, y + 0.3, x + w / 2 - 0.8, y + 1.9);
       break;
@@ -1435,6 +1520,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
       const x0 = sp.x + c - w / 2;
       const wy = ext ? (d.side === "top" ? 0 : D - EXT) : seg.y1 - INT / 2;
       g += `<rect x="${f1(px.X(x0))}" y="${f1(px.Y(wy) - 1)}" width="${f1(w * s)}" height="${f1(t * s + 2)}" fill="${PAPER}"/>`;
+      if (d.rail) for (const f of [0.3, 0.7]) g += `<line x1="${f1(px.X(x0))}" y1="${f1(px.Y(wy + t * f))}" x2="${f1(px.X(x0 + w))}" y2="${f1(px.Y(wy + t * f))}" stroke="${INK}" stroke-width="0.8"/>`; // glass balustrade
       if (!d.open) {
         const into = d.side === "top" ? 1 : -1; // swing into the space
         const hy = d.side === "top" ? wy + t : wy;
@@ -1479,7 +1565,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
     const tw = label.length * fs * 0.68 + 16;
     g += `<rect x="${f1(cx - tw / 2)}" y="${f1(cy - fs - 4)}" width="${f1(tw)}" height="${fs * 2 + 14}" fill="${PAPER}" fill-opacity=".92"/>`;
     g += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
-    g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${MID}">${roomNo[sp.id]} · ${area} m²</text>`;
+    if (sp.kind !== "void") g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${MID}">${roomNo[sp.id]} · ${area} m²</text>`;
   }
   // finished floor level tag
   const ffl = levelIndex === 0 ? "±0.000" : `+${(levelIndex * ST).toFixed(3)}`;
@@ -1819,6 +1905,18 @@ function projectLayout(model) {
     for (let ty = plot.y0 + 3; ty < plot.y1 - 4; ty += 7) tree(plot.x0 + 3.5, ty, 2.0 + rand() * 0.4);
     for (let tx = 2; tx < W * 0.45; tx += 7) tree(tx, -12 - rand() * 6, 2.1);
     shared = `${items.filter((it) => it.t === "bay").length} parking bays with EV charging · trolley shelters · delivery yard with service road`;
+  } else if (kind === "urban" && model.plan.style === "showroom") {
+    // roadside showroom: pavement and a row of forecourt bays off the road, a service yard behind the dispatch door
+    units.push({ x: 0, y: 0, mirror: false, no: 1 });
+    const fw = 2.5, rowD = 5.0, bay = 2.5;
+    plot = { x0: -3, y0: -13, x1: r1(W + 9), y1: r1(D + fw + rowD + 0.5) };
+    items.push({ t: "paving", x: plot.x0, y: D, w: plot.x1 - plot.x0, h: fw, label: "" });
+    for (let bx = plot.x0 + 0.5; bx + bay <= W + 2.6; bx += bay) items.push({ t: "bay", x: bx, y: D + fw, w: bay, h: rowD });
+    items.push({ t: "yard", x: plot.x0 + 1, y: plot.y0 + 1, w: W + 2, h: -plot.y0 - 1, label: "SERVICE YARD" });
+    items.push({ t: "lane", x: W + 2.4, y: plot.y0 + 1, w: 5.6, h: plot.y1 - plot.y0 - 1, label: "" });
+    const disp = model.levels[0].spaces.find((sp) => sp.kind === "dock");
+    items.push({ t: "truck", x: (disp ? disp.x + disp.w / 2 : W * 0.6) - 1.1, y: -8.4, w: 2.2, h: 7.2 });
+    shared = `${items.filter((it) => it.t === "bay").length} forecourt parking bays · service yard for deliveries`;
   } else if (kind === "urban") {
     // corner plot in town: streets to the south and west, the entrance at the corner, gated parking on the east side
     units.push({ x: 0, y: 0, mirror: false, no: 1 });
@@ -1889,6 +1987,8 @@ function projectLayout(model) {
 
 const PROJECT_WORD = { row: "TOWNHOUSES", farm: "FARMHOUSES", cluster: "HOUSES", retail: "BUILDING" };
 const multi = (model) => !!model.project && model.project.units > 1;
+/** What the project is, for sheet titles: the style may name it more precisely than its project kind. */
+const kindLabel = (model) => model.spec.projectLabel ?? PROJECT_RULES[model.project.kind].label;
 /** "7 × 180 m² = 1260 m²" for a project of several houses, "180 m²" otherwise. */
 const grossArea = (model) => (multi(model) ? `${model.project.units} × ${model.plan.areaM2} = ${model.project.totalArea} m²` : `${model.plan.areaM2} m²`);
 const unitNote = (model) => (multi(model) ? ` · TYPICAL HOUSE, ${model.project.units} NO.` : "");
@@ -2076,7 +2176,7 @@ function masterplanSheet(model, sheetNo, { preview = false } = {}) {
   schedule += `<text x="${SHEET_W - 330 + 28}" y="${528 + rows.length * 42}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">${units.length > 1 ? "SHARED FACILITIES" : "SITE"}</text>`;
   wrap(project.layout.shared, 38).forEach((line, i) => (schedule += `<text x="${SHEET_W - 330 + 28}" y="${546 + rows.length * 42 + i * 17}" font-family="${FONT}" font-size="12" fill="${INK}">${esc(line)}</text>`));
   const k = s >= 25 ? 1 : s >= 10 ? 2 : s >= 5 ? 5 : 10;
-  g += sheetTitle("MASTERPLAN", `${plan.title.en.toUpperCase()} · ${units.length > 1 ? `${units.length} ${PROJECT_WORD[project.kind]} · ` : ""}${PROJECT_RULES[project.kind].label}`);
+  g += sheetTitle("MASTERPLAN", `${plan.title.en.toUpperCase()} · ${units.length > 1 ? `${units.length} ${PROJECT_WORD[project.kind]} · ` : ""}${kindLabel(model)}`);
   g += scaleBar(SHEET_W - 330 - 60 - 5 * k * s, SHEET_H - 72, s, k);
   return sheet({ plan, drawing: "MASTERPLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true, preview });
 }
@@ -2186,6 +2286,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   const Y = (m) => +(gy - m * s).toFixed(1);
   const seed = hash(plan.slug);
   const marks = new Map(); // material key -> sample point [x, z] for callouts
+  let overlay = ""; // drawn again over the callout leaders (the owner's sign must stay legible)
   const mark = (key, x, z) => { if (!marks.has(key)) marks.set(key, [x, z]); };
 
   const box = (x, z, w, h, fill, extra = "") => `<rect x="${X(x)}" y="${Y(z + h)}" width="${f1(w * s)}" height="${f1(h * s)}" fill="${fill}" ${extra}/>`;
@@ -2211,10 +2312,11 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     o += `<path d="M${X(x + w * 0.12)} ${Y(z + h * 0.1)} L${X(x + w * 0.42)} ${Y(z + h * (arch ? 0.6 : 0.9))} M${X(x + w * 0.3)} ${Y(z + h * 0.08)} L${X(x + w * 0.5)} ${Y(z + h * 0.55)}" stroke="#ffffff" stroke-opacity=".22" stroke-width="${f1(Math.max(1.2, 0.08 * s))}"/>`;
     if (recess && !arch) o += box(x, z + h - 0.16, w, 0.16, INK, `fill-opacity=".28"`) + box(x, z, 0.1, h - 0.16, INK, `fill-opacity=".16"`);
     // mullions / glazing bars
-    const pane = spec.glassy ? 1.6 : 0.85;
+    const pane = spec.pane ?? (spec.glassy ? 1.6 : 0.85);
     const n = Math.max(1, Math.round(w / pane));
     const top = arch ? z + h - w / 2 : z + h;
     for (let i = 1; i < n; i++) o += box(x + (w * i) / n - 0.03, z, 0.06, top - z, frame);
+    if (spec.transom) for (let k = 1, nt = Math.max(1, Math.round(h / spec.transom)); k < nt; k++) o += box(x, z + (h * k) / nt - 0.03, w, 0.06, frame);
     if (bars) for (let zz = z + 0.55; zz < top - 0.2; zz += 0.55) o += box(x, zz, w, 0.03, frame);
     if (!spec.glassy && !arch && h > 1.6) o += box(x, z + h * 0.72, w, 0.05, frame);
     o += `<path d="${outline}" fill="none" stroke="${frame}" stroke-width="${f1(Math.max(1.4, 0.07 * s))}"/>`;
@@ -2287,7 +2389,15 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     for (let f = 0; f < above; f++) front += glazingTower(tx + tw / 2 - 0.45, f * ST + 0.4, 0.9, ST - 1.1);
     mark("silver", tx + tw * 0.75, ST - 0.16);
   }
-  if (plan.sign && spec.signTwoLines) {
+  if (plan.sign && spec.signBand) {
+    // the owner's sign band along the top of the facade: deep green with gilded letters
+    const bx = W * 0.04, bw = W * 0.92, bz = wallTop - 0.9, bh = 0.8;
+    const fs = Math.min(0.5 * s, (bw * s) / (plan.sign.length * 0.95));
+    overlay = box(bx, bz, bw, bh, MAT.signGreen.fill, `stroke="${INK}" stroke-width="1"`) + box(bx + 0.12, bz + 0.1, bw - 0.24, bh - 0.2, "none", `stroke="#c9b26e" stroke-width="0.8"`)
+      + `<text x="${X(bx + bw / 2)}" y="${f1(Y(bz + bh / 2) + fs * 0.36)}" text-anchor="middle" font-family="${FONT}" font-size="${f1(fs)}" font-weight="600" letter-spacing="${f1(fs * 0.35)}" fill="#d9c27c">${esc(plan.sign)}</text>`;
+    front += overlay;
+    mark("signGreen", bx + bw * 0.93, bz + bh / 2);
+  } else if (plan.sign && spec.signTwoLines) {
     const lines = plan.sign.split(" ");
     const lh = 1.45, fs = 1.2 * s, sw = Math.max(...lines.map((l) => l.length)) * 0.92 + 0.6, sx = W * 0.24 - sw / 2, sz = wallTop + 1.1;
     for (const px of [sx + 0.3, sx + sw - 0.3]) front += box(px, wallTop + 0.4, 0.08, sz - wallTop - 0.4 + lines.length * lh, MAT.steel.fill);
@@ -2378,7 +2488,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   if (spec.entryCanopy) {
     const d0 = entryDoors(model.levels[0])[0];
     if (d0) {
-      const cz = (spec.head ?? ST - 0.42) - 0.05, cx0 = Math.max(d0.x - 3, model.chamfer ? model.chamfer.a : -Infinity), cw = d0.x + d0.w + 3 - cx0;
+      const cz = (spec.head ?? ST - 0.42) - 0.05, cx0 = Math.max(d0.x - 3, model.chamfer ? model.chamfer.a : spec.piers ? 0.05 : -Infinity), cw = d0.x + d0.w + 3 - cx0;
       if (spec.canopyGlass) {
         // cantilevered glass canopy hung from steel tie rods
         front += box(cx0, cz, cw, 0.16, MAT.canopyGlass.fill, `fill-opacity=".85" stroke="${MAT.steel.fill}" stroke-width="1.4"`);
@@ -2407,7 +2517,13 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   if (spec.piers && model.columns) {
     const xs = [...new Set(model.columns.map(([x]) => x))].filter((x) => !model.towerArc || Math.abs(x - model.towerArc.cx) > model.towerArc.r);
     if (model.chamfer) xs.push(model.chamfer.a);
-    for (const x of xs) front += box(Math.max(-0.05, Math.min(W - 0.55, x - 0.3)), 0, 0.6, wallTop + 0.1, MAT.blackalu.fill, `stroke="${INK}" stroke-width="0.8"`);
+    const pw = spec.pierW ?? 0.6, pm = spec.pierMat ?? "blackalu";
+    for (const x of xs) {
+      const px0 = Math.max(-0.05, Math.min(W + 0.05 - pw, x - pw / 2));
+      front += box(px0, 0, pw, wallTop + 0.1, MAT[pm].fill, `stroke="${INK}" stroke-width="0.8"`);
+      if (pm === "pilaster") front += box(px0 + pw * 0.62, 0, pw * 0.38, wallTop + 0.1, INK, `fill-opacity=".08"`); // rounded pilaster in shade
+    }
+    if (spec.pierMat) mark(pm, xs[0] + pw * 0.3, ST * 0.6);
   }
   model.levels.forEach((lv, li) => {
     for (const b of (lv.balconies ?? []).filter((bb) => bb.side === "bottom")) {
@@ -2592,6 +2708,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
       out += `<circle cx="${X(it.p[0])}" cy="${Y(it.p[1])}" r="2.6" fill="${INK}"/>`;
       out += `<circle cx="${X(tx)}" cy="${Y(tagZ)}" r="11" fill="${PAPER}" stroke="${INK}" stroke-width="1"/><text x="${X(tx)}" y="${Y(tagZ) + 4}" text-anchor="middle" font-family="${FONT}" font-size="11" font-weight="600" fill="${INK}">${n}</text>`;
     });
+    out += overlay;
     const defs = materialDefs(s, seed);
     const elevName = row > 1 ? "STREET ELEVATION" : "SOUTH ELEVATION";
     const what = row > 1 ? `${row} HOUSES IN MIRRORED PAIRS · LEVELS IN METRES` : multi(model) ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO. · LEVELS IN METRES ABOVE GROUND FLOOR` : `${STYLE_EN[plan.style]} · LEVELS IN METRES ABOVE FINISHED GROUND FLOOR`;
@@ -2601,7 +2718,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     legend.title = "MATERIALS";
     return sheet({ plan, drawing: elevName, sheetNo, scaleNote: "GRAPHIC SCALE", body: out, defs, north: false, legend, preview });
   }
-  return bareSvg(out, materialDefs(s, seed));
+  return bareSvg(out + overlay, materialDefs(s, seed));
 }
 
 // ------------------------------------------------------------------ axonometric (coloured massing)
@@ -2771,7 +2888,7 @@ function isoHouse(model, P) {
     const d0 = entryDoors(model.levels[0])[0];
     if (d0) {
       const cz = (spec.head ?? ST - 0.42) - 0.05;
-      const cx0 = Math.max(d0.x - 3, cham ? cham.a : -Infinity);
+      const cx0 = Math.max(d0.x - 3, cham ? cham.a : spec.piers ? 0.05 : -Infinity);
       g += box(cx0, d0.x + d0.w + 3, -3.2, 0, cz, cz + (spec.canopyGlass ? 0.16 : 0.42), colours(spec.canopyGlass ? "canopyGlass" : "timber"));
       for (const px of [cx0 + 0.3, d0.x + d0.w + 2.6]) g += `<polyline points="${P(px, -3.0, 0)} ${P(px, -3.0, cz)}" fill="none" stroke="${MAT.steel.fill}" stroke-width="1.6"/>`;
     }
@@ -2853,7 +2970,8 @@ function isoHouse(model, P) {
   // concept facade frames and street balconies
   if (spec.piers && model.columns) {
     for (const x of [...new Set(model.columns.map(([cx]) => cx)), ...(cham ? [cham.a] : [])].filter((x) => (!model.towerArc || Math.abs(x - model.towerArc.cx) > model.towerArc.r) && !(cham && x < cham.a - 0.1))) {
-      g += poly([P(x - 0.3, -0.05, 0), P(x + 0.3, -0.05, 0), P(x + 0.3, -0.05, wallTop), P(x - 0.3, -0.05, wallTop)], MAT.blackalu.fill, 'stroke-width="0.4"');
+      const hw = (spec.pierW ?? 0.6) / 2, xa = x - hw, xb = x + hw;
+      g += poly([P(xa, -0.05, 0), P(xb, -0.05, 0), P(xb, -0.05, wallTop), P(xa, -0.05, wallTop)], MAT[spec.pierMat ?? "blackalu"].fill, 'stroke-width="0.4"');
     }
   }
   if (spec.piers && cham) g += poly([P(-0.05, cham.b - 0.3, 0), P(-0.05, cham.b + 0.3, 0), P(-0.05, cham.b + 0.3, wallTop), P(-0.05, cham.b - 0.3, wallTop)], shade(MAT.blackalu.fill, -0.1), 'stroke-width="0.4"');
@@ -2879,7 +2997,13 @@ function isoHouse(model, P) {
     g += box(x0, x1, -0.5, st.h * 0.8, 0, tz, colours("silver"));
     for (let f = 0; f < above; f++) g += poly([P((x0 + x1) / 2 - 0.45, -0.5, f * ST + 0.4), P((x0 + x1) / 2 + 0.45, -0.5, f * ST + 0.4), P((x0 + x1) / 2 + 0.45, -0.5, (f + 1) * ST - 0.7), P((x0 + x1) / 2 - 0.45, -0.5, (f + 1) * ST - 0.7)], GLASS, 'stroke-width="0.6"');
   }
-  if (plan.sign && spec.signTwoLines) {
+  if (plan.sign && spec.signBand) {
+    const bx = W * 0.04, bw = W * 0.92, bz = wallTop - 0.9, bh = 0.8;
+    g += poly([P(bx, -0.08, bz), P(bx + bw, -0.08, bz), P(bx + bw, -0.08, bz + bh), P(bx, -0.08, bz + bh)], MAT.signGreen.fill, 'stroke-width="0.5"');
+    const pt = (x, b, z) => P(x, b, z).split(",").map(Number);
+    const O = pt(bx, -0.08, bz), X1 = pt(bx + 1, -0.08, bz), Z1 = pt(bx, -0.08, bz + 1);
+    g += `<g transform="matrix(${[X1[0] - O[0], X1[1] - O[1], O[0] - Z1[0], O[1] - Z1[1], O[0], O[1]].map((v) => v.toFixed(3)).join(" ")})"><text x="${(bw / 2).toFixed(2)}" y="${(-(bh / 2) + 0.18).toFixed(2)}" text-anchor="middle" font-family="${FONT}" font-size="0.5" font-weight="600" letter-spacing="0.2" fill="#d9c27c">${esc(plan.sign)}</text></g>`;
+  } else if (plan.sign && spec.signTwoLines) {
     // green letters on a light steel frame standing on the roof edge, as on the building today
     const lines = plan.sign.split(" ");
     const lh = 1.45, sw = Math.max(...lines.map((l) => l.length)) * 0.92 + 0.6, sx = W * 0.24 - sw / 2, sb = 0.45, sz = wallTop + 1.1;
@@ -3055,7 +3179,7 @@ function ensembleSheet(model, sheetNo, { preview = false } = {}) {
     const [x, y] = xy(u.x + W / 2, bOf(u.y + D / 2), model.H + 2.2);
     g += `<circle cx="${f1(x)}" cy="${f1(y)}" r="10" fill="${PAPER}" stroke="${INK}" stroke-width="1"/><text x="${f1(x)}" y="${f1(y + 3.5)}" text-anchor="middle" font-family="${FONT}" font-size="9.5" font-weight="600" fill="${INK}">${String(u.no).padStart(2, "0")}</text>`;
   }
-  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${units.length > 1 ? `${units.length} ${PROJECT_WORD[project.kind]}` : PROJECT_RULES[project.kind].label} · VIEW FROM SOUTH-WEST`);
+  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${units.length > 1 ? `${units.length} ${PROJECT_WORD[project.kind]}` : kindLabel(model)} · VIEW FROM SOUTH-WEST`);
   return sheet({ plan, drawing: "AXONOMETRIC VIEW", sheetNo, scaleNote: "NTS", body: g, north: false, preview });
 }
 
@@ -3080,6 +3204,7 @@ const OFFICE_FINISH = {
 function finishFor(style, kind) {
   if (style === "market" && MARKET_FINISH[kind]) return MARKET_FINISH[kind];
   if (style === "office" && OFFICE_FINISH[kind]) return OFFICE_FINISH[kind];
+  if (style === "showroom") return { dock: "Power-floated concrete, sealed", staff: "Porcelain stoneware 60×60", racks: "Sealed screed" }[kind] ?? OFFICE_FINISH[kind] ?? "Porcelain tiles, walls tiled 2.40";
   const stone = ["modern", "minimal", "coastal", "luxury", "pavilion", "absheron", "noir"].includes(style);
   const terracotta = ["tuscan", "farmhouse", "mediterranean"].includes(style);
   switch (kind) {
@@ -3105,6 +3230,11 @@ function finishFor(style, kind) {
 }
 
 /** Numbered rooms, doors and windows with sizes and finishes — one source for the plans, schedules and CAD. */
+/** Gross area of one level: the footprint less any double-height void. */
+const levelGrossArea = (model, lv) => model.W * model.D - lv.spaces.filter((sp) => sp.kind === "void").reduce((n, sp) => n + sp.w * sp.h, 0);
+/** Gross floor area of the building as drawn (checked against plan.areaM2 for buildings with a known footprint). */
+export const grossFloorArea = (model) => model.levels.reduce((n, lv) => n + levelGrossArea(model, lv), 0);
+
 export function schedules(model) {
   const ST = model.storey;
   const { plan, spec, W, D } = model;
@@ -3115,7 +3245,7 @@ export function schedules(model) {
     const byId = Object.fromEntries(lv.spaces.map((sp) => [sp.id, sp]));
     let k = 0;
     for (const sp of lv.spaces) {
-      if (sp.kind === "stair") continue;
+      if (sp.kind === "stair" || sp.kind === "void") continue;
       const inn = inner(model, sp);
       rooms.push({ no: `${li}.${String(++k).padStart(2, "0")}`, id: sp.id, level: li, name: sp.label, area: inn.w * inn.h, finish: finishFor(plan.style, sp.kind) });
     }
@@ -3150,17 +3280,16 @@ export function schedules(model) {
       const sill = lv.sill ?? (spec.glassy || (living && li === 0) ? 0.05 : 0.9);
       const head = lv.head ?? spec.head ?? (spec.glassy ? ST - 0.42 : spec.arches ? 2.75 : 2.45);
       const type = win.w > 50 ? (STYLE_RULES[plan.style].commercial ? "Shopfront curtain wall, aluminium" : "Lift-and-slide glazing, aluminium") : spec.glassy ? "Tilt-and-turn, aluminium, low-E" : spec.arches && w <= 2.6 ? "Arched casement, oak, low-E" : "Casement, oak, low-E";
-      windows.push({ level: li, room: sp.label, facade: FACADE[win.side], w, h: head - sill, sill, type });
+      windows.push({ level: li, room: sp.kind === "void" ? "SHOWROOM VOID" : sp.label, facade: FACADE[win.side], w, h: head - sill, sill, type });
     }
   });
   if (model.garage) doors.push({ level: 0, room: "GARAGE", w: model.garage.w - 0.9, h: 2.4, type: "Sectional garage door, motorised" });
   doors.forEach((d, i) => (d.no = `D${String(i + 1).padStart(2, "0")}`));
   windows.forEach((w, i) => (w.no = `W${String(i + 1).padStart(2, "0")}`));
-  const gea = W * D;
   const areas = model.levels.map((lv, li) => ({
     level: lv.name.replace(" PLAN", ""),
     nia: rooms.filter((r) => r.level === li).reduce((n, r) => n + r.area, 0),
-    gea,
+    gea: levelGrossArea(model, lv),
   }));
   return { rooms, doors, windows, areas, garageArea: model.garage ? model.garage.w * model.garage.d : 0 };
 }
@@ -3304,7 +3433,7 @@ export function coverSheet(model, renderDataUri, sheetList) {
   g += `<text x="${rx}" y="${iy + 10}" font-family="${FONT}" font-size="10" letter-spacing="2.4" fill="${ACCENT}">CONCEPT DESIGN PACKAGE</text>`;
   const titleSize = plan.title.en.length > 18 ? Math.floor(380 / (plan.title.en.length * 0.72)) : 34; // long project names
   g += `<text x="${rx}" y="${iy + 52}" font-family="${FONT}" font-size="${titleSize}" font-weight="600" letter-spacing="1" fill="${INK}">${esc(plan.title.en.toUpperCase())}</text>`;
-  g += `<text x="${rx}" y="${iy + 76}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${model.project ? `${PROJECT_RULES[model.project.kind].label}${multi(model) ? ` · ${model.project.units} HOUSES` : ""}` : `${STYLE_EN[plan.style]} VILLA`}</text>`;
+  g += `<text x="${rx}" y="${iy + 76}" font-family="${FONT}" font-size="12" letter-spacing="2" fill="${MID}">${model.project ? `${kindLabel(model)}${multi(model) ? ` · ${model.project.units} HOUSES` : ""}` : `${STYLE_EN[plan.style]} VILLA`}</text>`;
   const summary = wrap(plan.summary.en, 58);
   summary.forEach((line, i) => (g += `<text x="${rx}" y="${iy + 110 + i * 17}" font-family="${FONT}" font-size="11.5" fill="${INK}">${esc(line)}</text>`));
   const sc = schedules(model);
@@ -3462,6 +3591,7 @@ export function cadLevel(model, levelIndex) {
       const x0 = sp.x + c - w / 2;
       const wy = ext ? (d.side === "top" ? 0 : D - EXT) : seg.y1 - INT / 2;
       holes.push({ x: x0, y: wy - 0.005, w, h: t + 0.01 });
+      if (d.rail) add("A-GLAZ", { t: "line", x1: x0, y1: wy + t / 2, x2: x0 + w, y2: wy + t / 2 }); // glass balustrade
       if (!d.open) {
         const into = d.side === "top" ? 1 : -1;
         const hy = d.side === "top" ? wy + t : wy;
@@ -3560,7 +3690,7 @@ export function cadLevel(model, levelIndex) {
     if (sp.labelY) cy = inn.y + inn.h * sp.labelY;
     const small = inn.w < 2.2;
     add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy, h: small ? 0.17 : 0.25, text: small && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label });
-    add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy + (small ? 0.28 : 0.38), h: small ? 0.14 : 0.19, text: `${(inn.w * inn.h).toFixed(1)} m²` });
+    if (sp.kind !== "void") add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy + (small ? 0.28 : 0.38), h: small ? 0.14 : 0.19, text: `${(inn.w * inn.h).toFixed(1)} m²` });
   }
 
   // structural grid
