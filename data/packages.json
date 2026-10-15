@@ -790,5 +790,225 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-15"
+  },
+  "sebail-37": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sebail-37-drawings.pdf",
+        "bytes": 598011,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "sebail-37.dwg",
+        "bytes": 53823
+      },
+      {
+        "kind": "cad",
+        "name": "sebail-37.dxf",
+        "bytes": 130219
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "yasamal-38": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "yasamal-38-drawings.pdf",
+        "bytes": 449271,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "yasamal-38.dwg",
+        "bytes": 45407
+      },
+      {
+        "kind": "cad",
+        "name": "yasamal-38.dxf",
+        "bytes": 106546
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "genclik-39": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "genclik-39-drawings.pdf",
+        "bytes": 456124,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "genclik-39.dwg",
+        "bytes": 41471
+      },
+      {
+        "kind": "cad",
+        "name": "genclik-39.dxf",
+        "bytes": 95948
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "bayil-40": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bayil-40-drawings.pdf",
+        "bytes": 502134,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "bayil-40.dwg",
+        "bytes": 54551
+      },
+      {
+        "kind": "cad",
+        "name": "bayil-40.dxf",
+        "bytes": 132710
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "shikhov-41": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shikhov-41-drawings.pdf",
+        "bytes": 650693,
+        "pages": 11
+      },
+      {
+        "kind": "dwg",
+        "name": "shikhov-41.dwg",
+        "bytes": 82482
+      },
+      {
+        "kind": "cad",
+        "name": "shikhov-41.dxf",
+        "bytes": 207017
+      }
+    ],
+    "sheets": 11,
+    "builtAt": "2026-10-15"
+  },
+  "narimanov-42": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "narimanov-42-drawings.pdf",
+        "bytes": 587578,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "narimanov-42.dwg",
+        "bytes": 52196
+      },
+      {
+        "kind": "cad",
+        "name": "narimanov-42.dxf",
+        "bytes": 124183
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "icherisheher-43": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "icherisheher-43-drawings.pdf",
+        "bytes": 605331,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "icherisheher-43.dwg",
+        "bytes": 38136
+      },
+      {
+        "kind": "cad",
+        "name": "icherisheher-43.dxf",
+        "bytes": 87093
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "khatai-44": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "khatai-44-drawings.pdf",
+        "bytes": 605134,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "khatai-44.dwg",
+        "bytes": 62189
+      },
+      {
+        "kind": "cad",
+        "name": "khatai-44.dxf",
+        "bytes": 151987
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "ganja-45": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ganja-45-drawings.pdf",
+        "bytes": 514717,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "ganja-45.dwg",
+        "bytes": 59712
+      },
+      {
+        "kind": "cad",
+        "name": "ganja-45.dxf",
+        "bytes": 143791
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
+  },
+  "sheki-46": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sheki-46-drawings.pdf",
+        "bytes": 577919,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "sheki-46.dwg",
+        "bytes": 51066
+      },
+      {
+        "kind": "cad",
+        "name": "sheki-46.dxf",
+        "bytes": 120746
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-15"
   }
 }
