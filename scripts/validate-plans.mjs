@@ -114,7 +114,7 @@ for (const plan of plans) {
   for (const field of ["areaM2", "floors", "bedrooms", "bathrooms", "priceCents"]) if (!Number.isInteger(plan[field]) || plan[field] <= 0) if (!(field === "bedrooms" && rules.commercial && plan[field] === 0)) err(`${field} must be a positive integer`);
   for (const field of ["garage", "pool", "published", "demo"]) if (typeof plan[field] !== "boolean") err(`${field} must be true or false`);
   const perFloor = plan.areaM2 / plan.floors;
-  const [minFloor, maxFloor] = rules.commercial ? [1200, 3500] : [80, 320];
+  const [minFloor, maxFloor] = rules.floorArea ?? [80, 320];
   if (perFloor < minFloor || perFloor > maxFloor) err(`area per floor ${perFloor.toFixed(0)} m² is outside ${minFloor}–${maxFloor} m² — the generated plans would not be credible`);
   if (plan.style === "duplex" && plan.bedrooms !== 6) err("duplex template has exactly 6 bedrooms (3 per unit)");
   if (plan.project !== undefined) {
@@ -125,6 +125,7 @@ for (const plan of plans) {
       if (!pr.styles.includes(plan.style)) err(`a ${plan.project.kind} project takes the styles ${pr.styles.join(", ")}`);
     }
     if (plan.garage) err("projects park cars on the masterplan: set garage to false");
+    if (plan.sign !== undefined && (typeof plan.sign !== "string" || !/^[A-Z0-9 .&-]{2,24}$/.test(plan.sign))) err("sign must be 2–24 capital letters (the owner's own name only — never a third-party brand)");
   } else if (rules.projectOnly) err(`style ${plan.style} is only drawn as part of a project (set "project")`);
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);

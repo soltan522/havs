@@ -98,7 +98,7 @@ export const COPY = {
     contactToOrder: "Sifariş üçün əlaqə",
     contactToCustomise: "Fərdiləşdirmə üçün əlaqə",
     sheets: "Konsept vərəqləri",
-    sheetNames: { render: "Konsept vizualizasiya", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", schedules: "Otaq, qapı və pəncərə cədvəlləri", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı"] },
+    sheetNames: { render: "Konsept vizualizasiya", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", schedules: "Otaq, qapı və pəncərə cədvəlləri", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı", "Dördüncü mərtəbə planı", "Beşinci mərtəbə planı", "Altıncı mərtəbə planı"] },
     priceFrom: "Paket qiyməti",
   },
   en: {
@@ -196,7 +196,7 @@ export const COPY = {
     contactToOrder: "Contact to order",
     contactToCustomise: "Contact to customise",
     sheets: "Concept sheets",
-    sheetNames: { render: "Concept visualisation", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", schedules: "Room, door and window schedules", plans: ["Ground floor plan", "First floor plan", "Second floor plan"] },
+    sheetNames: { render: "Concept visualisation", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", schedules: "Room, door and window schedules", plans: ["Ground floor plan", "First floor plan", "Second floor plan", "Third floor plan", "Fourth floor plan", "Fifth floor plan"] },
     priceFrom: "Package price",
   },
   ru: {
@@ -294,7 +294,7 @@ export const COPY = {
     contactToOrder: "Связаться для заказа",
     contactToCustomise: "Адаптация проекта",
     sheets: "Концептуальные листы",
-    sheetNames: { render: "Концептуальная визуализация", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", schedules: "Экспликация, двери и окна", plans: ["План первого этажа", "План второго этажа", "План третьего этажа"] },
+    sheetNames: { render: "Концептуальная визуализация", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", schedules: "Экспликация, двери и окна", plans: ["План первого этажа", "План второго этажа", "План третьего этажа", "План четвёртого этажа", "План пятого этажа", "План шестого этажа"] },
     priceFrom: "Цена пакета",
   },
 } satisfies Record<Locale, unknown>;
