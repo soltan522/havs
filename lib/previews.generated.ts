@@ -1190,5 +1190,59 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "xirdalan-36": {
+    "cover": "/plans/xirdalan-36/cover.jpg",
+    "hover": "/plans/xirdalan-36/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/xirdalan-36/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/xirdalan-36/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/xirdalan-36/render-03.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/xirdalan-36/owner-01.jpg",
+        "kind": "owner"
+      },
+      {
+        "src": "/plans/xirdalan-36/owner-02.jpg",
+        "kind": "owner"
+      },
+      {
+        "src": "/plans/xirdalan-36/owner-03.jpg",
+        "kind": "owner"
+      },
+      {
+        "src": "/plans/xirdalan-36/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/xirdalan-36/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/xirdalan-36/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/xirdalan-36/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/xirdalan-36/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/xirdalan-36/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };

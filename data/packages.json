@@ -768,5 +768,27 @@
     ],
     "sheets": 11,
     "builtAt": "2026-10-15"
+  },
+  "xirdalan-36": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "xirdalan-36-drawings.pdf",
+        "bytes": 528727,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "xirdalan-36.dwg",
+        "bytes": 78172
+      },
+      {
+        "kind": "cad",
+        "name": "xirdalan-36.dxf",
+        "bytes": 198758
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
   }
 }
