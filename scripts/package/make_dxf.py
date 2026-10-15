@@ -29,6 +29,7 @@ LAYERS = {
     "A-ANNO-TEXT": (7, 18, "Continuous", "Annotation"),
     "A-ROOF-OTLN": (6, 18, "DASHED", "Roof / slab above"),
     "A-COLS": (7, 35, "Continuous", "Columns and posts"),
+    "A-BALC": (5, 25, "Continuous", "Balconies"),
     "L-PAVE": (33, 13, "Continuous", "Hard landscape"),
     "L-POOL": (140, 25, "Continuous", "Pool"),
     "L-PLNT": (94, 13, "Continuous", "Planting, hedges, vineyard rows"),
@@ -99,7 +100,13 @@ def writer(msp, ox):
             x, y, w, h = e["x"], e["y"], e["w"], e["h"]
             msp.add_lwpolyline([P(x, y), P(x + w, y), P(x + w, y + h), P(x, y + h)], close=True, dxfattribs=attrs)
         elif t == "poly":
-            msp.add_lwpolyline([P(*p) for p in e["pts"]], dxfattribs=attrs)
+            pts = [P(*p) for p in e["pts"]]
+            if e.get("fill"):
+                hatch = msp.add_hatch(dxfattribs={"layer": layer})
+                hatch.paths.add_polyline_path(pts, is_closed=True)
+                hatch.set_solid_fill(color=8 if layer == "A-WALL-PATT" else 7)
+            else:
+                msp.add_lwpolyline(pts, close=bool(e.get("closed")), dxfattribs=attrs)
         elif t == "circle":
             c = msp.add_circle(P(e["cx"], e["cy"]), e["r"], dxfattribs=attrs)
             if e.get("filled"):

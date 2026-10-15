@@ -128,6 +128,12 @@ for (const plan of plans) {
     if (plan.sign !== undefined && (typeof plan.sign !== "string" || !/^[A-Z0-9 .&-]{2,24}$/.test(plan.sign))) err("sign must be 2–24 capital letters (the owner's own name only — never a third-party brand)");
   } else if (rules.projectOnly) err(`style ${plan.style} is only drawn as part of a project (set "project")`);
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
+  if (plan.footprint !== undefined) {
+    // surveyed buildings keep their measured footprint instead of one derived from the area
+    const [fw, fd] = Array.isArray(plan.footprint) ? plan.footprint : [];
+    if (!(fw >= 6 && fw <= 60 && fd >= 6 && fd <= 40)) err("footprint must be [width, depth] in metres, as surveyed");
+    else if (Math.abs(fw * fd * plan.floors - plan.areaM2) / plan.areaM2 > 0.1) err(`footprint ${fw} × ${fd} m on ${plan.floors} floors is ${(fw * fd * plan.floors).toFixed(0)} m², not ${plan.areaM2} m²`);
+  }
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
   if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);

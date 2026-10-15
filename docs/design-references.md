@@ -128,11 +128,15 @@ a timber entrance canopy, a car park with planted islands and EV bays, and a sep
   "car park with planted islands", "delivery yard with a truck at the loading dock", "no logos, no text"
 
 ### baku-commercial — Baku corner office and showroom building
-Refresh of a mid-rise corner building in central Baku for a company's own headquarters: champagne aluminium
-composite panels, silver floor bands, vertical window stacks, a round glazed stair tower, a fully glazed
-ground-floor showroom under a glass canopy, a roof terrace and a gated forecourt car park.
-- **style** `office` with `"project": { "kind": "urban", "units": 1 }`, six floors; `"sign"` only with the owner's
-  own company name (never a third-party brand)
-- **prompt cues** "six-storey corner office building", "champagne aluminium panels with silver floor bands",
-  "round glazed stair tower", "glazed ground-floor showroom", "glass canopy on steel tie rods", "roof terrace";
-  add interior views (showroom, office floor, board room) as extra renders
+Refurbishment of an existing mid-rise corner building in central Baku as a company's own headquarters, drawn from
+the owner's survey and concept: white facades with wide black anodised aluminium frames on the column lines, a fully
+glazed chamfered corner, black-clad street balconies, a round stair tower, a glazed ground-floor showroom under a
+glass canopy, a roof terrace and a gated forecourt car park.
+- **style** `office` with `"project": { "kind": "urban", "units": 1 }`, six floors, `"footprint": [w, d]` from the
+  survey; `"sign"` only with the owner's own company name (never a third-party brand)
+- the owner's own photos, concept images and survey plans go in `renders/<slug>/owner/` (strip licence plates, phone
+  numbers and photo metadata first) and are shown in the gallery after the renders
+- **prompt cues** "six-storey corner office building", "corner cut at 45 degrees, full-height glazing between black
+  frames", "white facades with black aluminium frames", "three stacked black balconies", "round silver stair tower",
+  "glazed ground-floor showroom", "glass canopy on steel tie rods", "count of floors: one tall ground floor, then five
+  rows of windows"; add interior views (showroom, office corridor, manager's office) as extra renders

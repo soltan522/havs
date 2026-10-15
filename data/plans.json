@@ -934,7 +934,11 @@
       "kind": "urban",
       "units": 1
     },
-    "parking": 22,
+    "footprint": [
+      22.99,
+      11.64
+    ],
+    "parking": 18,
     "sign": "AVROPA QAPILARI",
     "inspiration": "baku-commercial",
     "title": {
@@ -943,20 +947,20 @@
       "ru": "Офис Avropa Qapıları"
     },
     "summary": {
-      "az": "Bakıda altımərtəbəli künc binasının Avropa Qapıları-nın baş ofisi kimi konsept yenilənməsi — şampan rəngli alüminium panellər, gümüşü mərtəbə qurşaqları, şüşəli dairəvi pilləkən qülləsi və künc girişinin üzərində şüşə örtük. Birinci mərtəbədə qapı şourumu, ikincidə pəncərə və qapı qalereyası ilə dizayn studiyası, yuxarıda satış, layihə və mühasibat ofisləri, ən üstdə iclas zalı və lounge ilə direktor bloku; dam terrası və şlaqbaumlu 22 avtomobil yeri.",
-      "en": "A concept refresh of a six-storey corner building in Baku as the headquarters of Avropa Qapıları: champagne aluminium panels, silver floor bands, a round glazed stair tower and a glass canopy over the corner entrance. A door showroom on the ground floor, a window and door gallery with a design studio above it, sales, projects and accounts offices on floors two to four and a director's suite with board room and lounge on top; a roof terrace and 22 gated parking bays.",
-      "ru": "Концепция обновления шестиэтажного углового здания в Баку под штаб-квартиру Avropa Qapıları: панели из алюминия цвета шампань, серебристые межэтажные пояса, круглая остеклённая лестничная башня и стеклянный козырёк над угловым входом. На первом этаже — шоурум дверей, на втором — галерея окон и дверей с дизайн-студией, выше — офисы продаж, проектов и бухгалтерии, наверху — кабинет директора с переговорной и лаунджем; терраса на крыше и 22 парковочных места за шлагбаумом."
+      "az": "Bakıda Avropa Qapıları-nın mövcud altımərtəbəli künc binasının sifarişçinin ölçü planı (22,99 × 11,64 m), konsept şəkli və yeni ofis planı əsasında yenilənməsi — ağ fasadlar, sütun oxlarında qara anodlaşdırılmış alüminium çərçivələr, tam şüşəli kəsik künc, küçəyə baxan üç qara eyvan, dairəvi pilləkən qülləsi və damda iki sətirli yaşıl yazı. Birinci mərtəbədə qapı şourumu və göndərmə anbarı, ikincidə pəncərə və qapı qalereyası, üçüncü–beşinci mərtəbələrdə 1,2 m dəhliz boyunca müdir kabineti, altı ofis otağı, mətbəx, anbar və iki S/Q, ən üstdə iclas zalı ilə direktor bloku; dam terrası və 18 avtomobil yeri.",
+      "en": "A refurbishment concept for Avropa Qapıları's existing six-storey corner building in Baku, drawn from the owner's survey (22.99 × 11.64 m), concept image and new office plan: white facades with black anodised aluminium frames on the column lines, a fully glazed chamfered corner, three black street balconies, the round stair tower and a green two-line rooftop sign. A door showroom with dispatch on the ground floor, a window and door gallery on the first, the owner's office layout on floors two to four — manager's office, six offices, kitchen, store and two WCs along a 1.2 m corridor — and a director's suite with board room on top; a roof terrace and 18 parking bays.",
+      "ru": "Концепция обновления существующего шестиэтажного углового здания Avropa Qapıları в Баку по обмерному плану заказчика (22,99 × 11,64 м), его концепту и новой планировке офиса: белые фасады с чёрными анодированными алюминиевыми рамами по осям колонн, полностью остеклённый скошенный угол, три чёрных балкона на улицу, круглая лестничная башня и двухстрочная зелёная вывеска на крыше. На первом этаже — шоурум дверей и экспедиция, на втором — галерея окон и дверей, на третьем–пятом — кабинет руководителя, шесть офисов, кухня, кладовая и два санузла вдоль коридора 1,2 м, наверху — кабинет директора с переговорной; терраса на крыше и 18 парковочных мест."
     },
-    "areaM2": 1980,
+    "areaM2": 1606,
     "floors": 6,
     "bedrooms": 0,
-    "bathrooms": 6,
+    "bathrooms": 12,
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 389000,
+    "priceCents": 329000,
     "published": true,
     "demo": true,
-    "prompt": "Professional architectural visualization, photorealistic exterior render of a refreshed six-storey corner office building in Baku, champagne-gold aluminium composite panel facades with silver aluminium horizontal floor bands, vertical stacks of large bronze-framed windows, a round silver stair tower with narrow windows on the right corner, a fully glazed ground-floor showroom displaying premium entrance doors, a cantilevered glass canopy with steel tie rods over the corner entrance, a slim dark sign frame on the roof edge with gold letters reading AVROPA QAPILARI, a roof terrace with glass balustrade, street trees and a gated car park with a barrier at the side, clear evening light with warm interior lighting, eye-level three-quarter view from the street corner, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no other text, no watermark"
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a tall slender six-storey corner office building in Baku, viewed at eye level from the street corner with the whole building in frame and sky above. Count of floors: one tall glazed ground floor, then FIVE rows of windows above it (floors two to six), so six storeys in total. The building corner is cut at 45 degrees and is a full-height glazed bay between two wide black anodised aluminium vertical frames, with a black spandrel band at each of the six floors. The long facade on the right is white with black aluminium vertical frames and black-framed windows; three stacked black-clad balconies sit on floors three, four and five, with one more ordinary window floor above the top balcony; further right a round silver stair tower with narrow windows rises a little above the roof. The shorter facade on the left is white with three black-framed windows on each of the five upper floors. The ground floor is a glazed showroom of premium entrance doors with a glass canopy on steel tie rods over the entrance next to the corner. On the roof edge above the corner a light steel frame holds big green letters in two lines reading AVROPA and QAPILARI. Glass roof balustrade, plane trees on a clean empty pavement, soft late-afternoon light, warm interior lighting, 24mm lens, Corona render quality, no people, no cars, no other text, no watermark"
   }
 ]

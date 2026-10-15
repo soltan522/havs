@@ -77,6 +77,7 @@ const MAT = {
   acp: { fill: "#d2b27a", pattern: "acp", label: "Champagne aluminium panels" },
   silver: { fill: "#cdd0d3", label: "Silver aluminium floor bands" },
   canopyGlass: { fill: "#bcd3da", label: "Glass canopy, steel tie rods" },
+  blackalu: { fill: "#25272a", label: "Black anodised aluminium frames" },
 };
 
 // Per-style design language. walls[i] = cladding of storey i (last entry repeats).
@@ -101,7 +102,7 @@ const SPEC = {
   townhouse: { walls: ["brick"], frame: "bronze", glassy: true, slab: 0.5, timberEntry: true, tree: "round" },
   // neighbourhood supermarket: one tall storey, shopfront glazing under a fascia, timber entrance canopy
   // office building with a ground-floor showroom: champagne panels, silver floor bands, round stair tower, glass canopy
-  office: { walls: ["acp"], frame: "alu", glassy: true, slab: 0.45, slabMat: "silver", storey: 3.6, tower: true, entryCanopy: true, canopyGlass: true, slidingEntry: true, roofTerrace: true, tree: "round" },
+  office: { walls: ["render"], frame: "blackalu", glassy: true, slab: 0.6, storey: 3.5, survey: true, piers: true, tower: true, entryCanopy: true, canopyGlass: true, slidingEntry: true, roofTerrace: true, signTwoLines: true, tree: "round" },
   market: { walls: ["panel"], frame: "alu", glassy: true, slab: 0.5, slabMat: "coping", storey: 6.0, head: 4.2, fascia: true, entryCanopy: true, slidingEntry: true, rooflights: true, tree: "round" },
 };
 
@@ -210,8 +211,9 @@ export function buildModel(plan) {
   // footprint proportion (width / depth); a plan may override it to vary the massing
   // (a terraced house is deeper than it is wide)
   const ratio = plan.style === "townhouse" ? 0.67 : plan.ratio ?? ({ duplex: 2.0, market: 1.4, office: 1.45 }[plan.style] ?? (above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4));
-  const W = r1(Math.sqrt(footprintArea * ratio));
-  const D = r1(footprintArea / W);
+  // a surveyed building keeps its measured footprint
+  const W = plan.footprint ? plan.footprint[0] : r1(Math.sqrt(footprintArea * ratio));
+  const D = plan.footprint ? plan.footprint[1] : r1(footprintArea / W);
 
   let levels;
   if (plan.style === "duplex") levels = duplexLevels(spec);
@@ -248,6 +250,14 @@ export function buildModel(plan) {
   const garage = plan.garage ? { w: plan.areaM2 >= 370 ? 6.6 : 3.9, d: 6.4 } : null;
   const model = { plan, spec, W, D, above, levels, garage, basement: plan.style === "luxury", storey: spec.storey ?? STOREY };
   model.wallTop = above * model.storey;
+  if (spec.survey) {
+    // structural grid, chamfered street corner and the round stair tower of the surveyed building
+    const xs = [0.25, ...OFFICE.back.map((f) => Math.round(f * W * 100) / 100), W - 0.25];
+    model.columns = xs.flatMap((x) => [0.25, D - 5.85, D - 0.25].map((y) => [x, y])).filter(([x, y]) => !(x < 1 && y > D - 1));
+    model.chamfer = { a: 1.8, b: 1.9 };
+    const st = levels[0].spaces.find((sp) => sp.kind === "stair");
+    model.towerArc = { cx: st.x + st.w / 2, r: st.w / 2 + 0.1 };
+  }
   Object.assign(model, roofGeometry(model));
   model.site = siteLayout(model);
   if (plan.project) {
@@ -642,60 +652,113 @@ function marketLevel(spec) {
 }
 
 /**
- * Six-storey showroom and office building. Every floor shares the core on the right: WC and lift at the back, a
- * hall across, and the stair in the round tower at the front corner; the left 62 % changes from floor to floor.
+ * Six-storey showroom and office building, drawn from the owner's surveyed third-floor plan (22.99 × 11.64 m):
+ * street front at y = 1 with the chamfered corner on the left and the round stair tower on the right; offices along
+ * the street, a 1.2 m corridor, offices and the kitchen at the back; WCs and the store beside the stair.
+ * Fractions of the footprint (the survey's x and y rotated half a turn: street facade in front).
  */
+const OFFICE = {
+  // partitions on the survey's column lines (5.63, 10.01, 14.39 and 19.40 m from the chamfered corner), front and back:
+  // manager | office 5 | office 6 | hall and stair | WC column — office 4 | 3 | 2 | 1 | kitchen
+  A: 0.2449, B: 0.4354, C: 0.6259, E: 0.8438,
+  back: [0.2449, 0.4354, 0.6259, 0.8438],
+  corr: [0.3806, 0.494], // corridor: 1.2 m clear between the 4.3 m back rooms and the 5.8 m street rooms
+  // street windows on upper floors (centre, width in m) and the door to the street balcony
+  frontWin: [[0.1153, 1.6], [0.1936, 1.6], [0.2827, 0.9], [0.3784, 0.9], [0.5328, 1.8]],
+  balconyDoor: 0.332,
+  street: { side: "bottom", a0: 0.2345, a1: 0.4115, depth: 1.1 }, // eyvan in front of office 5 (floors 2–4)
+  rear: { side: "top", a0: 0.6425, a1: 0.833, depth: 1.2 }, // eyvan behind office 1
+  rearDoor: 0.7512,
+  sides: [{ side: "right", a0: 0.041, a1: 0.337, depth: 1.2, round: true }, { side: "right", a0: 0.643, a1: 0.908, depth: 1.2, round: true }],
+  bay: { side: "top", a0: 0.2318, a1: 0.4485, depth: 1.4 }, // bay window of office 3
+};
+
 function officeLevels(spec) {
+  const { A, B, C, E, back, corr, frontWin, balconyDoor } = OFFICE;
+  const bayAt = (OFFICE.bay.a0 + OFFICE.bay.a1) / 2;
+  const [c0, c1] = corr;
   const NAMES = ["GROUND", "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH"];
-  // main area of each floor: [id, label, kind, y0, y1] in the left 62 %, then the corner room beside the stair
-  const MAIN = [
-    { rooms: [["show", "DOOR SHOWROOM", "showroom", 0.22, 1], ["disp", "DISPATCH", "store", 0, 0.22]], room: ["lobby", "OFFICE ENTRANCE", "reception"] },
-    { rooms: [["gal", "WINDOW AND DOOR GALLERY", "showroom", 0.3, 1], ["samp", "SAMPLE STORE", "racks", 0, 0.3]], room: ["studio", "DESIGN STUDIO", "studio"] },
-    { rooms: [["open", "SALES OFFICE", "openoffice", 0.35, 1], ["meet", "MEETING ROOM", "meeting", 0, 0.35, 0, 0.32], ["kit", "KITCHENETTE", "kitchenette", 0, 0.35, 0.32, 0.62]], room: ["mgr", "SALES MANAGER", "office"] },
-    { rooms: [["open", "PROJECTS AND INSTALLATION", "openoffice", 0.35, 1], ["train", "TRAINING ROOM", "meeting", 0, 0.35]], room: ["tech", "TECHNICAL OFFICE", "office"] },
-    { rooms: [["open", "ACCOUNTS", "openoffice", 0.35, 1], ["arch", "ARCHIVE", "store", 0, 0.35, 0, 0.25], ["hr", "HR", "office", 0, 0.35, 0.25, 0.62]], room: ["fin", "FINANCE", "office"] },
-    { rooms: [["dir", "DIRECTOR", "director", 0.35, 1, 0, 0.34], ["board", "BOARD ROOM", "meeting", 0.35, 1, 0.34, 0.62], ["lounge", "LOUNGE", "lounge", 0, 0.35, 0, 0.62, "hall"]], room: ["asst", "ASSISTANT", "office"] },
-  ];
-  return MAIN.map((floor, li) => {
-    const level = { name: `${NAMES[li]} FLOOR PLAN`, spaces: [], doors: [], windows: [] };
-    for (const [id, label, kind, y0, y1, x0 = 0, x1 = 0.62, entered] of floor.rooms) {
-      level.spaces.push({ id, label, kind, x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
-      const front = y1 === 1;
-      if (front) {
-        // the front room opens to the hall (where the two meet); the main entrance with the canopy is at the corner
-        const hallMid = (Math.max(y0, 0.28) + 0.46) / 2;
-        if (x1 === 0.62) level.doors.push({ space: id, side: "right", at: (hallMid - y0) / (y1 - y0), w: 1.2, open: true });
-        else level.doors.push({ space: id, side: "top", at: 0.5, w: 0.9 });
-        if (li === 0) level.doors.unshift({ space: id, side: "bottom", at: 0.1, w: 2.2, entry: true, open: true, sliding: true });
-        if (li === 0) level.windows.push({ space: id, side: "bottom", at: 0.58, w: 99 });
-        else for (const at of x1 - x0 > 0.5 ? [0.17, 0.5, 0.83] : [0.5]) level.windows.push({ space: id, side: "bottom", at, w: x1 - x0 > 0.5 ? 3.0 : 2.4 });
-      } else {
-        // a back room is entered from the front room below it, or (an executive lounge) from the landing
-        if (entered === "hall") level.doors.push({ space: id, side: "right", at: 0.9, w: 0.9 });
-        else level.doors.push({ space: id, side: "bottom", at: 0.5, w: 0.9 });
-        if (li === 0) level.doors.push({ space: id, side: "top", at: 0.5, w: 2.4, open: true });
-        else level.windows.push({ space: id, side: "top", at: 0.5, w: 1.8 });
-      }
-      if (x0 === 0) for (const at of y1 - y0 > 0.5 ? [0.3, 0.72] : [0.5]) level.windows.push({ space: id, side: "left", at, w: kind === "showroom" ? 3.4 : 2.0 });
-    }
-    const [rid, rlabel, rkind] = floor.room;
+  const core = (level, li) => {
     level.spaces.push(
-      { id: "wc", label: "WC", kind: "wc", x: 0.62, y: 0, w: 0.18, h: 0.28 },
-      { id: "lift", label: "LIFT", kind: "lift", x: 0.8, y: 0, w: 0.2, h: 0.28 },
-      { id: "hall", label: li === 0 ? "HALL" : "LANDING", kind: "hall", x: 0.62, y: 0.28, w: 0.38, h: 0.18 },
-      { id: rid, label: rlabel, kind: rkind, x: 0.62, y: 0.46, w: 0.2, h: 0.54 },
-      { id: "stair", label: "STAIR", kind: "stair", x: 0.82, y: 0.46, w: 0.18, h: 0.54 },
+      { id: "holl", label: "HALL", kind: "hall", x: C, y: c1, w: E - C, h: 0.764 - c1 },
+      { id: "stair", label: "STAIR / LIFT", kind: "stair", x: C, y: 0.764, w: E - C, h: 1 - 0.764 },
+      { id: "ambar", label: "STORE", kind: "store", x: E, y: c1, w: 1 - E, h: 0.776 - c1 },
+      { id: "wc2", label: "WC", kind: "wc", x: E, y: 0.776, w: 1 - E, h: 0.112 },
+      { id: "wc1", label: "WC", kind: "wc", x: E, y: 0.888, w: 1 - E, h: 0.112 },
     );
     level.doors.push(
-      { space: "wc", side: "bottom", at: 0.5, w: 0.8 },
-      { space: "lift", side: "bottom", at: 0.5, w: 1.1, open: true },
-      { space: "stair", side: "top", at: 0.5, w: 1.2, open: true },
-      li === 0 ? { space: rid, side: "bottom", at: 0.5, w: 1.6, entry: true, open: true, sliding: true } : { space: rid, side: "top", at: 0.5, w: 0.9 },
+      { space: "holl", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "ambar", side: "left", at: 0.5, w: 0.9 },
+      { space: "wc2", side: "left", at: 0.5, w: 0.7 },
+      { space: "wc1", side: "left", at: 0.5, w: 0.7 },
     );
-    if (li === 0) level.doors.push({ space: rid, side: "top", at: 0.5, w: 99, open: true });
-    level.windows.push({ space: rid, side: "bottom", at: 0.5, w: li === 0 ? 99 : 2.2 }, { space: "stair", side: "bottom", at: 0.5, w: 0.9 }, { space: "stair", side: "right", at: 0.6, w: 0.9 });
+    level.windows.push({ space: "stair", side: "bottom", at: 0.5, w: 0.9 }, { space: "wc1", side: "bottom", at: 0.5, w: 0.6 }, { space: "wc1", side: "right", at: 0.5, w: 0.6 });
+    if (li > 0) level.doors.push({ space: "holl", side: "top", at: 0.5, w: 1.6 });
+    if (li > 1) level.doors.push({ space: "ambar", side: "right", at: 0.63, w: 0.8 }); // side balcony from the store
+  };
+  // a street-front room gets the street windows that fall inside it
+  const streetWindows = (level, id, x0, x1, withDoor) => {
+    for (const [fx, w] of frontWin) if (fx > x0 + 0.01 && fx < x1 - 0.01) level.windows.push({ space: id, side: "bottom", at: (fx - x0) / (x1 - x0), w });
+    if (withDoor) level.doors.push({ space: id, side: "bottom", at: (balconyDoor - x0) / (x1 - x0), w: 0.9 });
+  };
+  const officeFloor = (li, front, rear) => {
+    const level = { name: `${NAMES[li]} FLOOR PLAN`, spaces: [], doors: [], windows: [], balconies: [], bays: [], sill: 0.75, head: 2.82 };
+    level.spaces.push({ id: "corr", label: "CORRIDOR", kind: "hall", x: 0, y: c0, w: 1, h: c1 - c0 });
+    level.windows.push({ space: "corr", side: "left", at: 0.5, w: 1.0 });
+    for (const [id, label, kind, x0, x1] of front) {
+      level.spaces.push({ id, label, kind, x: x0, y: c1, w: x1 - x0, h: 1 - c1 });
+      level.doors.push({ space: id, side: "top", at: 0.85, w: 0.9 });
+      streetWindows(level, id, x0, x1, li >= 2 && li <= 4 && x0 <= balconyDoor && x1 >= balconyDoor);
+      if (x0 === 0) level.windows.push({ space: id, side: "left", at: 0.5, w: 1.6 });
+    }
+    for (const [id, label, kind, x0, x1] of rear) {
+      level.spaces.push({ id, label, kind, x: x0, y: 0, w: x1 - x0, h: c0 });
+      level.doors.push({ space: id, side: "bottom", at: 0.85, w: 0.9 });
+      const bay = x0 <= bayAt && x1 >= bayAt; // the room with the rear bay window
+      level.windows.push({ space: id, side: "top", at: bay ? (bayAt - x0) / (x1 - x0) : 0.45, w: bay ? 3.0 : 1.8 });
+      if (x0 === 0) level.windows.push({ space: id, side: "left", at: 0.5, w: 1.6 });
+      if (x0 <= OFFICE.rearDoor && x1 >= OFFICE.rearDoor && x1 < 1) level.doors.push({ space: id, side: "top", at: (OFFICE.rearDoor - x0) / (x1 - x0), w: 0.9 }); // rear balcony
+      if (x1 === 1) level.doors.push({ space: id, side: "right", at: 0.33, w: 0.9 }); // side balcony from the kitchen
+    }
+    core(level, li);
+    // balconies (eyvan) from the survey: three on the street front (upper floors), one at the back, two on the side
+    if (li >= 2 && li <= 4) level.balconies.push({ ...OFFICE.street });
+    level.balconies.push({ ...OFFICE.rear }, ...OFFICE.sides.map((b) => ({ ...b })));
+    level.bays.push({ ...OFFICE.bay });
     return level;
-  });
+  };
+  const OFFICES = [["mgr", "MANAGER", "office", 0, A], ["o5", "OFFICE 5", "office", A, B], ["o6", "OFFICE 6", "office", B, C]];
+  const REAR = [["o4", "OFFICE 4", "office", 0, back[0]], ["o3", "OFFICE 3", "office", back[0], back[1]], ["o2", "OFFICE 2", "office", back[1], back[2]], ["o1", "OFFICE 1", "office", back[2], back[3]], ["kit", "KITCHEN", "kitchenette", back[3], 1]];
+
+  // ground floor: door showroom across the street front, dispatch behind the core
+  const g = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [], balconies: [], bays: [], sill: 0.05, head: 3.1 };
+  g.spaces.push({ id: "show", label: "DOOR SHOWROOM", kind: "showroom", x: 0, y: 0, w: C, h: 1, labelY: 0.66 }, { id: "disp", label: "DISPATCH", kind: "store", x: C, y: 0, w: 1 - C, h: c1 });
+  g.doors.push(
+    { space: "show", side: "bottom", at: 0.26, w: 2.2, entry: true, open: true, sliding: true },
+    { space: "show", side: "right", at: 0.62, w: 1.6, open: true },
+    { space: "disp", side: "left", at: 0.5, w: 1.6 },
+    { space: "disp", side: "top", at: 0.5, w: 2.6, open: true },
+    { space: "holl", side: "top", at: 0.5, w: 1.0 },
+  );
+  g.windows.push({ space: "show", side: "bottom", at: 0.55, w: 99 }, { space: "show", side: "left", at: 0.3, w: 3.0 }, { space: "show", side: "left", at: 0.68, w: 3.0 }, { space: "show", side: "top", at: 0.3, w: 2.4 }, { space: "show", side: "top", at: 0.72, w: 2.4 });
+  core(g, 0);
+
+  // first floor: window and door gallery (the survey's open hall), samples behind the core
+  const f = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [], balconies: [{ ...OFFICE.rear }], bays: [{ ...OFFICE.bay }], sill: 0.75, head: 2.82 };
+  f.spaces.push({ id: "gal", label: "WINDOW AND DOOR GALLERY", kind: "showroom", x: 0, y: 0, w: C, h: 1, labelY: 0.66 }, { id: "samp", label: "SAMPLES", kind: "showroom", x: C, y: 0, w: 1 - C, h: c1 });
+  f.doors.push({ space: "gal", side: "right", at: 0.62, w: 1.6, open: true }, { space: "samp", side: "left", at: 0.5, w: 99, open: true }, { space: "samp", side: "top", at: (OFFICE.rearDoor - C) / (1 - C), w: 0.9 });
+  streetWindows(f, "gal", 0, C, false);
+  f.windows.push({ space: "gal", side: "left", at: 0.3, w: 1.6 }, { space: "gal", side: "left", at: 0.72, w: 1.6 }, { space: "gal", side: "top", at: bayAt / C, w: 3.0 }, { space: "gal", side: "top", at: 0.12 / C, w: 1.8 }, { space: "samp", side: "top", at: 0.35, w: 1.8 });
+  core(f, 1);
+
+  return [
+    g,
+    f,
+    officeFloor(2, OFFICES, REAR),
+    officeFloor(3, OFFICES, REAR),
+    officeFloor(4, OFFICES, REAR),
+    officeFloor(5, [["dir", "DIRECTOR", "director", 0, A], ["board", "BOARD ROOM", "meeting", A, C]], [["lounge", "LOUNGE", "lounge", 0, back[1]], ["asst", "ASSISTANT", "office", back[1], back[2]], ["arch", "ARCHIVE", "store", back[2], back[3]], ["kit", "KITCHEN", "kitchenette", back[3], 1]]),
+  ];
 }
 
 // ------------------------------------------------------------------ geometry helpers
@@ -1164,6 +1227,56 @@ function furniture(d, kind, inn) {
 
 // ------------------------------------------------------------------ floor plan sheet
 
+/**
+ * Elements of a surveyed building drawn on its floor plans: balconies and the rear bay outside the walls, the round
+ * stair tower, the chamfered street corner and the reinforced-concrete columns.
+ */
+function surveyPlanFeatures(model, level, px, s, rect) {
+  const { W, D } = model;
+  const X = (m) => f1(px.X(m)), Y = (m) => f1(px.Y(m));
+  let g = "";
+  for (const b of level.balconies ?? []) {
+    const label = (cx, cy) => `<text x="${X(cx)}" y="${f1(px.Y(cy) + 3)}" text-anchor="middle" font-family="${FONT}" font-size="8.5" letter-spacing="1.5" fill="${MID}">BALCONY</text>`;
+    if (b.side === "right" && b.round) {
+      const y0 = b.a0 * D, y1 = b.a1 * D, r = (y1 - y0) / 2;
+      g += `<path d="M${X(W)} ${Y(y0)} A${f1(Math.min(r, b.depth) * s)} ${f1(r * s)} 0 0 1 ${X(W)} ${Y(y1)} Z" fill="#f1ead6" stroke="${INK}" stroke-width="1.1"/>` + label(W + b.depth * 0.5, (y0 + y1) / 2);
+    } else if (b.side === "right") {
+      g += rect(W, b.a0 * D, b.depth, (b.a1 - b.a0) * D, `fill="#f1ead6" stroke="${INK}" stroke-width="1.1"`);
+    } else {
+      const y = b.side === "top" ? -b.depth : D;
+      g += rect(b.a0 * W, y, (b.a1 - b.a0) * W, b.depth, `fill="#f1ead6" stroke="${INK}" stroke-width="1.1"`) + label(((b.a0 + b.a1) / 2) * W, y + b.depth / 2);
+    }
+  }
+  for (const b of level.bays ?? []) {
+    // rear bay window: a walled projection opening fully into the room
+    const x0 = b.a0 * W, x1 = b.a1 * W;
+    g += rect(x0, -b.depth, x1 - x0, b.depth + EXT, `fill="${INK}"`) + rect(x0 + EXT, -b.depth + EXT, x1 - x0 - 2 * EXT, b.depth + EXT, `fill="${PAPER}"`);
+    g += rect(x0 + 0.8, -b.depth, x1 - x0 - 1.6, EXT, `fill="${PAPER}" stroke="${INK}" stroke-width="0.9"`) + `<line x1="${X(x0 + 0.8)}" y1="${Y(-b.depth + EXT / 2)}" x2="${X(x1 - 0.8)}" y2="${Y(-b.depth + EXT / 2)}" stroke="${INK}" stroke-width="1.3"/>`;
+  }
+  if (model.towerArc) {
+    // round stair tower bulging out of the street facade (wall ring, glazing slits)
+    const { cx, r } = model.towerArc;
+    const ring = (rr) => `M${X(cx - rr)} ${Y(D)} A${f1(rr * s)} ${f1(rr * s)} 0 0 0 ${X(cx + rr)} ${Y(D)}`;
+    g += `<path d="${ring(r)} Z" fill="${INK}"/><path d="${ring(r - EXT)} Z" fill="${PAPER}"/>`;
+    for (const a of [0.3, 0.5, 0.7]) {
+      const ang = Math.PI * a, gx = cx - Math.cos(ang) * (r - EXT / 2), gy = D + Math.sin(ang) * (r - EXT / 2);
+      g += `<circle cx="${X(gx)}" cy="${Y(gy)}" r="${f1(0.28 * s)}" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/>`;
+    }
+    g += rect(cx - r + EXT, D - EXT - 0.02, 2 * (r - EXT), EXT + 0.04, `fill="${PAPER}"`);
+  }
+  if (model.chamfer) {
+    // chamfered street corner (front left) with a corner window
+    const { a, b } = model.chamfer;
+    g += `<polygon points="${X(-0.6)},${Y(D - b)} ${X(0)},${Y(D - b)} ${X(a)},${Y(D)} ${X(a)},${Y(D + 0.6)} ${X(-0.6)},${Y(D + 0.6)}" fill="${PAPER}"/>`;
+    g += `<polygon points="${X(0)},${Y(D - b)} ${X(a)},${Y(D)} ${X(a + 0.42)},${Y(D - EXT)} ${X(EXT)},${Y(D - b - 0.42)} ${X(EXT)},${Y(D - b)}" fill="${INK}"/>`;
+    g += `<line x1="${X(a * 0.2)}" y1="${Y(D - b * 0.8)}" x2="${X(a * 0.8)}" y2="${Y(D - b * 0.2)}" stroke="${PAPER}" stroke-width="2.2"/>`;
+  }
+  for (const [x, y] of model.columns ?? []) {
+    g += rect(x - 0.22, y - 0.22, 0.44, 0.44, `fill="#5a6aa3" stroke="${INK}" stroke-width="0.8"`) + `<path d="M${X(x)} ${Y(y - 0.22)}V${Y(y + 0.22)}M${X(x - 0.22)} ${Y(y)}H${X(x + 0.22)}" stroke="#d9def0" stroke-width="0.8"/>`;
+  }
+  return g;
+}
+
 export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } = {}) {
   const ST = model.storey;
   const { W, D, plan, spec } = model;
@@ -1173,13 +1286,16 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   const site = model.site;
   const extraW = garage ? garage.w + 0.5 : 0;
   const frontExtent = isGround ? Math.max(site.T, site.deck ? site.T + site.deck.h : 0, garage ? 3 : 0) : level.terrace ? level.terrace.depth : 0;
-  const extraD = frontExtent + 1.4;
+  const outside = (side) => Math.max(0, ...[...(level.balconies ?? []), ...(level.bays ?? [])].filter((b) => b.side === side).map((b) => b.depth));
+  const backOut = outside("top");
+  const extraD = Math.max(frontExtent, model.towerArc ? model.towerArc.r + 0.3 : 0) + 1.4 + backOut;
   const margin = 3.0; // axes, bubbles and dimension chains (m)
   const areaW = SHEET_W - 330 - 36 - 90;
   const areaH = SHEET_H - 72 - 180;
-  const s = Math.min(areaW / (W + extraW + margin), areaH / (D + extraD + margin), 58);
-  const ox = 36 + 45 + (areaW - (W + extraW + margin) * s) / 2 + margin * s;
-  const oy = 36 + 40 + (areaH - (D + extraD + margin) * s) / 2 + margin * s;
+  const sideOut = outside("right");
+  const s = Math.min(areaW / (W + extraW + sideOut + margin), areaH / (D + extraD + margin), 58);
+  const ox = 36 + 45 + (areaW - (W + extraW + sideOut + margin) * s) / 2 + margin * s;
+  const oy = 36 + 40 + (areaH - (D + extraD + margin) * s) / 2 + (margin + backOut) * s;
   const px = { X: (m) => ox + m * s, Y: (m) => oy + m * s };
   const rect = (x, y, w, h, extra) => `<rect x="${f1(px.X(x))}" y="${f1(px.Y(y))}" width="${f1(w * s)}" height="${f1(h * s)}" ${extra}/>`;
   const text = (x, y, str, size = 11, extra = "") => `<text x="${f1(px.X(x))}" y="${f1(px.Y(y))}" text-anchor="middle" font-family="${FONT}" font-size="${size}" letter-spacing="2" fill="${MID}" ${extra}>${str}</text>`;
@@ -1191,8 +1307,8 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   const ys = dedupe([...new Set(level.spaces.flatMap((sp) => [r1(sp.y), r1(sp.y + sp.h)]))]);
   const letters = "ABCDEFGHJK";
   xs.forEach((x, i) => {
-    g += `<line x1="${f1(px.X(x))}" y1="${f1(px.Y(-2.3))}" x2="${f1(px.X(x))}" y2="${f1(px.Y(D + 0.4))}" stroke="${LIGHT}" stroke-width="0.7" stroke-dasharray="14 4 2 4"/>`;
-    g += `<circle cx="${f1(px.X(x))}" cy="${f1(px.Y(-2.3) - 12)}" r="12" fill="${PAPER}" stroke="${INK}" stroke-width="0.9"/><text x="${f1(px.X(x))}" y="${f1(px.Y(-2.3) - 8)}" text-anchor="middle" font-family="${FONT}" font-size="11" fill="${INK}">${i + 1}</text>`;
+    g += `<line x1="${f1(px.X(x))}" y1="${f1(px.Y(-2.3 - backOut))}" x2="${f1(px.X(x))}" y2="${f1(px.Y(D + 0.4))}" stroke="${LIGHT}" stroke-width="0.7" stroke-dasharray="14 4 2 4"/>`;
+    g += `<circle cx="${f1(px.X(x))}" cy="${f1(px.Y(-2.3 - backOut) - 12)}" r="12" fill="${PAPER}" stroke="${INK}" stroke-width="0.9"/><text x="${f1(px.X(x))}" y="${f1(px.Y(-2.3 - backOut) - 8)}" text-anchor="middle" font-family="${FONT}" font-size="11" fill="${INK}">${i + 1}</text>`;
   });
   ys.forEach((y, i) => {
     g += `<line x1="${f1(px.X(-2.3))}" y1="${f1(px.Y(y))}" x2="${f1(px.X(W + 0.4))}" y2="${f1(px.Y(y))}" stroke="${LIGHT}" stroke-width="0.7" stroke-dasharray="14 4 2 4"/>`;
@@ -1276,6 +1392,8 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
     g += `<text x="${f1(px.X(gx + garage.w / 2))}" y="${f1(px.Y(gy + 0.62) + 13)}" text-anchor="middle" font-family="${FONT}" font-size="10" fill="${MID}">${((garage.w - EXT) * (garage.d - EXT)).toFixed(1)} m²</text>`;
   }
 
+  g += surveyPlanFeatures(model, level, px, s, rect);
+
   // ---- openings
   const spaceById = Object.fromEntries(level.spaces.map((sp) => [sp.id, sp]));
   for (const win of level.windows) {
@@ -1355,6 +1473,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
     if (sp.kind === "living") cy = px.Y(inn.y + inn.h * 0.8);
     if (sp.kind === "kitchen") cy = px.Y(inn.y + inn.h * 0.36);
     if (sp.kind === "dining") cy = px.Y(inn.y + 0.75);
+    if (sp.labelY) cy = px.Y(inn.y + inn.h * sp.labelY); // clear of the columns of a surveyed open floor
     const fs = inn.w * s < 90 ? 9 : 11;
     const label = inn.w * s < 70 && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label;
     const tw = label.length * fs * 0.68 + 16;
@@ -1366,7 +1485,9 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   const ffl = levelIndex === 0 ? "±0.000" : `+${(levelIndex * ST).toFixed(3)}`;
   const hall = level.spaces.find((sp) => sp.kind === "hall") ?? level.spaces[0];
   const hin = inner(model, hall);
-  g += `<g transform="translate(${f1(px.X(hin.x + hin.w / 2))} ${f1(px.Y(hin.y + hin.h * 0.82))})" font-family="${FONT}" font-size="9" fill="${INK}">
+  // a long corridor keeps its room label in the middle, so the tag moves towards its end
+  const [tagX, tagY] = spec.survey && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
+  g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
     <circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
     <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
     <text x="10" y="3">FFL ${ffl}</text></g>`;
@@ -1374,8 +1495,8 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } =
   // ---- dimension chains: detailed at 0.9 m, overall at 1.6 m (left out of public previews)
   if (!preview) {
     const back = level.spaces.filter((sp) => sp.y < 0.01).flatMap((sp) => [sp.x, sp.x + sp.w]);
-    g += dimChain([...new Set([0, W, ...back].map(r1))].sort((a, b) => a - b), -0.9, s, ox, oy, true, 1);
-    g += dimChain([0, W, ...(garage ? [W + garage.w] : [])], -1.6, s, ox, oy, true, 1);
+    g += dimChain([...new Set([0, W, ...back].map(r1))].sort((a, b) => a - b), -0.9 - backOut, s, ox, oy, true, 1);
+    g += dimChain([0, W, ...(garage ? [W + garage.w] : [])], -1.6 - backOut, s, ox, oy, true, 1);
     const left = level.spaces.filter((sp) => sp.x < 0.01).flatMap((sp) => [sp.y, sp.y + sp.h]);
     g += dimChain([...new Set([0, D, ...left].map(r1))].sort((a, b) => a - b), -0.9, s, ox, oy, false);
     g += dimChain([0, D], -1.6, s, ox, oy, false);
@@ -1402,8 +1523,27 @@ function roofPlan(model, X, Y, s, { notes = true } = {}) {
   if (plan.roof === "flat") {
     const fo = spec.canopy ?? spec.slab ?? 0.2;
     const sideOv = spec.canopy ? 1.6 : 0.3;
-    g += rect(-sideOv, -0.3, W + 2 * sideOv, D + 0.3 + fo, `fill="${roofCol}" stroke="${INK}" stroke-width="1.6"`);
-    g += rect(-sideOv + 0.35, 0.05, W + 2 * sideOv - 0.7, D - 0.1 + fo - 0.3, `fill="none" stroke="${MID}" stroke-width="0.7"`);
+    if (model.chamfer) {
+      // slab and parapet follow the chamfered street corner; the round stair tower stands in front
+      const { a, b } = model.chamfer;
+      const outline = (dSide, dFront) => {
+        const len = Math.hypot(a, b), d = (dSide + dFront) / 2;
+        const q = [(-d * b) / len, D - b + (d * a) / len]; // a point of the chamfer line pushed out by the overhang
+        const xF = q[0] + ((D + dFront - q[1]) / b) * a, yS = q[1] + ((-dSide - q[0]) / a) * b;
+        return [[-dSide, -dSide], [W + dSide, -dSide], [W + dSide, D + dFront], [xF, D + dFront], [-dSide, yS]];
+      };
+      const pts = (arr) => arr.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ");
+      g += `<polygon points="${pts(outline(sideOv, fo))}" fill="${roofCol}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>`;
+      g += `<polygon points="${pts(outline(sideOv - 0.35, fo - 0.35))}" fill="none" stroke="${MID}" stroke-width="0.7"/>`;
+      if (model.towerArc) {
+        const { cx, r } = model.towerArc;
+        g += `<path d="M${X(cx - r)} ${Y(D)} A${f1(r * s)} ${f1(r * s)} 0 0 0 ${X(cx + r)} ${Y(D)} Z" fill="${shade(roofCol, -0.08)}" stroke="${INK}" stroke-width="1.4"/>`;
+        if (notes) g += label(cx, D + r * 0.55, "STAIR", 8, INK);
+      }
+    } else {
+      g += rect(-sideOv, -0.3, W + 2 * sideOv, D + 0.3 + fo, `fill="${roofCol}" stroke="${INK}" stroke-width="1.6"`);
+      g += rect(-sideOv + 0.35, 0.05, W + 2 * sideOv - 0.7, D - 0.1 + fo - 0.3, `fill="none" stroke="${MID}" stroke-width="0.7"`);
+    }
     for (const [dx, dy] of [[0.25, 0.3], [0.75, 0.3], [0.25, 0.75], [0.75, 0.75]]) g += `<circle cx="${X(W * dx)}" cy="${Y(D * dy)}" r="3" fill="none" stroke="${MID}" stroke-width="0.8"/>`;
     if (spec.rooflights) {
       const nx = Math.max(2, Math.round((W * 0.8) / 9)), ny = Math.max(1, Math.round((D * 0.48) / 9));
@@ -2033,7 +2173,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   const row = model.project?.kind === "row" ? (bare ? Math.min(3, model.project.units) : model.project.units) : 1;
   const totalW = W * row + gW;
   const below = model.basement ? 4.6 : 2.4;
-  const topRoom = bare ? 1.0 : 3.4;
+  const topRoom = (bare ? 1.0 : 3.4) + (plan.sign && spec.signTwoLines ? 3.8 : 0);
   const leftPad = 4.8, rightPad = bare ? 5.2 : 6.6;
   const areaW = bare ? COVER_W - 120 : SHEET_W - 330 - 36 - 60;
   const areaH = bare ? COVER_H - 150 : SHEET_H - 72 - 170;
@@ -2147,7 +2287,15 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     for (let f = 0; f < above; f++) front += glazingTower(tx + tw / 2 - 0.45, f * ST + 0.4, 0.9, ST - 1.1);
     mark("silver", tx + tw * 0.75, ST - 0.16);
   }
-  if (plan.sign) {
+  if (plan.sign && spec.signTwoLines) {
+    const lines = plan.sign.split(" ");
+    const lh = 1.45, fs = 1.2 * s, sw = Math.max(...lines.map((l) => l.length)) * 0.92 + 0.6, sx = W * 0.24 - sw / 2, sz = wallTop + 1.1;
+    for (const px of [sx + 0.3, sx + sw - 0.3]) front += box(px, wallTop + 0.4, 0.08, sz - wallTop - 0.4 + lines.length * lh, MAT.steel.fill);
+    front += box(sx, sz + 0.05, sw, 0.06, MAT.steel.fill) + box(sx, sz + lh, sw, 0.06, MAT.steel.fill);
+    lines.forEach((line, i) => {
+      front += `<text x="${X(sx + sw / 2)}" y="${f1(Y(sz + (lines.length - 1 - i) * lh + 0.15))}" text-anchor="middle" font-family="${FONT}" font-size="${f1(fs)}" font-weight="700" letter-spacing="${f1(fs * 0.04)}" fill="#2f8f63" stroke="#ffffff" stroke-width="1" paint-order="stroke">${esc(line)}</text>`;
+    });
+  } else if (plan.sign) {
     const sx = W * 0.08, sw = Math.min(W * 0.55, plan.sign.length * 0.95 + 1.2), sz = wallTop + 0.6;
     front += box(sx, sz, sw, 1.5, "#2c2f33", `stroke="${INK}" stroke-width="1"`);
     for (const px of [sx + 0.5, sx + sw - 0.6]) front += box(px, wallTop + 0.45, 0.1, 0.15, MAT.steel.fill);
@@ -2185,8 +2333,8 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
       const living = ["open", "living", "kitchen", "dining"].includes(w.kind);
       if (spec.loggia && li === 0 && living) continue; // arcade drawn separately
       const glassy = spec.glassy;
-      const sill = glassy ? 0.05 : living && li === 0 ? 0.05 : li > 0 && spec.ironBalcony ? 0.05 : 0.9;
-      const head = spec.head ?? (glassy ? ST - 0.42 : spec.arches ? 2.75 : 2.45);
+      const sill = lv.sill ?? (glassy ? 0.05 : living && li === 0 ? 0.05 : li > 0 && spec.ironBalcony ? 0.05 : 0.9);
+      const head = lv.head ?? spec.head ?? (glassy ? ST - 0.42 : spec.arches ? 2.75 : 2.45);
       g += glazing(w.x, w.w, z0 + sill, head - sill, { arch: spec.arches && w.w <= 2.6, shutters: spec.shutters && w.w <= 2.4 ? spec.shutters : null, bars: !glassy });
       openings.push({ x: w.x, w: w.w, z: z0 + sill, h: head - sill, li });
       if (spec.ironBalcony && li > 0) {
@@ -2230,7 +2378,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   if (spec.entryCanopy) {
     const d0 = entryDoors(model.levels[0])[0];
     if (d0) {
-      const cz = (spec.head ?? ST - 0.42) - 0.05, cx0 = d0.x - 3, cw = d0.w + 6;
+      const cz = (spec.head ?? ST - 0.42) - 0.05, cx0 = Math.max(d0.x - 3, model.chamfer ? model.chamfer.a : -Infinity), cw = d0.x + d0.w + 3 - cx0;
       if (spec.canopyGlass) {
         // cantilevered glass canopy hung from steel tie rods
         front += box(cx0, cz, cw, 0.16, MAT.canopyGlass.fill, `fill-opacity=".85" stroke="${MAT.steel.fill}" stroke-width="1.4"`);
@@ -2244,6 +2392,29 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
       }
     }
   }
+
+  // ---- owner's concept facade: black frames on the column lines, black-clad street balconies
+  if (model.chamfer) {
+    // the chamfered corner seen at an angle: a darker strip of full-height corner glazing
+    const { a } = model.chamfer;
+    front += box(0, 0, a, wallTop, INK, `fill-opacity=".1"`);
+    model.levels.forEach((lv, li) => {
+      if (li >= above) return;
+      const sill = lv.sill ?? 0.9, head = lv.head ?? spec.head ?? ST - 0.42;
+      front += box(0.15, li * ST + sill, a - 0.3, head - sill, "url(#glass)", `stroke="${frame}" stroke-width="1.2"`);
+    });
+  }
+  if (spec.piers && model.columns) {
+    const xs = [...new Set(model.columns.map(([x]) => x))].filter((x) => !model.towerArc || Math.abs(x - model.towerArc.cx) > model.towerArc.r);
+    if (model.chamfer) xs.push(model.chamfer.a);
+    for (const x of xs) front += box(Math.max(-0.05, Math.min(W - 0.55, x - 0.3)), 0, 0.6, wallTop + 0.1, MAT.blackalu.fill, `stroke="${INK}" stroke-width="0.8"`);
+  }
+  model.levels.forEach((lv, li) => {
+    for (const b of (lv.balconies ?? []).filter((bb) => bb.side === "bottom")) {
+      front += box(b.a0 * W, li * ST - 0.3, (b.a1 - b.a0) * W, 1.4, MAT.blackalu.fill, `stroke="${INK}" stroke-width="1"`);
+      front += box(b.a0 * W, li * ST + 1.02, (b.a1 - b.a0) * W, 0.06, "#ffffff", `fill-opacity=".35"`);
+    }
+  });
 
   // ---- Tuscan loggia: arcade across the living rooms
   if (spec.loggia) {
@@ -2516,8 +2687,33 @@ function isoHouse(model, P) {
     if (top) o += poly([P(x0, b0, z1), P(x1, b0, z1), P(x1, b1, z1), P(x0, b1, z1)], c.top);
     return o;
   };
-  const frontWin = (x, w, z, h) => poly([P(x, 0, z), P(x + w, 0, z), P(x + w, 0, z + h), P(x, 0, z + h)], GLASS, 'stroke-width="0.7"') + `<polyline points="${P(x + w * 0.15, 0, z + h * 0.2)} ${P(x + w * 0.45, 0, z + h * 0.85)}" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.2"/>`;
-  const sideWin = (b, w, z, h) => poly([P(0, b, z), P(0, b + w, z), P(0, b + w, z + h), P(0, b, z + h)], shade(GLASS, -0.2), 'stroke-width="0.7"');
+  // extruded footprint polygon [[x, b], …]; only the faces turned to the viewer are drawn
+  const prism = (pts, z0, z1, c, top = true) => {
+    let o = "";
+    const sg = Math.sign(pts.reduce((a, p, i) => { const q = pts[(i + 1) % pts.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0));
+    pts.forEach((p, i) => {
+      const q = pts[(i + 1) % pts.length];
+      const nx = (q[1] - p[1]) * sg, nb = -(q[0] - p[0]) * sg;
+      if (nx > 1e-6 || nb > 1e-6) return;
+      const fill = Math.abs(nb) > 3 * Math.abs(nx) ? c.front : Math.abs(nx) > 3 * Math.abs(nb) ? c.side : shade(c.front, -0.07);
+      o += poly([P(p[0], p[1], z0), P(q[0], q[1], z0), P(q[0], q[1], z1), P(p[0], p[1], z1)], fill);
+    });
+    if (top) o += poly(pts.map(([x, b]) => P(x, b, z1)), c.top);
+    return o;
+  };
+  const cham = model.chamfer;
+  const body = cham ? [[cham.a, 0], [W, 0], [W, D], [0, D], [0, cham.b]] : null;
+  const frontWin0 = (x, w, z, h) => poly([P(x, 0, z), P(x + w, 0, z), P(x + w, 0, z + h), P(x, 0, z + h)], GLASS, 'stroke-width="0.7"') + `<polyline points="${P(x + w * 0.15, 0, z + h * 0.2)} ${P(x + w * 0.45, 0, z + h * 0.85)}" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.2"/>`;
+  // windows keep clear of the chamfered corner
+  const frontWin = (x, w, z, h) => {
+    if (cham && x < cham.a + 0.15) { w -= cham.a + 0.15 - x; x = cham.a + 0.15; }
+    return w > 0.3 ? frontWin0(x, w, z, h) : "";
+  };
+  const sideWin0 = (b, w, z, h) => poly([P(0, b, z), P(0, b + w, z), P(0, b + w, z + h), P(0, b, z + h)], shade(GLASS, -0.2), 'stroke-width="0.7"');
+  const sideWin = (b, w, z, h) => {
+    if (cham && b < cham.b + 0.15) { w -= cham.b + 0.15 - b; b = cham.b + 0.15; }
+    return w > 0.3 ? sideWin0(b, w, z, h) : "";
+  };
 
   // garage first (it sits to the right, behind the house's silhouette)
   if (model.garage) {
@@ -2530,7 +2726,8 @@ function isoHouse(model, P) {
   // storeys
   for (let li = 0; li < above; li++) {
     const c = colours(wallMat(spec, li));
-    g += box(0, W, 0, D, li * ST, (li + 1) * ST, c, li === above - 1 && plan.roof === "flat");
+    const top = li === above - 1 && plan.roof === "flat";
+    g += body ? prism(body, li * ST, (li + 1) * ST, c, top) : box(0, W, 0, D, li * ST, (li + 1) * ST, c, top);
   }
   // gable wall of the front-gable chalet
   if (plan.roof === "frontgable") g += poly([P(0, 0, wallTop), P(W, 0, wallTop), P(W / 2, 0, wallTop + (W / 2) * 0.84)], colours(wallMat(spec, above - 1)).front);
@@ -2546,8 +2743,8 @@ function isoHouse(model, P) {
       const sp = lv.spaces.find((x) => x.id === w.space);
       if (!sp) continue;
       const living = ["open", "living", "kitchen", "dining"].includes(sp.kind);
-      const sill = spec.glassy || (living && li === 0) ? 0.05 : 0.9;
-      const head = spec.head ?? (spec.glassy ? ST - 0.42 : 2.5);
+      const sill = lv.sill ?? (spec.glassy || (living && li === 0) ? 0.05 : 0.9);
+      const head = lv.head ?? spec.head ?? (spec.glassy ? ST - 0.42 : 2.5);
       if (w.side === "bottom" && Math.abs(sp.y + sp.h - D) < 0.01) {
         const ww = Math.min(w.w, sp.w - 0.6);
         g += frontWin(sp.x + w.at * sp.w - ww / 2, ww, li * ST + sill, head - sill);
@@ -2557,6 +2754,12 @@ function isoHouse(model, P) {
         const bFromFront = D - (sp.y + w.at * sp.h) - ww / 2;
         g += sideWin(bFromFront, ww, li * ST + sill, head - sill);
       }
+    }
+    if (cham) {
+      // full-height glazing on the chamfered corner
+      const sill = lv.sill ?? 0.9, head = lv.head ?? spec.head ?? ST - 0.42;
+      const [x1, b1, x2, b2] = [cham.a * 0.88, cham.b * 0.12, cham.a * 0.12, cham.b * 0.88];
+      g += poly([P(x1, b1, li * ST + sill), P(x2, b2, li * ST + sill), P(x2, b2, li * ST + head), P(x1, b1, li * ST + head)], shade(GLASS, -0.1), 'stroke-width="0.7"');
     }
     if (li === 0) for (const d of entryDoors(lv)) g += poly([P(d.x, 0, 0), P(d.x + d.w, 0, 0), P(d.x + d.w, 0, 2.6), P(d.x, 0, 2.6)], spec.slidingEntry ? shade(GLASS, 0.15) : "#7c5a3e", 'stroke-width="0.8"');
   });
@@ -2568,8 +2771,9 @@ function isoHouse(model, P) {
     const d0 = entryDoors(model.levels[0])[0];
     if (d0) {
       const cz = (spec.head ?? ST - 0.42) - 0.05;
-      g += box(d0.x - 3, d0.x + d0.w + 3, -3.2, 0, cz, cz + (spec.canopyGlass ? 0.16 : 0.42), colours(spec.canopyGlass ? "canopyGlass" : "timber"));
-      for (const px of [d0.x - 2.7, d0.x + d0.w + 2.6]) g += `<polyline points="${P(px, -3.0, 0)} ${P(px, -3.0, cz)}" fill="none" stroke="${MAT.steel.fill}" stroke-width="1.6"/>`;
+      const cx0 = Math.max(d0.x - 3, cham ? cham.a : -Infinity);
+      g += box(cx0, d0.x + d0.w + 3, -3.2, 0, cz, cz + (spec.canopyGlass ? 0.16 : 0.42), colours(spec.canopyGlass ? "canopyGlass" : "timber"));
+      for (const px of [cx0 + 0.3, d0.x + d0.w + 2.6]) g += `<polyline points="${P(px, -3.0, 0)} ${P(px, -3.0, cz)}" fill="none" stroke="${MAT.steel.fill}" stroke-width="1.6"/>`;
     }
   }
   if (plan.roof === "frontgable") {
@@ -2607,7 +2811,14 @@ function isoHouse(model, P) {
   if (plan.roof === "flat") {
     const fo = spec.canopy ?? spec.slab ?? 0.2;
     const sideOv = spec.canopy ? 1.6 : 0.3;
-    g += box(-sideOv, W + sideOv, -fo, D + 0.3, wallTop, wallTop + (spec.canopy ? 0.5 : 0.4), colours(spec.slabMat ?? "render"));
+    const sz1 = wallTop + (spec.canopy ? 0.5 : 0.4);
+    if (cham) {
+      // slab edge parallel to the chamfer, pushed out by the overhang
+      const len = Math.hypot(cham.a, cham.b), d = (fo + sideOv) / 2;
+      const p0 = [cham.a - (d * cham.b) / len, -(d * cham.a) / len];
+      const xAt = p0[0] - ((-fo - p0[1]) / cham.b) * cham.a, bAt = p0[1] + ((p0[0] + sideOv) / cham.a) * cham.b;
+      g += prism([[xAt, -fo], [W + sideOv, -fo], [W + sideOv, D + 0.3], [-sideOv, D + 0.3], [-sideOv, bAt]], wallTop, sz1, colours(spec.slabMat ?? "render"));
+    } else g += box(-sideOv, W + sideOv, -fo, D + 0.3, wallTop, sz1, colours(spec.slabMat ?? "render"));
     if (spec.roofTerrace) {
       const tb0 = D * 0.25, tb1 = D * 0.85;
       g += poly([P(W * 0.12, tb0, wallTop + 0.4), P(W * 0.67, tb0, wallTop + 0.4), P(W * 0.67, tb0, wallTop + 1.45), P(W * 0.12, tb0, wallTop + 1.45)], "#cfe0e6", 'fill-opacity=".4" stroke="#7fa3ad" stroke-width="0.9"');
@@ -2639,14 +2850,47 @@ function isoHouse(model, P) {
     g += poly([P(W / 2, -ov, H), P(W + ov, -ov, ez), P(W + ov, D + ov, ez), P(W / 2, D + ov, H)], shade(R, 0.18));
     g += poly([P(-ov, -ov, ez), P(W / 2, -ov, H), P(W / 2, D + ov, H), P(-ov, D + ov, ez)], R);
   }
+  // concept facade frames and street balconies
+  if (spec.piers && model.columns) {
+    for (const x of [...new Set(model.columns.map(([cx]) => cx)), ...(cham ? [cham.a] : [])].filter((x) => (!model.towerArc || Math.abs(x - model.towerArc.cx) > model.towerArc.r) && !(cham && x < cham.a - 0.1))) {
+      g += poly([P(x - 0.3, -0.05, 0), P(x + 0.3, -0.05, 0), P(x + 0.3, -0.05, wallTop), P(x - 0.3, -0.05, wallTop)], MAT.blackalu.fill, 'stroke-width="0.4"');
+    }
+  }
+  if (spec.piers && cham) g += poly([P(-0.05, cham.b - 0.3, 0), P(-0.05, cham.b + 0.3, 0), P(-0.05, cham.b + 0.3, wallTop), P(-0.05, cham.b - 0.3, wallTop)], shade(MAT.blackalu.fill, -0.1), 'stroke-width="0.4"');
+  model.levels.forEach((lv, li) => {
+    for (const b of (lv.balconies ?? []).filter((bb) => bb.side === "bottom")) g += box(b.a0 * W, b.a1 * W, -b.depth, 0, li * ST - 0.3, li * ST + 1.1, colours("blackalu"));
+  });
   // round stair tower and rooftop sign stand in front of / on top of the roof slab
-  if (spec.tower) {
+  if (spec.tower && model.towerArc) {
+    // half cylinder bulging from the street facade, facets drawn far to near
+    const { cx, r } = model.towerArc;
+    const tz = wallTop + 1.4, n = 14;
+    const facets = Array.from({ length: n }, (_, i) => {
+      const a0 = Math.PI * (i / n), a1 = Math.PI * ((i + 1) / n);
+      const p0 = [cx + Math.cos(a0) * r, -Math.sin(a0) * r], p1 = [cx + Math.cos(a1) * r, -Math.sin(a1) * r];
+      return { p0, p1, key: (p0[0] + p1[0]) / 2 + (p0[1] + p1[1]) / 2, light: 0.25 - 0.35 * Math.abs(Math.cos((a0 + a1) / 2 - Math.PI * 0.25)) };
+    }).sort((a, b) => b.key - a.key);
+    for (const f of facets) g += poly([P(f.p0[0], f.p0[1], 0), P(f.p1[0], f.p1[1], 0), P(f.p1[0], f.p1[1], tz), P(f.p0[0], f.p0[1], tz)], shade(MAT.silver.fill, f.light), 'stroke-width="0.3"');
+    g += poly(Array.from({ length: n + 1 }, (_, i) => P(cx + Math.cos(Math.PI * (i / n)) * r, -Math.sin(Math.PI * (i / n)) * r, tz)), shade(MAT.silver.fill, 0.3), 'stroke-width="0.6"');
+    for (let f = 0; f < above; f++) g += poly([P(cx - r * 0.7 - 0.3, -r * 0.71, f * ST + 0.6), P(cx - r * 0.7 + 0.3, -r * 0.71, f * ST + 0.6), P(cx - r * 0.7 + 0.3, -r * 0.71, (f + 1) * ST - 0.7), P(cx - r * 0.7 - 0.3, -r * 0.71, (f + 1) * ST - 0.7)], GLASS, 'stroke-width="0.4"');
+  } else if (spec.tower) {
     const st = model.levels[0].spaces.find((sp) => sp.kind === "stair");
     const x0 = st.x - 0.3, x1 = W + 0.3, tz = wallTop + 1.4;
     g += box(x0, x1, -0.5, st.h * 0.8, 0, tz, colours("silver"));
     for (let f = 0; f < above; f++) g += poly([P((x0 + x1) / 2 - 0.45, -0.5, f * ST + 0.4), P((x0 + x1) / 2 + 0.45, -0.5, f * ST + 0.4), P((x0 + x1) / 2 + 0.45, -0.5, (f + 1) * ST - 0.7), P((x0 + x1) / 2 - 0.45, -0.5, (f + 1) * ST - 0.7)], GLASS, 'stroke-width="0.6"');
   }
-  if (plan.sign) {
+  if (plan.sign && spec.signTwoLines) {
+    // green letters on a light steel frame standing on the roof edge, as on the building today
+    const lines = plan.sign.split(" ");
+    const lh = 1.45, sw = Math.max(...lines.map((l) => l.length)) * 0.92 + 0.6, sx = W * 0.24 - sw / 2, sb = 0.45, sz = wallTop + 1.1;
+    const pt = (x, b, z) => P(x, b, z).split(",").map(Number);
+    for (const px of [sx + 0.3, sx + sw - 0.3]) g += `<polyline points="${P(px, sb, wallTop + 0.4)} ${P(px, sb, sz + lines.length * lh)}" fill="none" stroke="${MAT.steel.fill}" stroke-width="1"/>`;
+    for (const z of [sz + 0.05, sz + lh]) g += `<polyline points="${P(sx, sb, z)} ${P(sx + sw, sb, z)}" fill="none" stroke="${MAT.steel.fill}" stroke-width="0.8"/>`;
+    const O = pt(sx, sb, sz), X1 = pt(sx + 1, sb, sz), Z1 = pt(sx, sb, sz + 1);
+    g += `<g transform="matrix(${[X1[0] - O[0], X1[1] - O[1], O[0] - Z1[0], O[1] - Z1[1], O[0], O[1]].map((v) => v.toFixed(3)).join(" ")})" font-family="${FONT}" font-size="1.2" font-weight="700" letter-spacing="0.05" fill="#2f8f63" stroke="#ffffff" stroke-width="0.05" paint-order="stroke" text-anchor="middle">`;
+    lines.forEach((line, i) => (g += `<text x="${(sw / 2).toFixed(2)}" y="${(-((lines.length - 1 - i) * lh + 0.15)).toFixed(2)}">${esc(line)}</text>`));
+    g += "</g>";
+  } else if (plan.sign) {
     const sx = W * 0.08, sw = Math.min(W * 0.55, plan.sign.length * 0.95 + 1.2);
     g += box(sx, sx + sw, 0.3, 0.45, wallTop + 0.6, wallTop + 2.1, { front: "#2c2f33", side: "#24272a", top: "#3a3e42" });
   }
@@ -2892,6 +3136,7 @@ export function schedules(model) {
           : sp.kind === "bath" || sp.kind === "wc" || sp.kind === "shower" ? "Internal, single leaf, privacy lock"
           : sp.kind === "cold" ? "Insulated cold-room door"
           : w >= 1.6 ? "Steel double doors, kick plates"
+          : isExterior(model, sp, d.side) && lv.balconies?.some((b) => b.side === d.side) ? "Glazed balcony door, aluminium"
           : isExterior(model, sp, d.side) ? "External steel door, panic bar"
           : "Internal, single leaf, flush oak",
       });
@@ -2902,8 +3147,8 @@ export function schedules(model) {
       const len = win.side === "top" || win.side === "bottom" ? sp.w : sp.h;
       const w = Math.min(win.w, len - 0.6);
       const living = ["open", "living", "kitchen", "dining"].includes(sp.kind);
-      const sill = spec.glassy || (living && li === 0) ? 0.05 : 0.9;
-      const head = spec.head ?? (spec.glassy ? ST - 0.42 : spec.arches ? 2.75 : 2.45);
+      const sill = lv.sill ?? (spec.glassy || (living && li === 0) ? 0.05 : 0.9);
+      const head = lv.head ?? spec.head ?? (spec.glassy ? ST - 0.42 : spec.arches ? 2.75 : 2.45);
       const type = win.w > 50 ? (STYLE_RULES[plan.style].commercial ? "Shopfront curtain wall, aluminium" : "Lift-and-slide glazing, aluminium") : spec.glassy ? "Tilt-and-turn, aluminium, low-E" : spec.arches && w <= 2.6 ? "Arched casement, oak, low-E" : "Casement, oak, low-E";
       windows.push({ level: li, room: sp.label, facade: FACADE[win.side], w, h: head - sill, sill, type });
     }
@@ -2974,16 +3219,43 @@ export function scheduleSheet(model, sheetNo) {
   g += area.svg;
   const many = sc.rooms.length > 22;
   const crowded = sc.rooms.length > 30; // multi-storey buildings
-  const rooms = table(L, area.bottom + 40, [{ label: "NO.", w: 50 }, { label: "ROOM", w: 170 }, { label: "AREA m²", w: 72, right: true }, { label: "FLOOR FINISH", w: 198 }], sc.rooms.map((r) => [r.no, r.name, r.area.toFixed(1), r.finish]), { title: "ROOM SCHEDULE", size: crowded ? 8.4 : many ? 9.5 : 10.5, rowH: crowded ? 12.2 : many ? 15 : 17 });
+  let roomRows = sc.rooms.map((r) => [r.no, r.name, r.area.toFixed(1), r.finish]);
+  if (sc.rooms.length > 50) {
+    // repeated typical floors are listed once, numbered by their floor range (e.g. 2–4.01)
+    const sig = (li) => sc.rooms.filter((r) => r.level === li).map((r) => [r.name, r.area.toFixed(1), r.finish].join("|")).join(";");
+    roomRows = [];
+    for (let li = 0; li < model.levels.length; ) {
+      let last = li;
+      while (last + 1 < model.levels.length && sig(last + 1) === sig(li)) last++;
+      for (const r of sc.rooms.filter((rr) => rr.level === li)) roomRows.push([last > li ? `${li}–${last}${r.no.slice(r.no.indexOf("."))}` : r.no, r.name, r.area.toFixed(1), r.finish]);
+      li = last + 1;
+    }
+  }
+  const rooms = table(L, area.bottom + 40, [{ label: "NO.", w: 50 }, { label: "ROOM", w: 170 }, { label: "AREA m²", w: 72, right: true }, { label: "FLOOR FINISH", w: 198 }], roomRows, { title: "ROOM SCHEDULE", size: crowded ? 8.4 : many ? 9.5 : 10.5, rowH: crowded ? 12.2 : many ? 15 : 17 });
   g += rooms.svg;
   const R = 620;
   const dense = sc.doors.length + sc.windows.length > 34;
   const rowH = dense ? 14.5 : 17;
   const size = dense ? 9.2 : 10.5;
-  const doors = table(R, 84, [{ label: "NO.", w: 44 }, { label: "LOCATION", w: 150 }, { label: "W × H", w: 86, right: true }, { label: "TYPE", w: 300 }], sc.doors.map((d) => [d.no, `${d.level ? `${d.level}F` : "GF"} · ${d.room}`, `${(d.w * 1000).toFixed(0)}×${(d.h * 1000).toFixed(0)}`, d.type]), { title: "DOOR SCHEDULE", size, rowH });
+  const lv = (l) => (l ? `${l}F` : "GF");
+  const floorsOf = (items) => {
+    const levels = [...new Set(items.map((w) => w.level))].sort((a, b) => a - b);
+    return levels.length > 1 && levels[levels.length - 1] - levels[0] === levels.length - 1 ? `${lv(levels[0])}–${lv(levels[levels.length - 1])}` : levels.map(lv).join(", ");
+  };
+  let doorRows = sc.doors.map((d) => [d.no, `${lv(d.level)} · ${d.room}`, `${(d.w * 1000).toFixed(0)}×${(d.h * 1000).toFixed(0)}`, d.type]);
+  if (sc.doors.length > 40) {
+    // many floors: the same door in the same room on several floors is one row
+    const groups = new Map();
+    for (const d of sc.doors) {
+      const k = [d.room, (d.w * 1000).toFixed(0), (d.h * 1000).toFixed(0), d.type].join("|");
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(d);
+    }
+    doorRows = [...groups.values()].map((ds, i) => [`DT${String(i + 1).padStart(2, "0")}`, `${ds.length > 1 ? `${ds.length} no. · ` : ""}${floorsOf(ds)} · ${ds[0].room}`, `${(ds[0].w * 1000).toFixed(0)}×${(ds[0].h * 1000).toFixed(0)}`, ds[0].type]);
+  }
+  const doors = table(R, 84, [{ label: "NO.", w: 44 }, { label: "LOCATION", w: 150 }, { label: "W × H", w: 86, right: true }, { label: "TYPE", w: 300 }], doorRows, { title: sc.doors.length > 40 ? "DOOR SCHEDULE (BY TYPE)" : "DOOR SCHEDULE", size, rowH });
   g += doors.svg;
   // many floors: identical windows (facade, size, sill, type) are listed once with their count and floors
-  const lv = (l) => (l ? `${l}F` : "GF");
   let winRows = sc.windows.map((w) => [w.no, `${lv(w.level)} · ${w.room}`, w.facade, `${(w.w * 1000).toFixed(0)}×${(w.h * 1000).toFixed(0)}`, (w.sill * 1000).toFixed(0), w.type]);
   if (sc.windows.length > 30) {
     const groups = new Map();
@@ -2993,8 +3265,7 @@ export function scheduleSheet(model, sheetNo) {
       groups.get(k).push(w);
     }
     winRows = [...groups.values()].map((ws, i) => {
-      const levels = [...new Set(ws.map((w) => w.level))].sort((a, b) => a - b);
-      const span = levels.length > 1 && levels[levels.length - 1] - levels[0] === levels.length - 1 ? `${lv(levels[0])}–${lv(levels[levels.length - 1])}` : levels.map(lv).join(", ");
+      const span = floorsOf(ws);
       const w = ws[0];
       return [`WT${String(i + 1).padStart(2, "0")}`, `${ws.length} no. · ${span}`, w.facade, `${(w.w * 1000).toFixed(0)}×${(w.h * 1000).toFixed(0)}`, (w.sill * 1000).toFixed(0), w.type];
     });
@@ -3075,6 +3346,63 @@ export function coverSheet(model, renderDataUri, sheetList) {
  * swings, furniture, room tags, structural grid, dimension chains and outdoor areas.
  * Metres, plan coordinates (x to the right, y toward the front/south); the DXF writer flips y.
  */
+/** Survey elements of one level for the DXF: chamfered corner, stair tower, rear bays, balconies and columns. */
+function cadSurvey(model, level) {
+  const { W, D } = model;
+  const out = [];
+  const add = (layer, e) => out.push({ layer, ...e });
+  const wallPoly = (pts) => {
+    add("A-WALL-PATT", { t: "poly", pts, closed: true, fill: true });
+    add("A-WALL", { t: "poly", pts, closed: true });
+  };
+  const arc = (cx, cy, rx, ry, a0, a1, n = 24) => Array.from({ length: n + 1 }, (_, i) => {
+    const a = a0 + ((a1 - a0) * i) / n;
+    return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
+  });
+  if (model.chamfer) {
+    const { a, b } = model.chamfer;
+    wallPoly([[0, D - b], [a, D], [a + 0.42, D - EXT], [EXT, D - b - 0.42], [EXT, D - b]]);
+    const len = Math.hypot(a, b), n = [(b / len) * (EXT / 2), (-a / len) * (EXT / 2)];
+    const p = (t) => [t * a + n[0], D - b + t * b + n[1]];
+    add("A-GLAZ", { t: "line", x1: p(0.2)[0], y1: p(0.2)[1], x2: p(0.8)[0], y2: p(0.8)[1] });
+  }
+  if (model.towerArc) {
+    const { cx, r } = model.towerArc;
+    wallPoly([...arc(cx, D, r, r, 0, Math.PI), ...arc(cx, D, r - EXT, r - EXT, Math.PI, 0)]);
+    for (const t of [0.3, 0.5, 0.7]) {
+      const ang = Math.PI * t;
+      add("A-GLAZ", { t: "line", x1: cx - Math.cos(ang) * (r - EXT), y1: D + Math.sin(ang) * (r - EXT), x2: cx - Math.cos(ang) * r, y2: D + Math.sin(ang) * r });
+    }
+  }
+  for (const b of level.bays ?? []) {
+    const x0 = b.a0 * W, x1 = b.a1 * W, d = b.depth;
+    wallPoly([[x0, EXT], [x0, -d], [x0 + 0.8, -d], [x0 + 0.8, -d + EXT], [x0 + EXT, -d + EXT], [x0 + EXT, EXT]]);
+    wallPoly([[x1, EXT], [x1, -d], [x1 - 0.8, -d], [x1 - 0.8, -d + EXT], [x1 - EXT, -d + EXT], [x1 - EXT, EXT]]);
+    add("A-GLAZ", { t: "rect", x: x0 + 0.8, y: -d, w: x1 - x0 - 1.6, h: EXT });
+    add("A-GLAZ", { t: "line", x1: x0 + 0.8, y1: -d + EXT / 2, x2: x1 - 0.8, y2: -d + EXT / 2 });
+  }
+  for (const b of level.balconies ?? []) {
+    let pts, at;
+    if (b.side === "right") {
+      const y0 = b.a0 * D, y1 = b.a1 * D, r = (y1 - y0) / 2;
+      pts = b.round ? arc(W, (y0 + y1) / 2, Math.min(r, b.depth), r, -Math.PI / 2, Math.PI / 2) : [[W, y0], [W + b.depth, y0], [W + b.depth, y1], [W, y1]];
+      at = [W + b.depth / 2, (y0 + y1) / 2];
+    } else {
+      const x0 = b.a0 * W, x1 = b.a1 * W, y = b.side === "top" ? -b.depth : D + b.depth, y0 = b.side === "top" ? 0 : D;
+      pts = [[x0, y0], [x0, y], [x1, y], [x1, y0]];
+      at = [(x0 + x1) / 2, (y + y0) / 2];
+    }
+    add("A-BALC", { t: "poly", pts });
+    add("A-ANNO-TEXT", { t: "text", x: at[0], y: at[1], h: 0.16, text: "BALCONY" });
+  }
+  for (const [x, y] of model.columns ?? []) {
+    add("A-COLS", { t: "rect", x: x - 0.22, y: y - 0.22, w: 0.44, h: 0.44 });
+    add("A-COLS", { t: "line", x1: x - 0.22, y1: y - 0.22, x2: x + 0.22, y2: y + 0.22 });
+    add("A-COLS", { t: "line", x1: x - 0.22, y1: y + 0.22, x2: x + 0.22, y2: y - 0.22 });
+  }
+  return out;
+}
+
 export function cadLevel(model, levelIndex) {
   const ST = model.storey;
   const { W, D, site } = model;
@@ -3094,10 +3422,15 @@ export function cadLevel(model, levelIndex) {
     if (!sp || !isExterior(model, sp, win.side)) continue;
     const seg = sideSegment(sp, win.side);
     const len = seg.horizontal ? sp.w : sp.h;
-    const w = Math.min(win.w, len - 0.6);
+    let w = Math.min(win.w, len - 0.6);
     const c = win.at * len;
+    if (win.side === "top" && (level.bays ?? []).some((b) => sp.x + c > b.a0 * W && sp.x + c < b.a1 * W)) continue;
     if (seg.horizontal) {
-      const x0 = sp.x + c - w / 2;
+      let x0 = sp.x + c - w / 2;
+      if (model.chamfer && win.side === "bottom" && x0 < model.chamfer.a + 0.1) {
+        w -= model.chamfer.a + 0.1 - x0;
+        x0 = model.chamfer.a + 0.1;
+      }
       const yo = win.side === "top" ? 0 : D - EXT;
       holes.push({ x: x0, y: yo, w, h: EXT });
       rectOutline("A-GLAZ", x0, yo, w, EXT);
@@ -3108,6 +3441,7 @@ export function cadLevel(model, levelIndex) {
       }
     } else {
       const y0 = sp.y + c - w / 2;
+      if (model.chamfer && win.side === "left") w = Math.min(w, D - model.chamfer.b - 0.1 - y0);
       const xo = win.side === "left" ? 0 : W - EXT;
       holes.push({ x: xo, y: y0, w: EXT, h: w });
       rectOutline("A-GLAZ", xo, y0, EXT, w);
@@ -3159,6 +3493,11 @@ export function cadLevel(model, levelIndex) {
     add("A-AREA-IDEN", { t: "text", x: gx + garage.w / 2, y: gy + 1.15, h: 0.16, text: `${((garage.w - EXT) * (garage.d - EXT)).toFixed(1)} m²` });
   }
 
+  // surveyed building: the chamfered corner, the opening into the stair tower and the rear bays are not wall
+  if (model.chamfer) holes.push({ x: 0, y: D - model.chamfer.b, w: model.chamfer.a, h: model.chamfer.b });
+  if (model.towerArc) holes.push({ x: model.towerArc.cx - model.towerArc.r + EXT, y: D - EXT - 0.01, w: 2 * (model.towerArc.r - EXT), h: EXT + 0.02 });
+  for (const b of level.bays ?? []) holes.push({ x: b.a0 * W + EXT, y: -0.01, w: (b.a1 - b.a0) * W - 2 * EXT, h: EXT + 0.02 });
+
   // walls: grid cells inside the footprint and outside every room and opening
   const inside = (r, x, y) => x > r.x + 1e-6 && x < r.x + r.w - 1e-6 && y > r.y + 1e-6 && y < r.y + r.h - 1e-6;
   const edges = (axis) => [...new Set([...solids, ...holes].flatMap((r) => (axis === "x" ? [r.x, r.x + r.w] : [r.y, r.y + r.h])).map((v) => Math.round(v * 1000) / 1000))].sort((a, b) => a - b);
@@ -3202,6 +3541,7 @@ export function cadLevel(model, levelIndex) {
     }
   }
   for (const r of runs) add("A-WALL", { t: "line", ...r });
+  ents.push(...cadSurvey(model, level));
 
   // furniture and stairs
   const pen = cadPen(ents, "A-FURN");
@@ -3217,6 +3557,7 @@ export function cadLevel(model, levelIndex) {
     if (sp.kind === "living") cy = inn.y + inn.h * 0.8;
     if (sp.kind === "kitchen") cy = inn.y + inn.h * 0.36;
     if (sp.kind === "dining") cy = inn.y + 0.75;
+    if (sp.labelY) cy = inn.y + inn.h * sp.labelY;
     const small = inn.w < 2.2;
     add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy, h: small ? 0.17 : 0.25, text: small && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label });
     add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy + (small ? 0.28 : 0.38), h: small ? 0.14 : 0.19, text: `${(inn.w * inn.h).toFixed(1)} m²` });

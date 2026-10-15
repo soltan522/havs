@@ -98,7 +98,7 @@ export const COPY = {
     contactToOrder: "Sifariş üçün əlaqə",
     contactToCustomise: "Fərdiləşdirmə üçün əlaqə",
     sheets: "Konsept vərəqləri",
-    sheetNames: { render: "Konsept vizualizasiya", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", schedules: "Otaq, qapı və pəncərə cədvəlləri", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı", "Dördüncü mərtəbə planı", "Beşinci mərtəbə planı", "Altıncı mərtəbə planı"] },
+    sheetNames: { render: "Konsept vizualizasiya", owner: "Sifarişçinin materialları", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", schedules: "Otaq, qapı və pəncərə cədvəlləri", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı", "Dördüncü mərtəbə planı", "Beşinci mərtəbə planı", "Altıncı mərtəbə planı"] },
     priceFrom: "Paket qiyməti",
   },
   en: {
@@ -196,7 +196,7 @@ export const COPY = {
     contactToOrder: "Contact to order",
     contactToCustomise: "Contact to customise",
     sheets: "Concept sheets",
-    sheetNames: { render: "Concept visualisation", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", schedules: "Room, door and window schedules", plans: ["Ground floor plan", "First floor plan", "Second floor plan", "Third floor plan", "Fourth floor plan", "Fifth floor plan"] },
+    sheetNames: { render: "Concept visualisation", owner: "Owner's photos and plans", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", schedules: "Room, door and window schedules", plans: ["Ground floor plan", "First floor plan", "Second floor plan", "Third floor plan", "Fourth floor plan", "Fifth floor plan"] },
     priceFrom: "Package price",
   },
   ru: {
@@ -294,12 +294,12 @@ export const COPY = {
     contactToOrder: "Связаться для заказа",
     contactToCustomise: "Адаптация проекта",
     sheets: "Концептуальные листы",
-    sheetNames: { render: "Концептуальная визуализация", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", schedules: "Экспликация, двери и окна", plans: ["План первого этажа", "План второго этажа", "План третьего этажа", "План четвёртого этажа", "План пятого этажа", "План шестого этажа"] },
+    sheetNames: { render: "Концептуальная визуализация", owner: "Материалы заказчика", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", schedules: "Экспликация, двери и окна", plans: ["План первого этажа", "План второго этажа", "План третьего этажа", "План четвёртого этажа", "План пятого этажа", "План шестого этажа"] },
     priceFrom: "Цена пакета",
   },
 } satisfies Record<Locale, unknown>;
 
-type SheetNames = { render: string; image: string; site: string; elevation: string; axonometric: string; schedules: string; plans: string[] };
+type SheetNames = { render: string; owner: string; image: string; site: string; elevation: string; axonometric: string; schedules: string; plans: string[] };
 
 /** Human name of a gallery item, e.g. "First floor plan" for kind "plan-1". */
 export function sheetName(names: SheetNames, kind: string): string {

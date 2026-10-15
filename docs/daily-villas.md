@@ -129,9 +129,10 @@ npm ci
 ## Multi-unit projects (only when asked)
 
 A catalogue entry can also be a whole development: a terrace of townhouses, a farm estate, a small village or a
-commercial building (`retail`: a neighbourhood supermarket with its car park — `"bedrooms": 0`, `"bathrooms"` = WCs,
+commercial building (`retail`: a neighbourhood supermarket with its car park, `urban`: a corner office and showroom
+building — `"bedrooms": 0`, `"bathrooms"` = WCs,
 `"parking"` = bays on the masterplan, priced at ~$900 + $1.5/m²).
-Add `"project": { "kind": "row" | "farm" | "cluster" | "retail", "units": N }` to the entry; `areaM2`, `floors`,
+Add `"project": { "kind": "row" | "farm" | "cluster" | "retail" | "urban", "units": N }` to the entry; `areaM2`, `floors`,
 `bedrooms` and `bathrooms` then describe **one** house, and the generator draws the masterplan (A-001), the typical
 house plans, the street elevation (row) or typical elevation, an isometric of the whole project and one of the
 typical house. Allowed kinds, unit counts and styles are in `PROJECT_RULES` in `scripts/drawings.mjs`
@@ -141,6 +142,10 @@ Use a family from the project section of `docs/design-references.md`. The render
 of the whole project that shows exactly N houses in the arrangement the masterplan draws: a straight terrace in
 mirrored pairs (`row`), houses on a gentle arc above a vineyard with the barn behind (`farm`), two staggered rows
 on a slope with the lodge at the entrance (`cluster`). The daily routine adds single villas only.
+
+A **surveyed building** (`urban`: the owner's existing office building) keeps its measured `"footprint": [width, depth]`
+(`npm run validate` checks it against `areaM2` and `floors`); the owner's own photos and plans go in
+`renders/<slug>/owner/` and appear in the gallery after the concept renders.
 
 ## Do not
 
