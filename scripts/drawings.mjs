@@ -64,6 +64,11 @@ const MAT = {
   shutterWood: { fill: "#80694d", label: "Timber shutters, natural oak" },
   pergola: { fill: "#8a6446", label: "Oak pergola with climbing vines" },
   steel: { fill: "#3a3b3c", label: "Slender steel columns, graphite" },
+  limestone: { fill: "#dccfb4", pattern: "limestone", label: "Absheron limestone, sawn blocks" },
+  charcoal: { fill: "#4e5053", label: "Charcoal mineral render" },
+  bronzeFin: { fill: "#7b6349", pattern: "fins", label: "Bronze aluminium vertical fins" },
+  clapboard: { fill: "#eee7db", pattern: "clapboard", label: "Painted timber weatherboarding" },
+  slate: { fill: "#5e636a", pattern: "slatetiles", label: "Natural slate roof" },
 };
 
 // Per-style design language. walls[i] = cladding of storey i (last entry repeats).
@@ -78,11 +83,18 @@ const SPEC = {
   pavilion: { walls: ["travertine"], frame: "steel", glassy: true, canopy: 2.8, lap: true, tree: "olive" },
   mediterranean: { walls: ["stucco"], roof: "terracotta", frame: "wood", arches: true, ironBalcony: true, garageDoor: "wood", tree: "palm" },
   duplex: { walls: ["render"], frame: "bronze", glassy: true, slab: 0.6, timberEntry: true, tree: "round" },
+  // Absheron coast: sawn local limestone with white-render volumes, deep slabs, sea-view terraces
+  absheron: { walls: ["limestone"], fin: "render", frame: "bronze", glassy: true, slab: 1.6, terrace: true, garageDoor: "wood", tree: "olive" },
+  // dark contemporary: charcoal render, bronze fins, crisp slabs
+  noir: { walls: ["charcoal"], fin: "bronzeFin", slabMat: "charcoal", frame: "bronze", glassy: true, slab: 1.3, terrace: true, garageDoor: "bronze", tree: "round" },
+  // Bosphorus yalı: painted timber weatherboarding, slate hip roof, tall timber windows
+  yali: { walls: ["clapboard"], roof: "slate", frame: "wood", shutters: "shutterWood", chimney: true, garageDoor: "wood", tree: "round" },
 };
 
 const STYLE_EN = {
   modern: "MODERN", tuscan: "TUSCAN", minimal: "MINIMALIST", coastal: "COASTAL", chalet: "CHALET",
   farmhouse: "FARMHOUSE", luxury: "CONTEMPORARY", pavilion: "PAVILION", mediterranean: "MEDITERRANEAN", duplex: "TWIN VILLA",
+  absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI",
 };
 
 const wallMat = (spec, li) => spec.walls[Math.min(li, spec.walls.length - 1)];
@@ -99,6 +111,9 @@ export const STYLE_RULES = {
   pavilion: { roofs: ["flat"], floors: [1] },
   mediterranean: { roofs: ["hip", "gable"], floors: [1, 2] },
   duplex: { roofs: ["flat"], floors: [2] },
+  absheron: { roofs: ["flat"], floors: [1, 2] },
+  noir: { roofs: ["flat"], floors: [2] },
+  yali: { roofs: ["hip"], floors: [2] },
 };
 
 /** Planting symbols the elevation and site plan can draw (optional plan.tree). */
@@ -141,6 +156,10 @@ function materialDefs(s, seed = 7) {
     ${pat("p-louvre", 0.22, 1, `<rect x="0" y="0" width="${m(0.09)}" height="${m(1)}" fill="#6e4d30" fill-opacity=".55"/>`)}
     ${pat("p-tiles", 0.3, 0.64, `<path d="M0 ${m(0.32)}H${m(0.3)}M0 ${m(0.64) - 0.5}H${m(0.3)}M0.4 0V${m(0.32)}M${m(0.15)} ${m(0.32)}V${m(0.64)}" stroke="#5a2a17" stroke-opacity=".38" stroke-width="0.8" fill="none"/>`)}
     ${pat("p-seam", 0.5, 1, `<path d="M0.5 0V${m(1)}" stroke="#a9aeb3" stroke-opacity=".45" stroke-width="0.9"/>`)}
+    ${pat("p-limestone", 1.2, 0.6, `<path d="M0 ${m(0.3)}H${m(1.2)}M0 ${m(0.6) - 0.5}H${m(1.2)}M0.4 0V${m(0.3)}M${m(0.6)} ${m(0.3)}V${m(0.6)}" stroke="#6b5a3f" stroke-opacity=".2" stroke-width="0.7" fill="none"/>`)}
+    ${pat("p-fins", 0.25, 1, `<rect x="0" y="0" width="${m(0.06)}" height="${m(1)}" fill="#c9b08c" fill-opacity=".55"/>`)}
+    ${pat("p-clapboard", 1, 0.18, `<path d="M0 ${m(0.18) - 0.5}H${m(1)}" stroke="#5b5146" stroke-opacity=".32" stroke-width="0.7"/>`)}
+    ${pat("p-slatetiles", 0.3, 0.5, `<path d="M0 ${m(0.25)}H${m(0.3)}M0 ${m(0.5) - 0.5}H${m(0.3)}M0.4 0V${m(0.25)}M${m(0.15)} ${m(0.25)}V${m(0.5)}" stroke="#d6dade" stroke-opacity=".35" stroke-width="0.7" fill="none"/>`)}
     ${pat("p-earth", 0.3, 0.3, `<path d="M0 ${m(0.3)}L${m(0.3)} 0" stroke="${INK}" stroke-opacity=".35" stroke-width="0.7"/>`)}
     ${pat("p-paving", 1.2, 0.6, `<path d="M0.4 0V${m(0.6)}M0 0.4H${m(1.2)}" stroke="#8f8370" stroke-opacity=".38" stroke-width="0.6" fill="none"/>`)}
     ${pat("p-setts", 0.5, 0.5, `<path d="M0.4 0V${m(0.5)}M0 0.4H${m(0.5)}" stroke="#7d7365" stroke-opacity=".35" stroke-width="0.5" fill="none"/>`)}
@@ -552,7 +571,17 @@ function bareSvg(body, defs = "") {
 
 // ------------------------------------------------------------------ sheet frame + title block
 
-function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, legend }) {
+/** Diagonal "preview" watermark over the drawing area of a public sheet. */
+function previewMark() {
+  let o = `<clipPath id="pv-clip"><rect x="40" y="40" width="${SHEET_W - 330 - 44}" height="${SHEET_H - 80}"/></clipPath>
+    <g clip-path="url(#pv-clip)" font-family="${FONT}" font-size="26" font-weight="600" letter-spacing="6" fill="${INK}" fill-opacity=".055">`;
+  for (let y = 120; y < SHEET_H; y += 210) {
+    for (let x = -200; x < SHEET_W - 330; x += 520) o += `<text x="${x}" y="${y}" transform="rotate(-24 ${x} ${y})">HAVS.DEV · PREVIEW</text>`;
+  }
+  return o + "</g>";
+}
+
+function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, legend, preview = false }) {
   const tbX = SHEET_W - 330;
   const rows = [
     ["PROJECT", plan.title.en.toUpperCase()],
@@ -593,6 +622,11 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
     tb += `<g transform="translate(${tbX + 165} ${SHEET_H - 232})"><circle r="30" fill="none" stroke="${INK}" stroke-width="1.2"/>
       <path d="M0 -24 L9 14 L0 6 L-9 14 Z" fill="${INK}"/><text y="-38" text-anchor="middle" font-size="12" font-weight="600" fill="${INK}">N</text></g>`;
   }
+  if (preview) {
+    tb += `<rect x="${tbX + 20}" y="${SHEET_H - 205}" width="290" height="40" rx="6" fill="${ACCENT}" fill-opacity=".1" stroke="${ACCENT}" stroke-width="0.8"/>
+      <text x="${tbX + 32}" y="${SHEET_H - 189}" font-size="9.5" font-weight="600" letter-spacing="1.6" fill="${ACCENT}">PREVIEW — DIMENSIONS OMITTED</text>
+      <text x="${tbX + 32}" y="${SHEET_H - 175}" font-size="9" letter-spacing="1.2" fill="${ACCENT}">FULL SET IN THE PURCHASED PDF / DWG / DXF</text>`;
+  }
   tb += `<line x1="${tbX}" y1="${SHEET_H - 150}" x2="${SHEET_W - 36}" y2="${SHEET_H - 150}" stroke="${INK}" stroke-width="1.2"/>
     <text x="${tbX + 28}" y="${SHEET_H - 118}" font-size="10" fill="${MID}" letter-spacing="1.6">STAGE · CONCEPT DESIGN</text>
     <text x="${tbX + 28}" y="${SHEET_H - 100}" font-size="10" fill="${MID}" letter-spacing="1.6">NOT FOR CONSTRUCTION</text>
@@ -603,7 +637,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
     <rect width="100%" height="100%" fill="${PAPER}"/>
     <rect x="24" y="24" width="${SHEET_W - 48}" height="${SHEET_H - 48}" fill="none" stroke="${INK}" stroke-width="0.8"/>
     <rect x="36" y="36" width="${SHEET_W - 72}" height="${SHEET_H - 72}" fill="none" stroke="${INK}" stroke-width="1.6"/>
-    ${body}${tb}
+    ${body}${preview ? previewMark() : ""}${tb}
   </svg>`);
 }
 
@@ -834,7 +868,7 @@ function furniture(d, kind, inn) {
 
 // ------------------------------------------------------------------ floor plan sheet
 
-export function floorPlanSheet(model, levelIndex, sheetNo) {
+export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false } = {}) {
   const { W, D, plan, spec } = model;
   const level = model.levels[levelIndex];
   const isGround = levelIndex === 0;
@@ -1040,23 +1074,25 @@ export function floorPlanSheet(model, levelIndex, sheetNo) {
     <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
     <text x="10" y="3">FFL ${ffl}</text></g>`;
 
-  // ---- dimension chains: detailed at 0.9 m, overall at 1.6 m
-  const back = level.spaces.filter((sp) => sp.y < 0.01).flatMap((sp) => [sp.x, sp.x + sp.w]);
-  g += dimChain([...new Set([0, W, ...back].map(r1))].sort((a, b) => a - b), -0.9, s, ox, oy, true, 1);
-  g += dimChain([0, W, ...(garage ? [W + garage.w] : [])], -1.6, s, ox, oy, true, 1);
-  const left = level.spaces.filter((sp) => sp.x < 0.01).flatMap((sp) => [sp.y, sp.y + sp.h]);
-  g += dimChain([...new Set([0, D, ...left].map(r1))].sort((a, b) => a - b), -0.9, s, ox, oy, false);
-  g += dimChain([0, D], -1.6, s, ox, oy, false);
+  // ---- dimension chains: detailed at 0.9 m, overall at 1.6 m (left out of public previews)
+  if (!preview) {
+    const back = level.spaces.filter((sp) => sp.y < 0.01).flatMap((sp) => [sp.x, sp.x + sp.w]);
+    g += dimChain([...new Set([0, W, ...back].map(r1))].sort((a, b) => a - b), -0.9, s, ox, oy, true, 1);
+    g += dimChain([0, W, ...(garage ? [W + garage.w] : [])], -1.6, s, ox, oy, true, 1);
+    const left = level.spaces.filter((sp) => sp.x < 0.01).flatMap((sp) => [sp.y, sp.y + sp.h]);
+    g += dimChain([...new Set([0, D, ...left].map(r1))].sort((a, b) => a - b), -0.9, s, ox, oy, false);
+    g += dimChain([0, D], -1.6, s, ox, oy, false);
+  }
 
   const gia = level.spaces.reduce((sum, sp) => sum + (sp.kind === "void" ? 0 : inner(model, sp).w * inner(model, sp).h), 0);
-  g += sheetTitle(level.name, `${plan.title.en.toUpperCase()} · NET INTERNAL AREA ${gia.toFixed(1)} m² · DIMENSIONS IN METRES`);
+  g += sheetTitle(level.name, `${plan.title.en.toUpperCase()} · NET INTERNAL AREA ${gia.toFixed(1)} m² · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
   g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
-  return sheet({ plan, drawing: level.name, sheetNo, scaleNote: "GRAPHIC SCALE", body: g, defs: materialDefs(s, hash(plan.slug)), north: true });
+  return sheet({ plan, drawing: level.name, sheetNo, scaleNote: "GRAPHIC SCALE", body: g, defs: materialDefs(s, hash(plan.slug)), north: true, preview });
 }
 
 // ------------------------------------------------------------------ site plan sheet
 
-export function sitePlanSheet(model, sheetNo) {
+export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
   const { W, D, plan, spec, site } = model;
   const gW = model.garage?.w ?? 0;
   const gD = model.garage?.d ?? 0;
@@ -1110,7 +1146,7 @@ export function sitePlanSheet(model, sheetNo) {
   }
 
   // ---- roof plan
-  const roofCol = spec.roof === "terracotta" ? "#d9a283" : spec.roof === "seam" ? "#8d9195" : "#ebe6dc";
+  const roofCol = { terracotta: "#d9a283", seam: "#8d9195", slate: "#8c9198" }[spec.roof] ?? (spec.slabMat === "charcoal" ? "#9a9c9f" : "#ebe6dc");
   const ov = model.roofOv;
   if (plan.roof === "flat") {
     const fo = spec.canopy ?? spec.slab ?? 0.2;
@@ -1143,7 +1179,7 @@ export function sitePlanSheet(model, sheetNo) {
   }
   if (model.garage) {
     const gy = D - gD;
-    if (spec.roof === "terracotta") {
+    if (spec.roof === "terracotta" || spec.roof === "slate") {
       g += `<polygon points="${X(W)},${Y(gy - 0.4)} ${X(W + gW + 0.4)},${Y(gy - 0.4)} ${X(W + gW + 0.4)},${Y(D + 0.4)} ${X(W)},${Y(D + 0.4)}" fill="${shade(roofCol, -0.06)}" stroke="${INK}" stroke-width="1.2"/>`;
       g += rect(W, gy - 0.4, gW + 0.4, gD + 0.8, `fill="url(#p-roofh)"`);
     } else {
@@ -1193,7 +1229,7 @@ export function sitePlanSheet(model, sheetNo) {
   g += sheetTitle("SITE PLAN", `${plan.title.en.toUpperCase()} · ${rows.map(([k, v]) => `${k} ${v}`).slice(1, 3).join(" · ")}`);
   g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
   const schedule = `<text x="${SHEET_W - 330 + 28}" y="${492}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">SITE SCHEDULE</text>` + rows.map(([k, v], i) => `<text x="${SHEET_W - 330 + 28}" y="${530 + i * 44}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">${k}</text><text x="${SHEET_W - 330 + 28}" y="${548 + i * 44}" font-family="${FONT}" font-size="14" font-weight="500" fill="${INK}">${esc(v)}</text>`).join("");
-  return sheet({ plan, drawing: "SITE PLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true });
+  return sheet({ plan, drawing: "SITE PLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true, preview });
 }
 
 const level0 = (model) => model.levels[0];
@@ -1279,7 +1315,7 @@ function shrubs(X, Y, s, x0, x1, seed) {
   return o;
 }
 
-export function elevationSheet(model, sheetNo, bare = false) {
+export function elevationSheet(model, sheetNo, bare = false, { preview = false } = {}) {
   const { W, plan, above, spec, wallTop, H } = model;
   const garage = model.garage;
   const gW = garage ? garage.w : 0;
@@ -1375,11 +1411,11 @@ export function elevationSheet(model, sheetNo, bare = false) {
       for (let z = 0.6; z < dh; z += 0.6) g += `<line x1="${X(W + 0.45)}" y1="${Y(z)}" x2="${X(W + 0.45 + dw)}" y2="${Y(z)}" stroke="#2a221b" stroke-width="0.8"/>`;
     }
     g += box(W + 0.45, dh - 0.2, dw, 0.2, INK, `fill-opacity=".25"`);
-    if (spec.roof === "terracotta") {
-      g += matPoly("terracotta", [[W - 0.2, gh], [W + gW + 0.5, gh], [W + gW - 1.2, gh + 1.0], [W, gh + 1.0]]);
+    if (spec.roof === "terracotta" || spec.roof === "slate") {
+      g += matPoly(spec.roof, [[W - 0.2, gh], [W + gW + 0.5, gh], [W + gW - 1.2, gh + 1.0], [W, gh + 1.0]]);
       g += box(W, gh - 0.4, gW, 0.4, INK, `fill-opacity=".16"`);
     } else {
-      g += box(W - 0.1, gh, gW + 0.5, 0.35, MAT.render.fill, `stroke="${INK}" stroke-width="1.4"`);
+      g += box(W - 0.1, gh, gW + 0.5, 0.35, MAT[spec.slabMat ?? "render"].fill, `stroke="${INK}" stroke-width="1.4"`);
       g += box(W, gh - 0.45, gW, 0.45, "url(#shadeDown)");
     }
   }
@@ -1469,14 +1505,14 @@ export function elevationSheet(model, sheetNo, bare = false) {
 
   // ---- storey bands, terraces and balconies
   for (let f = 1; f < above; f++) {
-    if (spec.glassy) g += box(-0.05, f * STOREY - 0.35, W + 0.1, 0.35, MAT.render.fill, `stroke="${INK}" stroke-width="1.1"`);
+    if (spec.glassy) g += box(-0.05, f * STOREY - 0.35, W + 0.1, 0.35, MAT[spec.slabMat ?? "render"].fill, `stroke="${INK}" stroke-width="1.1"`);
     else g += box(-0.08, f * STOREY - 0.12, W + 0.16, 0.18, "#e9dfcc", `stroke="${INK}" stroke-width="0.9"`);
   }
   const terrace = model.levels[1]?.terrace;
   if (terrace) {
     const { x0, x1 } = terrace;
     const z = STOREY;
-    g += box(x0 - 0.1, z - 0.4, x1 - x0 + 0.2, 0.4, spec.balcony ? "#6c5240" : MAT.render.fill, `stroke="${INK}" stroke-width="1.3"`);
+    g += box(x0 - 0.1, z - 0.4, x1 - x0 + 0.2, 0.4, spec.balcony ? "#6c5240" : MAT[spec.slabMat ?? "render"].fill, `stroke="${INK}" stroke-width="1.3"`);
     g += box(x0, z - 0.4 - Math.min(1.1, terrace.depth * 0.55), x1 - x0, Math.min(1.1, terrace.depth * 0.55), "url(#shadeDown)");
     front += box(x0, z, x1 - x0, 1.1, MAT.balustrade.fill, `fill-opacity=".38" stroke="#7fa3ad" stroke-width="1"`);
     front += box(x0, z + 1.06, x1 - x0, 0.05, "#9fb9c0");
@@ -1498,9 +1534,9 @@ export function elevationSheet(model, sheetNo, bare = false) {
     // shadow cast by the slab on the facade below it
     const shadowH = Math.min(1.5, (spec.canopy ?? spec.slab ?? 0.2) * 0.65);
     g += box(0, wallTop - shadowH, W, shadowH, "url(#shadeDown)");
-    g += box(-fo, wallTop, W + 2 * fo, th, MAT.render.fill, `stroke="${INK}" stroke-width="1.8"`);
+    g += box(-fo, wallTop, W + 2 * fo, th, MAT[spec.slabMat ?? "render"].fill, `stroke="${INK}" stroke-width="1.8"`);
     g += box(-fo, wallTop + th - 0.06, W + 2 * fo, 0.06, INK, `fill-opacity=".35"`);
-    mark("render", -fo + 0.8, wallTop + th / 2);
+    mark(spec.slabMat ?? "render", -fo + 0.8, wallTop + th / 2);
     if (spec.roofTerrace) {
       g += box(W * 0.12, wallTop + th, W * 0.55, 1.05, MAT.balustrade.fill, `fill-opacity=".38" stroke="#7fa3ad" stroke-width="1"`);
       g += box(W * 0.72, wallTop + th, 2.6, 2.5, MAT.render.fill, `stroke="${INK}" stroke-width="1.4"`);
@@ -1511,18 +1547,18 @@ export function elevationSheet(model, sheetNo, bare = false) {
     const ez = wallTop - ov * 0.45;
     if (spec.chimney) back += mat("ashlar", W * 0.7, wallTop, 0.9, H - wallTop + 0.9) + box(W * 0.7 - 0.12, H + 0.9, 1.14, 0.18, "#cdb894", `stroke="${INK}" stroke-width="1"`);
     g += box(0, wallTop - 0.55, W, 0.55, "url(#shadeDown)");
-    g += matPoly("terracotta", [[-ov, ez], [W + ov, ez], [W - a, H], [a, H]]);
+    g += matPoly(spec.roof ?? "terracotta", [[-ov, ez], [W + ov, ez], [W - a, H], [a, H]]);
     g += box(-ov - 0.05, ez - 0.14, W + 2 * ov + 0.1, 0.16, "#e8dfcf", `stroke="${INK}" stroke-width="1.1"`);
-    mark("terracotta", W * 0.4, (ez + H) / 2);
+    mark(spec.roof ?? "terracotta", W * 0.4, (ez + H) / 2);
   } else if (plan.roof === "gable") {
     const ov = model.roofOv;
     const ez = wallTop - ov * 0.5;
     if (spec.chimney) back += mat("rubble", W * 0.25, wallTop, 0.9, H - wallTop + 1.0) + box(W * 0.25 - 0.12, H + 1.0, 1.14, 0.18, "#cdb894", `stroke="${INK}" stroke-width="1"`);
     g += box(0, wallTop - 0.55, W, 0.55, "url(#shadeDown)");
-    g += matPoly("terracotta", [[-ov, ez], [W + ov, ez], [W + ov, H], [-ov, H]]);
+    g += matPoly(spec.roof ?? "terracotta", [[-ov, ez], [W + ov, ez], [W + ov, H], [-ov, H]]);
     g += box(-ov - 0.05, H - 0.02, W + 2 * ov + 0.1, 0.14, "#9a5a3c", `stroke="${INK}" stroke-width="1"`);
     g += box(-ov - 0.05, ez - 0.14, W + 2 * ov + 0.1, 0.16, "#e8dfcf", `stroke="${INK}" stroke-width="1.1"`);
-    mark("terracotta", W * 0.55, (ez + H) / 2);
+    mark(spec.roof ?? "terracotta", W * 0.55, (ez + H) / 2);
   } else if (plan.roof === "frontgable") {
     const ov = model.roofOv, k = 0.84;
     const ez = wallTop - ov * k;
@@ -1602,7 +1638,7 @@ export function elevationSheet(model, sheetNo, bare = false) {
         <text x="${lx + 12}" y="${Y(z) - 5}">${z === 0 ? "±0.00" : `${z > 0 ? "+" : "−"}${Math.abs(z).toFixed(2)}`}</text></g>`;
     });
     // overall dimension
-    out += dimChain([0, W, ...(garage ? [W + garage.w] : [])], below - 0.7, s, ox, gy, true, -1);
+    if (!preview) out += dimChain([0, W, ...(garage ? [W + garage.w] : [])], below - 0.7, s, ox, gy, true, -1);
     // material callouts: numbered tags above the building, leaders to sample points
     const keys = [...marks.keys()].filter((k) => MAT[k]);
     const pts = keys.map((k) => ({ k, p: marks.get(k) })).sort((a, b) => a.p[0] - b.p[0]);
@@ -1620,14 +1656,14 @@ export function elevationSheet(model, sheetNo, bare = false) {
     out += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
     const legend = keys.map((k) => ({ fill: MAT[k].fill === "#7f949f" ? "url(#glass)" : MAT[k].fill, pattern: MAT[k].pattern ? `p-${MAT[k].pattern}` : null, label: MAT[k].label }));
     legend.title = "MATERIALS";
-    return sheet({ plan, drawing: "SOUTH ELEVATION", sheetNo, scaleNote: "GRAPHIC SCALE", body: out, defs, north: false, legend });
+    return sheet({ plan, drawing: "SOUTH ELEVATION", sheetNo, scaleNote: "GRAPHIC SCALE", body: out, defs, north: false, legend, preview });
   }
   return bareSvg(out, materialDefs(s, seed));
 }
 
 // ------------------------------------------------------------------ axonometric (coloured massing)
 
-export function axonometricSheet(model, sheetNo) {
+export function axonometricSheet(model, sheetNo, { preview = false } = {}) {
   const { W, D, plan, above, spec, wallTop, H, site } = model;
   // isometric; b = depth measured from the front facade toward the back
   const c30 = Math.cos(Math.PI / 6);
@@ -1687,8 +1723,8 @@ export function axonometricSheet(model, sheetNo) {
     const c = colours(wallMat(spec, 0));
     g += box(W, W + gW, 0, model.garage.d, 0, 3.1, c);
     g += poly([P(W + 0.45, 0, 0), P(W + gW - 0.45, 0, 0), P(W + gW - 0.45, 0, 2.4), P(W + 0.45, 0, 2.4)], spec.garageDoor === "bronze" ? "#55483b" : "#94693f", 'stroke-width="0.7"');
-    if (spec.roof === "terracotta") g += poly([P(W, -0.4, 3.1), P(W + gW + 0.4, -0.4, 3.1), P(W + gW - 0.8, model.garage.d / 2, 4.0), P(W + 0.6, model.garage.d / 2, 4.0)], MAT.terracotta.fill);
-    else g += box(W - 0.1, W + gW + 0.3, -0.3, model.garage.d + 0.2, 3.1, 3.45, colours("render"));
+    if (spec.roof === "terracotta" || spec.roof === "slate") g += poly([P(W, -0.4, 3.1), P(W + gW + 0.4, -0.4, 3.1), P(W + gW - 0.8, model.garage.d / 2, 4.0), P(W + 0.6, model.garage.d / 2, 4.0)], MAT[spec.roof].fill);
+    else g += box(W - 0.1, W + gW + 0.3, -0.3, model.garage.d + 0.2, 3.1, 3.45, colours(spec.slabMat ?? "render"));
   }
   // storeys
   for (let li = 0; li < above; li++) {
@@ -1734,7 +1770,7 @@ export function axonometricSheet(model, sheetNo) {
   const terrace = model.levels[1]?.terrace;
   if (terrace) {
     const { x0, x1, depth } = terrace;
-    g += box(x0, x1, -depth, 0, STOREY - 0.4, STOREY, colours(spec.balcony ? "timber" : "render"));
+    g += box(x0, x1, -depth, 0, STOREY - 0.4, STOREY, colours(spec.balcony ? "timber" : spec.slabMat ?? "render"));
     g += poly([P(x0, -depth, STOREY), P(x1, -depth, STOREY), P(x1, -depth, STOREY + 1.1), P(x0, -depth, STOREY + 1.1)], "#cfe0e6", 'fill-opacity=".45" stroke="#7fa3ad" stroke-width="0.9"');
     g += poly([P(x0, -depth, STOREY), P(x0, 0, STOREY), P(x0, 0, STOREY + 1.1), P(x0, -depth, STOREY + 1.1)], "#cfe0e6", 'fill-opacity=".35" stroke="#7fa3ad" stroke-width="0.9"');
   }
@@ -1758,7 +1794,7 @@ export function axonometricSheet(model, sheetNo) {
   if (plan.roof === "flat") {
     const fo = spec.canopy ?? spec.slab ?? 0.2;
     const sideOv = spec.canopy ? 1.6 : 0.3;
-    g += box(-sideOv, W + sideOv, -fo, D + 0.3, wallTop, wallTop + (spec.canopy ? 0.5 : 0.4), colours("render"));
+    g += box(-sideOv, W + sideOv, -fo, D + 0.3, wallTop, wallTop + (spec.canopy ? 0.5 : 0.4), colours(spec.slabMat ?? "render"));
     if (spec.roofTerrace) {
       const tb0 = D * 0.25, tb1 = D * 0.85;
       g += poly([P(W * 0.12, tb0, wallTop + 0.4), P(W * 0.67, tb0, wallTop + 0.4), P(W * 0.67, tb0, wallTop + 1.45), P(W * 0.12, tb0, wallTop + 1.45)], "#cfe0e6", 'fill-opacity=".4" stroke="#7fa3ad" stroke-width="0.9"');
@@ -1767,7 +1803,7 @@ export function axonometricSheet(model, sheetNo) {
     }
   } else if (plan.roof === "hip") {
     const ov = model.roofOv, a = Math.min(D / 2, W / 2), b2 = W - a, ez = wallTop - ov * 0.45;
-    const R = MAT.terracotta.fill;
+    const R = MAT[spec.roof ?? "terracotta"].fill;
     g += poly([P(-ov, D + ov, ez), P(W + ov, D + ov, ez), P(b2, D / 2, H), P(a, D / 2, H)], shade(R, 0.1));
     g += poly([P(W + ov, -ov, ez), P(W + ov, D + ov, ez), P(b2, D / 2, H)], shade(R, 0.05));
     g += poly([P(-ov, -ov, ez), P(W + ov, -ov, ez), P(b2, D / 2, H), P(a, D / 2, H)], R);
@@ -1779,7 +1815,7 @@ export function axonometricSheet(model, sheetNo) {
     }
   } else if (plan.roof === "gable") {
     const ov = model.roofOv, ez = wallTop - ov * 0.5;
-    const R = MAT.terracotta.fill;
+    const R = MAT[spec.roof ?? "terracotta"].fill;
     g += poly([P(-ov, D + ov, ez), P(W + ov, D + ov, ez), P(W + ov, D / 2, H), P(-ov, D / 2, H)], shade(R, 0.1));
     g += poly([P(0, 0, wallTop), P(0, D, wallTop), P(0, D / 2, H)], colours(wallMat(spec, 0)).side);
     g += poly([P(-ov, -ov, ez), P(W + ov, -ov, ez), P(W + ov, D / 2, H), P(-ov, D / 2, H)], R);
@@ -1793,7 +1829,7 @@ export function axonometricSheet(model, sheetNo) {
   if (plan.style === "duplex") g += `<polyline points="${P(W / 2, 0, 0)} ${P(W / 2, 0, wallTop + 0.4)}" fill="none" stroke="${INK}" stroke-width="2"/>`;
 
   g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${STYLE_EN[plan.style]} · VIEW FROM SOUTH-WEST`);
-  return sheet({ plan, drawing: "AXONOMETRIC VIEW", sheetNo, scaleNote: "NTS", body: g, north: false });
+  return sheet({ plan, drawing: "AXONOMETRIC VIEW", sheetNo, scaleNote: "NTS", body: g, north: false, preview });
 }
 
 // ------------------------------------------------------------------ schedules + cover sheet
@@ -1801,7 +1837,7 @@ export function axonometricSheet(model, sheetNo) {
 const FACADE = { top: "N", bottom: "S", left: "W", right: "E" };
 
 function finishFor(style, kind) {
-  const stone = ["modern", "minimal", "coastal", "luxury", "pavilion"].includes(style);
+  const stone = ["modern", "minimal", "coastal", "luxury", "pavilion", "absheron", "noir"].includes(style);
   const terracotta = ["tuscan", "farmhouse", "mediterranean"].includes(style);
   switch (kind) {
     case "bath":

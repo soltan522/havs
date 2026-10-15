@@ -15,7 +15,10 @@ export type PlanStyle =
   | "luxury"
   | "pavilion"
   | "mediterranean"
-  | "duplex";
+  | "duplex"
+  | "absheron"
+  | "noir"
+  | "yali";
 
 export type { SheetKind };
 export type GalleryItem = { src: string; kind: SheetKind };
@@ -80,6 +83,9 @@ export const STYLE_LABELS: Record<PlanStyle, LocalizedText> = {
   pavilion: { az: "Pavilyon", en: "Pavilion", ru: "Павильон" },
   mediterranean: { az: "Aralıq dənizi", en: "Mediterranean", ru: "Средиземноморский" },
   duplex: { az: "Dupleks", en: "Duplex", ru: "Дуплекс" },
+  absheron: { az: "Abşeron müasir", en: "Absheron contemporary", ru: "Апшеронский модерн" },
+  noir: { az: "Tünd müasir", en: "Noir contemporary", ru: "Тёмный модерн" },
+  yali: { az: "Bosfor yalısı", en: "Bosphorus yalı", ru: "Ялы (Босфор)" },
 };
 
 export const coverOf = (plan: Plan) => plan.cover || plan.gallery[0]?.src;

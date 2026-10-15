@@ -8,7 +8,9 @@ import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, sheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
 import { findPlan, formatPrice, STYLE_LABELS } from "@/lib/plans";
-import { availableProviders, currency } from "@/lib/providers";
+import { currency } from "@/lib/providers";
+
+const LOCKED = new Set(["schedules"]);
 
 export default async function PlanPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params;
@@ -17,7 +19,9 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
   if (!plan) notFound();
   const t = UI[lang];
   const c = COPY[lang];
-  const providers = plan.demo ? [] : availableProviders();
+  const checkoutHref = `/${lang}/plans/${slug}/checkout`;
+  // sheets that carry the sellable detail are shown locked; the rest open in the lightbox
+  const open = plan.gallery.filter((item) => !LOCKED.has(item.kind));
 
   const specs: [string, string][] = [
     [t.area, `${plan.areaM2} m²`],
@@ -38,7 +42,23 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
             <figure className="gallery">
               {plan.gallery.map((item, i) => (
                 <Reveal key={item.src} variant="clip" delay={i === 0 ? 0 : 80}>
-                  <div className={`sheet sheet-${item.kind.startsWith("plan") ? "plan" : item.kind}`} data-sheet={i} data-cursor={c.zoom}>
+                  {LOCKED.has(item.kind) ? (
+                    <Link className="sheet sheet-locked" href={checkoutHref} data-cursor={c.toCheckout}>
+                      <Image src={item.src} alt={`${plan.title[lang]} — ${sheetName(c.sheetNames, item.kind)}`} width={1600} height={1067} sizes="(max-width: 960px) 100vw, 58vw" />
+                      <span className="sheet-label">
+                        <i>{String(i + 1).padStart(2, "0")}</i> {sheetName(c.sheetNames, item.kind)}
+                      </span>
+                      <span className="lock-overlay">
+                        <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true">
+                          <rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                          <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                        </svg>
+                        <b>{c.lockedSheet}</b>
+                        <small>PDF · DWG · DXF</small>
+                      </span>
+                    </Link>
+                  ) : (
+                  <div className={`sheet sheet-${item.kind.startsWith("plan") ? "plan" : item.kind}`} data-sheet={open.indexOf(item)} data-cursor={c.zoom}>
                     <Image
                       src={item.src}
                       alt={`${plan.title[lang]} — ${sheetName(c.sheetNames, item.kind)}`}
@@ -51,10 +71,11 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                       <i>{String(i + 1).padStart(2, "0")}</i> {sheetName(c.sheetNames, item.kind)}
                     </span>
                   </div>
+                  )}
                 </Reveal>
               ))}
             </figure>
-            <Lightbox items={plan.gallery.map((item) => ({ src: item.src, label: sheetName(c.sheetNames, item.kind) }))} closeLabel={c.close} />
+            <Lightbox items={open.map((item) => ({ src: item.src, label: sheetName(c.sheetNames, item.kind) }))} closeLabel={c.close} />
           </div>
           <aside className="detail-side">
             <span className="style-tag">{STYLE_LABELS[plan.style][lang]}{plan.demo ? ` · ${c.sampleBadge}` : ""}</span>
@@ -69,34 +90,19 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
             </div>
             <span className="muted small">{c.priceFrom} · {t.includes}: {t.formats}</span>
             <div className="price">{formatPrice(plan.priceCents, lang, currency())}</div>
-            {plan.package && <PackagePanel pkg={plan.package} lang={lang} demo={plan.demo} />}
+            {plan.package && <PackagePanel pkg={plan.package} lang={lang} demo={plan.demo} checkoutHref={checkoutHref} />}
 
-            {plan.demo ? (
-              <>
-                <p className="note">{c.sampleNote}</p>
-                <Link className="btn" href={`/${lang}/contact`} data-magnetic>
-                  {c.contactToOrder} <span className="arrow">→</span>
+            {plan.demo && <p className="note">{c.sampleNote}</p>}
+            <div className="detail-actions">
+              <Link className="btn" href={checkoutHref} data-magnetic>
+                {plan.demo ? c.toCheckout : t.buy} <span className="arrow">→</span>
+              </Link>
+              {plan.demo && (
+                <Link className="btn secondary" href={`/${lang}/contact`}>
+                  {c.contactToOrder}
                 </Link>
-              </>
-            ) : (
-              <form className="panel" method="POST" action="/api/checkout">
-                <input type="hidden" name="slug" value={plan.slug} />
-                <input type="hidden" name="locale" value={lang} />
-                <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{t.pay}</p>
-                {providers.length === 0 && <p className="muted">—</p>}
-                {providers.map((p, i) => (
-                  <label key={p.id}>
-                    <input type="radio" name="provider" value={p.id} defaultChecked={i === 0} required />
-                    {p.label}
-                  </label>
-                ))}
-                {providers.length > 0 && (
-                  <button className="btn" type="submit" style={{ marginTop: 16, width: "100%" }}>
-                    {t.buy}
-                  </button>
-                )}
-              </form>
-            )}
+              )}
+            </div>
           </aside>
         </div>
       </main>

@@ -12,19 +12,22 @@ const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
 const requireRenders = process.argv.includes("--require-renders");
 const LANGS = ["az", "en", "ru"];
+// reference design families, declared as "### <id> —" headings in docs/design-references.md
+const refsFile = path.join(root, "docs", "design-references.md");
+const INSPIRATIONS = new Set(existsSync(refsFile) ? [...(await readFile(refsFile, "utf8")).matchAll(/^### ([a-z0-9-]+) —/gm)].map((m) => m[1]) : []);
 const errors = [];
 const warnings = [];
 
 /** Catalogue price rule for sample villas (USD): ~$300 + $4.2/m², rounded to …90, +$100 for premium styles. */
 export function suggestedPrice(plan) {
-  const premium = ["tuscan", "coastal", "luxury", "mediterranean"].includes(plan.style) ? 100 : 0;
+  const premium = ["tuscan", "coastal", "luxury", "mediterranean", "absheron", "noir", "yali"].includes(plan.style) ? 100 : 0;
   return Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
 }
 
 // ---- nothing may repeat an existing design
 const norm = (s) => s.toLocaleLowerCase("en").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\u0400-\u04ff]+/g, " ").trim();
 const stem = (slug) => slug.replace(/-\d+$/, "");
-const designKey = (p) => [p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-", p.mirror ? "mirror" : "-"].join("|");
+const designKey = (p) => [p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-"].join("|");
 const layoutKey = (p) => [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|");
 const firstBy = (keyFn) => {
   const map = new Map();
@@ -37,7 +40,26 @@ const firstBy = (keyFn) => {
 };
 for (const [k, slugs] of firstBy((p) => stem(p.slug ?? ""))) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: the same place name "${k}" is used more than once`);
 for (const l of LANGS) for (const [k, slugs] of firstBy((p) => norm(p.title?.[l] ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical ${l} title "${k}"`);
-for (const [k, slugs] of firstBy(designKey)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool|mirror = ${k}) — change at least one of these`);
+for (const [k, slugs] of firstBy(designKey)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool = ${k}) — change at least one of these`);
+// same style and storeys with almost the same area reads as the same house
+for (let i = 0; i < plans.length; i++) {
+  for (let j = i + 1; j < plans.length; j++) {
+    const a = plans[i], b = plans[j];
+    if (a.style === b.style && a.floors === b.floors && Math.abs(a.areaM2 - b.areaM2) < 25) errors.push(`${a.slug}, ${b.slug}: same style and floors with areas only ${Math.abs(a.areaM2 - b.areaM2)} m² apart — make them clearly different`);
+  }
+}
+// render prompts (the design brief) must differ, not just the names
+const words = (s) => new Set(norm(s ?? "").split(" ").filter((w) => w.length > 3));
+const briefs = plans.filter((p) => p.prompt).map((p) => ({ slug: p.slug, w: words(p.prompt) }));
+for (let i = 0; i < briefs.length; i++) {
+  for (let j = i + 1; j < briefs.length; j++) {
+    const a = briefs[i].w, b = briefs[j].w;
+    const shared = [...a].filter((w) => b.has(w)).length;
+    const jaccard = shared / (a.size + b.size - shared || 1);
+    if (jaccard >= 0.75) errors.push(`${briefs[i].slug}, ${briefs[j].slug}: render prompts are ${Math.round(jaccard * 100)}% the same — write a different design brief`);
+    else if (jaccard >= 0.6) warnings.push(`${briefs[i].slug}, ${briefs[j].slug}: render prompts are ${Math.round(jaccard * 100)}% alike`);
+  }
+}
 for (const [k, slugs] of firstBy(layoutKey)) if (slugs.length > 2) warnings.push(`${slugs.join(", ")}: ${slugs.length} villas share the floor-plan layout ${k} — vary bedrooms, garage, pool or mirror`);
 for (const [k, slugs] of firstBy((p) => norm(p.summary?.en ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical English summary`);
 
@@ -88,6 +110,7 @@ for (const plan of plans) {
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
+  if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);
   if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
   const suggested = suggestedPrice(plan);
   if (Math.abs(plan.priceCents / 100 - suggested) / suggested > 0.15) warnings.push(`${id}: price $${plan.priceCents / 100} is more than 15% from the rule ($${suggested})`);

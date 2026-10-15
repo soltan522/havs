@@ -84,11 +84,14 @@ for (const plan of selected) {
   if (sources.length) {
     for (const [i, name] of sources.entries()) await writePreview(path.join(SOURCE, slug, name), path.join(outDir, `image-${nn(i)}.jpg`));
   } else {
-    await render(sitePlanSheet(model, "A-001"), path.join(outDir, "site.jpg"));
-    for (const i of model.levels.keys()) await render(floorPlanSheet(model, i, `A-10${i + 1}`), path.join(outDir, `plan-${i}.jpg`));
-    await render(elevationSheet(model, "A-201"), path.join(outDir, "elevation.jpg"));
-    await render(axonometricSheet(model, "A-301"), path.join(outDir, "axonometric.jpg"));
-    await render(scheduleSheet(model, "A-401"), path.join(outDir, "schedules.jpg"));
+    // public previews: watermarked, without dimension chains — the full sheets are only in the paid package
+    const preview = { preview: true };
+    await render(sitePlanSheet(model, "A-001", preview), path.join(outDir, "site.jpg"));
+    for (const i of model.levels.keys()) await render(floorPlanSheet(model, i, `A-10${i + 1}`, preview), path.join(outDir, `plan-${i}.jpg`));
+    await render(elevationSheet(model, "A-201", false, preview), path.join(outDir, "elevation.jpg"));
+    await render(axonometricSheet(model, "A-301", preview), path.join(outDir, "axonometric.jpg"));
+    // schedules are shown locked: a small, blurred teaser only
+    await sharp(scheduleSheet(model, "A-401"), { density: 36 }).blur(6).jpeg({ quality: 60 }).toFile(path.join(outDir, "schedules.jpg"));
   }
 
   // 3. card images: the first render (or first image), and the rendered elevation on hover

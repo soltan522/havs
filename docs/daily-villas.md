@@ -29,14 +29,19 @@ git fetch origin main && git checkout -B auto/villas-$(date -u +%Y%m%d) FETCH_HE
 npm ci
 ```
 
-1. **Choose three concepts.** Read `data/plans.json` (newest entries are at the end) and pick a mix:
-   - one pitched-roof villa (`tuscan`, `mediterranean` or `farmhouse`),
-   - one flat-roof contemporary villa (`modern`, `minimal`, `coastal`, `luxury` or `pavilion`),
+1. **Choose three concepts.** Read `docs/design-references.md` — the design families taken from the reference
+   developments (Bilgah, Sea Breeze, Mərdəkan, Istanbul) and the rotation rules — and `data/plans.json` (newest
+   entries are at the end). Each villa takes one family (`"inspiration"`) and stores its render prompt (`"prompt"`).
+   Pick a mix:
+   - one pitched-roof villa (`tuscan`, `mediterranean`, `farmhouse` or `yali`),
+   - one flat-roof contemporary villa (`modern`, `minimal`, `coastal`, `luxury`, `pavilion`, `absheron` or `noir`),
    - one wildcard (any style, including `chalet` or `duplex`).
    Do not reuse the style of any of the previous three villas for the same slot when another style fits.
    **Nothing may repeat an existing design** — `npm run validate` enforces it and fails on:
-   a place name, title or summary already used; the same combination of style + floors + bedrooms + garage + pool +
-   mirror as an existing villa; and (in the Action) a render that looks like a copy of an existing one. It warns when
+   a place name, title or summary already used; the same combination of style + floors + bedrooms + garage + pool
+   as an existing villa (mirroring does not count as different); the same style and floors with an area less than
+   25 m² apart; a render prompt that is 75 % the same as another; an unknown `inspiration`; and (in the Action) a
+   render that looks like a copy of an existing one. It warns when
    more than two villas share one floor-plan layout — then change bedrooms, garage, pool or set `"mirror": true`
    (the mirrored variant flips the plan left-to-right, with the living rooms next to the garage).
    Read the titles and summaries of the last ten villas and write something different: other materials, other
