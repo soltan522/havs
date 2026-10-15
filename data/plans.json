@@ -315,5 +315,118 @@
     "priceCents": 159000,
     "published": true,
     "demo": true
+  },
+  {
+    "slug": "bilgah-14",
+    "style": "absheron",
+    "roof": "flat",
+    "inspiration": "bilgah-stone",
+    "title": {
+      "az": "Bilgəh Villa",
+      "en": "Bilgah Villa",
+      "ru": "Вилла Бильгях"
+    },
+    "summary": {
+      "az": "Abşeron sahilində qapalı kompleks üçün iki mərtəbəli villa: mişar Abşeron daşı, terras üzərinə çıxan ağ suvaqlı yuxarı həcm və dərin yastı damların altında isti taxta tavanlar. Xəzərə baxan sonsuz hovuz, kamin, sauna və iki maşınlıq qaraj.",
+      "en": "A two-storey villa for a gated Absheron coastal estate: sawn Absheron limestone, a white-render upper volume cantilevering over the terrace and warm timber soffits under deep flat roofs. Infinity pool facing the Caspian, fireplace, sauna and a double garage.",
+      "ru": "Двухэтажная вилла для закрытого посёлка на Апшеронском побережье: пилёный апшеронский известняк, белый верхний объём с консолью над террасой и тёплые деревянные софиты под глубокими плоскими кровлями. Инфинити-бассейн с видом на Каспий, камин, сауна и гараж на две машины."
+    },
+    "areaM2": 420,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": true,
+    "pool": true,
+    "tree": "olive",
+    "priceCents": 219000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey contemporary villa in a gated estate on the Absheron coast near Baku, sawn Absheron limestone walls on the ground floor and side walls, crisp white render upper volume cantilevering over a wide terrace, warm timber soffits under deep flat roof slabs, bronze window frames, frameless glass balustrade, attached double garage on the right with a timber door, infinity pool facing the Caspian Sea with a limestone deck, olive and pomegranate trees, golden hour light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "pirshagi-15",
+    "style": "coastal",
+    "roof": "flat",
+    "inspiration": "bilgah-timber",
+    "mirror": true,
+    "title": {
+      "az": "Pirşağı Villa",
+      "en": "Pirshagi Villa",
+      "ru": "Вилла Пиршаги"
+    },
+    "summary": {
+      "az": "Dəniz sahilindəki şam bağında iki mərtəbəli villa: açıq rəngli suvaq, ikinci mərtəbəni əhatə edən təbii palıd lövhələr və nazik ağ karnizli yastı damlar. Bağa açılan sürüşən şüşə qapılar və hovuz terrası.",
+      "en": "A two-storey villa in a seaside pine garden: light render, natural oak boards wrapping the upper floor and flat roofs with slim white fascias. Sliding glass walls open the living rooms onto the garden and pool terrace.",
+      "ru": "Двухэтажная вилла в приморском сосновом саду: светлая штукатурка, натуральные дубовые доски на втором этаже и плоские кровли с тонкими белыми карнизами. Раздвижные стеклянные стены открывают гостиную в сад и к бассейну."
+    },
+    "areaM2": 280,
+    "floors": 2,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": true,
+    "tree": "pine",
+    "ratio": 1.5,
+    "priceCents": 159000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey seaside villa among Caspian pine trees, light grey-white render on the ground floor, large panels of vertical natural oak boards wrapping the whole upper floor, flat roofs with thin white fascias, floor-to-ceiling sliding glass doors, no garage, rectangular swimming pool with pale stone deck, sea buckthorn and sandy garden, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "zugulba-16",
+    "style": "absheron",
+    "roof": "flat",
+    "inspiration": "bilgah-garden",
+    "title": {
+      "az": "Zuğulba Villa",
+      "en": "Zugulba Villa",
+      "ru": "Вилла Загульба"
+    },
+    "summary": {
+      "az": "Şəxsi bağın ətrafında uzun, bir mərtəbəli villa: Abşeron daşından divarlar, davamlı terras üzərinə çıxan dərin yastı dam və tavandan döşəməyə şüşələr. Həyətdə əks etdirən hovuz, üç yataq otağı və qaraj.",
+      "en": "A long single-storey villa around a private garden: Absheron limestone walls, a deep flat roof projecting over a continuous terrace and floor-to-ceiling glazing. A reflecting pool in the courtyard, three bedrooms and a garage.",
+      "ru": "Длинная одноэтажная вилла вокруг частного сада: стены из апшеронского известняка, глубокая плоская кровля над сплошной террасой и остекление в пол. Отражающий бассейн во дворе, три спальни и гараж."
+    },
+    "areaM2": 250,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": true,
+    "tree": "olive",
+    "ratio": 2.0,
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a long low single-storey contemporary villa wrapped around a private garden, sawn Absheron limestone facades and garden walls, a deep flat roof with a slim white fascia projecting over a continuous terrace, floor-to-ceiling glazing, attached single garage on the right, long reflecting lap pool in the courtyard, raked gravel, olive trees and lavender, late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "turkan-17",
+    "style": "absheron",
+    "roof": "flat",
+    "inspiration": "bilgah-stone",
+    "mirror": true,
+    "title": {
+      "az": "Türkan Villa",
+      "en": "Turkan Villa",
+      "ru": "Вилла Тюркан"
+    },
+    "summary": {
+      "az": "Hündür daş bağ divarı və taxta darvaza arxasında iki mərtəbəli villa: Abşeron daşı fasadlar, dərinə çəkilmiş tunc çərçivəli pəncərələr və SPA hovuzlu dam terrası. Bağda travertin terraslı hovuz, beş yataq otağı.",
+      "en": "A two-storey villa behind a tall stone garden wall and timber gate: Absheron limestone facades, deep-set bronze-framed windows and a roof terrace with a spa pool. A garden pool on a travertine terrace and five bedrooms.",
+      "ru": "Двухэтажная вилла за высокой каменной оградой с деревянными воротами: фасады из апшеронского известняка, глубоко посаженные окна в бронзовых рамах и терраса на кровле со SPA-бассейном. Бассейн на травертиновой террасе и пять спален."
+    },
+    "areaM2": 340,
+    "floors": 2,
+    "bedrooms": 5,
+    "bathrooms": 5,
+    "garage": false,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.25,
+    "priceCents": 179000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey villa seen over a tall Absheron limestone garden wall with a timber entrance gate, solid limestone facades with deep-set bronze-framed windows, a roof terrace with a spa pool and slim steel pergola, no garage, rectangular pool with travertine deck in the front garden, fig and mulberry trees, blue hour with warm interior lighting, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
