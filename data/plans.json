@@ -925,5 +925,38 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic aerial three-quarter view from a drone at 30 metres of a modern single-storey neighbourhood supermarket building, a tall rectangular box clad in anthracite grey composite facade panels, a full-width glass shopfront under a plain light grey fascia band with no signage, a warm timber canopy over the entrance on slender steel columns, flat roof with rooflights and rooftop plant, a large car park in front with about one hundred marked parking bays, parked cars, planted islands with young trees and two small trolley shelters, a delivery yard with a white truck at the loading dock behind the building, Absheron suburb setting near Baku, clear late afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no logos, no text, no watermark"
+  },
+  {
+    "slug": "avropa-qapilari-35",
+    "style": "office",
+    "roof": "flat",
+    "project": {
+      "kind": "urban",
+      "units": 1
+    },
+    "parking": 22,
+    "sign": "AVROPA QAPILARI",
+    "inspiration": "baku-commercial",
+    "title": {
+      "az": "Avropa Qapıları Ofisi",
+      "en": "Avropa Qapilari HQ",
+      "ru": "Офис Avropa Qapıları"
+    },
+    "summary": {
+      "az": "Bakıda altımərtəbəli künc binasının Avropa Qapıları-nın baş ofisi kimi konsept yenilənməsi — şampan rəngli alüminium panellər, gümüşü mərtəbə qurşaqları, şüşəli dairəvi pilləkən qülləsi və künc girişinin üzərində şüşə örtük. Birinci mərtəbədə qapı şourumu, ikincidə pəncərə və qapı qalereyası ilə dizayn studiyası, yuxarıda satış, layihə və mühasibat ofisləri, ən üstdə iclas zalı və lounge ilə direktor bloku; dam terrası və şlaqbaumlu 22 avtomobil yeri.",
+      "en": "A concept refresh of a six-storey corner building in Baku as the headquarters of Avropa Qapıları: champagne aluminium panels, silver floor bands, a round glazed stair tower and a glass canopy over the corner entrance. A door showroom on the ground floor, a window and door gallery with a design studio above it, sales, projects and accounts offices on floors two to four and a director's suite with board room and lounge on top; a roof terrace and 22 gated parking bays.",
+      "ru": "Концепция обновления шестиэтажного углового здания в Баку под штаб-квартиру Avropa Qapıları: панели из алюминия цвета шампань, серебристые межэтажные пояса, круглая остеклённая лестничная башня и стеклянный козырёк над угловым входом. На первом этаже — шоурум дверей, на втором — галерея окон и дверей с дизайн-студией, выше — офисы продаж, проектов и бухгалтерии, наверху — кабинет директора с переговорной и лаунджем; терраса на крыше и 22 парковочных места за шлагбаумом."
+    },
+    "areaM2": 1980,
+    "floors": 6,
+    "bedrooms": 0,
+    "bathrooms": 6,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "priceCents": 389000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a refreshed six-storey corner office building in Baku, champagne-gold aluminium composite panel facades with silver aluminium horizontal floor bands, vertical stacks of large bronze-framed windows, a round silver stair tower with narrow windows on the right corner, a fully glazed ground-floor showroom displaying premium entrance doors, a cantilevered glass canopy with steel tie rods over the corner entrance, a slim dark sign frame on the roof edge with gold letters reading AVROPA QAPILARI, a roof terrace with glass balustrade, street trees and a gated car park with a barrier at the side, clear evening light with warm interior lighting, eye-level three-quarter view from the street corner, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no other text, no watermark"
   }
 ]
