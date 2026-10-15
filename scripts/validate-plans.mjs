@@ -5,7 +5,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, sitePlanSheet, STYLE_RULES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -42,6 +42,7 @@ for (const plan of plans) {
   if (perFloor < 80 || perFloor > 320) err(`area per floor ${perFloor.toFixed(0)} m² is outside 80–320 m² — the generated plans would not be credible`);
   if (plan.style === "duplex" && plan.bedrooms !== 6) err("duplex template has exactly 6 bedrooms (3 per unit)");
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
+  if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
   if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
   const suggested = suggestedPrice(plan);
   if (Math.abs(plan.priceCents / 100 - suggested) / suggested > 0.15) warnings.push(`${id}: price $${plan.priceCents / 100} is more than 15% from the rule ($${suggested})`);

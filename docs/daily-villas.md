@@ -21,7 +21,7 @@ Do not push to `main` yourself.
 ## Steps
 
 ```bash
-git fetch origin main && git checkout -B auto/villas-$(date -u +%Y%m%d) origin/main
+git fetch origin main && git checkout -B auto/villas-$(date -u +%Y%m%d) FETCH_HEAD
 npm ci
 ```
 
@@ -33,7 +33,9 @@ npm ci
    Vary area, floors, bedrooms, garage and pool so that no two villas in the catalogue share the same
    combination of style + floors + bedrooms + garage + pool. Allowed values per style are in
    `STYLE_RULES` in `scripts/drawings.mjs` (roofs, floors); area per floor must be 80–320 m².
-   Optional `ratio` (footprint width / depth, 1.0–2.2) varies the massing between villas of the same style.
+   Optional `ratio` (footprint width / depth, 1.0–2.2) varies the massing between villas of the same style, and
+   optional `tree` (`olive`, `cypress`, `palm`, `pine`, `round`) sets the planting drawn on the elevation and site
+   plan — match it to the setting you describe in the render prompt.
 
 2. **Name them.** Use Azerbaijani places and landscapes (Nabran, Quba, Qəbələ, Şəki, Lənkəran, Mərdəkan,
    Göygöl, Xınalıq, Zaqatala, Şuşa, Qusar, Astara, Buzovna, Novxanı, İsmayıllı, Laza, Talış, Pirqulu…), not yet used
@@ -42,7 +44,7 @@ npm ci
 
 3. **Write the entries** in `data/plans.json` (append at the end), same shape as the existing ones:
    `slug, style, roof, title{az,en,ru}, summary{az,en,ru}, areaM2, floors, bedrooms, bathrooms, garage, pool,
-   priceCents, published: true, demo: true` (+ optional `ratio`).
+   priceCents, published: true, demo: true` (+ optional `ratio`, `tree`).
    - Summary: two sentences, professional and factual — materials, roof, key spaces, outdoor features.
      Correct Azerbaijani (ə, ı, ö, ü, ğ, ş, ç) and Russian. No superlatives, no claims that it was built.
    - Price: `npm run validate` prints a warning if the price is more than 15 % from the rule

@@ -101,6 +101,9 @@ export const STYLE_RULES = {
   duplex: { roofs: ["flat"], floors: [2] },
 };
 
+/** Planting symbols the elevation and site plan can draw (optional plan.tree). */
+export const TREES = ["olive", "cypress", "palm", "pine", "round"];
+
 /** Bathrooms, shower rooms and WCs in the generated plans — must equal plan.bathrooms. */
 export const wetRooms = (model) => model.levels.reduce((n, lv) => n + lv.spaces.filter((s) => ["bath", "shower", "wc"].includes(s.kind)).length, 0);
 
@@ -151,8 +154,9 @@ function materialDefs(s, seed = 7) {
 
 /** Builds footprint, levels (spaces, doors, windows), roof and site layout for a plan. */
 export function buildModel(plan) {
-  const spec = SPEC[plan.style];
-  if (!spec) throw new Error(`no drawing spec for style "${plan.style}"`);
+  if (!SPEC[plan.style]) throw new Error(`no drawing spec for style "${plan.style}"`);
+  // a plan may pick the planting that fits its setting (e.g. pines for a forest site)
+  const spec = plan.tree ? { ...SPEC[plan.style], tree: plan.tree } : SPEC[plan.style];
   const above = plan.style === "luxury" ? plan.floors - 1 : plan.floors;
   const footprintArea = plan.areaM2 / plan.floors;
   // footprint proportion (width / depth); a plan may override it to vary the massing
