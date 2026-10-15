@@ -5,6 +5,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 import { axonometricSheet, buildModel, elevationSheet, floorPlanSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
@@ -18,6 +19,49 @@ const warnings = [];
 export function suggestedPrice(plan) {
   const premium = ["tuscan", "coastal", "luxury", "mediterranean"].includes(plan.style) ? 100 : 0;
   return Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
+}
+
+// ---- nothing may repeat an existing design
+const norm = (s) => s.toLocaleLowerCase("en").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\u0400-\u04ff]+/g, " ").trim();
+const stem = (slug) => slug.replace(/-\d+$/, "");
+const designKey = (p) => [p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-", p.mirror ? "mirror" : "-"].join("|");
+const layoutKey = (p) => [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|");
+const firstBy = (keyFn) => {
+  const map = new Map();
+  for (const p of plans) {
+    const k = keyFn(p);
+    if (!map.has(k)) map.set(k, []);
+    map.get(k).push(p.slug);
+  }
+  return map;
+};
+for (const [k, slugs] of firstBy((p) => stem(p.slug ?? ""))) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: the same place name "${k}" is used more than once`);
+for (const l of LANGS) for (const [k, slugs] of firstBy((p) => norm(p.title?.[l] ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical ${l} title "${k}"`);
+for (const [k, slugs] of firstBy(designKey)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool|mirror = ${k}) — change at least one of these`);
+for (const [k, slugs] of firstBy(layoutKey)) if (slugs.length > 2) warnings.push(`${slugs.join(", ")}: ${slugs.length} villas share the floor-plan layout ${k} — vary bedrooms, garage, pool or mirror`);
+for (const [k, slugs] of firstBy((p) => norm(p.summary?.en ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical English summary`);
+
+// concept renders must not be near-copies of each other (perceptual difference hash, 256 bits)
+async function dhash(file) {
+  const data = await sharp(file).grayscale().resize(17, 16, { fit: "fill" }).raw().toBuffer();
+  const bits = [];
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) bits.push(data[y * 17 + x] < data[y * 17 + x + 1] ? 1 : 0);
+  return bits;
+}
+const hashes = [];
+for (const p of plans) {
+  const dir = path.join(root, "renders", p.slug ?? "");
+  if (!existsSync(dir)) continue;
+  for (const f of (await readdir(dir)).filter((x) => /\.(jpe?g|png|webp)$/i.test(x))) hashes.push({ slug: p.slug, file: f, bits: await dhash(path.join(dir, f)) });
+}
+for (let i = 0; i < hashes.length; i++) {
+  for (let j = i + 1; j < hashes.length; j++) {
+    if (hashes[i].slug === hashes[j].slug) continue;
+    const d = hashes[i].bits.reduce((n, v, k) => n + (v !== hashes[j].bits[k]), 0);
+    // distinct villas measure 95+; a re-used or lightly edited image measures under 20
+    if (d < 60) errors.push(`${hashes[j].slug}: render looks like a copy of ${hashes[i].slug} (difference ${d}/256) — generate a different design`);
+    else if (d < 80) warnings.push(`${hashes[j].slug}: render is close to ${hashes[i].slug} (difference ${d}/256)`);
+  }
 }
 
 const seen = new Set();
@@ -43,6 +87,7 @@ for (const plan of plans) {
   if (plan.style === "duplex" && plan.bedrooms !== 6) err("duplex template has exactly 6 bedrooms (3 per unit)");
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
+  if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
   if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
   const suggested = suggestedPrice(plan);
   if (Math.abs(plan.priceCents / 100 - suggested) / suggested > 0.15) warnings.push(`${id}: price $${plan.priceCents / 100} is more than 15% from the rule ($${suggested})`);

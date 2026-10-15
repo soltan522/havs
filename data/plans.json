@@ -263,7 +263,8 @@
     "priceCents": 169000,
     "published": true,
     "demo": true,
-    "tree": "pine"
+    "tree": "pine",
+    "mirror": true
   },
   {
     "slug": "quba-12",

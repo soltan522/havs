@@ -22,6 +22,14 @@ Plans with `demo: true` are sample projects: they show a concept visualisation p
 (site plan, floor plans, rendered south elevation with material schedule, isometric — see `scripts/drawings.mjs`)
 and a "contact to order" button. Checkout refuses them, so a sample can never be sold without real files behind it.
 
+**Drawing packages.** `node scripts/package/build-packages.mjs` writes each plan's package to `deliverables/<slug>/`
+(git-ignored): a vector A3 PDF drawing set, a layered DXF with A3 paper-space layouts (python3 + `ezdxf`) and a DWG
+(AutoCAD 2000, converted with LibreDWG `dxf2dwg` when installed; every DWG is read back before it is kept), and records
+file sizes in `data/packages.json`. `scripts/package/upload-packages.mjs` puts them in the private bucket — in CI this
+needs the repository secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`; the **Rebuild drawing packages** workflow
+rebuilds and uploads all of them on demand. Plan pages show the files with locked download buttons; buyers download
+them from their order page after payment.
+
 The sample visualisations in `renders/` are AI-generated concept images (Figma AI) and are labelled as such on the site.
 New sample villas are added by a daily routine — see [`docs/daily-villas.md`](docs/daily-villas.md). `npm run validate`
 checks `data/plans.json` (styles, roofs, room counts against the generated plans, translations, price rule).

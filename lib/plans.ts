@@ -1,5 +1,6 @@
 import type { Locale } from "./i18n";
 import { PREVIEWS, type SheetKind } from "./previews.generated";
+import PACKAGES from "@/data/packages.json";
 import RAW from "@/data/plans.json";
 
 export type LocalizedText = Record<Locale, string>;
@@ -42,9 +43,21 @@ export type Plan = {
   hover: string;
   /** Object keys inside the PRIVATE Supabase bucket. */
   files: { pdf: string; dwg: string; cad: string };
+  /** The downloadable package (file names, sizes, sheet count), when it has been built. */
+  package: PlanPackage | null;
 };
 
-type RawPlan = Omit<Plan, "gallery" | "files" | "cover" | "hover">;
+export type PackageFile = { kind: "pdf" | "dwg" | "cad"; name: string; bytes: number; pages?: number };
+export type PlanPackage = { files: PackageFile[]; sheets: number; builtAt: string };
+
+type RawPlan = Omit<Plan, "gallery" | "files" | "cover" | "hover" | "package">;
+const PACKAGE_INDEX = PACKAGES as Record<string, PlanPackage>;
+
+/** Bucket keys: generated packages use their real file names, hand-uploaded plans the plan.* convention. */
+function fileKeys(slug: string, pkg: PlanPackage | undefined) {
+  const named = (kind: PackageFile["kind"], fallback: string) => `${slug}/${pkg?.files.find((f) => f.kind === kind)?.name ?? fallback}`;
+  return { pdf: named("pdf", "plan.pdf"), dwg: named("dwg", "plan.dwg"), cad: named("cad", "plan.cad") };
+}
 
 // Catalogue lives in data/plans.json so the preview script can read the same data.
 export const PLANS: Plan[] = (RAW as RawPlan[]).map((p) => ({
@@ -52,7 +65,8 @@ export const PLANS: Plan[] = (RAW as RawPlan[]).map((p) => ({
   gallery: PREVIEWS[p.slug]?.sheets ?? [],
   cover: PREVIEWS[p.slug]?.cover ?? "",
   hover: PREVIEWS[p.slug]?.hover ?? "",
-  files: { pdf: `${p.slug}/plan.pdf`, dwg: `${p.slug}/plan.dwg`, cad: `${p.slug}/plan.cad` },
+  files: fileKeys(p.slug, PACKAGE_INDEX[p.slug]),
+  package: PACKAGE_INDEX[p.slug] ?? null,
 }));
 
 export const STYLE_LABELS: Record<PlanStyle, LocalizedText> = {

@@ -12,8 +12,12 @@ Never present them as built houses or real client work.
 1. You add three entries to `data/plans.json` and list their render URLs in `renders/manifest.json`,
    then push a branch `auto/villas-YYYYMMDD` (today's date, UTC).
 2. The GitHub Action **Publish new villas** (`.github/workflows/publish-villas.yml`) downloads the renders,
-   runs `npm run previews -- --missing`, `npm run validate -- --require-renders`, typecheck and build, then
-   pushes the result to `main` and deletes the branch. Vercel deploys `main` to havs.dev.
+   runs `npm run previews -- --missing` and `npm run validate -- --require-renders`, builds each new villa's
+   drawing package — vector A3 PDF set (cover, site plan, floor plans, elevation, isometric, schedules),
+   layered DXF with A3 layouts, and DWG (AutoCAD 2000, via LibreDWG) — uploads it to the private Supabase bucket
+   when the `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` secrets exist (also kept as a 30-day workflow artifact),
+   typechecks and builds the site, then pushes the result to `main` and deletes the branch. Vercel deploys `main`
+   to havs.dev; the plan page lists the package files with locked "after payment" download buttons.
 
 The render must go through the Action because the coding sandbox cannot reach figma.com, but GitHub can.
 Do not push to `main` yourself.
@@ -30,9 +34,14 @@ npm ci
    - one flat-roof contemporary villa (`modern`, `minimal`, `coastal`, `luxury` or `pavilion`),
    - one wildcard (any style, including `chalet` or `duplex`).
    Do not reuse the style of any of the previous three villas for the same slot when another style fits.
-   Vary area, floors, bedrooms, garage and pool so that no two villas in the catalogue share the same
-   combination of style + floors + bedrooms + garage + pool. Allowed values per style are in
-   `STYLE_RULES` in `scripts/drawings.mjs` (roofs, floors); area per floor must be 80–320 m².
+   **Nothing may repeat an existing design** — `npm run validate` enforces it and fails on:
+   a place name, title or summary already used; the same combination of style + floors + bedrooms + garage + pool +
+   mirror as an existing villa; and (in the Action) a render that looks like a copy of an existing one. It warns when
+   more than two villas share one floor-plan layout — then change bedrooms, garage, pool or set `"mirror": true`
+   (the mirrored variant flips the plan left-to-right, with the living rooms next to the garage).
+   Read the titles and summaries of the last ten villas and write something different: other materials, other
+   setting, other outdoor features. Allowed values per style are in `STYLE_RULES` in `scripts/drawings.mjs`
+   (roofs, floors); area per floor must be 80–320 m².
    Optional `ratio` (footprint width / depth, 1.0–2.2) varies the massing between villas of the same style, and
    optional `tree` (`olive`, `cypress`, `palm`, `pine`, `round`) sets the planting drawn on the elevation and site
    plan — match it to the setting you describe in the render prompt.

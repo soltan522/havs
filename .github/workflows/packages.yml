@@ -1,0 +1,49 @@
+name: Rebuild drawing packages
+# Run by hand (Actions → Rebuild drawing packages → Run workflow) after changing the drawing generator, or
+# once after adding the SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY secrets to upload every existing package.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma-separated slugs (empty = all villas)"
+        required: false
+        default: ""
+permissions:
+  contents: write
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ezdxf==1.4.4
+      - uses: ./.github/actions/libredwg
+      - name: Build packages
+        run: node scripts/package/build-packages.mjs ${{ inputs.only && format('--only {0}', inputs.only) || '' }}
+        env:
+          DXF2DWG: /usr/local/bin/dxf2dwg
+          DWG2DXF: /usr/local/bin/dwg2dxf
+      - name: Upload to the private bucket
+        run: node scripts/package/upload-packages.mjs ${{ inputs.only && format('--only {0}', inputs.only) || '' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drawing-packages
+          path: deliverables/
+          retention-days: 30
+      - name: Commit package metadata
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/packages.json
+          git diff --cached --quiet || (git commit -m "Update drawing package metadata" && git push origin HEAD:main)

@@ -75,5 +75,6 @@ export async function signedDownloadUrl(objectPath: string, expiresInSeconds = 6
   });
   if (!res.ok) throw new Error(`signedDownloadUrl failed: ${res.status}`);
   const { signedURL } = (await res.json()) as { signedURL: string };
-  return `${env("SUPABASE_URL")}/storage/v1${signedURL}`;
+  const name = objectPath.split("/").pop() ?? "download";
+  return `${env("SUPABASE_URL")}/storage/v1${signedURL}&download=${encodeURIComponent(name)}`;
 }

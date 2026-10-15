@@ -1,8 +1,8 @@
 name: Publish new villas
 # The daily routine (see docs/daily-villas.md) pushes a branch auto/villas-YYYYMMDD with new entries in
 # data/plans.json and renders/manifest.json listing their concept-render URLs. This job downloads the
-# renders, builds the preview sheets for the new villas only, validates and builds the site, then
-# publishes the result to main (Vercel deploys it) and deletes the branch.
+# renders, builds preview sheets and the drawing package (PDF / DWG / DXF) for the new villas only,
+# validates and builds the site, publishes the result to main (Vercel deploys it) and deletes the branch.
 on:
   push:
     branches: ["auto/villas-*"]
@@ -11,10 +11,13 @@ permissions:
 concurrency:
   group: publish-villas
   cancel-in-progress: false
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,19 +27,36 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ezdxf==1.4.4
+      - uses: ./.github/actions/libredwg
       - name: Download concept renders
         run: node .github/scripts/import-renders.cjs
       - name: Build previews for the new villas
         run: npm run previews -- --missing
       - name: Validate plans
         run: npm run validate -- --require-renders
+      - name: Build drawing packages (PDF, DWG, DXF)
+        run: node scripts/package/build-packages.mjs --missing
+        env:
+          DXF2DWG: /usr/local/bin/dxf2dwg
+          DWG2DXF: /usr/local/bin/dwg2dxf
+      - name: Upload packages to the private bucket
+        run: node scripts/package/upload-packages.mjs --only "$(node -p 'Object.keys(require("./renders/manifest.json")).join(",")')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drawing-packages
+          path: deliverables/
+          retention-days: 30
       - name: Typecheck and build
         run: npm run typecheck && npm run build
       - name: Publish to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add renders public/plans lib/previews.generated.ts
+          git add renders public/plans lib/previews.generated.ts data/packages.json
           git commit -m "Publish villas: $(node -p 'Object.keys(require("./renders/manifest.json")).join(", ")')"
           git fetch origin main
           git rebase origin/main

@@ -30,7 +30,7 @@ export default async function OrderPage({
               {(["pdf", "dwg", "cad"] as const).map((file) => (
                 <p key={file}>
                   <a className="btn secondary" href={`/api/download/${order.id}/${file}`}>
-                    {t.download} — {file.toUpperCase()}
+                    {t.download} — {file === "cad" ? "DXF (CAD)" : file.toUpperCase()}
                   </a>
                 </p>
               ))}

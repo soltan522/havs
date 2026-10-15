@@ -1,0 +1,20 @@
+name: LibreDWG
+description: Installs dxf2dwg / dwg2dxf from LibreDWG (GPL-3.0), built once and cached.
+runs:
+  using: composite
+  steps:
+    - id: cache
+      uses: actions/cache@v4
+      with:
+        path: ~/libredwg-bin
+        key: libredwg-0.13.3-static-${{ runner.os }}
+    - if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        git clone -q --depth 1 --branch 0.13.3 https://github.com/LibreDWG/libredwg.git /tmp/libredwg
+        cd /tmp/libredwg && git submodule update -q --init --depth 1 jsmn
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF > /dev/null
+        cmake --build build --target dxf2dwg dwg2dxf -j 4 > /dev/null
+        mkdir -p ~/libredwg-bin && cp build/dxf2dwg build/dwg2dxf ~/libredwg-bin/
+    - shell: bash
+      run: sudo cp ~/libredwg-bin/dxf2dwg ~/libredwg-bin/dwg2dxf /usr/local/bin/ && dxf2dwg --version

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
 import Lightbox from "@/components/motion/Lightbox";
+import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, sheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
@@ -68,6 +69,7 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
             </div>
             <span className="muted small">{c.priceFrom} · {t.includes}: {t.formats}</span>
             <div className="price">{formatPrice(plan.priceCents, lang, currency())}</div>
+            {plan.package && <PackagePanel pkg={plan.package} lang={lang} demo={plan.demo} />}
 
             {plan.demo ? (
               <>

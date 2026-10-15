@@ -1,0 +1,288 @@
+{
+  "modern-villa-01": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "modern-villa-01-drawings.pdf",
+        "bytes": 564469,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "modern-villa-01.dwg",
+        "bytes": 83634
+      },
+      {
+        "kind": "cad",
+        "name": "modern-villa-01.dxf",
+        "bytes": 212234
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "classic-villa-02": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "classic-villa-02-drawings.pdf",
+        "bytes": 672241,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "classic-villa-02.dwg",
+        "bytes": 80989
+      },
+      {
+        "kind": "cad",
+        "name": "classic-villa-02.dxf",
+        "bytes": 204186
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "kub-03": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "kub-03-drawings.pdf",
+        "bytes": 496925,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "kub-03.dwg",
+        "bytes": 69061
+      },
+      {
+        "kind": "cad",
+        "name": "kub-03.dxf",
+        "bytes": 176628
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "xezer-04": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "xezer-04-drawings.pdf",
+        "bytes": 537213,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "xezer-04.dwg",
+        "bytes": 83539
+      },
+      {
+        "kind": "cad",
+        "name": "xezer-04.dxf",
+        "bytes": 216472
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "sahdag-05": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sahdag-05-drawings.pdf",
+        "bytes": 719952,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sahdag-05.dwg",
+        "bytes": 69513
+      },
+      {
+        "kind": "cad",
+        "name": "sahdag-05.dxf",
+        "bytes": 175509
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "bag-06": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bag-06-drawings.pdf",
+        "bytes": 627714,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "bag-06.dwg",
+        "bytes": 64624
+      },
+      {
+        "kind": "cad",
+        "name": "bag-06.dxf",
+        "bytes": 161492
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "panorama-07": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "panorama-07-drawings.pdf",
+        "bytes": 573666,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "panorama-07.dwg",
+        "bytes": 89452
+      },
+      {
+        "kind": "cad",
+        "name": "panorama-07.dxf",
+        "bytes": 226680
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "pavilyon-08": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "pavilyon-08-drawings.pdf",
+        "bytes": 556426,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "pavilyon-08.dwg",
+        "bytes": 59312
+      },
+      {
+        "kind": "cad",
+        "name": "pavilyon-08.dxf",
+        "bytes": 147092
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "abseron-09": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "abseron-09-drawings.pdf",
+        "bytes": 623169,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "abseron-09.dwg",
+        "bytes": 81181
+      },
+      {
+        "kind": "cad",
+        "name": "abseron-09.dxf",
+        "bytes": 202999
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "dupleks-10": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "dupleks-10-drawings.pdf",
+        "bytes": 561760,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "dupleks-10.dwg",
+        "bytes": 78981
+      },
+      {
+        "kind": "cad",
+        "name": "dupleks-10.dxf",
+        "bytes": 201237
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "nabran-11": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nabran-11-drawings.pdf",
+        "bytes": 617339,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "nabran-11.dwg",
+        "bytes": 82170
+      },
+      {
+        "kind": "cad",
+        "name": "nabran-11.dxf",
+        "bytes": 205641
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "quba-12": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "quba-12-drawings.pdf",
+        "bytes": 684051,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "quba-12.dwg",
+        "bytes": 64388
+      },
+      {
+        "kind": "cad",
+        "name": "quba-12.dxf",
+        "bytes": 161438
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
+  },
+  "mardakan-13": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "mardakan-13-drawings.pdf",
+        "bytes": 629667,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "mardakan-13.dwg",
+        "bytes": 76344
+      },
+      {
+        "kind": "cad",
+        "name": "mardakan-13.dxf",
+        "bytes": 192415
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  }
+}

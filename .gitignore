@@ -6,3 +6,6 @@ next-env.d.ts
 
 # Original plan files (PDF/DWG/CAD masters and full-resolution renders). Never commit.
 private-assets/
+
+# Generated drawing packages (uploaded to the private bucket, never committed)
+deliverables/

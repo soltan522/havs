@@ -287,6 +287,21 @@ img { display: block; max-width: 100%; }
 .gallery .sheet-render .sheet-label i { color: #c49a6c; }
 .gallery .sheet { cursor: zoom-in; }
 
+/* ============ Package (locked downloads) ============ */
+.package { margin: 22px 0 6px; padding: 18px 18px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper-2) 60%, transparent); }
+.package-title { margin: 0 0 10px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.package ul { list-style: none; margin: 0; padding: 0; }
+.package li { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.package li:first-child { border-top: 0; }
+.package .ext { display: grid; place-items: center; height: 44px; border-radius: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #f3efe8; background: #8a5d31; }
+.package .ext-dwg { background: #3f5563; }
+.package .ext-cad { background: #556048; }
+.package .file { display: grid; gap: 2px; min-width: 0; }
+.package .file b { font-size: 14px; font-weight: 600; }
+.package .file small { font-size: 12px; color: var(--muted); }
+.package .locked { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px dashed var(--line-strong, var(--line)); background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: not-allowed; white-space: nowrap; }
+.package-note { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+
 /* ============ Lightbox ============ */
 .lightbox { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; background: rgba(14, 13, 12, 0.94); animation: fade 0.3s ease both; opacity: 0; cursor: zoom-out; }
 .lightbox img { max-width: 100%; max-height: calc(100svh - 120px); object-fit: contain; cursor: default; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
