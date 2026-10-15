@@ -724,5 +724,27 @@
     ],
     "sheets": 6,
     "builtAt": "2026-10-15"
+  },
+  "masazir-34": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "masazir-34-drawings.pdf",
+        "bytes": 624460,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "masazir-34.dwg",
+        "bytes": 91765
+      },
+      {
+        "kind": "cad",
+        "name": "masazir-34.dxf",
+        "bytes": 243703
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
   }
 }

@@ -1082,5 +1082,35 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "masazir-34": {
+    "cover": "/plans/masazir-34/cover.jpg",
+    "hover": "/plans/masazir-34/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/masazir-34/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/masazir-34/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/masazir-34/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/masazir-34/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/masazir-34/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/masazir-34/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
