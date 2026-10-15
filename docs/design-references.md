@@ -160,7 +160,9 @@ the owner's sign band along the top, a mezzanine gallery inside, forecourt parki
 Families for **interior design projects** (`"style": "interior"`, `"interior": { "type": …, "palette": "<id>" }`,
 `"inspiration"` = the same id). The palette sets the materials board, finishes, joinery, colours and light; the
 `type` sets the rooms: `flat` (1–3 bedrooms), `penthouse` (3), `residence` (two-level villa, 3–5), `cafe`, `workspace`,
-`boutique`, `clinic`, `salon` (commercial: `"bedrooms": 0`, `"bathrooms"` = WCs). The materials themselves are listed
+`boutique`, `clinic`, `salon` (commercial: `"bedrooms": 0`, `"bathrooms"` = WCs; `"layout": "b"` picks the second room
+arrangement of a commercial type or of a three-bedroom flat / penthouse). Each palette is written for certain types (its material uses name their rooms):
+the home palettes for `flat`, `penthouse` and `residence`, each commercial palette for its own type only. The materials themselves are listed
 in `PALETTES` in `scripts/drawings.mjs`. Renders are interior views (two or three per project, landscape) that show
 the materials of the palette and the furniture of the layout; never a real brand or logo.
 
@@ -221,3 +223,27 @@ Travertine and white oak, linen whites, soft bronze, built-in joinery, even conc
 - **prompt cues** "travertine and white oak", "linen-white walls", "built-in joinery", "shadow-gap details",
   "concealed coves", "sculptural pendant"
 
+### nordic-cafe — Nordic café and bakery (cafe)
+Pale oak, handmade white tile, a terrazzo bar, fog blue and rye, linen and wool, plenty of daylight.
+- **prompt cues** "pale oak floor", "handmade white tiles behind the bar", "grey terrazzo bar top", "fresh bread on
+  oak shelves", "fog-blue linen cushions", "opal glass pendants", "big shop windows"
+
+### noir-jewel — Noir jewellery (boutique)
+Smoked oak chevron, black marble, walnut and glass display cases, champagne bronze, cognac leather, pin-spot light.
+- **prompt cues** "glass and walnut display cases", "black marble with white veining", "smoked oak chevron floor",
+  "champagne bronze trims", "pin spots on each case", "cognac leather VIP lounge"
+
+### green-studio — Green studio (workspace)
+Natural cork and birch plywood, terracotta and sage, felt acoustics, a planted library wall, rounded edges.
+- **prompt cues** "cork floor", "birch plywood desks", "planted shelving wall", "sage felt acoustic panels",
+  "terracotta accents", "large windows with daylight"
+
+### soft-clinic — Soft clinic (clinic)
+Travertine tones, white oak and linen whites, soft bronze, curved corners, indirect glare-free light.
+- **prompt cues** "curved white oak reception desk", "travertine-effect plaster wall", "ecru upholstered seating",
+  "soft bronze details", "concealed cove lighting", "calm like a hotel lobby"
+
+### barber-loft — Barber loft (salon)
+Polished concrete, reclaimed brick, black steel and oiled oak, cognac leather barber chairs, filament light.
+- **prompt cues** "polished concrete floor", "reclaimed brick wall", "black steel framed mirrors", "cognac leather
+  barber chairs", "oiled oak stations", "filament pendants"

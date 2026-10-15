@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, grossFloorArea, INTERIOR_TYPES, interiorSheets, PALETTES, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, PALETTES, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -121,6 +121,9 @@ for (const plan of plans) {
       if (!itype.bedrooms.includes(plan.bedrooms)) err(`a ${plan.interior.type} interior is drawn with ${itype.bedrooms.join(", ")} bedroom(s)`);
     }
     if (!PALETTES[plan.interior?.palette]) err(`interior.palette must be one of ${Object.keys(PALETTES).join(", ")}`);
+    else if (itype && !PALETTES[plan.interior.palette].for.includes(plan.interior.type)) err(`palette ${plan.interior.palette} is written for ${PALETTES[plan.interior.palette].for.join(", ")} (its materials name those rooms), not for a ${plan.interior.type}`);
+    if (plan.interior?.layout !== undefined && !(INTERIOR_LAYOUTS[plan.interior.type] ?? []).includes(plan.interior.layout)) err(`interior.layout of a ${plan.interior.type} must be one of ${(INTERIOR_LAYOUTS[plan.interior.type] ?? ["(none)"]).join(", ")}`);
+    if (plan.interior?.layout === "b" && ["flat", "penthouse"].includes(plan.interior.type) && plan.bedrooms !== 3) err("the second apartment plan (layout b) has three bedrooms");
     if (plan.inspiration !== undefined && plan.inspiration !== plan.interior?.palette) err("an interior's inspiration is its palette id");
     if (plan.garage || plan.pool) err("interior projects have no garage or pool");
   } else if (plan.interior !== undefined) err(`"interior" needs style "interior"`);

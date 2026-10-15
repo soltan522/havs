@@ -1122,6 +1122,15 @@ function furniture(d, kind, inn) {
     }
     return t;
   };
+  // compact group: sofa, low table and two armchairs facing it, centred in the depth of the room
+  const seating = (cx, sw) => {
+    const chairs = h > 3.3;
+    const gy = y + Math.max(0.25, (h - (chairs ? 3.0 : 1.85)) / 2);
+    let o = d.rect(cx - sw / 2, gy, sw, 0.9, { round: 4 }) + d.rect(cx - sw / 2 + 0.12, gy + 0.12, sw - 0.24, 0.56, { round: 3 });
+    o += d.rect(cx - 0.55, gy + 1.25, 1.1, 0.6, { round: 2 });
+    if (chairs) o += d.rect(cx - 1.25, gy + 2.2, 0.8, 0.8, { round: 5 }) + d.rect(cx + 0.45, gy + 2.2, 0.8, 0.8, { round: 5 });
+    return o + d.rect(cx - sw / 2 - 0.15, gy + 0.55, sw + 0.3, chairs ? 2.75 : 1.5, { dash: "5 4", faint: true });
+  };
   const sofa = (cx, cy, sw) => {
     let o = d.rect(cx - sw / 2, cy, sw, 0.95, { round: 4 }) + d.rect(cx - sw / 2 + 0.12, cy + 0.12, sw - 0.24, 0.62, { round: 3 });
     o += d.rect(cx - sw / 2, cy - 1.9, 0.95, 1.9, { round: 4 });
@@ -1154,7 +1163,8 @@ function furniture(d, kind, inn) {
     }
     case "living": {
       const sw = Math.min(3.4, w - 2.2);
-      if (sw > 2) g += sofa(x + w * 0.45, y + h * 0.42, sw);
+      if (sw > 2 && h * 0.42 >= 2.0) g += sofa(x + w * 0.45, y + h * 0.42, sw);
+      else if (sw > 2 && h > 2.4) g += seating(x + (w - 0.6) / 2, Math.min(2.6, sw));
       g += d.rect(x + w - 0.5, y + h * 0.15, 0.4, Math.min(2.4, h * 0.4));
       break;
     }
@@ -1254,7 +1264,7 @@ function furniture(d, kind, inn) {
       break;
     case "prep":
       g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.75) + d.rect(x + 0.1, y + 0.85, 0.75, h - 1.8);
-      for (let i = 0; i < 3; i++) g += d.rect(x + 1.2 + i * 1.5, y + 0.15, 1.2, 0.65, { round: 2 });
+      for (let i = 0; i < 3 && 1.2 + i * 1.5 + 1.2 < w - 0.1; i++) g += d.rect(x + 1.2 + i * 1.5, y + 0.15, 1.2, 0.65, { round: 2 });
       if (w > 4 && h > 5) g += d.rect(x + w / 2 - 0.5, y + h / 2 - 1.2, 1.4, 2.4);
       break;
     case "staff":
@@ -1302,9 +1312,14 @@ function furniture(d, kind, inn) {
       g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.62) + d.rect(x + w * 0.4, y + 0.2, 0.5, 0.42, { round: 3 });
       if (h > 3 && w > 2.4) g += table(x + w / 2, y + h * 0.62, Math.min(1.8, w - 1.4), 2);
       break;
-    case "lounge":
-      if (w > 4 && h > 3) g += sofa(x + w * 0.35, y + h * 0.55, Math.min(3.0, w * 0.3)) + table(x + w * 0.75, y + h / 2, Math.min(2.0, w * 0.2), 2);
+    case "lounge": {
+      // a wide lounge: the living-room group and a table for two; a smaller one: a sofa, a low table and two armchairs
+      // facing it (as in the FF&E schedule), centred and sized to the room
+      if (w >= 9 && h > 3) g += sofa(x + w * 0.35, y + h * 0.55, Math.min(3.0, w * 0.3)) + table(x + w * 0.75, y + h / 2, Math.min(2.0, w * 0.2), 2);
+      else if (w > 3.2 && h > 2.4) g += seating(x + w / 2, Math.min(2.6, w - 1.2));
+      else if (w > 2.5 && h > 2.5) g += d.rect(x + 0.3, y + h - 1.2, w - 0.6, 0.8, { round: 4 });
       break;
+    }
     case "director":
       g += d.rect(x + w / 2 - 1.0, y + 1.0, 2.0, 0.9) + d.rect(x + w / 2 - 0.3, y + 0.3, 0.6, 0.55, { round: 4 });
       if (h > 5) g += sofa(x + w / 2, y + h - 1.6, Math.min(2.6, w - 1.6));
@@ -1592,6 +1607,9 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
       if (d.entry && d.side === "bottom") {
         const ay = D + (site.T > 0 ? site.T : 0) + 1.1;
         g += `<path d="M${f1(px.X(x0 + w / 2))} ${f1(px.Y(ay))} v${f1(-0.8 * s)} m-6 8 l6 -8 l6 8" fill="none" stroke="${ACCENT}" stroke-width="1.4"/><text x="${f1(px.X(x0 + w / 2))}" y="${f1(px.Y(ay + 0.45))}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${ACCENT}">ENTRANCE</text>`;
+      } else if (d.entry && d.side === "top" && model.interior && sp.h >= 4) {
+        const ay = wy + t + 0.3;
+        g += `<path d="M${f1(px.X(x0 + w / 2))} ${f1(px.Y(ay))} v${f1(0.8 * s)} m-6 -8 l6 8 l6 -8" fill="none" stroke="${ACCENT}" stroke-width="1.4"/><text x="${f1(px.X(x0 + w / 2))}" y="${f1(px.Y(ay + 1.25))}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${ACCENT}">ENTRANCE</text>`;
       }
     } else {
       const y0 = sp.y + c - w / 2;
@@ -3955,10 +3973,14 @@ export const INTERIOR_TYPES = {
 // material row: [code, name, colour, pattern, where it is used]
 const mats = (rows) => rows.map(([code, name, fill, pattern, use]) => ({ code, name, fill, pattern, use }));
 
+// the kinds of space a palette is written for: its material uses and light name those rooms
+const HOME = ["flat", "penthouse", "residence"];
+
 /** Interior design languages (families in docs/design-references.md, "Interior design families"). */
 export const PALETTES = {
   "baku-classic": {
     name: "BAKU CLASSIC",
+    for: HOME,
     concept: "A neoclassical Baku apartment brought up to date: crisp plaster mouldings and panelled walls, oak herringbone and honed marble, bottle-green joinery, deep velvet and aged brass.",
     materials: mats([
       ["F1", "Oak herringbone parquet, natural oil", "#c49a68", "herring", "Living rooms, bedrooms, hall"],
@@ -3977,6 +3999,7 @@ export const PALETTES = {
   },
   japandi: {
     name: "JAPANDI",
+    for: HOME,
     concept: "Japanese calm meets Scandinavian warmth: pale ash, rice-paper whites and charcoal, low furniture, washi light and natural textures, nothing that does not need to be there.",
     materials: mats([
       ["F1", "Ash wide plank, white oil", "#d8c3a0", "planks", "Living rooms, bedrooms, hall"],
@@ -3995,6 +4018,7 @@ export const PALETTES = {
   },
   scandi: {
     name: "SCANDINAVIAN",
+    for: HOME,
     concept: "A bright, practical Nordic home: white oak, soft whites and fjord blue, terrazzo in the wet rooms, wool and cotton textiles with a single mustard accent.",
     materials: mats([
       ["F1", "White oak plank, matt lacquer", "#dcc7a6", "planks", "Living room, bedroom, hall"],
@@ -4013,6 +4037,7 @@ export const PALETTES = {
   },
   "luxury-dark": {
     name: "DARK LUXURY",
+    for: HOME,
     concept: "An evening apartment above the city: smoked oak chevron, walnut panelling with bronze inlay, grey and black marble, cognac leather and champagne metal under dimmable light scenes.",
     materials: mats([
       ["F1", "Smoked oak chevron parquet", "#6e5440", "chevron", "Living rooms, bedrooms, hall"],
@@ -4031,6 +4056,7 @@ export const PALETTES = {
   },
   "mediterranean-calm": {
     name: "MEDITERRANEAN",
+    for: HOME,
     concept: "A sunlit seaside house on the Absheron coast: lime plaster and terracotta, limed oak, travertine and rattan, olive and sea green, everything soft and hand-made.",
     materials: mats([
       ["F1", "Hand-made terracotta tiles", "#c98a62", "cotto", "Living rooms, bedrooms, hall"],
@@ -4049,6 +4075,7 @@ export const PALETTES = {
   },
   "oriental-modern": {
     name: "AZERBAIJANI MODERN",
+    for: ["cafe"],
     concept: "A contemporary tea house that remembers Sheki and Old Baku: walnut and clay plaster, shebeke-inspired lattice screens, carpet motifs set in cement tiles, copper and pomegranate red.",
     materials: mats([
       ["F1", "Walnut plank, oiled", "#7a5639", "planks", "Cafe, tea lounge"],
@@ -4067,6 +4094,7 @@ export const PALETTES = {
   },
   "art-deco": {
     name: "ART DECO",
+    for: ["boutique"],
     concept: "A small jewel box of a shop: emerald fluted panels, black lacquer and polished brass, terrazzo with brass inlay, curved display niches and soft blush velvet.",
     materials: mats([
       ["F1", "Terrazzo with brass inlay", "#e8e1d6", "terrazzo", "Sales floor"],
@@ -4085,6 +4113,7 @@ export const PALETTES = {
   },
   "industrial-loft": {
     name: "INDUSTRIAL LOFT",
+    for: ["workspace"],
     concept: "A workspace with the bones of a warehouse: polished concrete, reclaimed brick and black steel, oiled oak desks, felt acoustics and cognac leather in the breakout.",
     materials: mats([
       ["F1", "Polished concrete, sealed", "#a9a6a0", "concrete", "Open office, reception, breakout"],
@@ -4103,6 +4132,7 @@ export const PALETTES = {
   },
   biophilic: {
     name: "BIOPHILIC",
+    for: ["clinic"],
     concept: "A clinic that calms the nerves: daylight, birch and sage, moss walls in the waiting room, rounded corners and wipe-clean surfaces that never feel clinical.",
     materials: mats([
       ["F1", "Hygienic vinyl, pale oak effect", "#d7c4a5", "planks", "Reception, waiting, corridor, offices"],
@@ -4121,6 +4151,7 @@ export const PALETTES = {
   },
   "mid-century": {
     name: "MID-CENTURY",
+    for: ["salon"],
     concept: "A sixties salon with a smile: warm terrazzo, walnut slats, mustard and teal velvet, round mirrors, globe lights and brushed brass.",
     materials: mats([
       ["F1", "Terrazzo, cream with terracotta chips", "#e7dccb", "terrazzo", "Reception, styling, nail bar"],
@@ -4139,6 +4170,7 @@ export const PALETTES = {
   },
   "warm-minimal": {
     name: "WARM MINIMAL",
+    for: HOME,
     concept: "Quiet luxury: travertine and white oak, linen whites and soft bronze, built-in everything and deep, even light.",
     materials: mats([
       ["F1", "White oak wide plank, matt", "#d4bf9c", "planks", "Living rooms, bedrooms, hall"],
@@ -4154,6 +4186,101 @@ export const PALETTES = {
     ceiling: "Flat plaster with shadow-gap coves",
     skirting: "Flush shadow-gap skirting",
     light: "2700 K; concealed coves, plaster wall lights, a sculptural pendant over the table",
+  },
+  "nordic-cafe": {
+    name: "NORDIC CAFE",
+    for: ["cafe"],
+    concept: "A bright neighbourhood coffee house and bakery: pale oak and handmade white tile, a terrazzo bar, fog blue and rye, linen and wool, daylight and the smell of bread.",
+    materials: mats([
+      ["F1", "Oak plank, white oil", "#dcc8a6", "planks", "Cafe hall, window lounge"],
+      ["F2", "Terrazzo tile, white with grey chips", "#e6e2db", "terrazzo", "Bar, bakery, store, WC"],
+      ["W1", "Soft white paint", "#f2f0eb", "plain", "Walls"],
+      ["W2", "Handmade white tile, vertical stack", "#eeebe4", "bigtile", "Back bar, feature walls"],
+      ["J1", "Pale oak joinery", "#d9c3a0", "grain", "Bar front, banquettes, bread shelves"],
+      ["S1", "Grey terrazzo", "#cfcbc4", "terrazzo", "Bar top, cafe tables"],
+      ["M1", "Brushed steel", "#a7a9ab", "plain", "Pendants, rails, fittings"],
+      ["T1", "Wool and linen, fog blue", "#aebbc2", "weave", "Banquette cushions, curtains"],
+    ]),
+    colours: [["Snow", "#f2f0eb"], ["Oat", "#e4dccd"], ["Fog blue", "#aebbc2"], ["Oak", "#d9c3a0"], ["Rye", "#a7743f"]],
+    ceiling: "Flat plaster; an oak-slat acoustic raft over the cafe hall",
+    skirting: "Oak skirting, 80 mm",
+    light: "3000 K; opal glass pendants over the bar, paper lanterns in the hall, daylight kept free of heavy curtains",
+  },
+  "noir-jewel": {
+    name: "NOIR JEWELLERY",
+    for: ["boutique"],
+    concept: "A jewellery and accessories boutique like a lacquered box: smoked oak, black marble and champagne bronze, cognac leather and a pin-point of light on every piece.",
+    materials: mats([
+      ["F1", "Smoked oak chevron parquet", "#5e4636", "chevron", "Sales floor, VIP lounge"],
+      ["F2", "Black marble, honed", "#2e2c2b", "marble", "WC, safe room, stock, staff"],
+      ["W1", "Taupe mineral paint", "#9a8d80", "plain", "Walls"],
+      ["W2", "Walnut panelling, bronze inlay", "#5a3f2c", "panels", "Feature walls, display niches"],
+      ["J1", "Walnut and glass, display cases", "#4a3426", "grain", "Display cases, cash desk, shelving"],
+      ["S1", "Black marble, white veining", "#2b2a29", "marble", "Case tops, cash desk top"],
+      ["M1", "Champagne bronze", "#b59a6d", "plain", "Trims, rails, light fittings"],
+      ["T1", "Velvet and leather, cognac", "#9a5a32", "weave", "VIP seating, curtains"],
+    ]),
+    colours: [["Taupe", "#9a8d80"], ["Walnut", "#5a3f2c"], ["Onyx", "#2b2a29"], ["Cognac", "#9a5a32"], ["Champagne", "#b59a6d"]],
+    ceiling: "Dark-taupe plaster with recessed coves and pin-spot tracks",
+    skirting: "Bronze shadow-gap skirting",
+    light: "3000 K, CRI 97; pin spots on every display case, glare-free coves, a glass chandelier in the VIP lounge",
+  },
+  "green-studio": {
+    name: "GREEN STUDIO",
+    for: ["workspace"],
+    concept: "A creative studio full of daylight and plants: natural cork and birch, terracotta and sage, felt acoustics, a planted library wall and soft rounded edges.",
+    materials: mats([
+      ["F1", "Natural cork plank, sealed", "#b88f63", "planks", "Studio, reception, library lounge"],
+      ["F2", "Porcelain 60×60, warm sand", "#d9ccb6", "bigtile", "WCs, kitchen"],
+      ["W1", "Warm white paint", "#f1ece3", "plain", "Walls"],
+      ["W2", "Preserved moss, planted shelving", "#5f7146", "moss", "Feature walls"],
+      ["J1", "Birch plywood joinery", "#e0c9a2", "grain", "Desks, shelving, reception desk"],
+      ["S1", "Terrazzo, terracotta chips", "#e3d3c2", "terrazzo", "Kitchen top, reception top"],
+      ["M1", "Powder-coated steel, sage", "#8d9a7f", "plain", "Frames, light fittings"],
+      ["T1", "Wool felt, sage and terracotta", "#a9b59a", "weave", "Acoustic panels, seating"],
+    ]),
+    colours: [["Chalk", "#f1ece3"], ["Birch", "#e0c9a2"], ["Cork", "#b88f63"], ["Sage", "#a9b59a"], ["Terracotta", "#c0704a"]],
+    ceiling: "Acoustic plaster; birch baffles over the studio desks",
+    skirting: "Birch skirting, 60 mm",
+    light: "4000 K task light over the desks, 3000 K in the lounge and kitchen; linear pendants and grow lights over the planters",
+  },
+  "soft-clinic": {
+    name: "SOFT CLINIC",
+    for: ["clinic"],
+    concept: "A dental studio that feels like a quiet hotel: travertine tones, white oak and linen whites, soft bronze, curved corners and indirect, glare-free light.",
+    materials: mats([
+      ["F1", "Hygienic vinyl, white oak effect", "#d6c2a2", "planks", "Reception, waiting, corridor, consultation"],
+      ["F2", "Anti-slip porcelain, travertine effect", "#ddd0b8", "stone", "Surgeries, sterilisation, X-ray, WC"],
+      ["W1", "Washable paint, linen white", "#efe9df", "plain", "Walls"],
+      ["W2", "Travertine-effect plaster", "#e3d6c0", "plain", "Reception feature wall"],
+      ["J1", "White oak and solid surface, joinery", "#d8c4a3", "grain", "Reception desk, cabinets"],
+      ["S1", "Solid surface, warm white", "#f3efe8", "plain", "Worktops, basins"],
+      ["M1", "Soft bronze", "#8a6e4f", "plain", "Handles, rails, light fittings"],
+      ["T1", "Wipe-clean upholstery, ecru", "#e3dccf", "weave", "Waiting seating"],
+    ]),
+    colours: [["Linen", "#efe9df"], ["Ecru", "#e3dccf"], ["Travertine", "#ddd0b8"], ["Oak", "#d8c4a3"], ["Bronze", "#8a6e4f"]],
+    ceiling: "Flat plaster with shadow-gap coves; acoustic tiles in the surgeries",
+    skirting: "Coved vinyl skirting, hygienic",
+    light: "4000 K neutral in the surgeries, 2700 K in reception and waiting; concealed coves and a sculptural pendant over the desk",
+  },
+  "barber-loft": {
+    name: "BARBER LOFT",
+    for: ["salon"],
+    concept: "A hair and barber studio with workshop character: polished concrete and reclaimed brick, black steel and oiled oak, cognac leather chairs and warm filament light.",
+    materials: mats([
+      ["F1", "Polished concrete, sealed", "#a8a39b", "concrete", "Barber, styling, reception, waiting"],
+      ["F2", "Porcelain 60×60, anthracite", "#4b4a48", "bigtile", "Wash area, treatment room, WC"],
+      ["W1", "Off-white paint", "#eeeae3", "plain", "Walls"],
+      ["W2", "Reclaimed brick", "#9a5a43", "brick", "Feature walls, station walls"],
+      ["J1", "Oiled oak and black steel joinery", "#8a6a4a", "grain", "Stations, reception desk, shelving"],
+      ["S1", "Concrete counters", "#b7b2aa", "concrete", "Station tops, reception top"],
+      ["M1", "Black steel and aged copper", "#2f2e2c", "plain", "Mirror frames, rails, light fittings"],
+      ["T1", "Leather, cognac", "#9a5a32", "weave", "Barber chairs, waiting bench"],
+    ]),
+    colours: [["Concrete", "#a8a39b"], ["Brick", "#9a5a43"], ["Oak", "#8a6a4a"], ["Cognac", "#9a5a32"], ["Steel", "#2f2e2c"]],
+    ceiling: "Exposed soffit painted dark, black track lighting",
+    skirting: "Black steel skirting, 50 mm",
+    light: "3000 K ambient, 4000 K mirror lights at the stations; filament pendants over the reception desk",
   },
 };
 
@@ -4400,14 +4527,262 @@ function salonLevel() {
   };
 }
 
+// ---- second layouts of the commercial interiors ("layout": "b"): a different arrangement of the same kind of space
+
+/** Coffee house and bakery: the bar faces a long cafe hall, the bakery works behind glass beside it. */
+function cafeLevelB() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wc", label: "WC", kind: "wc", x: 0, y: 0, w: 0.11, h: 0.4 },
+      { id: "store", label: "STORE", kind: "store", x: 0.11, y: 0, w: 0.11, h: 0.4 },
+      { id: "bar", label: "COFFEE BAR", kind: "bar", x: 0.22, y: 0, w: 0.44, h: 0.4 },
+      { id: "kit", label: "BAKERY", kind: "prep", x: 0.66, y: 0, w: 0.34, h: 0.46 },
+      { id: "hall", label: "CAFE HALL", kind: "teahall", x: 0, y: 0.4, w: 0.66, h: 0.6 },
+      { id: "win", label: "WINDOW LOUNGE", kind: "lounge", x: 0.66, y: 0.46, w: 0.34, h: 0.54 },
+    ],
+    doors: [
+      { space: "hall", side: "bottom", at: 0.35, w: 1.1, entry: true },
+      { space: "bar", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "win", side: "left", at: 0.5, w: 99, open: true },
+      { space: "kit", side: "bottom", at: 0.15, w: 0.9 },
+      { space: "wc", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "store", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "store", side: "top", at: 0.5, w: 1.0 },
+    ],
+    windows: [
+      { space: "hall", side: "bottom", at: 0.72, w: 3.0 },
+      { space: "hall", side: "left", at: 0.5, w: 2.0 },
+      { space: "win", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "win", side: "right", at: 0.5, w: 1.8 },
+      { space: "kit", side: "right", at: 0.5, w: 1.0 },
+      { space: "kit", side: "top", at: 0.5, w: 1.2 },
+    ],
+  };
+}
+
+/** Design studio: one wide studio along the windows, meeting room and kitchen at the back, a library lounge by reception. */
+function workspaceLevelB() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wc1", label: "WC", kind: "wc", x: 0, y: 0, w: 0.125, h: 0.2 },
+      { id: "wc2", label: "WC", kind: "wc", x: 0.125, y: 0, w: 0.125, h: 0.2 },
+      { id: "lib", label: "LIBRARY LOUNGE", kind: "lounge", x: 0, y: 0.2, w: 0.25, h: 0.35 },
+      { id: "rec", label: "RECEPTION", kind: "reception", x: 0, y: 0.55, w: 0.25, h: 0.45 },
+      { id: "kit", label: "KITCHEN", kind: "kitchenette", x: 0.25, y: 0, w: 0.2, h: 0.45 },
+      { id: "meet", label: "MEETING ROOM", kind: "meeting", x: 0.45, y: 0, w: 0.25, h: 0.45 },
+      { id: "focus", label: "FOCUS ROOM", kind: "office", x: 0.7, y: 0, w: 0.13, h: 0.45 },
+      { id: "mat", label: "MATERIALS LIBRARY", kind: "store", x: 0.83, y: 0, w: 0.17, h: 0.45 },
+      { id: "open", label: "STUDIO", kind: "openoffice", x: 0.25, y: 0.45, w: 0.75, h: 0.55 },
+    ],
+    doors: [
+      { space: "rec", side: "bottom", at: 0.5, w: 1.6, entry: true },
+      { space: "rec", side: "top", at: 0.5, w: 99, open: true },
+      { space: "rec", side: "right", at: 0.5, w: 99, open: true },
+      { space: "wc1", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "wc2", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "kit", side: "bottom", at: 0.5, w: 1.6, open: true },
+      { space: "meet", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "focus", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "mat", side: "bottom", at: 0.5, w: 0.9 },
+    ],
+    windows: [
+      { space: "open", side: "bottom", at: 0.2, w: 2.4 },
+      { space: "open", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "open", side: "bottom", at: 0.8, w: 2.4 },
+      { space: "open", side: "right", at: 0.5, w: 2.0 },
+      { space: "rec", side: "left", at: 0.5, w: 1.8 },
+      { space: "lib", side: "left", at: 0.5, w: 1.6 },
+      { space: "kit", side: "top", at: 0.5, w: 1.2 },
+      { space: "meet", side: "top", at: 0.5, w: 2.0 },
+      { space: "focus", side: "top", at: 0.5, w: 0.9 },
+      { space: "mat", side: "right", at: 0.5, w: 1.2 },
+    ],
+  };
+}
+
+/** Jewellery and accessories: display cases on the sales floor, a VIP lounge, a workshop and a safe room. */
+function boutiqueLevelB() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "safe", label: "SAFE ROOM", kind: "store", x: 0, y: 0, w: 0.18, h: 0.28 },
+      { id: "staff", label: "STAFF", kind: "staff", x: 0.18, y: 0, w: 0.26, h: 0.28 },
+      { id: "wc", label: "WC", kind: "wc", x: 0.44, y: 0, w: 0.18, h: 0.28 },
+      { id: "stock", label: "STOCK", kind: "store", x: 0.62, y: 0, w: 0.38, h: 0.24 },
+      { id: "work", label: "WORKSHOP", kind: "office", x: 0.62, y: 0.24, w: 0.2, h: 0.26 },
+      { id: "fit", label: "FITTING", kind: "fitting", x: 0.82, y: 0.24, w: 0.18, h: 0.26 },
+      { id: "sales", label: "SALES FLOOR", kind: "boutique", x: 0, y: 0.28, w: 0.62, h: 0.72 },
+      { id: "vip", label: "VIP LOUNGE", kind: "lounge", x: 0.62, y: 0.5, w: 0.38, h: 0.5 },
+    ],
+    doors: [
+      { space: "sales", side: "bottom", at: 0.3, w: 1.6, entry: true },
+      { space: "vip", side: "left", at: 0.15, w: 1.0 },
+      { space: "fit", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "safe", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "staff", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "wc", side: "left", at: 0.5, w: 0.8 },
+      { space: "work", side: "left", at: 0.5, w: 0.9 },
+      { space: "stock", side: "bottom", at: 0.25, w: 0.9 },
+    ],
+    windows: [
+      { space: "sales", side: "bottom", at: 0.1, w: 1.2 },
+      { space: "sales", side: "bottom", at: 0.75, w: 2.4 },
+      { space: "sales", side: "left", at: 0.5, w: 1.6 },
+      { space: "vip", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "vip", side: "right", at: 0.5, w: 1.6 },
+      { space: "staff", side: "top", at: 0.5, w: 1.0 },
+    ],
+  };
+}
+
+/** Dental studio: reception and waiting at the front, two surgeries, X-ray and a consultation room off one corridor. */
+function clinicLevelB() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wc", label: "WC", kind: "wc", x: 0, y: 0, w: 0.13, h: 0.45 },
+      { id: "ster", label: "STERILISATION", kind: "prep", x: 0.13, y: 0, w: 0.21, h: 0.45 },
+      { id: "xray", label: "X-RAY", kind: "store", x: 0.34, y: 0, w: 0.16, h: 0.45 },
+      { id: "s2", label: "SURGERY 2", kind: "treatment", x: 0.5, y: 0, w: 0.26, h: 0.45 },
+      { id: "cons", label: "CONSULTATION", kind: "office", x: 0.76, y: 0, w: 0.24, h: 0.45 },
+      { id: "rec", label: "RECEPTION", kind: "reception", x: 0, y: 0.45, w: 0.34, h: 0.55 },
+      { id: "corr", label: "CORRIDOR", kind: "hall", x: 0.34, y: 0.45, w: 0.66, h: 0.15 },
+      { id: "wait", label: "WAITING", kind: "lounge", x: 0.34, y: 0.6, w: 0.34, h: 0.4 },
+      { id: "s1", label: "SURGERY 1", kind: "treatment", x: 0.68, y: 0.6, w: 0.32, h: 0.4 },
+    ],
+    doors: [
+      { space: "rec", side: "bottom", at: 0.35, w: 1.2, entry: true },
+      { space: "rec", side: "right", at: 0.5, w: 99, open: true },
+      { space: "wc", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "ster", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "xray", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "s2", side: "bottom", at: 0.5, w: 1.0 },
+      { space: "cons", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "s1", side: "top", at: 0.5, w: 1.0 },
+    ],
+    windows: [
+      { space: "rec", side: "bottom", at: 0.78, w: 1.4 },
+      { space: "rec", side: "left", at: 0.5, w: 1.8 },
+      { space: "wait", side: "bottom", at: 0.5, w: 2.0 },
+      { space: "s1", side: "bottom", at: 0.5, w: 1.8 },
+      { space: "s1", side: "right", at: 0.5, w: 1.4 },
+      { space: "s2", side: "top", at: 0.5, w: 1.6 },
+      { space: "cons", side: "top", at: 0.5, w: 1.2 },
+      { space: "cons", side: "right", at: 0.5, w: 1.2 },
+      { space: "ster", side: "top", at: 0.5, w: 1.0 },
+      { space: "wc", side: "left", at: 0.5, w: 0.6 },
+    ],
+  };
+}
+
+/** Hair and barber studio: reception in the middle of the front, barber stations on one side, hair styling on the other. */
+function salonLevelB() {
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "wash", label: "WASH AREA", kind: "wash", x: 0, y: 0, w: 0.36, h: 0.45 },
+      { id: "staff", label: "STAFF / STORE", kind: "staff", x: 0.36, y: 0, w: 0.14, h: 0.28 },
+      { id: "wc", label: "WC", kind: "wc", x: 0.5, y: 0, w: 0.14, h: 0.28 },
+      { id: "treat", label: "TREATMENT ROOM", kind: "treatment", x: 0.64, y: 0, w: 0.36, h: 0.45 },
+      { id: "wait", label: "WAITING BAR", kind: "lounge", x: 0.36, y: 0.28, w: 0.28, h: 0.32 },
+      { id: "barber", label: "BARBER STATIONS", kind: "styling", x: 0, y: 0.45, w: 0.36, h: 0.55 },
+      { id: "rec", label: "RECEPTION", kind: "reception", x: 0.36, y: 0.6, w: 0.28, h: 0.4 },
+      { id: "style", label: "HAIR STYLING", kind: "styling", x: 0.64, y: 0.45, w: 0.36, h: 0.55 },
+    ],
+    doors: [
+      { space: "rec", side: "bottom", at: 0.5, w: 1.4, entry: true },
+      { space: "rec", side: "top", at: 0.5, w: 99, open: true },
+      { space: "rec", side: "left", at: 0.5, w: 99, open: true },
+      { space: "rec", side: "right", at: 0.5, w: 99, open: true },
+      { space: "wait", side: "left", at: 0.8, w: 1.2, open: true },
+      { space: "wait", side: "right", at: 0.8, w: 1.2, open: true },
+      { space: "wash", side: "bottom", at: 0.92, w: 0.8, open: true },
+      { space: "staff", side: "bottom", at: 0.2, w: 0.8 },
+      { space: "wc", side: "bottom", at: 0.8, w: 0.8 },
+      { space: "treat", side: "left", at: 0.8, w: 0.9 },
+    ],
+    windows: [
+      { space: "barber", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "barber", side: "left", at: 0.5, w: 1.6 },
+      { space: "style", side: "bottom", at: 0.5, w: 2.4 },
+      { space: "style", side: "right", at: 0.5, w: 1.6 },
+      { space: "wash", side: "left", at: 0.5, w: 1.2 },
+      { space: "treat", side: "top", at: 0.5, w: 1.2 },
+      { space: "treat", side: "right", at: 0.5, w: 1.2 },
+      { space: "wc", side: "top", at: 0.5, w: 0.6 },
+      { space: "staff", side: "top", at: 0.5, w: 1.0 },
+    ],
+  };
+}
+
+/** Three-bedroom apartment, second plan: a long living room on the window front, kitchen and dining behind it, the
+ *  master suite at one end and the two bedrooms off a corridor at the back. The front door opens from the back. */
+function apartmentLevelB(spec) {
+  const front = spec.glassy ? [{ at: 0.5, w: 99 }] : [{ at: 0.27, w: 2.2 }, { at: 0.73, w: 2.2 }];
+  return {
+    name: "FURNITURE LAYOUT",
+    spaces: [
+      { id: "kitchen", label: "KITCHEN", kind: "kitchen", x: 0, y: 0, w: 0.28, h: 0.4 },
+      { id: "dining", label: "DINING", kind: "dining", x: 0.28, y: 0, w: 0.19, h: 0.44 },
+      { id: "hall", label: "HALL", kind: "hall", x: 0.47, y: 0, w: 0.11, h: 0.44 },
+      { id: "bedB", label: "BEDROOM", kind: "bedroom", x: 0.58, y: 0, w: 0.16, h: 0.34 },
+      { id: "bath", label: "BATH", kind: "bath", x: 0.74, y: 0, w: 0.1, h: 0.34 },
+      { id: "bedC", label: "BEDROOM", kind: "bedroom", x: 0.84, y: 0, w: 0.16, h: 0.34 },
+      { id: "corr", label: "CORRIDOR", kind: "hall", x: 0.58, y: 0.34, w: 0.42, h: 0.1 },
+      { id: "ensuite", label: "EN-SUITE", kind: "bath", x: 0, y: 0.4, w: 0.09, h: 0.6 },
+      { id: "master", label: "MASTER BEDROOM", kind: "master", x: 0.09, y: 0.4, w: 0.19, h: 0.6 },
+      { id: "living", label: "LIVING ROOM", kind: "living", x: 0.28, y: 0.44, w: 0.72, h: 0.56 },
+    ],
+    doors: [
+      { space: "hall", side: "top", at: 0.5, w: 1.0, entry: true },
+      { space: "hall", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "hall", side: "left", at: 0.5, w: 1.2, open: true },
+      { space: "hall", side: "right", at: 0.886, w: 0.9, open: true },
+      { space: "kitchen", side: "right", at: 0.5, w: 99, open: true },
+      { space: "dining", side: "bottom", at: 0.5, w: 99, open: true },
+      { space: "master", side: "right", at: 0.4, w: 0.9 },
+      { space: "ensuite", side: "right", at: 0.5, w: 0.8 },
+      { space: "bedB", side: "bottom", at: 0.5, w: 0.9 },
+      { space: "bath", side: "bottom", at: 0.5, w: 0.8 },
+      { space: "bedC", side: "bottom", at: 0.5, w: 0.9 },
+    ],
+    windows: [
+      ...front.map((f) => ({ space: "living", side: "bottom", ...f })),
+      { space: "living", side: "right", at: 0.5, w: spec.glassy ? 3.0 : 2.0 },
+      { space: "master", side: "bottom", at: 0.5, w: spec.glassy ? 2.4 : 1.8 },
+      { space: "ensuite", side: "left", at: 0.5, w: 0.8 },
+      { space: "kitchen", side: "top", at: 0.5, w: 1.6 },
+      { space: "kitchen", side: "left", at: 0.5, w: 1.2 },
+      { space: "dining", side: "top", at: 0.5, w: 1.6 },
+      { space: "bedB", side: "top", at: 0.5, w: 1.4 },
+      { space: "bath", side: "top", at: 0.5, w: 0.6 },
+      { space: "bedC", side: "top", at: 0.5, w: 1.4 },
+      { space: "bedC", side: "right", at: 0.5, w: 1.2 },
+    ],
+  };
+}
+
+const COMMERCIAL_LAYOUTS = {
+  cafe: [cafeLevel, cafeLevelB],
+  workspace: [workspaceLevel, workspaceLevelB],
+  boutique: [boutiqueLevel, boutiqueLevelB],
+  clinic: [clinicLevel, clinicLevelB],
+  salon: [salonLevel, salonLevelB],
+};
+/** Layout variants of the interior types ("a" is the default; an apartment or penthouse has a second plan with three bedrooms). */
+export const INTERIOR_LAYOUTS = { ...Object.fromEntries(Object.entries(COMMERCIAL_LAYOUTS).map(([k, v]) => [k, v.map((_, i) => "ab"[i])])), flat: ["a", "b"], penthouse: ["a", "b"] };
+
 /** Levels of an interior project, named for the interior set (FURNITURE LAYOUT / GROUND FLOOR LAYOUT …). */
 function interiorLevels(plan, W, D, spec) {
   const type = plan.interior.type;
   let levels;
   if (type === "residence") levels = twoStorey(plan, W, D, spec);
   else if (type === "flat" && plan.bedrooms === 1) levels = [flatOneBed()];
+  else if ((type === "flat" || type === "penthouse") && plan.bedrooms === 3 && plan.interior.layout === "b") levels = [apartmentLevelB(spec)];
   else if (type === "flat" || type === "penthouse") levels = [singleStorey(plan, W, D, spec)];
-  else levels = [{ cafe: cafeLevel, workspace: workspaceLevel, boutique: boutiqueLevel, clinic: clinicLevel, salon: salonLevel }[type]()];
+  else levels = [COMMERCIAL_LAYOUTS[type][plan.interior.layout === "b" ? 1 : 0]()];
   const floors = levels.length > 1 ? ["GROUND FLOOR", "FIRST FLOOR"] : [""];
   levels.forEach((lv, i) => {
     lv.floorName = floors[i];
@@ -4569,6 +4944,14 @@ function furnitureBlocks(kind, r) {
   const { x, y, w, h } = r;
   const B = [];
   const add = (bx, by, bw, bh, z0, z1, c) => bw > 0.05 && bh > 0.05 && B.push([bx, by, bw, bh, z0, z1, c]);
+  const seating = (cx, sw) => {
+    const chairs = h > 3.3;
+    const gy = y + Math.max(0.25, (h - (chairs ? 3.0 : 1.85)) / 2);
+    add(cx - sw / 2, gy, sw, 0.9, 0, 0.42, "fabric");
+    add(cx - sw / 2, gy, sw, 0.22, 0.42, 0.8, "fabric");
+    add(cx - 0.55, gy + 1.25, 1.1, 0.6, 0, 0.38, "wood");
+    if (chairs) add(cx - 1.25, gy + 2.2, 0.8, 0.8, 0, 0.42, "fabric"), add(cx + 0.45, gy + 2.2, 0.8, 0.8, 0, 0.42, "fabric");
+  };
   const sofa = (cx, cy, sw) => {
     add(cx - sw / 2, cy, sw, 0.95, 0, 0.42, "fabric");
     add(cx - sw / 2, cy + 0.72, sw, 0.23, 0.42, 0.8, "fabric");
@@ -4595,7 +4978,8 @@ function furnitureBlocks(kind, r) {
     case "bedroom": bed(w < 2.6 ? 0.9 : 1.6); break;
     case "living": {
       const sw = Math.min(3.4, w - 2.2);
-      if (sw > 2) sofa(x + w * 0.45, y + h * 0.42, sw);
+      if (sw > 2 && h * 0.42 >= 2.0) sofa(x + w * 0.45, y + h * 0.42, sw);
+      else if (sw > 2 && h > 2.4) seating(x + (w - 0.6) / 2, Math.min(2.6, sw));
       add(x + w - 0.5, y + h * 0.15, 0.4, Math.min(2.4, h * 0.4), 0, 0.5, "wood");
       break;
     }
@@ -4640,10 +5024,12 @@ function furnitureBlocks(kind, r) {
       add(x + 0.1, y + 0.1, 0.4, Math.min(3, h * 0.4), 0, 2.0, "wood");
       if (h > 5) sofa(x + w / 2, y + h - 1.6, Math.min(2.6, w - 1.6));
       break;
-    case "lounge":
-      if (w > 4 && h > 3) sofa(x + w * 0.35, y + h * 0.55, Math.min(3.0, w * 0.3)), table(x + w * 0.75, y + h / 2, Math.min(2.0, w * 0.2), 2);
+    case "lounge": {
+      if (w >= 9 && h > 3) sofa(x + w * 0.35, y + h * 0.55, Math.min(3.0, w * 0.3)), table(x + w * 0.75, y + h / 2, Math.min(2.0, w * 0.2), 2);
+      else if (w > 3.2 && h > 2.4) seating(x + w / 2, Math.min(2.6, w - 1.2));
       else if (w > 2.5 && h > 2.5) add(x + 0.3, y + h - 1.2, w - 0.6, 0.8, 0, 0.45, "fabric");
       break;
+    }
     case "teahall":
       add(x + 0.1, y + 0.6, 0.6, h - 1.2, 0, 0.45, "fabric");
       add(x + 0.1, y + 0.6, 0.18, h - 1.2, 0.45, 0.95, "fabric");
@@ -4800,7 +5186,7 @@ const ELEVATION_PICKS = {
   workspace: [["desk", ["reception"]], ["storage", ["openoffice"]], ["media", ["meeting"]], ["kitchen", ["kitchenette"]]],
   boutique: [["display", ["boutique"]], ["desk", ["boutique"]], ["fitting", ["fitting"]], ["vanity", ["wc"]]],
   clinic: [["desk", ["reception"]], ["bench", ["lounge"]], ["surgery", ["treatment"]], ["vanity", ["wc"]]],
-  salon: [["desk", ["reception"]], ["stations", ["styling"]], ["wash", ["wash"]], ["nails", ["nails"]]],
+  salon: [["desk", ["reception"]], ["stations", ["styling"]], ["wash", ["wash"]], ["nails", ["nails"]], ["media", ["lounge"]]],
 };
 
 /** The four walls drawn on A-201: [elevation type, space] picks for the project type. */

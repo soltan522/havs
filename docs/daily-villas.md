@@ -156,6 +156,10 @@ floor area of the space; bedrooms and bathrooms (WCs for commercial spaces) must
 (`npm run validate` prints them); the price rule is ~$300 + $9/m². The package is an interior set: furniture layout,
 finishes plan, ceiling and lighting plan per level, interior elevations, a cutaway axonometric, finishes / lighting /
 FF&E schedules and the materials board. Two or three landscape interior renders per project.
+A palette fits only the types it is written for (home palettes: flat, penthouse, residence; each commercial palette:
+its own type). A commercial space or a three-bedroom flat / penthouse may add `"layout": "b"` inside `"interior"` for the second
+room arrangement, and any
+interior may set `"ratio"` / `"mirror"` so two projects of the same type do not share one plan.
 
 ## Do not
 
