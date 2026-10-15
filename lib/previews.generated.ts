@@ -1112,5 +1112,67 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "avropa-qapilari-35": {
+    "cover": "/plans/avropa-qapilari-35/cover.jpg",
+    "hover": "/plans/avropa-qapilari-35/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/avropa-qapilari-35/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/render-03.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/render-04.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/plan-2.jpg",
+        "kind": "plan-2"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/plan-3.jpg",
+        "kind": "plan-3"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/plan-4.jpg",
+        "kind": "plan-4"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/plan-5.jpg",
+        "kind": "plan-5"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/avropa-qapilari-35/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
