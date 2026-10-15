@@ -63,7 +63,7 @@ npm ci
      Correct Azerbaijani (ə, ı, ö, ü, ğ, ş, ç) and Russian. No superlatives, no claims that it was built.
    - Price: `npm run validate` prints a warning if the price is more than 15 % from the rule
      (`suggestedPrice` in `scripts/validate-plans.mjs`: ≈ $300 + $4.2/m², rounded to …90, +$100 for
-     tuscan/coastal/luxury/mediterranean). Use the rule's value.
+     tuscan/coastal/luxury/mediterranean/absheron/noir/yali). Use the rule's value.
    - Bedrooms and bathrooms must match the generated plans: run `npm run validate` — it tells you the
      exact numbers to use if they differ.
 
@@ -86,7 +86,12 @@ npm ci
    gable roof, oak pergola with vines; luxury — dark grey stone base, white upper volume, flat slab roof;
    pavilion — single storey, deep flat canopy on slender steel columns, full-height glass; mediterranean — white
    stucco, terracotta hip roof, arched windows, wrought-iron balconies; duplex — two mirrored attached villas,
-   white render, bronze frames, timber around the two entrances.
+   white render, bronze frames, timber around the two entrances; absheron — sawn Absheron limestone walls,
+   white render upper volume, bronze frames, timber soffits under deep flat slabs, frameless glass balustrades;
+   noir — charcoal render, bronze vertical fins, dark flat slabs, warm interior light; yali — painted timber
+   weatherboarding, tall timber sash windows in rhythm, slate hip roof with deep eaves, waterfront quay.
+   Start from the prompt cues of the chosen family in `docs/design-references.md` and store the final prompt in
+   the entry's `"prompt"` field.
 
    **Check the thumbnail** before accepting it: the right number of storeys, the right roof, garage present/absent
    as specified, pool present/absent, no text or watermark, no warped or impossible geometry. Regenerate (up to
