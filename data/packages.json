@@ -372,5 +372,71 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-15"
+  },
+  "shuvelan-18": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shuvelan-18-drawings.pdf",
+        "bytes": 587234,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "shuvelan-18.dwg",
+        "bytes": 75699
+      },
+      {
+        "kind": "cad",
+        "name": "shuvelan-18.dxf",
+        "bytes": 191696
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "buzovna-19": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "buzovna-19-drawings.pdf",
+        "bytes": 512844,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "buzovna-19.dwg",
+        "bytes": 85025
+      },
+      {
+        "kind": "cad",
+        "name": "buzovna-19.dxf",
+        "bytes": 215370
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-15"
+  },
+  "novxani-20": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "novxani-20-drawings.pdf",
+        "bytes": 522035,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "novxani-20.dwg",
+        "bytes": 58993
+      },
+      {
+        "kind": "cad",
+        "name": "novxani-20.dxf",
+        "bytes": 145703
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-15"
   }
 }

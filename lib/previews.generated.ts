@@ -562,5 +562,103 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "shuvelan-18": {
+    "cover": "/plans/shuvelan-18/cover.jpg",
+    "hover": "/plans/shuvelan-18/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/shuvelan-18/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/shuvelan-18/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/shuvelan-18/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/shuvelan-18/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/shuvelan-18/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/shuvelan-18/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/shuvelan-18/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "buzovna-19": {
+    "cover": "/plans/buzovna-19/cover.jpg",
+    "hover": "/plans/buzovna-19/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/buzovna-19/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/buzovna-19/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/buzovna-19/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/buzovna-19/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/buzovna-19/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/buzovna-19/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/buzovna-19/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "novxani-20": {
+    "cover": "/plans/novxani-20/cover.jpg",
+    "hover": "/plans/novxani-20/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/novxani-20/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/novxani-20/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/novxani-20/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/novxani-20/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/novxani-20/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/novxani-20/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
