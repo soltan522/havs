@@ -1,6 +1,6 @@
 # Daily villas — runbook
 
-Every day three new **sample villas** are added to the havs.dev catalogue: a photoreal concept render plus the
+Every day ten new **sample villas** are added to the havs.dev catalogue: a photoreal concept render plus the
 generated concept sheets (site plan, floor plans, south elevation, isometric). This file is the procedure the
 scheduled routine follows; a person can follow it too.
 
@@ -10,7 +10,7 @@ Never present them as built houses or real client work.
 
 ## How the pipeline works
 
-1. You add three entries to `data/plans.json` and list their render URLs in `renders/manifest.json`,
+1. You add ten entries to `data/plans.json` and list their render URLs in `renders/manifest.json`,
    then push a branch `auto/villas-YYYYMMDD` (today's date, UTC).
 2. The GitHub Action **Publish new villas** (`.github/workflows/publish-villas.yml`) downloads the renders,
    runs `npm run previews -- --missing` and `npm run validate -- --require-renders`, builds each new villa's
@@ -30,14 +30,18 @@ git fetch origin main && git checkout -B auto/villas-$(date -u +%Y%m%d) FETCH_HE
 npm ci
 ```
 
-1. **Choose three concepts.** Read `docs/design-references.md` — the design families taken from the reference
+1. **Choose ten concepts.** Read `docs/design-references.md` — the design families taken from the reference
    developments (Bilgah, Sea Breeze, Mərdəkan, Istanbul) and the rotation rules — and `data/plans.json` (newest
    entries are at the end). Each villa takes one family (`"inspiration"`) and stores its render prompt (`"prompt"`).
-   Pick a mix:
-   - one pitched-roof villa (`tuscan`, `mediterranean`, `farmhouse` or `yali`),
-   - one flat-roof contemporary villa (`modern`, `minimal`, `coastal`, `luxury`, `pavilion`, `absheron` or `noir`),
-   - one wildcard (any style, including `chalet` or `duplex`).
-   Do not reuse the style of any of the previous three villas for the same slot when another style fits.
+   Pick a mix of ten:
+   - at least three pitched-roof villas (`tuscan`, `mediterranean`, `farmhouse`, `yali` or `chalet`),
+   - at least four flat-roof contemporary villas (`modern`, `minimal`, `coastal`, `luxury`, `pavilion`, `absheron`
+     or `noir`),
+   - the rest any style, including `duplex`;
+   - at least four single-storey or three-level villas, so the catalogue does not fill up with two-storey houses;
+   - at most two villas of one style and at most two of one design family in the same day.
+   Before writing, list the free design keys (style + floors + bedrooms + garage + pool not used yet) and pick from
+   them; `npm run validate` prints the exact bedroom and bathroom counts the generator produces.
    **Nothing may repeat an existing design** — `npm run validate` enforces it and fails on:
    a place name, title or summary already used; the same combination of style + floors + bedrooms + garage + pool
    as an existing villa (mirroring does not count as different); the same style and floors with an area less than
@@ -98,6 +102,10 @@ npm ci
    as specified, pool present/absent, no text or watermark, no warped or impossible geometry. Regenerate (up to
    three attempts per villa) if any of these fail; if it still fails, choose a different concept.
 
+   **Figma AI credits** (Starter plan: 500 per month, at most 150 per day) are the limit of this job. Generate the
+   renders one by one and stop at the first refusal for credits or rate limit: remove the villas that have no render
+   from `data/plans.json`, publish the ones that do, and say in the report how many were skipped and why.
+
 5. **Write `renders/manifest.json`** with only today's villas (replace the previous content):
    ```json
    { "nabran-11": ["https://www.figma.com/api/mcp/asset/…png"], "quba-12": ["…"], "mardakan-13": ["…"] }
@@ -114,8 +122,8 @@ npm ci
    ```
 
 7. **Wait for publishing** (usually 3–6 minutes): `git ls-remote origin main` changes and
-   `git show origin/main --stat` lists `public/plans/<slug>/…` for the three slugs. If the Action fails, read its log
-   (GitHub tools), fix the cause on the same branch and push again. The run is done when the three villas are on
+   `git show origin/main --stat` lists `public/plans/<slug>/…` for every new slug. If the Action fails, read its log
+   (GitHub tools), fix the cause on the same branch and push again. The run is done when the new villas are on
    `main`; then check that https://havs.dev/en/plans/<slug> loads for each of them.
 
 ## Do not

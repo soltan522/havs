@@ -8,8 +8,9 @@ Never name the developers, use their logos or imply any affiliation on the site.
 Every new villa records its family in `data/plans.json` as `"inspiration": "<id>"` and its full render prompt
 as `"prompt"`. `npm run validate` rejects unknown ids, repeated designs and prompts that are too alike.
 
-**Rotation:** each day use three *different* families, preferring the ones used least so far
-(count `inspiration` in `data/plans.json`), and never the family that the previous day used for the same slot.
+**Rotation:** ten villas a day, spread over at least eight *different* families (at most two from one family),
+preferring the ones used least so far (count `inspiration` in `data/plans.json`); a family used twice yesterday is
+used at most once today.
 Within a family, change at least two of: storeys, bedrooms, garage, pool, mirror, footprint ratio, setting,
 accent material, light.
 
