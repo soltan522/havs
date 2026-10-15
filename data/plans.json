@@ -1299,5 +1299,228 @@
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a mid-century modern beauty salon: cream terrazzo floor with terracotta chips, walnut slatted walls, styling stations with round brass-framed mirrors and walnut counters, mustard and teal velvet salon chairs, opal globe pendant lights, a reception desk with a terracotta-pink quartz top, warm light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "nasimi-47",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "flat",
+      "palette": "warm-minimal"
+    },
+    "inspiration": "warm-minimal",
+    "title": {
+      "az": "Nəsimi İsti Minimal Mənzili",
+      "en": "Nasimi Warm Minimal Apartment",
+      "ru": "Квартира в Насими в тёплом минимализме"
+    },
+    "summary": {
+      "az": "112 m² iki yataq otaqlı mənzil üçün sakit, isti minimal interyer: travertin və ağ palıd, kətan ağı divarlar, gizli işıq zolaqları və tam quraşdırılmış mebel. Paketdə mebel planı, döşəmə və tavan planları, divar açılışları, 3D kəsik və material lövhəsi var.",
+      "en": "A calm, warm minimal interior for a 112 m² two-bedroom apartment: travertine and white oak, linen-white walls, concealed cove light and built-in joinery throughout. The package covers the furniture layout, finishes and ceiling plans, wall elevations, a 3D cutaway and the materials board.",
+      "ru": "Спокойный интерьер в тёплом минимализме для квартиры 112 м² с двумя спальнями: травертин и белый дуб, стены цвета льна, скрытая подсветка и встроенная мебель. В пакете — план мебели, планы отделки и потолков, развёртки стен, 3D-разрез и доска материалов."
+    },
+    "areaM2": 112,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "ratio": 1.25,
+    "mirror": true,
+    "garage": false,
+    "pool": false,
+    "priceCents": 129000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a warm minimal open living and dining room in a Baku apartment: white oak wide plank floor, linen-white walls, a travertine-effect plaster feature wall with a built-in white oak media unit, a low ecru boucle sofa, a travertine dining table under a sculptural paper pendant, soft bronze details, concealed cove lighting, sheer linen curtains, afternoon light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "zigh-48",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "penthouse",
+      "palette": "japandi",
+      "layout": "b"
+    },
+    "inspiration": "japandi",
+    "title": {
+      "az": "Zığ Japandi Penthausu",
+      "en": "Zigh Japandi Penthouse",
+      "ru": "Пентхаус в Зыхе в стиле джапанди"
+    },
+    "summary": {
+      "az": "Xəzərə baxan 225 m² üç yataq otaqlı penthaus üçün japandi interyeri: açıq göyrüş (ash) taxtası, düyü kağızı rəngli əhəng boyası, vaşi kağız asma lampalar, bazalt mətbəx adası və alçaq, sakit mebel. Paketdə tam interyer çertyoj dəsti və material lövhəsi var.",
+      "en": "A Japandi interior for a 225 m² three-bedroom penthouse above the Caspian: pale ash, rice-paper limewash, washi paper pendants, a basalt kitchen island and low, quiet furniture. The package is a full interior drawing set with the materials board.",
+      "ru": "Интерьер в стиле джапанди для пентхауса 225 м² с тремя спальнями над Каспием: светлый ясень, известковая краска цвета рисовой бумаги, подвесы из бумаги васи, кухонный остров из базальта и низкая спокойная мебель. В пакете — полный комплект чертежей интерьера и доска материалов."
+    },
+    "areaM2": 225,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "ratio": 1.75,
+    "garage": false,
+    "pool": false,
+    "priceCents": 229000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a Japandi penthouse lounge with floor-to-ceiling windows over the Caspian Sea: pale ash floorboards, limewashed walls, a long slatted ash wall hiding storage, a low oat boucle sectional, a basalt coffee table, an oversized washi lantern, a bonsai on a low bench, soft morning light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "qusar-49",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "residence",
+      "palette": "scandi"
+    },
+    "inspiration": "scandi",
+    "title": {
+      "az": "Qusar Skandinav Villa İnteryeri",
+      "en": "Qusar Scandinavian Villa Interior",
+      "ru": "Интерьер виллы в Кусарах в скандинавском стиле"
+    },
+    "summary": {
+      "az": "Dağ kənarında 200 m² iki mərtəbəli villa üçün skandinav interyeri: ağ palıd, yumşaq ağ və fyord mavisi divarlar, terrazzo hamamlar, yun tekstil və bir xardal vurğu. Hər mərtəbə üçün mebel, döşəmə və tavan planları, divar açılışları və 3D kəsik daxildir.",
+      "en": "A Scandinavian interior for a 200 m² two-storey mountain villa: white oak, soft white and fjord-blue walls, terrazzo bathrooms, wool textiles and a single mustard accent. Furniture, finishes and ceiling plans for both floors, wall elevations and a 3D cutaway are included.",
+      "ru": "Скандинавский интерьер для двухэтажной горной виллы 200 м²: белый дуб, мягкие белые и фьордово-синие стены, ванные из терраццо, шерстяной текстиль и один горчичный акцент. В пакете — планы мебели, отделки и потолков обоих этажей, развёртки стен и 3D-разрез."
+    },
+    "areaM2": 200,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "ratio": 1.2,
+    "mirror": true,
+    "garage": false,
+    "pool": false,
+    "priceCents": 209000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a Scandinavian two-storey mountain villa living room: a double-height space with a white oak open staircase, white oak floor, soft white walls with one fjord-blue wall, a dove-grey wool sofa and a mustard armchair beside a black wood stove, opal glass pendants, big windows onto snowy mountains and pine trees, bright winter daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "nizami-50",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "flat",
+      "palette": "luxury-dark",
+      "layout": "b"
+    },
+    "inspiration": "luxury-dark",
+    "title": {
+      "az": "Nizami Tünd Lüks Mənzili",
+      "en": "Nizami Dark Luxury Apartment",
+      "ru": "Квартира на Низами в стиле тёмного люкса"
+    },
+    "summary": {
+      "az": "Bakının mərkəzində 175 m² üç yataq otaqlı mənzil üçün axşam əhvallı tünd lüks interyer: hisə verilmiş palıd şevron parket, bürünc naxışlı qoz panellər, qara mərmər, konyak dəri və dimmerli işıq ssenariləri. Tam interyer çertyoj dəsti və material lövhəsi.",
+      "en": "An evening-mood dark luxury interior for a 175 m² three-bedroom apartment in central Baku: smoked oak chevron, walnut panelling with bronze inlay, black marble, cognac leather and dimmable light scenes. A full interior drawing set with the materials board.",
+      "ru": "Вечерний интерьер в стиле тёмного люкса для квартиры 175 м² с тремя спальнями в центре Баку: копчёный дуб ёлочкой, ореховые панели с бронзовыми вставками, чёрный мрамор, коньячная кожа и диммируемые световые сценарии. Полный комплект чертежей интерьера и доска материалов."
+    },
+    "areaM2": 175,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "ratio": 1.6,
+    "mirror": true,
+    "garage": false,
+    "pool": false,
+    "priceCents": 189000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of an elegant dining room and library in a historic central Baku apartment in the evening: floor-to-ceiling walnut bookshelves with thin bronze inlays framing an arched doorway, a long black marble table for eight with cognac leather chairs, a glass chandelier, smoked oak chevron floor, taupe walls, sheer curtains on tall windows, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "sahil-51",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "penthouse",
+      "palette": "baku-classic"
+    },
+    "inspiration": "baku-classic",
+    "title": {
+      "az": "Sahil Klassik Penthausu",
+      "en": "Sahil Classic Penthouse",
+      "ru": "Классический пентхаус в Сахиле"
+    },
+    "summary": {
+      "az": "Bulvara baxan 265 m² üç yataq otaqlı penthaus üçün yenilənmiş Bakı klassikası: gips karnizlər və panelli divarlar, palıd yolka parket, mərmər kamin, şüşə-yaşıl məxmər və köhnəlmiş latun. Paketdə tam interyer çertyoj dəsti və material lövhəsi var.",
+      "en": "Baku classic, refreshed, for a 265 m² three-bedroom penthouse above the boulevard: plaster cornices and panelled walls, oak herringbone, a marble fireplace, bottle-green velvet and aged brass. The package is a full interior drawing set with the materials board.",
+      "ru": "Обновлённая бакинская классика для пентхауса 265 м² с тремя спальнями над бульваром: гипсовые карнизы и панели, дубовая ёлочка, мраморный камин, бутылочно-зелёный бархат и состаренная латунь. В пакете — полный комплект чертежей интерьера и доска материалов."
+    },
+    "areaM2": 265,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "ratio": 1.5,
+    "mirror": true,
+    "garage": false,
+    "pool": false,
+    "priceCents": 269000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a neoclassical penthouse salon in Baku: plaster mouldings and panelled walls in warm white, oak herringbone parquet, a pair of bottle-green velvet sofas facing a Calacatta marble fireplace, aged brass wall lights, a crystal chandelier, tall French doors open to a terrace overlooking the seaside boulevard, golden evening light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "sumqayit-52",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "cafe",
+      "palette": "nordic-cafe",
+      "layout": "b"
+    },
+    "inspiration": "nordic-cafe",
+    "title": {
+      "az": "Sumqayıt Nordik Qəhvəxanası",
+      "en": "Sumqayit Nordic Coffee House",
+      "ru": "Скандинавская кофейня в Сумгайыте"
+    },
+    "summary": {
+      "az": "95 m² qəhvəxana və çörək sexi: uzun kafe zalına baxan qəhvə barı, şüşə arxasında işləyən çörəkxana və vitrin kənarında oturma guşəsi. Açıq palıd, əl işi ağ kafel, terrazzo bar və duman mavisi tekstil. Mebel, döşəmə, tavan və işıq planları, divar açılışları və material lövhəsi.",
+      "en": "A 95 m² coffee house and bakery: a coffee bar facing a long café hall, a bakery working behind glass and a window lounge. Pale oak, handmade white tile, a terrazzo bar and fog-blue textiles. Furniture, finishes, ceiling and lighting plans, wall elevations and the materials board.",
+      "ru": "Кофейня с пекарней на 95 м²: кофейный бар напротив длинного зала, пекарня за стеклом и лаунж у витрины. Светлый дуб, белая плитка ручной работы, бар из терраццо и текстиль цвета тумана. Планы мебели, отделки, потолков и света, развёртки стен и доска материалов."
+    },
+    "areaM2": 95,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 119000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a bright Nordic coffee house and bakery: a long coffee bar with a pale oak front and a grey terrazzo top, handmade white vertical tiles behind the bar, fresh bread on oak shelves, an espresso machine, opal glass pendants, an oak banquette along the wall with fog-blue linen cushions and small terrazzo tables, big shop windows with daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "torqovi-53",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "boutique",
+      "palette": "noir-jewel",
+      "layout": "b"
+    },
+    "inspiration": "noir-jewel",
+    "title": {
+      "az": "Torqovı Zərgərlik Butiki",
+      "en": "Torgovaya Jewellery Boutique",
+      "ru": "Ювелирный бутик на Торговой"
+    },
+    "summary": {
+      "az": "130 m² zərgərlik və aksesuar butiki: qoz və şüşə vitrinlər, qara mərmər, şampan bürüncü, konyak dəri VIP salon, emalatxana və seyf otağı. Hər vitrin üçün nöqtəvi işıq. Mebel, döşəmə, tavan və işıq planları, divar açılışları, 3D kəsik və material lövhəsi.",
+      "en": "A 130 m² jewellery and accessories boutique: walnut and glass display cases, black marble, champagne bronze, a cognac leather VIP lounge, a workshop and a safe room, with a pin spot on every case. Furniture, finishes, ceiling and lighting plans, wall elevations, a 3D cutaway and the materials board.",
+      "ru": "Ювелирный бутик и салон аксессуаров на 130 м²: витрины из ореха и стекла, чёрный мрамор, бронза цвета шампанского, VIP-лаунж с коньячной кожей, мастерская и сейфовая комната, точечный свет на каждой витрине. Планы мебели, отделки, потолков и света, развёртки стен, 3D-разрез и доска материалов."
+    },
+    "areaM2": 130,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a luxurious jewellery and accessories boutique: walnut and glass display cases with black marble tops, a pin spot light over each case, walnut wall panelling with fine champagne bronze inlays and backlit display niches, smoked oak chevron floor, a curved black marble cash desk, dark taupe walls, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
   }
 ]
