@@ -1982,5 +1982,131 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "ahmadli-54": {
+    "cover": "/plans/ahmadli-54/cover.jpg",
+    "hover": "/plans/ahmadli-54/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/ahmadli-54/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/ahmadli-54/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/ahmadli-54/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/ahmadli-54/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/ahmadli-54/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/ahmadli-54/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/ahmadli-54/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/ahmadli-54/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/ahmadli-54/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "binagadi-55": {
+    "cover": "/plans/binagadi-55/cover.jpg",
+    "hover": "/plans/binagadi-55/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/binagadi-55/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/binagadi-55/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/binagadi-55/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/binagadi-55/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/binagadi-55/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/binagadi-55/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/binagadi-55/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/binagadi-55/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/binagadi-55/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "masalli-56": {
+    "cover": "/plans/masalli-56/cover.jpg",
+    "hover": "/plans/masalli-56/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/masalli-56/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/masalli-56/render-02.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/masalli-56/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/masalli-56/finish-0.jpg",
+        "kind": "finish-0"
+      },
+      {
+        "src": "/plans/masalli-56/ceiling-0.jpg",
+        "kind": "ceiling-0"
+      },
+      {
+        "src": "/plans/masalli-56/interior.jpg",
+        "kind": "interior"
+      },
+      {
+        "src": "/plans/masalli-56/cutaway.jpg",
+        "kind": "cutaway"
+      },
+      {
+        "src": "/plans/masalli-56/materials.jpg",
+        "kind": "materials"
+      },
+      {
+        "src": "/plans/masalli-56/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };

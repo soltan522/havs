@@ -1164,5 +1164,71 @@
     ],
     "sheets": 8,
     "builtAt": "2026-10-15"
+  },
+  "ahmadli-54": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ahmadli-54-drawings.pdf",
+        "bytes": 582739,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "ahmadli-54.dwg",
+        "bytes": 56076
+      },
+      {
+        "kind": "cad",
+        "name": "ahmadli-54.dxf",
+        "bytes": 135468
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-16"
+  },
+  "binagadi-55": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "binagadi-55-drawings.pdf",
+        "bytes": 445949,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "binagadi-55.dwg",
+        "bytes": 51216
+      },
+      {
+        "kind": "cad",
+        "name": "binagadi-55.dxf",
+        "bytes": 121191
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-16"
+  },
+  "masalli-56": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "masalli-56-drawings.pdf",
+        "bytes": 642494,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "masalli-56.dwg",
+        "bytes": 52300
+      },
+      {
+        "kind": "cad",
+        "name": "masalli-56.dxf",
+        "bytes": 122738
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-10-16"
   }
 }
