@@ -1230,5 +1230,225 @@
     ],
     "sheets": 8,
     "builtAt": "2026-10-16"
+  },
+  "xinaliq-57": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "xinaliq-57-drawings.pdf",
+        "bytes": 660144,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "xinaliq-57.dwg",
+        "bytes": 83480
+      },
+      {
+        "kind": "cad",
+        "name": "xinaliq-57.dxf",
+        "bytes": 211149
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-16"
+  },
+  "ismayilli-58": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ismayilli-58-drawings.pdf",
+        "bytes": 717839,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "ismayilli-58.dwg",
+        "bytes": 60911
+      },
+      {
+        "kind": "cad",
+        "name": "ismayilli-58.dxf",
+        "bytes": 152612
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-16"
+  },
+  "hovsan-59": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "hovsan-59-drawings.pdf",
+        "bytes": 633327,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "hovsan-59.dwg",
+        "bytes": 63716
+      },
+      {
+        "kind": "cad",
+        "name": "hovsan-59.dxf",
+        "bytes": 158326
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-16"
+  },
+  "pirallahi-60": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "pirallahi-60-drawings.pdf",
+        "bytes": 646451,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "pirallahi-60.dwg",
+        "bytes": 81084
+      },
+      {
+        "kind": "cad",
+        "name": "pirallahi-60.dxf",
+        "bytes": 204362
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-16"
+  },
+  "dubendi-61": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "dubendi-61-drawings.pdf",
+        "bytes": 501578,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "dubendi-61.dwg",
+        "bytes": 44754
+      },
+      {
+        "kind": "cad",
+        "name": "dubendi-61.dxf",
+        "bytes": 103858
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-16"
+  },
+  "amburan-62": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "amburan-62-drawings.pdf",
+        "bytes": 563666,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "amburan-62.dwg",
+        "bytes": 79048
+      },
+      {
+        "kind": "cad",
+        "name": "amburan-62.dxf",
+        "bytes": 199701
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-16"
+  },
+  "fatmayi-63": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "fatmayi-63-drawings.pdf",
+        "bytes": 607175,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "fatmayi-63.dwg",
+        "bytes": 73582
+      },
+      {
+        "kind": "cad",
+        "name": "fatmayi-63.dxf",
+        "bytes": 182009
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-16"
+  },
+  "goradil-64": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "goradil-64-drawings.pdf",
+        "bytes": 638241,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "goradil-64.dwg",
+        "bytes": 73320
+      },
+      {
+        "kind": "cad",
+        "name": "goradil-64.dxf",
+        "bytes": 185986
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-16"
+  },
+  "qobustan-65": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qobustan-65-drawings.pdf",
+        "bytes": 600690,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "qobustan-65.dwg",
+        "bytes": 59120
+      },
+      {
+        "kind": "cad",
+        "name": "qobustan-65.dxf",
+        "bytes": 144428
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-16"
+  },
+  "yalama-66": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "yalama-66-drawings.pdf",
+        "bytes": 650358,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "yalama-66.dwg",
+        "bytes": 63306
+      },
+      {
+        "kind": "cad",
+        "name": "yalama-66.dxf",
+        "bytes": 156804
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-16"
   }
 }
