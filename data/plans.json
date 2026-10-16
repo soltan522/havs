@@ -1522,5 +1522,98 @@
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a luxurious jewellery and accessories boutique: walnut and glass display cases with black marble tops, a pin spot light over each case, walnut wall panelling with fine champagne bronze inlays and backlit display niches, smoked oak chevron floor, a curved black marble cash desk, dark taupe walls, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "ahmadli-54",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "workspace",
+      "palette": "green-studio",
+      "layout": "b"
+    },
+    "inspiration": "green-studio",
+    "title": {
+      "az": "Əhmədli Yaşıl Studiya Ofisi",
+      "en": "Ahmadli Green Studio Office",
+      "ru": "Зелёная офис-студия в Ахмедлы"
+    },
+    "summary": {
+      "az": "180 m² dizayn studiyası ofisi: pəncərələr boyunca geniş studiya, arxada iclas otağı və mətbəx, qəbulun yanında kitabxana-lounge. Təbii mantar, ağcaqayın faneri, terrakota və adaçayı rəngli keçə, bitkili rəf divarı. Tam interyer çertyoj dəsti və material lövhəsi.",
+      "en": "A 180 m² design studio office: one wide studio along the windows, a meeting room and kitchen at the back and a library lounge by reception. Natural cork, birch plywood, terracotta and sage felt, and a planted shelving wall. A full interior drawing set with the materials board.",
+      "ru": "Офис дизайн-студии на 180 м²: широкая студия вдоль окон, переговорная и кухня в глубине, библиотека-лаунж у ресепшн. Натуральная пробка, берёзовая фанера, терракотовый и шалфейный войлок, стена из полок с растениями. Полный комплект чертежей интерьера и доска материалов."
+    },
+    "areaM2": 180,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 189000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a creative design studio office: cork floor, long birch plywood desks with sage felt dividers and task lamps, a planted shelving wall with hanging greenery, sage felt acoustic panels, terracotta accents, linear pendants, large windows along the studio with bright daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "binagadi-55",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "clinic",
+      "palette": "soft-clinic",
+      "layout": "b"
+    },
+    "inspiration": "soft-clinic",
+    "title": {
+      "az": "Binəqədi Stomatologiya Studiyası",
+      "en": "Binagadi Dental Studio",
+      "ru": "Стоматологическая студия в Бинагади"
+    },
+    "summary": {
+      "az": "105 m² stomatologiya studiyası, sakit otel lobbisi kimi: qabaqda qəbul və gözləmə zalı, bir dəhlizə açılan iki kabinet, rentgen və konsultasiya otağı. Travertin tonları, ağ palıd, kətan ağı və yumşaq bürünc, gizli işıq. Tam interyer çertyoj dəsti və material lövhəsi.",
+      "en": "A 105 m² dental studio that feels like a quiet hotel lobby: reception and waiting at the front, two surgeries, an X-ray room and a consultation room off one corridor. Travertine tones, white oak, linen whites, soft bronze and indirect light. A full interior drawing set with the materials board.",
+      "ru": "Стоматологическая студия на 105 м², похожая на тихое лобби отеля: ресепшн и зона ожидания у входа, два кабинета, рентген и консультационная комната вдоль одного коридора. Тона травертина, белый дуб, льняной белый, мягкая бронза и рассеянный свет. Полный комплект чертежей интерьера и доска материалов."
+    },
+    "areaM2": 105,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 119000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a calm dental studio reception that feels like a boutique hotel lobby: a curved white oak reception desk with a warm white solid-surface top, a travertine-effect plaster feature wall with concealed cove light, ecru upholstered lounge chairs, soft bronze details, white oak effect floor, a sculptural pendant, soft daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
+  },
+  {
+    "slug": "masalli-56",
+    "style": "interior",
+    "roof": "flat",
+    "interior": {
+      "type": "salon",
+      "palette": "barber-loft",
+      "layout": "b"
+    },
+    "inspiration": "barber-loft",
+    "title": {
+      "az": "Masallı Bərbər Loftu",
+      "en": "Masalli Barber Loft",
+      "ru": "Барбер-лофт в Масаллы"
+    },
+    "summary": {
+      "az": "150 m² saç və bərbər studiyası: ön hissənin ortasında qəbul, bir tərəfdə bərbər yerləri, digər tərəfdə saç düzümü zalı, arxada yuma zonası və prosedur otağı. Cilalanmış beton, köhnə kərpic, qara polad, yağlanmış palıd və konyak dəri kreslolar. Tam interyer çertyoj dəsti.",
+      "en": "A 150 m² hair and barber studio: reception in the middle of the front, barber stations on one side and hair styling on the other, with the wash area and a treatment room at the back. Polished concrete, reclaimed brick, black steel, oiled oak and cognac leather chairs. A full interior drawing set.",
+      "ru": "Студия причёсок и барбершоп на 150 м²: ресепшн в центре фасада, барберские места с одной стороны и зал укладок с другой, мойка и процедурная в глубине. Полированный бетон, старый кирпич, чёрная сталь, промасленный дуб и кресла из коньячной кожи. Полный комплект чертежей интерьера."
+    },
+    "areaM2": 150,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional interior visualization, photorealistic render of a hair and barber studio with workshop character: polished concrete floor, a reclaimed brick wall, black steel framed round mirrors above oiled oak stations with concrete tops, cognac leather barber chairs, filament pendant lights, black track spots, a few plants, warm light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
   }
 ]
