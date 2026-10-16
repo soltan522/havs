@@ -1,14 +1,12 @@
 {
-  "ahmadli-54": [
-    "https://www.figma.com/api/mcp/asset/eadd9dc3-9a06-46ba-9db6-3057c1faad35.png",
-    "https://www.figma.com/api/mcp/asset/5923678f-632a-46d7-8356-661868e776bd.png"
-  ],
-  "binagadi-55": [
-    "https://www.figma.com/api/mcp/asset/ed12e5cf-5ed7-48cf-bfe4-a35e9a98c8b9.png",
-    "https://www.figma.com/api/mcp/asset/582d1b2e-c0b6-401f-a78a-c8436cfbeacd.png"
-  ],
-  "masalli-56": [
-    "https://www.figma.com/api/mcp/asset/a609487d-3738-40ee-b402-8992d0a1bf36.png",
-    "https://www.figma.com/api/mcp/asset/01a86b65-d732-43c8-8733-e6f3f973cd65.png"
-  ]
+  "xinaliq-57": ["https://www.figma.com/api/mcp/asset/999954af-c907-4a58-bf5e-e42ea2c9e991.png"],
+  "ismayilli-58": ["https://www.figma.com/api/mcp/asset/21612c38-6326-448e-80cf-148e73ebf275.png"],
+  "hovsan-59": ["https://www.figma.com/api/mcp/asset/ac1eb86c-84d9-4c6f-9cf1-56ace183bc0d.png"],
+  "pirallahi-60": ["https://www.figma.com/api/mcp/asset/bba15d0a-c3bb-4cc5-812a-4e2af1569cd9.png"],
+  "dubendi-61": ["https://www.figma.com/api/mcp/asset/5c9ccf16-ea69-4fcb-a1ff-4c794aaf742e.png"],
+  "amburan-62": ["https://www.figma.com/api/mcp/asset/941f9a16-a23d-4a89-bee2-8978a107c931.png"],
+  "fatmayi-63": ["https://www.figma.com/api/mcp/asset/b6bacad1-0947-4f33-8949-061d13aa57c9.png"],
+  "goradil-64": ["https://www.figma.com/api/mcp/asset/333d000c-e731-40a9-a063-30a4fd2f258a.png"],
+  "qobustan-65": ["https://www.figma.com/api/mcp/asset/f842b244-5898-48bc-b554-19a7f00097fd.png"],
+  "yalama-66": ["https://www.figma.com/api/mcp/asset/13209f6d-4416-431a-b144-555c3fc9bdf3.png"]
 }
