@@ -1898,5 +1898,289 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey beachfront coastal villa, white render walls with sliding teak louvre screens, deep overhanging thin flat roof slabs over covered terraces, full-height glazing, attached single garage on the right, no pool, a wide teak deck stepping down through dune grasses onto the sand, tall pines behind and the Caspian beach in front, Yalama forest coast, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "lerik-67",
+    "style": "chalet",
+    "roof": "frontgable",
+    "inspiration": "shahdag-chalet",
+    "title": {
+      "az": "Lerik Villası",
+      "en": "Lerik Villa",
+      "ru": "Вилла Лерик"
+    },
+    "summary": {
+      "az": "Lerik üzərində meşəli yamacda yığcam iki mərtəbəli şale: bal rəngli yerli daşdan özül, üstdə köhnəlmiş küknar taxta üzlük və şüşəli frontonu Talış dağlarına baxan dik metal dam. Üç yataq otağı, dərin örtülü eyvan və bitişik qaraj.",
+      "en": "A compact two-storey chalet on a wooded slope above Lerik: a base of honey-coloured local stone, weathered spruce boarding above and a steep metal roof whose glazed gable end looks over the Talysh mountains. Three bedrooms, a deep covered porch and an attached garage.",
+      "ru": "Компактное двухэтажное шале на лесистом склоне над Лериком: цоколь из медового местного камня, выветренная еловая обшивка выше и крутая металлическая кровля с остеклённым фронтоном, смотрящим на Талышские горы. Три спальни, глубокое крытое крыльцо и пристроенный гараж."
+    },
+    "areaM2": 280,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": false,
+    "tree": "pine",
+    "ratio": 1.2,
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey alpine-style house, ground level in honey-coloured local stone, weathered silver spruce cladding above, a steep dark metal roof with its pitched end towards the camera, the pitched end fully glazed above a deep covered timber porch, attached single garage on the right, no pool, misty beech forest on a steep slope, Talysh mountains of Lerik behind, soft overcast morning, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "oguz-68",
+    "style": "farmhouse",
+    "roof": "gable",
+    "inspiration": "caucasus-farmstead",
+    "title": {
+      "az": "Oğuz Villası",
+      "en": "Oguz Villa",
+      "ru": "Вилла Огуз"
+    },
+    "summary": {
+      "az": "Oğuzun qoz meşələrində iki yataq otaqlı daş kotec: kobud əhəngdaşı divarlar, terrakota ikimaillı dam, ön tərəf boyunca taxta eyvan və eyni daşdan tikilmiş bitişik qaraj. Hovuz əvəzinə bostan və köhnə qoz ağacları cərgəsi.",
+      "en": "A two-bedroom stone cottage in the walnut forests of Oguz, with rough limestone walls, a terracotta gable roof, a timber veranda along the front and an attached garage built in the same stone. A kitchen garden and a row of old walnut trees take the place of a pool.",
+      "ru": "Каменный коттедж с двумя спальнями в ореховых лесах Огуза: стены из грубого известняка, двускатная терракотовая кровля, деревянная веранда вдоль фасада и пристроенный гараж из того же камня. Вместо бассейна — огород и ряд старых ореховых деревьев."
+    },
+    "areaM2": 180,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": true,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.6,
+    "priceCents": 109000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey stone cottage villa, whitewashed limestone walls, a terracotta tile gable roof, a long timber veranda with carved posts along the front, small timber-framed windows with shutters, attached single garage on the right built of the same stone, no pool, a kitchen garden and a row of old walnut trees, green forested foothills of Oguz, warm late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "bibiheybat-69",
+    "style": "yali",
+    "roof": "hip",
+    "inspiration": "bosphorus-yali",
+    "title": {
+      "az": "Bibiheybət Villası",
+      "en": "Bibiheybat Villa",
+      "ru": "Вилла Бибиэйбат"
+    },
+    "summary": {
+      "az": "Bibiheybət sahilində yalı ənənəsində incə uzun iki mərtəbəli sahil villası: açıq mavi-boz boyanmış taxta üzlük, uzun sıra hündür ağ pəncərələr və dərin saçaqlı şifer dörd tərəfli dam. Üç yataq otağı, daş sahil terrasında uzun ensiz hovuz və kiçik taxta körpü.",
+      "en": "A slender two-storey waterfront villa in the yalı tradition on the Bibiheybat shore: pale blue-grey painted weatherboarding, a long rhythm of tall white sash windows and a slate hip roof with deep eaves. Three bedrooms, a long narrow pool on the stone quay and a small timber jetty.",
+      "ru": "Узкая двухэтажная вилла у воды в традиции ялы на побережье Бибиэйбат: обшивка, окрашенная в бледный серо-голубой цвет, длинный ритм высоких белых окон и сланцевая вальмовая кровля с глубокими свесами. Три спальни, длинный узкий бассейн на каменной набережной и небольшой деревянный причал."
+    },
+    "areaM2": 260,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": true,
+    "tree": "pine",
+    "ratio": 1.9,
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a slender luxury two-storey waterside mansion, pale blue-grey painted clapboard walls with white corner boards, a long even rhythm of tall white sash windows with louvred shutters, a slate hip roof with deep bracketed eaves, no garage, long narrow swimming pool on a stone quay with a small timber jetty, umbrella pines and roses, calm Caspian water at dusk with distant shoreline lights, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "kurdakhani-70",
+    "style": "absheron",
+    "roof": "flat",
+    "inspiration": "bilgah-stone",
+    "title": {
+      "az": "Kürdəxanı Villası",
+      "en": "Kurdakhani Villa",
+      "ru": "Вилла Кюрдаханы"
+    },
+    "summary": {
+      "az": "Mişarlanmış Abşeron əhəngdaşı divarlı, hovuz terrasının üzərinə çıxan ağ suvaqlı ikinci mərtəbəli və dərin düz plitələr altında isti taxta tavanlı böyük iki mərtəbəli villa. Altı yataq otağı, nar və zeytun ağaclı aşağı bağ və dənizə baxan sonsuz hovuz.",
+      "en": "A large two-storey estate villa with sawn Absheron limestone walls, a white-render upper floor cantilevering over the pool terrace and warm timber soffits under deep flat slabs. Six bedrooms, a lower garden of pomegranate and olive trees and an infinity pool facing the sea.",
+      "ru": "Большая двухэтажная вилла с пилёными стенами из апшеронского известняка, белым оштукатуренным верхним этажом, нависающим над террасой с бассейном, и тёплыми деревянными софитами под глубокими плоскими плитами. Шесть спален, нижний сад с гранатами и оливами и инфинити-бассейн с видом на море."
+    },
+    "areaM2": 460,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": false,
+    "pool": true,
+    "tree": "olive",
+    "ratio": 1.7,
+    "priceCents": 229000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a large luxury two-storey estate villa, split-face honey limestone on the ground floor, a wide upper-floor wing in smooth white plaster projecting over the terrace, oak-lined undersides of thick flat roofs, frameless glass railings, no garage, infinity swimming pool with a pale limestone deck in front of the house looking out to the Caspian, pomegranate and olive trees, gated estate lane at Kurdakhani, golden hour, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "mashtaga-71",
+    "style": "pavilion",
+    "roof": "flat",
+    "inspiration": "bilgah-garden",
+    "mirror": true,
+    "title": {
+      "az": "Maştağa Villası",
+      "en": "Mashtaga Villa",
+      "ru": "Вилла Маштага"
+    },
+    "summary": {
+      "az": "Əhəngdaşı divarın arxasında uzun birmərtəbəli bağ pavilyonu: nazik bürünc sütunlar üzərində dərin düz dam və həyət terrası boyunca tavana qədər şüşələr. Zeytun ağacları əkilmiş sakit çınqıllı həyətin ətrafında üç yataq otağı.",
+      "en": "A long single-storey garden pavilion behind a limestone wall, with a deep flat roof on slender bronze columns and full-height glazing along a courtyard terrace. Three bedrooms around a quiet gravel court planted with olive trees.",
+      "ru": "Длинный одноэтажный садовый павильон за известняковой стеной: глубокая плоская кровля на тонких бронзовых колоннах и остекление в пол вдоль террасы во дворе. Три спальни вокруг тихого гравийного двора с оливами."
+    },
+    "areaM2": 255,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "tree": "olive",
+    "ratio": 2,
+    "priceCents": 139000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey long garden pavilion villa, a long honey limestone garden wall, a deep thin flat roof on slender bronze columns, full-height glazing along a shaded courtyard terrace, no garage, no pool, a quiet gravel courtyard planted with olive trees and lavender, Absheron village setting at Mashtaga, soft late morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "saray-72",
+    "style": "noir",
+    "roof": "flat",
+    "inspiration": "seabreeze-noir",
+    "mirror": true,
+    "title": {
+      "az": "Saray Villası",
+      "en": "Saray Villa",
+      "ru": "Вилла Сарай"
+    },
+    "summary": {
+      "az": "Qrafit rəngli suvaqlı, hündür bürünc lamelli, dəqiq qara plitəli və bazalt özülə yerləşdirilmiş iki yerlik qarajı olan geniş iki mərtəbəli tünd müasir villa. Altı yataq otağı, axşam işıqlanan uzun hovuz terrası və bağ divarı boyunca sərv cərgəsi.",
+      "en": "A wide two-storey dark contemporary villa in graphite render with tall bronze louvres, crisp black slabs and a double garage set into a basalt plinth. Six bedrooms, a long pool terrace lit at dusk and a row of cypresses along the garden wall.",
+      "ru": "Широкая двухэтажная тёмная современная вилла в графитовой штукатурке с высокими бронзовыми ламелями, чёткими чёрными плитами и двойным гаражом в базальтовом цоколе. Шесть спален, длинная терраса с бассейном, подсвеченная в сумерках, и ряд кипарисов вдоль садовой стены."
+    },
+    "areaM2": 440,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": true,
+    "pool": true,
+    "tree": "cypress",
+    "ratio": 1.9,
+    "priceCents": 219000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a wide luxury two-storey dark contemporary villa, graphite plaster walls, tall vertical bronze louvres across the upper floor, black-edged flat roofs, a basalt stone plinth, attached double garage on the right, long rectangular swimming pool with a basalt deck in front of the house, a row of tall cypresses along the garden wall, Absheron setting at Saray, twilight with glowing windows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "qax-73",
+    "style": "modern",
+    "roof": "flat",
+    "inspiration": "istanbul-forest",
+    "mirror": true,
+    "title": {
+      "az": "Qax Villası",
+      "en": "Gakh Villa",
+      "ru": "Вилла Гах"
+    },
+    "summary": {
+      "az": "Qaxda kobud daş divarlı, hündür daş bacalı, çəmənliyə açılan tavana qədər şüşələri və düz dam altında isti taxta tavanı olan birmərtəbəli meşə villası. Üç yataq otağı, bitişik qaraj və hovuz əvəzinə köhnə palıd və şam ağacları altında açıq çəmənlik.",
+      "en": "A single-storey forest villa in Gakh with rough stone walls, a tall stone chimney, full-height glazing to the lawn and warm timber soffits under a flat roof. Three bedrooms, an attached garage and an open lawn under old oaks and pines instead of a pool.",
+      "ru": "Одноэтажная лесная вилла в Гахе: стены из грубого камня, высокая каменная дымовая труба, остекление в пол на газон и тёплые деревянные софиты под плоской кровлей. Три спальни, пристроенный гараж и открытый газон под старыми дубами и соснами вместо бассейна."
+    },
+    "areaM2": 290,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "pine",
+    "ratio": 1.8,
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury single-level woodland house, walls of split grey fieldstone, a massive stone fireplace chimney rising above a thin flat roof, wall-to-wall glass doors sliding onto the grass, cedar-lined eaves, attached single garage on the right, no pool, an open grass clearing under ancient oaks and tall pines, Caucasus foothill forest at Gakh, dappled morning sun, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "ramana-74",
+    "style": "luxury",
+    "roof": "flat",
+    "inspiration": "mardakan-contemporary",
+    "mirror": true,
+    "title": {
+      "az": "Ramana Villası",
+      "en": "Ramana Villa",
+      "ru": "Вилла Рамана"
+    },
+    "summary": {
+      "az": "Bağa açılan daş aşağı mərtəbəsi, nazik palıd lamellər arxasında panoram şüşəli iki yuxarı mərtəbəsi və dərin düz damları olan üç səviyyəli villa. Altı yataq otağı, aşağı səviyyədə spa və kino, əncir və tut bağının yanında uzun hovuz.",
+      "en": "A three-level villa with a stone lower ground floor opening to the garden, two upper floors of panoramic glazing behind slim oak fins and deep flat roofs. Six bedrooms, a spa and cinema on the lower level and a long pool beside a fig and mulberry garden.",
+      "ru": "Трёхуровневая вилла: цокольный этаж из камня с выходом в сад, два верхних этажа с панорамным остеклением за тонкими дубовыми ламелями и глубокие плоские кровли. Шесть спален, спа и кинозал на нижнем уровне и длинный бассейн рядом с садом из инжира и шелковицы."
+    },
+    "areaM2": 530,
+    "floors": 3,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": false,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.5,
+    "priceCents": 259000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury hillside villa on three levels, a rough-cut stone garden level with sliding glass doors, two upper floors wrapped in glass behind narrow vertical timber fins, thin projecting flat roofs, no garage, a long travertine-edged swimming pool in front of the house, fig and mulberry trees around a clipped lawn, Absheron estate setting at Ramana, warm evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "xizi-75",
+    "style": "minimal",
+    "roof": "flat",
+    "inspiration": "istanbul-aegean",
+    "title": {
+      "az": "Xızı Villası",
+      "en": "Khizi Villa",
+      "ru": "Вилла Хызы"
+    },
+    "summary": {
+      "az": "Xızı dağlarının ətəyində ağ suvaq və kobud qırmızı yerli daşdan iki mərtəbəli villa: düz damlar, yataq otaqlarının üzərində dam terrası və dərinə oturdulmuş pəncərələr. Beş yataq otağı, bitişik qaraj və zeytun ağacları və yabanı otlardan ibarət quru bağ.",
+      "en": "A two-storey villa of white plaster and rough red local stone below the Khizi mountains, with flat roofs, a roof terrace over the bedrooms and deep-set windows. Five bedrooms, an attached garage and a dry garden of olive trees and wild herbs.",
+      "ru": "Двухэтажная вилла из белой штукатурки и грубого красного местного камня у подножия гор Хызы: плоские кровли, терраса на крыше над спальнями и глубоко посаженные окна. Пять спален, пристроенный гараж и сухой сад из олив и дикорастущих трав."
+    },
+    "areaM2": 330,
+    "floors": 2,
+    "bedrooms": 5,
+    "bathrooms": 5,
+    "garage": true,
+    "pool": false,
+    "tree": "olive",
+    "ratio": 1.4,
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey white minimal villa, white plaster cubic volumes combined with walls of rough red local stone, deep-set recessed windows, a roof terrace with a slim glass balustrade, attached single garage on the right, no pool, a dry garden of olive trees and wild herbs on gravel, red striped mountains of Khizi behind, clear afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "xudat-76",
+    "style": "coastal",
+    "roof": "flat",
+    "inspiration": "seabreeze-coastal",
+    "title": {
+      "az": "Xudat Villası",
+      "en": "Khudat Villa",
+      "ru": "Вилла Худат"
+    },
+    "summary": {
+      "az": "Xudat sahilində tik ağacından jalüzi ekranlı, nazik dərin dam plitələri və hər iki mərtəbədə örtülü terrasları olan iki mərtəbəli çimərlik villası. Altı yataq otağı, qumun üzərində qumsal otları ilə haşiyələnmiş sonsuz hovuz və yulğun ağacları.",
+      "en": "A two-storey beach villa on the Khudat shore with teak louvre screens, thin deep roof slabs and covered terraces on both floors. Six bedrooms, an infinity pool on the sand edged with dune grasses and tamarisk trees.",
+      "ru": "Двухэтажная пляжная вилла на побережье Худата с тиковыми жалюзийными экранами, тонкими глубокими плитами кровли и крытыми террасами на обоих этажах. Шесть спален, инфинити-бассейн на песке в обрамлении дюнных трав и тамариски."
+    },
+    "areaM2": 380,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": false,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.8,
+    "priceCents": 199000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey beach villa, white render walls with slatted teak sun screens, slim cantilevered roof plates over shaded verandas on both floors, frameless glass balustrades, no garage, infinity swimming pool on the sand in front of the house edged with dune grasses, tamarisk trees, wide empty Caspian beach at Khudat, soft early morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
