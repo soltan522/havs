@@ -1450,5 +1450,225 @@
     ],
     "sheets": 6,
     "builtAt": "2026-10-16"
+  },
+  "lerik-67": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "lerik-67-drawings.pdf",
+        "bytes": 637769,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "lerik-67.dwg",
+        "bytes": 74201
+      },
+      {
+        "kind": "cad",
+        "name": "lerik-67.dxf",
+        "bytes": 183563
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
+  },
+  "oguz-68": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "oguz-68-drawings.pdf",
+        "bytes": 773210,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "oguz-68.dwg",
+        "bytes": 48687
+      },
+      {
+        "kind": "cad",
+        "name": "oguz-68.dxf",
+        "bytes": 117467
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-17"
+  },
+  "bibiheybat-69": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bibiheybat-69-drawings.pdf",
+        "bytes": 570623,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "bibiheybat-69.dwg",
+        "bytes": 70083
+      },
+      {
+        "kind": "cad",
+        "name": "bibiheybat-69.dxf",
+        "bytes": 172242
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
+  },
+  "kurdakhani-70": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "kurdakhani-70-drawings.pdf",
+        "bytes": 578214,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "kurdakhani-70.dwg",
+        "bytes": 86012
+      },
+      {
+        "kind": "cad",
+        "name": "kurdakhani-70.dxf",
+        "bytes": 217045
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
+  },
+  "mashtaga-71": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "mashtaga-71-drawings.pdf",
+        "bytes": 727197,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "mashtaga-71.dwg",
+        "bytes": 60456
+      },
+      {
+        "kind": "cad",
+        "name": "mashtaga-71.dxf",
+        "bytes": 150964
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-17"
+  },
+  "saray-72": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "saray-72-drawings.pdf",
+        "bytes": 520829,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "saray-72.dwg",
+        "bytes": 91310
+      },
+      {
+        "kind": "cad",
+        "name": "saray-72.dxf",
+        "bytes": 234811
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
+  },
+  "qax-73": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qax-73-drawings.pdf",
+        "bytes": 751356,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "qax-73.dwg",
+        "bytes": 64442
+      },
+      {
+        "kind": "cad",
+        "name": "qax-73.dxf",
+        "bytes": 161174
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-17"
+  },
+  "ramana-74": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ramana-74-drawings.pdf",
+        "bytes": 594694,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "ramana-74.dwg",
+        "bytes": 86469
+      },
+      {
+        "kind": "cad",
+        "name": "ramana-74.dxf",
+        "bytes": 219753
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
+  },
+  "xizi-75": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "xizi-75-drawings.pdf",
+        "bytes": 686503,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "xizi-75.dwg",
+        "bytes": 83368
+      },
+      {
+        "kind": "cad",
+        "name": "xizi-75.dxf",
+        "bytes": 209621
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
+  },
+  "xudat-76": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "xudat-76-drawings.pdf",
+        "bytes": 600809,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "xudat-76.dwg",
+        "bytes": 84892
+      },
+      {
+        "kind": "cad",
+        "name": "xudat-76.dxf",
+        "bytes": 215520
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-17"
   }
 }
