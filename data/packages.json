@@ -1670,5 +1670,225 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-17"
+  },
+  "gadabay-77": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gadabay-77-drawings.pdf",
+        "bytes": 728501,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "gadabay-77.dwg",
+        "bytes": 91009
+      },
+      {
+        "kind": "cad",
+        "name": "gadabay-77.dxf",
+        "bytes": 231837
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-18"
+  },
+  "balakan-78": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "balakan-78-drawings.pdf",
+        "bytes": 684416,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "balakan-78.dwg",
+        "bytes": 45646
+      },
+      {
+        "kind": "cad",
+        "name": "balakan-78.dxf",
+        "bytes": 108050
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-18"
+  },
+  "goychay-79": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "goychay-79-drawings.pdf",
+        "bytes": 683280,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "goychay-79.dwg",
+        "bytes": 59261
+      },
+      {
+        "kind": "cad",
+        "name": "goychay-79.dxf",
+        "bytes": 148003
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-18"
+  },
+  "mingachevir-80": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "mingachevir-80-drawings.pdf",
+        "bytes": 609997,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "mingachevir-80.dwg",
+        "bytes": 81206
+      },
+      {
+        "kind": "cad",
+        "name": "mingachevir-80.dxf",
+        "bytes": 202865
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-18"
+  },
+  "zabrat-81": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zabrat-81-drawings.pdf",
+        "bytes": 559625,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "zabrat-81.dwg",
+        "bytes": 48659
+      },
+      {
+        "kind": "cad",
+        "name": "zabrat-81.dxf",
+        "bytes": 117642
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-18"
+  },
+  "alat-82": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "alat-82-drawings.pdf",
+        "bytes": 595640,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "alat-82.dwg",
+        "bytes": 86461
+      },
+      {
+        "kind": "cad",
+        "name": "alat-82.dxf",
+        "bytes": 222700
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-18"
+  },
+  "shabran-83": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shabran-83-drawings.pdf",
+        "bytes": 567230,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "shabran-83.dwg",
+        "bytes": 81748
+      },
+      {
+        "kind": "cad",
+        "name": "shabran-83.dxf",
+        "bytes": 204620
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-18"
+  },
+  "dashkasan-84": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "dashkasan-84-drawings.pdf",
+        "bytes": 607722,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "dashkasan-84.dwg",
+        "bytes": 84959
+      },
+      {
+        "kind": "cad",
+        "name": "dashkasan-84.dxf",
+        "bytes": 214051
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-18"
+  },
+  "jorat-85": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "jorat-85-drawings.pdf",
+        "bytes": 552515,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "jorat-85.dwg",
+        "bytes": 45439
+      },
+      {
+        "kind": "cad",
+        "name": "jorat-85.dxf",
+        "bytes": 108087
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-18"
+  },
+  "agsu-86": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "agsu-86-drawings.pdf",
+        "bytes": 648655,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "agsu-86.dwg",
+        "bytes": 75306
+      },
+      {
+        "kind": "cad",
+        "name": "agsu-86.dxf",
+        "bytes": 187702
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-18"
   }
 }
