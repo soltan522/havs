@@ -1890,5 +1890,27 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-18"
+  },
+  "lahij-87": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "lahij-87-drawings.pdf",
+        "bytes": 687435,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "lahij-87.dwg",
+        "bytes": 68753
+      },
+      {
+        "kind": "cad",
+        "name": "lahij-87.dxf",
+        "bytes": 171112
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-20"
   }
 }

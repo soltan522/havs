@@ -3080,5 +3080,39 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "lahij-87": {
+    "cover": "/plans/lahij-87/cover.jpg",
+    "hover": "/plans/lahij-87/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/lahij-87/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/lahij-87/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/lahij-87/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/lahij-87/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/lahij-87/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/lahij-87/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/lahij-87/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };
