@@ -2336,9 +2336,9 @@
       "ru": "Вилла Алят"
     },
     "summary": {
-      "az": "Ələt sahilində Mayami modern üslubunda iki mərtəbəli villa: qatlı üfüqi döşəmə lövhələri olan ağ suvaq, birinci mərtəbə şüşələri üzərində uzun nazik kozırok və ağ parapetli yuxarı teras. Altı yataq otağı, krem terazzo döşəməli hovuz və kral palmaları.",
-      "en": "A two-storey Miami-modern villa on the Alat shore: white render with layered horizontal floor slabs, a long thin canopy over the ground-floor glazing and an upper terrace behind a solid white parapet. Six bedrooms, a pool with a cream terrazzo deck and royal palms.",
-      "ru": "Двухэтажная вилла в стиле майами-модерн на побережье Алята: белая штукатурка с многослойными горизонтальными плитами перекрытий, длинный тонкий козырёк над остеклением первого этажа и верхняя терраса за сплошным белым парапетом. Шесть спален, бассейн с палубой из кремового терраццо и королевские пальмы."
+      "az": "Ələt sahilində Mayami modern üslubunda iki mərtəbəli villa: qatlı üfüqi döşəmə lövhələri olan ağ suvaq, birinci mərtəbə şüşələri üzərində uzun nazik kozırok və şüşə məhəccərli yuxarı teras. Altı yataq otağı, krem terazzo döşəməli hovuz və kral palmaları.",
+      "en": "A two-storey Miami-modern villa on the Alat shore: white render with layered horizontal floor slabs, a long thin canopy over the ground-floor glazing and an upper terrace with a frameless glass balustrade. Six bedrooms, a pool with a cream terrazzo deck and royal palms.",
+      "ru": "Двухэтажная вилла в стиле майами-модерн на побережье Алята: белая штукатурка с многослойными горизонтальными плитами перекрытий, длинный тонкий козырёк над остеклением первого этажа и верхняя терраса со стеклянным ограждением. Шесть спален, бассейн с палубой из кремового терраццо и королевские пальмы."
     },
     "areaM2": 410,
     "floors": 2,
@@ -2423,9 +2423,9 @@
       "ru": "Вилла Джорат"
     },
     "summary": {
-      "az": "Corat sahilində birmərtəbəli həyət villası: mişarlanmış Abşeron əhəngdaşından uzun divarlar, kölgəli terasın üzərinə uzanan taxta altlıqlı dərin düz dam və bürünc çərçivəli tam hündürlükdə şüşələr. İki yataq otağı və teras boyu uzanan əksetdirici hovuz.",
-      "en": "A single-storey courtyard villa on the Jorat coast: long walls of sawn Absheron limestone, a deep flat roof with a timber soffit reaching over a shaded terrace and full-height glazing in bronze frames. Two bedrooms and a long reflecting pool along the terrace.",
-      "ru": "Одноэтажная вилла с внутренним двором на побережье Джората: длинные стены из пилёного апшеронского известняка, глубокая плоская кровля с деревянной подшивкой над затенённой террасой и остекление в полную высоту в бронзовых рамах. Две спальни и длинный зеркальный бассейн вдоль террасы."
+      "az": "Corat sahilində alçaq birmərtəbəli villa: mişarlanmış Abşeron əhəngdaşından uzun divarlar, kölgəli terasın üzərinə uzanan taxta altlıqlı dərin düz dam və bürünc çərçivəli tam hündürlükdə şüşələr. İki yataq otağı və teras boyu uzanan əksetdirici hovuz.",
+      "en": "A low single-storey villa on the Jorat coast: long walls of sawn Absheron limestone, a deep flat roof with a timber soffit reaching over a shaded terrace and full-height glazing in bronze frames. Two bedrooms and a long reflecting pool along the terrace.",
+      "ru": "Приземистая одноэтажная вилла на побережье Джората: длинные стены из пилёного апшеронского известняка, глубокая плоская кровля с деревянной подшивкой над затенённой террасой и остекление в полную высоту в бронзовых рамах. Две спальни и длинный зеркальный бассейн вдоль террасы."
     },
     "areaM2": 225,
     "floors": 1,
@@ -2468,5 +2468,33 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey Mediterranean villa, white stucco walls, a terracotta tile hip roof with deep eaves, tall arched windows on the ground floor, wrought-iron balconies on the upper floor, a stone-paved entrance terrace under a vine pergola, attached single garage on the right, no pool, terraced vineyards and dark cypress trees on the rolling Agsu hills, warm afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "lahij-87",
+    "style": "chalet",
+    "roof": "frontgable",
+    "inspiration": "shahdag-chalet",
+    "title": {
+      "az": "Lahıc Villası",
+      "en": "Lahij Villa",
+      "ru": "Вилла Лагич"
+    },
+    "summary": {
+      "az": "Lahıc yaxınlığında dağ dərəsində yığcam iki mərtəbəli ev: əhəng məhlulunda hörülmüş çay daşından birinci mərtəbə, üstdə şaquli tünd palıd lövhələr və frontonu yerdən kürəyə qədər şüşəli dik mis dam. Üç yataq otağı, fronton altında kiçik oyma taxta eyvan və qoz ağaclı daş hasarlı teras.",
+      "en": "A compact two-storey mountain house in a valley near Lahij: a ground floor of river stone laid in lime mortar, vertical dark oak boards above and a steep copper roof whose gable is glazed from floor to ridge. Three bedrooms, a small carved timber balcony under the gable and a stone-walled terrace with a walnut tree.",
+      "ru": "Компактный двухэтажный горный дом в долине у Лагича: первый этаж из речного камня на известковом растворе, выше вертикальная тёмная дубовая доска и крутая медная кровля с фронтоном, остеклённым от пола до конька. Три спальни, небольшой резной деревянный балкон под фронтоном и терраса за каменной стеной с ореховым деревом."
+    },
+    "areaM2": 190,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.1,
+    "priceCents": 109000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey mountain house, a ground floor of rough river stone laid in lime mortar, vertical dark oak boards on the upper floor, a steep standing-seam copper roof with its gable towards the camera, the gable end glazed from floor to ridge, a small carved timber balcony under the gable, no garage, no pool, a stone-walled terrace with an old walnut tree, steep green forested valley of the Girdimanchay river near Lahij, soft morning mist lifting, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
