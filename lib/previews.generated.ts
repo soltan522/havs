@@ -3114,5 +3114,69 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "ilisu-88": {
+    "cover": "/plans/ilisu-88/cover.jpg",
+    "hover": "/plans/ilisu-88/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/ilisu-88/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/ilisu-88/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/ilisu-88/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/ilisu-88/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/ilisu-88/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/ilisu-88/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "astara-89": {
+    "cover": "/plans/astara-89/cover.jpg",
+    "hover": "/plans/astara-89/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/astara-89/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/astara-89/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/astara-89/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/astara-89/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/astara-89/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/astara-89/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/astara-89/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };

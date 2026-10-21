@@ -1912,5 +1912,49 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-20"
+  },
+  "ilisu-88": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "ilisu-88-drawings.pdf",
+        "bytes": 706224,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "ilisu-88.dwg",
+        "bytes": 44592
+      },
+      {
+        "kind": "cad",
+        "name": "ilisu-88.dxf",
+        "bytes": 104301
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-21"
+  },
+  "astara-89": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "astara-89-drawings.pdf",
+        "bytes": 600479,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "astara-89.dwg",
+        "bytes": 73674
+      },
+      {
+        "kind": "cad",
+        "name": "astara-89.dxf",
+        "bytes": 185165
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-21"
   }
 }
