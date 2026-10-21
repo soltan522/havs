@@ -39,6 +39,11 @@ The sample visualisations in `renders/` are AI-generated concept images (Figma A
 New sample villas are added by a daily routine — see [`docs/daily-villas.md`](docs/daily-villas.md). `npm run validate`
 checks `data/plans.json` (styles, roofs, room counts against the generated plans, translations, price rule).
 
+**Projects map** — `/<lang>/map` shows the catalogue on a 3D map (MapLibre GL; OpenFreeMap vector tiles with
+OpenStreetMap buildings, AWS open terrain tiles; no API keys). Each plan sits at its `location` in `data/plans.json`, or
+at the place its slug is named after in `data/places.json` (`null` keeps a name off the map). The style is in
+`lib/map-style.ts`, the page in `app/[lang]/map/` and `components/ProjectsMap.tsx`.
+
 ## Local development
 
 ```bash

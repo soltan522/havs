@@ -17,6 +17,9 @@ const refsFile = path.join(root, "docs", "design-references.md");
 const INSPIRATIONS = new Set(existsSync(refsFile) ? [...(await readFile(refsFile, "utf8")).matchAll(/^### ([a-z0-9-]+) —/gm)].map((m) => m[1]) : []);
 const errors = [];
 const warnings = [];
+// map positions of place names (data/places.json); a plan's own "location" takes precedence
+const placesFile = path.join(root, "data", "places.json");
+const PLACES = existsSync(placesFile) ? JSON.parse(await readFile(placesFile, "utf8")) : {};
 
 /**
  * Catalogue price rule for sample villas (USD): ~$300 + $4.2/m², rounded to …90, +$100 for premium styles.
@@ -154,6 +157,13 @@ for (const plan of plans) {
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
   if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);
   if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
+  // the projects map (/map): Azerbaijan lies within 44.7–50.7 E, 38.3–42 N
+  if (plan.location !== undefined) {
+    const [lng, lat] = Array.isArray(plan.location) ? plan.location : [];
+    if (!(lng >= 44.7 && lng <= 50.7 && lat >= 38.3 && lat <= 42)) err(`location must be [longitude, latitude] inside Azerbaijan, got ${JSON.stringify(plan.location)}`);
+  } else if (!(plan.slug?.replace(/-\d+$/, "") in PLACES)) {
+    warnings.push(`${id}: no map position — add "location": [longitude, latitude] (centre of the place it is named after) so it shows on /map`);
+  }
   const suggested = suggestedPrice(plan);
   if (Math.abs(plan.priceCents / 100 - suggested) / suggested > 0.15) warnings.push(`${id}: price $${plan.priceCents / 100} is more than 15% from the rule ($${suggested})`);
 

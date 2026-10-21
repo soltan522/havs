@@ -1,0 +1,128 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Footer, Header } from "@/components";
+import ProjectsMap, { type MapArea, type MapItem, type MapText } from "@/components/ProjectsMap";
+import Reveal, { MaskLines } from "@/components/Reveal";
+import { specsLine } from "@/lib/copy";
+import { isLocale, type Locale } from "@/lib/i18n";
+import { placeOf } from "@/lib/places";
+import { formatPrice, planLabel, publishedPlans } from "@/lib/plans";
+import { currency } from "@/lib/providers";
+
+const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: string; count: (n: number) => string }> = {
+  az: {
+    title: "Layihələr xəritədə",
+    mapLabel: "Layihələrin 3D xəritəsi",
+    eyebrow: "Bakı · Abşeron · Azərbaycan",
+    lead: "Hər konsept layihə adını aldığı yerdə: Bakının 3D xəritəsini fırladın, əyin, yaxınlaşdırın və nöqtəyə toxunaraq layihəni açın.",
+    count: (n) => `Xəritədə ${n} layihə`,
+    views: { baku: "Bakı", absheron: "Abşeron", country: "Azərbaycan" },
+    kinds: { villa: "Villalar", interior: "İnteryerlər", project: "Layihələr" },
+    areas: { baku: "Bakı", absheron: "Abşeron", regions: "Regionlar" },
+    view: "Layihəyə bax",
+    showOnMap: "Xəritədə göstər",
+    rotate: "Fırlat",
+    loading: "Xəritə yüklənir…",
+    noMap: "Brauzeriniz 3D xəritəni göstərə bilmir — aşağıdakı siyahıdan istifadə edin.",
+    note: "Nöqtələr layihənin adını aldığı qəsəbə və ya rayonun mərkəzini göstərir. Bütün layihələr konseptdir, tikilmiş ev deyil.",
+  },
+  en: {
+    title: "Projects on the map",
+    mapLabel: "3D map of the projects",
+    eyebrow: "Baku · Absheron · Azerbaijan",
+    lead: "Every concept project sits on the place it is named after. Rotate, tilt and zoom the 3D map of Baku and tap a point to open the project.",
+    count: (n) => `${n} projects on the map`,
+    views: { baku: "Baku", absheron: "Absheron", country: "Azerbaijan" },
+    kinds: { villa: "Villas", interior: "Interiors", project: "Developments" },
+    areas: { baku: "Baku", absheron: "Absheron", regions: "Regions" },
+    view: "View project",
+    showOnMap: "Show on map",
+    rotate: "Rotate",
+    loading: "Loading the map…",
+    noMap: "Your browser cannot show the 3D map — use the list below.",
+    note: "Points mark the centre of the town or district a project is named after. All projects are concepts, not built houses.",
+  },
+  ru: {
+    title: "Проекты на карте",
+    mapLabel: "3D-карта проектов",
+    eyebrow: "Баку · Апшерон · Азербайджан",
+    lead: "Каждый концепт-проект отмечен там, в честь чего назван. Вращайте, наклоняйте и приближайте 3D-карту Баку и нажмите на точку, чтобы открыть проект.",
+    count: (n) => `Проектов на карте: ${n}`,
+    views: { baku: "Баку", absheron: "Апшерон", country: "Азербайджан" },
+    kinds: { villa: "Виллы", interior: "Интерьеры", project: "Комплексы" },
+    areas: { baku: "Баку", absheron: "Апшерон", regions: "Регионы" },
+    view: "Открыть проект",
+    showOnMap: "Показать на карте",
+    rotate: "Вращать",
+    loading: "Загрузка карты…",
+    noMap: "Ваш браузер не может показать 3D-карту — воспользуйтесь списком ниже.",
+    note: "Точки отмечают центр посёлка или района, в честь которого назван проект. Все проекты — концепты, а не построенные дома.",
+  },
+};
+
+const BAKU: [number, number] = [49.852, 40.378];
+
+/** Baku city within ~12 km of the centre, the Absheron peninsula within ~45 km, the regions beyond. */
+function areaOf([lng, lat]: [number, number]): MapArea {
+  const dx = (lng - BAKU[0]) * 85;
+  const dy = (lat - BAKU[1]) * 111;
+  const km = Math.hypot(dx, dy);
+  return km < 12 ? "baku" : km < 45 ? "absheron" : "regions";
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const t = TEXT[lang];
+  return {
+    title: t.title,
+    description: t.lead,
+    alternates: { languages: { az: "/az/map", en: "/en/map", ru: "/ru/map" } },
+  };
+}
+
+export default async function MapPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const t = TEXT[lang];
+  const items: MapItem[] = [];
+  for (const plan of publishedPlans()) {
+    const lngLat = placeOf(plan.slug, plan.location);
+    if (!lngLat) continue;
+    items.push({
+      slug: plan.slug,
+      kind: plan.interior ? "interior" : plan.project ? "project" : "villa",
+      area: areaOf(lngLat),
+      title: plan.title[lang],
+      label: planLabel(plan, lang),
+      specs: specsLine(lang, plan),
+      price: formatPrice(plan.priceCents, lang, currency()),
+      cover: plan.cover,
+      href: `/${lang}/plans/${plan.slug}`,
+      lngLat,
+    });
+  }
+  const { title, eyebrow, lead, count, ...text } = t;
+
+  return (
+    <>
+      <Header locale={lang} path="/map" />
+      <main className="map-page">
+        <section className="wrap map-head">
+          <Reveal variant="mask">
+            <p className="eyebrow">{eyebrow}</p>
+            <h1 className="section-title"><MaskLines lines={[title]} /></h1>
+          </Reveal>
+          <Reveal delay={150}>
+            <p className="lead muted">{lead}</p>
+            <p className="map-count">{count(items.length)}</p>
+          </Reveal>
+        </section>
+        <section className="wrap-wide">
+          <ProjectsMap items={items} text={{ ...text, lang }} />
+        </section>
+      </main>
+      <Footer locale={lang} />
+    </>
+  );
+}

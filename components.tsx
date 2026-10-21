@@ -4,6 +4,7 @@ import { LOCALES, UI, type Locale } from "@/lib/i18n";
 
 const NAV: { href: string; label: Record<Locale, string> }[] = [
   { href: "/plans", label: { az: "Kataloq", en: "Catalogue", ru: "Каталог" } },
+  { href: "/map", label: { az: "Xəritə", en: "Map", ru: "Карта" } },
   { href: "/about", label: { az: "Haqqımızda", en: "About", ru: "О нас" } },
   { href: "/faq", label: { az: "FAQ", en: "FAQ", ru: "FAQ" } },
   { href: "/contact", label: { az: "Əlaqə", en: "Contact", ru: "Контакты" } },

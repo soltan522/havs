@@ -63,7 +63,10 @@ npm ci
 
 3. **Write the entries** in `data/plans.json` (append at the end), same shape as the existing ones:
    `slug, style, roof, title{az,en,ru}, summary{az,en,ru}, areaM2, floors, bedrooms, bathrooms, garage, pool,
-   priceCents, published: true, demo: true` (+ optional `ratio`, `tree`).
+   priceCents, published: true, demo: true, location` (+ optional `ratio`, `tree`).
+   - Location: `"location": [longitude, latitude]` with 4 decimals — the centre of the town or village the villa is
+     named after (not a plot: the villa is a concept). It places the villa on the projects map (`/<lang>/map`);
+     `npm run validate` warns when it is missing and fails when it lies outside Azerbaijan.
    - Summary: two sentences, professional and factual — materials, roof, key spaces, outdoor features.
      Correct Azerbaijani (ə, ı, ö, ü, ğ, ş, ç) and Russian. No superlatives, no claims that it was built.
    - Price: `npm run validate` prints a warning if the price is more than 15 % from the rule

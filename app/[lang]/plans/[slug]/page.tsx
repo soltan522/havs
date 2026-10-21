@@ -7,6 +7,7 @@ import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
+import { placeOf } from "@/lib/places";
 import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, PALETTE_LABELS, planLabel } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
@@ -104,6 +105,12 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
               <h1><MaskLines lines={[plan.title[lang]]} /></h1>
             </Reveal>
             <p className="muted" style={{ fontSize: 17 }}>{plan.summary[lang]}</p>
+            {placeOf(plan.slug, plan.location) && (
+              <Link className="map-link" href={`/${lang}/map?p=${plan.slug}`}>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15Z" /><circle cx="8" cy="6.5" r="1.8" /></svg>
+                {({ az: "Xəritədə göstər", en: "Show on the map", ru: "Показать на карте" } as const)[lang]}
+              </Link>
+            )}
             <div className="specs">
               {specs.map(([k, v]) => (
                 <div key={k}><b>{k}</b><span>{v}</span></div>
