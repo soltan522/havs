@@ -2496,5 +2496,61 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey mountain house, a ground floor of rough river stone laid in lime mortar, vertical dark oak boards on the upper floor, a steep standing-seam copper roof with its gable towards the camera, the gable end glazed from floor to ridge, a small carved timber balcony under the gable, no garage, no pool, a stone-walled terrace with an old walnut tree, steep green forested valley of the Girdimanchay river near Lahij, soft morning mist lifting, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "ilisu-88",
+    "style": "farmhouse",
+    "roof": "gable",
+    "inspiration": "caucasus-farmstead",
+    "title": {
+      "az": "İlisu Villası",
+      "en": "Ilisu Villa",
+      "ru": "Вилла Илису"
+    },
+    "summary": {
+      "az": "İlisu üzərində alp çəmənliklərinə baxan kiçik birmərtəbəli daş ferma evi: taxta tirli boz dağ daşı divarlar, nazik daş bacalı kirəmit maili dam və üzüm sarmaşığı olan qalın palıd dirəkli eyvan. İki yataq otağı, palıd pəncərə qapaqları və alma, gavalı ağacları əkilmiş bağ.",
+      "en": "A small single-storey stone farmhouse looking over the alpine meadows above Ilisu: grey mountain stone walls with timber lintels, a terracotta gable roof with a slender stone chimney and a porch on sturdy oak posts with a climbing vine. Two bedrooms, oak shutters and an orchard of apple and plum trees.",
+      "ru": "Небольшой одноэтажный каменный фермерский дом с видом на альпийские луга над Илису: стены из серого горного камня с деревянными перемычками, черепичная двускатная кровля с тонкой каменной трубой и крыльцо на массивных дубовых столбах с вьющейся лозой. Две спальни, дубовые ставни и сад с яблонями и сливами."
+    },
+    "areaM2": 150,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.6,
+    "priceCents": 89000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a small luxury one-storey stone farmhouse, walls of grey mountain stone with heavy timber lintels, a terracotta tile gable roof with a slender stone chimney, a front porch on sturdy oak posts with a vine climbing over it, small deep-set windows with oak shutters, no garage, no pool, a fenced orchard of apple and plum trees with a few wooden beehives, alpine meadows and the snowy Greater Caucasus ridge above Ilisu, crisp clear morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "astara-89",
+    "style": "yali",
+    "roof": "hip",
+    "inspiration": "bosphorus-yali",
+    "title": {
+      "az": "Astara Villası",
+      "en": "Astara Villa",
+      "ru": "Вилла Астара"
+    },
+    "summary": {
+      "az": "Astarada Xəzər sahilində yalı ənənəsində iki mərtəbəli villa: ağ haşiyəli açıq adaçayı yaşılı taxta üzlük, jalüzlü hündür ağ pəncərələr və oyma dayaqlı geniş saçaqları olan tünd şifer dördmaili dam. Üç yataq otağı, birinci mərtəbə boyu dar taxta veranda, qaraj və alçaq daş dəniz divarına qədər uzanan çəmənlik.",
+      "en": "A two-storey villa in the yalı tradition on the Caspian shore at Astara: pale sage-green timber weatherboarding with white trim, tall white sash windows with louvred shutters and a dark slate hip roof with wide eaves on carved brackets. Three bedrooms, a narrow timber veranda along the ground floor, a garage and a lawn reaching a low stone sea wall.",
+      "ru": "Двухэтажная вилла в традиции ялы на каспийском берегу в Астаре: светлая шалфейно-зелёная дощатая обшивка с белой отделкой, высокие белые подъёмные окна с жалюзийными ставнями и тёмная сланцевая вальмовая кровля с широкими свесами на резных кронштейнах. Три спальни, узкая деревянная веранда вдоль первого этажа, гараж и газон до низкой каменной набережной."
+    },
+    "areaM2": 230,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.5,
+    "priceCents": 139000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey seaside villa in the Ottoman yali tradition, pale sage-green painted timber weatherboarding with white trim, tall white sash windows with louvred shutters in a regular rhythm, a dark slate hip roof with wide eaves on carved brackets, a narrow timber veranda along the ground floor, attached single garage on the right clad in matching boards, no pool, a lawn ending at a low stone sea wall, tea bushes, magnolias and feijoa shrubs, Caspian shore at Astara with wooded Talysh hills behind, soft overcast afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
