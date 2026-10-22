@@ -42,7 +42,10 @@ checks `data/plans.json` (styles, roofs, room counts against the generated plans
 **Projects map** — `/<lang>/map` shows the catalogue on a 3D map (MapLibre GL; OpenFreeMap vector tiles with
 OpenStreetMap buildings, AWS open terrain tiles; no API keys). Each plan sits at its `location` in `data/plans.json`, or
 at the place its slug is named after in `data/places.json` (`null` keeps a name off the map). The style is in
-`lib/map-style.ts`, the page in `app/[lang]/map/` and `components/ProjectsMap.tsx`.
+`lib/map-style.ts`, the page in `app/[lang]/map/` and `components/ProjectsMap.tsx`. A plan's `model` (glTF in
+`public/models/`) replaces its plain map block. Whole districts (Sea Breeze, Ağ Şəhər) are drawn as 3D models built from
+`data/districts/<id>.json` — Overture Maps footprints with floor counts, `"estimated": true` where the data had none —
+by `node scripts/build-district-models.mjs <id>`; correct a building's `floors` there and rebuild.
 
 ## Local development
 

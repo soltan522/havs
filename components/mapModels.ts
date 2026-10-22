@@ -2,28 +2,37 @@ import type { CustomLayerInterface, CustomRenderMethodInput, Map as MlMap } from
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-/** A detailed building model (glTF) standing on the map in place of its plain OpenStreetMap block. */
+/** A detailed 3D model (glTF) standing on the map in place of the plain OpenStreetMap blocks under it. */
 export type BuildingModel = {
   id: string;
   src: string;
-  /** Model origin: the centre of the building's footprint at ground level. */
+  /** Model origin: a point on the ground, at the terrain height there. */
   lngLat: [number, number];
   /** Compass bearing the model's front (+Z) faces, in degrees. */
   bearing: number;
+  /** Area the model covers, [west, south, east, north]: it is only loaded once the map shows it. */
+  bounds?: [number, number, number, number];
 };
 
 type MapLibre = typeof import("maplibre-gl");
+type Geometry = { type: "MultiPoint" | "Polygon" | "MultiPolygon"; coordinates: unknown };
 
-/** Hides the OpenStreetMap buildings under each model: any building containing a point of its long axis. */
-export function hideBlocksUnder(map: MlMap, layerId: string, models: BuildingModel[]) {
-  const points = models.flatMap(({ lngLat: [lng, lat], bearing }) => {
-    const b = (bearing * Math.PI) / 180;
-    const kx = 111320 * Math.cos((lat * Math.PI) / 180);
-    return [-7, 0, 7].map((k) => [lng + (k * Math.sin(b)) / kx, lat + (k * Math.cos(b)) / 110540]);
-  });
+// like the map's own 3D buildings, models show from street level zooms; they load a little before that
+const DRAW_ZOOM = 13;
+const LOAD_ZOOM = 12;
+
+/** The long axis of a single building's model: any map building containing one of these points is the one it replaces. */
+export function axisOf({ lngLat: [lng, lat], bearing }: BuildingModel): Geometry {
+  const b = (bearing * Math.PI) / 180;
+  const kx = 111320 * Math.cos((lat * Math.PI) / 180);
+  return { type: "MultiPoint", coordinates: [-7, 0, 7].map((k) => [lng + (k * Math.sin(b)) / kx, lat + (k * Math.cos(b)) / 110540]) };
+}
+
+/** Hides the OpenStreetMap buildings within `metres` of any of the given areas (0: touching or inside them). */
+export function hideBlocks(map: MlMap, layerId: string, areas: { geometry: Geometry; metres: number }[]) {
   const current = map.getFilter(layerId);
-  const away = [">", ["distance", { type: "MultiPoint", coordinates: points }], 1];
-  map.setFilter(layerId, (current ? ["all", current, away] : away) as never);
+  const away = areas.map(({ geometry, metres }) => [">", ["distance", geometry], metres]);
+  map.setFilter(layerId, ["all", ...(current ? [current] : []), ...away] as never);
 }
 
 /** One custom three.js layer drawing every model, lit like the map's architectural-model style. */
@@ -34,8 +43,27 @@ export function buildingModelsLayer(maplibregl: MapLibre, map: MlMap, models: Bu
   const sun = new THREE.DirectionalLight(0xfff3e0, 2.2);
   sun.position.set(-0.4, 1, 0.7);
   scene.add(sun);
-  const placed = models.map((m) => ({ ...m, object: null as THREE.Object3D | null }));
+  const placed = models.map((m) => ({ ...m, object: null as THREE.Object3D | null, requested: false }));
   let renderer: THREE.WebGLRenderer | null = null;
+  const loader = new GLTFLoader();
+
+  const inView = (p: (typeof placed)[number], zoom: number) => {
+    if (map.getZoom() < zoom) return false;
+    if (!p.bounds) return true;
+    const v = map.getBounds();
+    const [w, s, e, n] = p.bounds;
+    return w < v.getEast() && e > v.getWest() && s < v.getNorth() && n > v.getSouth();
+  };
+  const loadInView = () => {
+    for (const p of placed) {
+      if (p.requested || !inView(p, LOAD_ZOOM)) continue;
+      p.requested = true;
+      loader.load(p.src, (gltf) => {
+        p.object = gltf.scene;
+        map.triggerRepaint();
+      });
+    }
+  };
 
   return {
     id: "building-models",
@@ -44,19 +72,17 @@ export function buildingModelsLayer(maplibregl: MapLibre, map: MlMap, models: Bu
     onAdd(_map, gl) {
       renderer = new THREE.WebGLRenderer({ canvas: map.getCanvas(), context: gl, antialias: true });
       renderer.autoClear = false;
-      const loader = new GLTFLoader();
-      for (const p of placed) {
-        loader.load(p.src, (gltf) => {
-          p.object = gltf.scene;
-          map.triggerRepaint();
-        });
-      }
+      loadInView();
+      map.on("moveend", loadInView);
+    },
+    onRemove() {
+      map.off("moveend", loadInView);
     },
     render(_gl, args: CustomRenderMethodInput) {
       if (!renderer) return;
       const view = new THREE.Matrix4().fromArray(args.defaultProjectionData.mainMatrix as unknown as number[]);
       for (const p of placed) {
-        if (!p.object) continue;
+        if (!p.object || !inView(p, DRAW_ZOOM)) continue;
         // ground level here: the terrain is raised, so the model must stand on it too
         const altitude = map.queryTerrainElevation(p.lngLat) ?? 0;
         const merc = maplibregl.MercatorCoordinate.fromLngLat(p.lngLat, altitude);

@@ -5,6 +5,7 @@ import ProjectsMap, { type MapArea, type MapItem, type MapText } from "@/compone
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { specsLine } from "@/lib/copy";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { DISTRICTS } from "@/lib/districts";
 import { placeOf } from "@/lib/places";
 import { formatPrice, planLabel, publishedPlans } from "@/lib/plans";
 import { currency } from "@/lib/providers";
@@ -120,7 +121,7 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
           </Reveal>
         </section>
         <section className="wrap-wide">
-          <ProjectsMap items={items} text={{ ...text, lang }} />
+          <ProjectsMap items={items} districts={DISTRICTS} text={{ ...text, lang }} />
         </section>
       </main>
       <Footer locale={lang} />

@@ -3,6 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MlMap, MapGeoJSONFeature, Popup } from "maplibre-gl";
+import type { DistrictModel } from "@/lib/districts";
 import type { Locale } from "@/lib/i18n";
 import { MAP_COLORS, mapStyle } from "@/lib/map-style";
 
@@ -47,8 +48,11 @@ const VIEWS: Record<keyof MapText["views"], View> = {
 
 const KIND_COLOR: Record<MapKind, string> = { villa: MAP_COLORS.villa, interior: MAP_COLORS.interior, project: MAP_COLORS.project };
 
-/** Interactive 3D map (MapLibre) with the catalogue projects placed on the towns and districts they are named after. */
-export default function ProjectsMap({ items, text }: { items: MapItem[]; text: MapText & { lang: Locale } }) {
+/**
+ * Interactive 3D map (MapLibre) with the catalogue projects placed on the towns and districts they are named after,
+ * and whole districts drawn as 3D models.
+ */
+export default function ProjectsMap({ items, districts = [], text }: { items: MapItem[]; districts?: DistrictModel[]; text: MapText & { lang: Locale } }) {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const popupRef = useRef<Popup | null>(null);
@@ -94,7 +98,10 @@ export default function ProjectsMap({ items, text }: { items: MapItem[]; text: M
           style: mapStyle(text.lang),
           ...VIEWS.country,
           maxPitch: 78,
-          attributionControl: { compact: true, customAttribution: 'Relief: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a>' },
+          attributionControl: { compact: true, customAttribution: [
+              'Relief: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a>',
+              ...(districts.length ? ['3D districts: <a href="https://overturemaps.org" target="_blank" rel="noopener">Overture Maps</a> (OpenStreetMap, Microsoft)'] : []),
+            ] },
           cooperativeGestures: false,
         });
       } catch {
@@ -250,15 +257,19 @@ export default function ProjectsMap({ items, text }: { items: MapItem[]; text: M
           map.on("mouseleave", layer, () => (map.getCanvas().style.cursor = ""));
         }
 
-        // detailed building models replace their plain blocks (three.js is loaded only when there are any)
-        const models = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin }));
-        if (models.length) {
-          import("./mapModels").then(({ buildingModelsLayer, hideBlocksUnder, modelAt }) => {
+        // detailed building and district models replace their plain blocks (three.js is loaded only when there are any)
+        const buildings = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin }));
+        const wholeDistricts = districts.map((d) => ({ id: d.id, src: d.src, bearing: 180, lngLat: d.origin, bounds: d.bounds }));
+        if (buildings.length || wholeDistricts.length) {
+          import("./mapModels").then(({ axisOf, buildingModelsLayer, hideBlocks, modelAt }) => {
             if (disposed) return;
-            hideBlocksUnder(map, "buildings-3d", models);
-            map.addLayer(buildingModelsLayer(maplibregl, map, models), "item-halo");
+            hideBlocks(map, "buildings-3d", [
+              ...buildings.map((m) => ({ geometry: axisOf(m), metres: 1 })),
+              ...districts.map((d) => ({ geometry: d.zone, metres: 0 })),
+            ]);
+            map.addLayer(buildingModelsLayer(maplibregl, map, [...buildings, ...wholeDistricts]), "item-halo");
             map.on("click", (e) => {
-              const hit = modelAt(models, e.lngLat);
+              const hit = modelAt(buildings, e.lngLat);
               if (hit && !map.queryRenderedFeatures(e.point, { layers: ["item-dot", "cluster"] }).length) open(hit.id, false);
             });
           });
