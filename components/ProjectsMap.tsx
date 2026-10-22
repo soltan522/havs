@@ -146,7 +146,7 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         return root;
       };
       // a building of a 3D district: what it is and, until its apartment plans are in, an invitation to send one
-      const buildingCard = (place: string, p: { name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown }) => {
+      const buildingCard = (place: string, p: { id?: unknown; name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown }) => {
         const root = document.createElement("div");
         root.className = "map-card map-card-building";
         const body = document.createElement("span");
@@ -163,7 +163,8 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         add("span", "map-card-specs", (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors)));
         add("span", "map-card-note", text.building.soon);
         const link = add("a", "map-card-link", `${text.building.send} →`) as HTMLAnchorElement;
-        link.href = `/${text.lang}/contact`;
+        const label = [p.name ?? p.complex, place].filter(Boolean).join(", ");
+        link.href = `/${text.lang}/plan?${new URLSearchParams({ ...(p.id ? { b: String(p.id) } : {}), l: label })}`;
         root.append(body);
         return root;
       };
@@ -338,7 +339,7 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
                 layer.highlight(p.id);
                 popupRef.current = new maplibregl.Popup({ offset: 12, maxWidth: "300px", className: "map-popup" })
                   .setLngLat(at)
-                  .setDOMContent(buildingCard(text.building.city, { name: p.n, complex: p.c, floors: p.f, estimated: p.e === 1 }))
+                  .setDOMContent(buildingCard(text.building.city, { id: p.id, name: p.n, complex: p.c, floors: p.f, estimated: p.e === 1 }))
                   .addTo(map);
                 popupRef.current.on("close", () => layer.highlight(null));
               });

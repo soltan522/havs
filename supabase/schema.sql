@@ -28,3 +28,28 @@ grant select, insert, update, delete on public.orders to service_role;
 -- alter table public.orders drop constraint if exists orders_provider_check;
 -- alter table public.orders add constraint orders_provider_check
 --   check (provider in ('lemonsqueezy', 'stripe', 'paypal', 'crypto', 'bank'));
+
+-- Apartment plans sent by owners from the projects map (app/api/plan-request), for ready-made interior designs.
+create table if not exists public.plan_requests (
+  id             uuid primary key default gen_random_uuid(),
+  building_id    text check (char_length(building_id) <= 80),
+  building_label text check (char_length(building_label) <= 160),
+  apartment      text check (char_length(apartment) <= 120),
+  rooms          smallint check (rooms between 0 and 12),
+  area           numeric(6, 1) check (area > 0 and area < 2000),
+  name           text not null check (char_length(name) between 1 and 120),
+  contact        text not null check (char_length(contact) between 3 and 160),
+  note           text check (char_length(note) <= 2000),
+  files          text[] not null default '{}',
+  locale         text not null check (locale in ('az', 'en', 'ru')),
+  status         text not null default 'uploading' check (status in ('uploading', 'new', 'designing', 'published', 'rejected')),
+  created_at     timestamptz not null default now()
+);
+alter table public.plan_requests enable row level security;
+grant select, insert, update, delete on public.plan_requests to authenticated;
+grant all on public.plan_requests to service_role;
+-- PRIVATE bucket for the uploaded plans (photos or PDFs, up to 15 MB each)
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('plan-uploads', 'plan-uploads', false, 15728640,
+        array['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'])
+on conflict (id) do nothing;
