@@ -12,15 +12,18 @@ import * as THREE from "three";
 /** Properties of a building in the tiles: id, floors, estimated (1), facade type, ground and lowest ground (raw metres), name, complex. */
 export type CityBuilding = { id: string; f: number; e?: number; t: number; g: number; l: number; n?: string; c?: string };
 
-type Facade = { floor: number; bay: number; wall: string; glass: string; frame: string; window: [number, number, number, number] };
+type Facade = { floor: number; bay: number; wall: string; glass: string; frame: string; window: [number, number, number, number]; kind: "house" | "stone" | "panel" | "glass" | "modern" };
 
 // facade types: 0 house, 1 old stone (historic centre), 2 Soviet slab, 3 tower, 4 mid-rise; window as [x0, y0, x1, y1] in metres
 export const FACADES: Facade[] = [
-  { floor: 3.0, bay: 3.2, wall: "#efe6d6", glass: "#7d8f96", frame: "#e2d8c6", window: [1.0, 0.95, 2.2, 2.25] },
-  { floor: 3.8, bay: 2.8, wall: "#e6d6b6", glass: "#6f7f86", frame: "#d4c19c", window: [0.75, 1.0, 2.05, 3.2] },
-  { floor: 2.8, bay: 3.0, wall: "#e2dfd8", glass: "#7a8a92", frame: "#cfcbc2", window: [0.8, 0.85, 2.2, 2.25] },
-  { floor: 3.2, bay: 3.0, wall: "#ece9e2", glass: "#8ea4ae", frame: "#d9d5cc", window: [0.25, 0.55, 2.75, 3.05] },
-  { floor: 3.1, bay: 3.0, wall: "#f1ece2", glass: "#7f9199", frame: "#ddd5c6", window: [0.7, 0.9, 2.3, 2.7] },
+  { floor: 3.0, bay: 3.2, wall: "#efe6d6", glass: "#7d8f96", frame: "#e2d8c6", window: [1.0, 0.95, 2.2, 2.25], kind: "house" },
+  { floor: 3.8, bay: 2.8, wall: "#e6d6b6", glass: "#6f7f86", frame: "#d4c19c", window: [0.75, 1.0, 2.05, 3.0], kind: "stone" },
+  // two bays: a window and a glazed loggia
+  { floor: 2.8, bay: 6.0, wall: "#e2dfd8", glass: "#7a8a92", frame: "#cfcbc2", window: [0.8, 0.85, 2.2, 2.25], kind: "panel" },
+  // most of Baku's new towers are residential: light walls, wide windows, balconies (the "glass" kind stays for
+  // curtain walls)
+  { floor: 3.2, bay: 3.0, wall: "#ece9e2", glass: "#8ea4ae", frame: "#d9d5cc", window: [0.35, 0.6, 2.65, 2.85], kind: "modern" },
+  { floor: 3.1, bay: 3.0, wall: "#f1ece2", glass: "#7f9199", frame: "#ddd5c6", window: [0.7, 0.9, 2.3, 2.7], kind: "modern" },
 ];
 const PARAPET = 0.9;
 const SKIRT = 1.5;
@@ -31,23 +34,69 @@ const EARTH = 40075016.686;
 /** Height of a building above its ground, as the pick layer extrudes it too. */
 export const buildingHeight = (p: { f: number; t: number }) => p.f * FACADES[p.t]?.floor + (p.f >= 2 ? PARAPET : 0.3);
 
+/** One bay of one storey of a facade type, drawn on a canvas. */
 function facadeTexture(fc: Facade) {
-  const S = 128;
+  const S = 256;
   const c = document.createElement("canvas");
   c.width = c.height = S;
   const g = c.getContext("2d")!;
   const x = (m: number) => (m / fc.bay) * S;
   const y = (m: number) => (m / fc.floor) * S; // rows run from floor level (top) up, as the walls' v does
+  const rect = (colour: string, x0: number, y0: number, x1: number, y1: number) => {
+    g.fillStyle = colour;
+    g.fillRect(x(x0), y(y0), x(x1) - x(x0), y(y1) - y(y0));
+  };
+  const darker = (hex: string, k: number) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgb(${((n >> 16) & 255) * k},${((n >> 8) & 255) * k},${(n & 255) * k})`;
+  };
   g.fillStyle = fc.wall;
   g.fillRect(0, 0, S, S);
   const [x0, y0, x1, y1] = fc.window;
-  g.fillStyle = fc.frame;
-  g.fillRect(x(x0) - 3, y(y0) - 3, x(x1) - x(x0) + 6, y(y1) - y(y0) + 6);
-  g.fillStyle = fc.glass;
-  g.fillRect(x(x0), y(y0), x(x1) - x(x0), y(y1) - y(y0));
-  g.fillStyle = fc.frame;
-  g.fillRect((x(x0) + x(x1)) / 2 - 1.5, y(y0), 3, y(y1) - y(y0));
-  g.fillRect(0, 0, S, 3); // floor line
+  const window = (a: number, b: number) => {
+    rect(fc.frame, a - 0.08, y0 - 0.08, b + 0.08, y1 + 0.08);
+    rect(fc.glass, a, y0, b, y1);
+    rect(darker(fc.glass, 0.82), a, (y0 + y1) / 2, b, y1); // the upper pane catches less sky
+    rect(fc.frame, (a + b) / 2 - 0.03, y0, (a + b) / 2 + 0.03, y1);
+  };
+  if (fc.kind === "stone") {
+    // limestone: a round-arched window over a small iron balcony, a cornice line under the next floor
+    window(x0, x1);
+    const r = (x(x1) - x(x0)) / 2;
+    g.fillStyle = fc.frame;
+    g.beginPath(); g.arc((x(x0) + x(x1)) / 2, y(y1), r + 2, 0, Math.PI); g.fill();
+    g.fillStyle = fc.glass;
+    g.beginPath(); g.arc((x(x0) + x(x1)) / 2, y(y1), r, 0, Math.PI); g.fill();
+    rect("#4a4644", x0 - 0.2, y0 - 0.05, x1 + 0.2, y0);
+    rect("#4a4644", x0 - 0.2, y0 + 0.85, x1 + 0.2, y0 + 0.9);
+    for (let k = 0; k <= 6; k++) rect("#4a4644", x0 - 0.2 + (k * (x1 - x0 + 0.4)) / 6, y0, x0 - 0.17 + (k * (x1 - x0 + 0.4)) / 6, y0 + 0.88);
+    rect(darker(fc.wall, 0.86), 0, fc.floor - 0.22, fc.bay, fc.floor);
+  } else if (fc.kind === "panel") {
+    // a Soviet panel block: panel joints, a window and a glazed loggia with its parapet
+    window(x0, x1);
+    rect(darker(fc.wall, 0.9), 3.3, 0.05, 5.7, 1.05);
+    rect(fc.glass, 3.35, 1.05, 5.65, 2.45);
+    rect(fc.frame, 4.48, 1.05, 4.52, 2.45);
+    rect(darker(fc.wall, 0.8), 0, 0, fc.bay, 0.05);
+    rect(darker(fc.wall, 0.8), 0, 0, 0.04, fc.floor);
+    rect(darker(fc.wall, 0.8), 3.0, 0, 3.04, fc.floor);
+  } else if (fc.kind === "glass") {
+    // a curtain wall: spandrel, glass and mullions
+    rect(fc.glass, 0, 0, fc.bay, fc.floor);
+    rect(darker(fc.glass, 0.78), 0, 0, fc.bay, 0.6);
+    rect(darker(fc.glass, 0.9), 0, 1.9, fc.bay, fc.floor);
+    rect(fc.frame, 0, 0, 0.06, fc.floor);
+    rect(fc.frame, 1.47, 0, 1.53, fc.floor);
+    rect(fc.frame, 0, 0.58, fc.bay, 0.64);
+  } else if (fc.kind === "modern") {
+    // a window over a balcony slab with a glass railing
+    window(x0, x1);
+    rect(darker(fc.wall, 0.82), 0.3, 0, 2.7, 0.12);
+    rect(darker(fc.glass, 1.15), 0.3, 0.12, 2.7, 0.95);
+  } else {
+    window(x0, x1);
+  }
+  rect(darker(fc.wall, 0.92), 0, 0, fc.bay, 0.04); // floor line
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
