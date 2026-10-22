@@ -46,6 +46,10 @@ at the place its slug is named after in `data/places.json` (`null` keeps a name 
 `public/models/`) replaces its plain map block. Whole districts (Sea Breeze, Ağ Şəhər) are drawn as 3D models built from
 `data/districts/<id>.json` — Overture Maps footprints with floor counts, `"estimated": true` where the data had none —
 by `node scripts/build-district-models.mjs <id>`; correct a building's `floors` there and rebuild.
+Baku's buildings are drawn in 3D from static vector tiles (`public/tiles/buildings/14/<x>/<y>.pbf`, built from
+`data/city/<area>.geojson` by `node scripts/city/build-tiles.mjs`; the areas come from Overture Maps through
+`scripts/city/build_city.py`, which needs Python with pyarrow, shapely and Pillow). `components/cityBuildings.ts`
+extrudes each tile's buildings in the browser by floor count and facade type; tapping one opens its card.
 
 ## Local development
 

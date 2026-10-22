@@ -9,6 +9,9 @@ import type { Locale } from "@/lib/i18n";
 const OFM = "https://tiles.openfreemap.org";
 const TERRAIN = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
+/** How much the relief is raised; the city buildings' ground heights (raw metres) are scaled by it too. */
+export const TERRAIN_EXAGGERATION = 1.35;
+
 export const MAP_COLORS = {
   land: "#ece6db",
   water: "#c6d2d5",
@@ -69,7 +72,7 @@ export function mapStyle(lang: Locale): StyleSpecification {
       dem: { type: "raster-dem", tiles: [TERRAIN], encoding: "terrarium", tileSize: 256, maxzoom: 14 },
       shade: { type: "raster-dem", tiles: [TERRAIN], encoding: "terrarium", tileSize: 256, maxzoom: 14 },
     },
-    terrain: { source: "dem", exaggeration: 1.35 },
+    terrain: { source: "dem", exaggeration: TERRAIN_EXAGGERATION },
     sky: {
       "sky-color": "#e3ddd2",
       "horizon-color": "#f3efe8",

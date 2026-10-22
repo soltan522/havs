@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MlMap, MapGeoJSONFeature, Popup } from "maplibre-gl";
 import type { DistrictModel } from "@/lib/districts";
 import type { Locale } from "@/lib/i18n";
-import { MAP_COLORS, mapStyle } from "@/lib/map-style";
+import { MAP_COLORS, mapStyle, TERRAIN_EXAGGERATION } from "@/lib/map-style";
 
 export type MapKind = "villa" | "interior" | "project";
 export type MapArea = "baku" | "absheron" | "regions";
@@ -37,7 +37,7 @@ export type MapText = {
   noMap: string;
   note: string;
   /** Card of a building in a 3D district; `{n}` is the floor count. */
-  building: { home: string; floors: string; estimated: string; soon: string; send: string };
+  building: { city: string; home: string; floors: string; estimated: string; soon: string; send: string };
 };
 
 type View = { center: [number, number]; zoom: number; pitch: number; bearing: number };
@@ -54,7 +54,13 @@ const KIND_COLOR: Record<MapKind, string> = { villa: MAP_COLORS.villa, interior:
  * Interactive 3D map (MapLibre) with the catalogue projects placed on the towns and districts they are named after,
  * and whole districts drawn as 3D models.
  */
-export default function ProjectsMap({ items, districts = [], text }: { items: MapItem[]; districts?: DistrictModel[]; text: MapText & { lang: Locale } }) {
+export default function ProjectsMap({ items, districts = [], city, text }: {
+  items: MapItem[];
+  districts?: DistrictModel[];
+  /** Baku's buildings in 3D: the static tiles (scripts/city/build-tiles.mjs) and the areas they cover. */
+  city?: { base: string; zoom: number; areas: { name: string; bounds: [number, number, number, number] }[] };
+  text: MapText & { lang: Locale };
+}) {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const popupRef = useRef<Popup | null>(null);
@@ -140,7 +146,7 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
         return root;
       };
       // a building of a 3D district: what it is and, until its apartment plans are in, an invitation to send one
-      const buildingCard = (district: DistrictModel, p: Record<string, unknown>) => {
+      const buildingCard = (place: string, p: { name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown }) => {
         const root = document.createElement("div");
         root.className = "map-card map-card-building";
         const body = document.createElement("span");
@@ -152,7 +158,7 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
           body.appendChild(el);
           return el;
         };
-        add("span", "map-card-label", [district.name, p.complex].filter(Boolean).join(" · "));
+        add("span", "map-card-label", [place, p.complex].filter(Boolean).join(" · "));
         add("strong", "map-card-title", String(p.name ?? p.complex ?? text.building.home));
         add("span", "map-card-specs", (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors)));
         add("span", "map-card-note", text.building.soon);
@@ -274,7 +280,7 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
           const f = e.features?.[0] as MapGeoJSONFeature | undefined;
           if (!f) return;
           const zoom = await (map.getSource("items") as GeoJSONSource).getClusterExpansionZoom(Number(f.properties.cluster_id));
-          map.easeTo({ center: (f.geometry as { coordinates: [number, number] }).coordinates, zoom: zoom + 0.3, duration: 900 });
+          map.easeTo({ center: (f.geometry as unknown as { coordinates: [number, number] }).coordinates, zoom: zoom + 0.3, duration: 900 });
         });
         for (const layer of ["item-dot", "cluster"]) {
           map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
@@ -284,13 +290,61 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
         // detailed building and district models replace their plain blocks (three.js is loaded only when there are any)
         const buildings = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin }));
         const wholeDistricts = districts.map((d) => ({ id: d.id, src: d.src, bearing: 180, lngLat: d.origin, bounds: d.bounds }));
-        if (buildings.length || wholeDistricts.length) {
-          import("./mapModels").then(({ axisOf, buildingModelsLayer, hideBlocks, modelAt }) => {
+        if (buildings.length || wholeDistricts.length || city) {
+          Promise.all([import("./mapModels"), city ? import("./cityBuildings") : null]).then(([{ axisOf, buildingModelsLayer, hideBlocks, modelAt }, cityModule]) => {
             if (disposed) return;
+            const box = ([w, s, e, n]: [number, number, number, number]) => ({ type: "Polygon" as const, coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]] });
             hideBlocks(map, "buildings-3d", [
               ...buildings.map((m) => ({ geometry: axisOf(m), metres: 1 })),
               ...districts.map((d) => ({ geometry: d.zone, metres: 0 })),
+              ...(city?.areas ?? []).map((a) => ({ geometry: box(a.bounds), metres: 0 })),
             ]);
+            if (city && cityModule) {
+              // every building of the covered areas, drawn in 3D and tappable through invisible extrusions of the same tiles
+              const layer = cityModule.cityBuildingsLayer(maplibregl, map, { base: city.base, exaggeration: TERRAIN_EXAGGERATION });
+              map.addLayer(layer, "item-halo");
+              const ws = city.areas.map((a) => a.bounds);
+              map.addSource("city", {
+                type: "vector",
+                tiles: [`${window.location.origin}${city.base}/{z}/{x}/{y}.pbf`],
+                minzoom: city.zoom,
+                maxzoom: city.zoom,
+                bounds: [Math.min(...ws.map((b) => b[0])), Math.min(...ws.map((b) => b[1])), Math.max(...ws.map((b) => b[2])), Math.max(...ws.map((b) => b[3]))],
+              });
+              const floorHeight = ["match", ["get", "t"], ...cityModule.FACADES.flatMap((f, i) => [i, f.floor]).slice(0, -2), cityModule.FACADES[4].floor];
+              map.addLayer(
+                {
+                  id: "city-pick",
+                  type: "fill-extrusion",
+                  source: "city",
+                  "source-layer": "buildings",
+                  minzoom: city.zoom,
+                  paint: {
+                    "fill-extrusion-color": "#000",
+                    "fill-extrusion-opacity": 0,
+                    "fill-extrusion-height": ["+", ["*", ["get", "f"], floorHeight], ["case", [">=", ["get", "f"], 2], 0.9, 0.3]] as never,
+                  },
+                },
+                "item-halo",
+              );
+              map.on("click", "city-pick", (e) => {
+                const f = e.features?.[0];
+                if (!f || map.queryRenderedFeatures(e.point, { layers: ["item-dot", "cluster"] }).length || modelAt(buildings, e.lngLat)) return;
+                const p = f.properties as { id: string; n?: string; c?: string; f: number; e?: number };
+                const g = f.geometry as { type: string; coordinates: number[][][] | number[][][][] };
+                const ring = (g.type === "Polygon" ? g.coordinates[0] : g.coordinates[0][0]) as number[][];
+                const at: [number, number] = [ring.reduce((a, c) => a + c[0], 0) / ring.length, ring.reduce((a, c) => a + c[1], 0) / ring.length];
+                popupRef.current?.remove();
+                layer.highlight(p.id);
+                popupRef.current = new maplibregl.Popup({ offset: 12, maxWidth: "300px", className: "map-popup" })
+                  .setLngLat(at)
+                  .setDOMContent(buildingCard(text.building.city, { name: p.n, complex: p.c, floors: p.f, estimated: p.e === 1 }))
+                  .addTo(map);
+                popupRef.current.on("close", () => layer.highlight(null));
+              });
+              map.on("mouseenter", "city-pick", () => (map.getCanvas().style.cursor = "pointer"));
+              map.on("mouseleave", "city-pick", () => (map.getCanvas().style.cursor = ""));
+            }
             map.addLayer(buildingModelsLayer(maplibregl, map, [...buildings, ...wholeDistricts]), "item-halo");
             // the districts' buildings can be tapped: invisible extrusions of their footprints, loaded with the district
             const added = new Set<string>();
@@ -317,7 +371,7 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
                   popupRef.current?.remove();
                   popupRef.current = new maplibregl.Popup({ offset: 12, maxWidth: "300px", className: "map-popup" })
                     .setLngLat(at)
-                    .setDOMContent(buildingCard(d, f.properties))
+                    .setDOMContent(buildingCard(d.name, f.properties))
                     .addTo(map);
                 });
                 map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
