@@ -20,6 +20,8 @@
 //   beauxarts    stone storeys under a zinc mansard, with cupolas on its corners towards the sea
 //   stadium      the Olympic Stadium: a membrane facade, a white roof over the stands and the pitch
 //   flagpole     the National Flag Square's pole with the flag flying
+//   fortress     castle walls with merlons, and its keep or towers (the other footprints it replaces), or the
+//                fire temple's walls round its domed altar
 //   stonetower   a stone tower whose top storeys step back into a crown
 //   node scripts/build-landmarks.mjs [id ...]
 // Landmarks outside the city layer take their footprint from data/landmarks.extra.geojson (scripts/city/fetch_footprints.py);
@@ -303,6 +305,25 @@ function slope(part, ring, top, y0, y1, uScale, vScale) {
     part.tri(ids[0], ids[2], ids[3], N);
   });
 }
+/** A small stone block (w along t, d across) from y0 to y1. */
+function block(part, c, t, w, d, y0, y1) {
+  const r = box(c, t, w, d);
+  walls(part, [r], y0, () => y1, 2, 2);
+  cap(part, [r], y1);
+}
+/** Merlons along every edge of the rings, standing on y. */
+function merlons(part, rings, y) {
+  for (const ring of rings)
+    ring.forEach((a, i) => {
+      const b = ring[(i + 1) % ring.length], l = len(sub(b, a));
+      if (l < 1.2) return;
+      const t = mul(sub(b, a), 1 / l);
+      let m = [-t[1], t[0]];
+      const mid = lerp(a, b, 0.5);
+      if (!inside(rings, mid[0] + m[0] * 0.05, mid[1] + m[1] * 0.05)) m = mul(m, -1);
+      for (let s = 0.7; s < l - 0.5; s += 2) block(part, add(add(a, mul(t, s)), mul(m, 0.35)), t, 0.9, 0.7, y, y + 0.9);
+    });
+}
 /** A surface between two rings with matching points (a at height ya, b at yb), facing up. */
 function band(part, a, ya, b, yb) {
   for (let i = 0; i < a.length; i++) {
@@ -465,6 +486,7 @@ const PLAIN = {
   teal: [72, 146, 140], // glazed domes
   seats: [118, 128, 142],
   pitch: [86, 140, 82],
+  fire: [236, 132, 44],
 };
 
 // ---------------------------------------------------------------------------------------------------- the forms
@@ -733,6 +755,28 @@ const KINDS = {
     p.tri(ids[0], ids[2], ids[3], [0, 0, 1]);
     return H;
   },
+  fortress({ part, rings, others, l, skirt }) {
+    const T = TEXTURES.stone;
+    walls(part("stone"), rings, -skirt, () => l.height, T.w, T.h);
+    cap(part("stone"), rings, l.height, true, T.w);
+    if (l.merlons) merlons(part("stone"), rings, l.height);
+    let top = l.height + (l.merlons ? 0.9 : 0);
+    // the keep, towers or altar: the other footprints, each to its own height
+    others.forEach((r, i) => {
+      const o = l.parts[i];
+      walls(part("stone"), r, -skirt, () => o.height, T.w, T.h);
+      cap(part("stone"), r, o.height, true, T.w);
+      if (o.merlons) merlons(part("stone"), r, o.height);
+      top = Math.max(top, o.height + (o.merlons ? 0.9 : 0));
+      if (o.dome) {
+        const c = centroid(r[0]), rad = Math.sqrt(Math.abs(signedArea(r[0])) / Math.PI) * 0.7;
+        top = Math.max(top, dome(part("stonedome"), c, rad, o.height));
+        // the eternal flame on the altar
+        if (o.fire) loft(part("fire"), [circle(c, rad * 0.25, top, 10), circle(c, 0.05, top + rad * 0.9, 10)], 1, 1);
+      }
+    });
+    return top;
+  },
   aquatics({ part, rings, l, skirt }) {
     const { c, major } = axes(rings[0]);
     const us = rings[0].map((p) => dot(sub(p, c), major));
@@ -810,7 +854,12 @@ for (const l of landmarks) {
   const skirt = (main.properties.g - main.properties.l) * EX + 2;
   const parts = {};
   const part = (mat) => (parts[mat] ??= new Part());
-  const height = KINDS[l.kind]({ part, outer: centred[0], rings: centred, l, local: localC, skirt });
+  // further footprints the landmark replaces, in the same frame (a castle's keep, an altar)
+  const others = feats.slice(1).map((f) => {
+    const poly = f.geometry.type === "Polygon" ? f.geometry.coordinates : f.geometry.coordinates[0];
+    return poly.map((r) => shift(open(r).map(local)));
+  });
+  const height = KINDS[l.kind]({ part, outer: centred[0], rings: centred, others, l, local: localC, skirt });
 
   const doc = new Document();
   doc.createBuffer();

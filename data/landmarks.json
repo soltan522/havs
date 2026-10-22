@@ -891,5 +891,124 @@
       "ru": "162 м · флаг 70 × 35 м"
     },
     "source": "Pole 162 m, flag about 70 x 35 m; placed at the National Flag Square in Overture places."
+  },
+  {
+    "id": "ateshgah",
+    "kind": "fortress",
+    "replaces": [
+      "8c1ed82b-86f1-4a29-806f-fafe4f45e28f",
+      "85181c3e-0324-4850-a10c-8f0c9268f394"
+    ],
+    "height": 4.5,
+    "parts": [
+      {
+        "height": 6.5,
+        "dome": true,
+        "fire": true
+      }
+    ],
+    "name": {
+      "az": "Atəşgah",
+      "en": "Ateshgah Fire Temple",
+      "ru": "Храм огнепоклонников Атешгях"
+    },
+    "about": {
+      "az": "Suraxanı · XVII–XVIII əsr",
+      "en": "Surakhani · 17th–18th century",
+      "ru": "Сураханы · XVII–XVIII век"
+    },
+    "source": "The pentagonal walls of cells and the altar in the courtyard: OpenStreetMap via Overture, at the fire temple in Overture places. Heights approximate."
+  },
+  {
+    "id": "mardakan-castle",
+    "kind": "fortress",
+    "replaces": [
+      "4d1bc98a-0be6-4ace-8b91-e2b8972add0c",
+      "d3ac5c31-1a4f-4436-8f2f-1b78704116fc"
+    ],
+    "height": 7,
+    "merlons": true,
+    "parts": [
+      {
+        "height": 22,
+        "merlons": true
+      }
+    ],
+    "name": {
+      "az": "Mərdəkan dördkünc qalası",
+      "en": "Mardakan Quadrangular Castle",
+      "ru": "Четырёхугольная крепость Мардакяна"
+    },
+    "about": {
+      "az": "XIV əsr · 22 m qüllə",
+      "en": "14th century · 22 m keep",
+      "ru": "XIV век · башня 22 м"
+    },
+    "source": "The walls and the keep: OpenStreetMap via Overture. Keep about 22 m; walls approximate."
+  },
+  {
+    "id": "mardakan-round-castle",
+    "kind": "fortress",
+    "replaces": [
+      "29efee47-4a8a-4db1-9578-3fedf3aba4fd",
+      "f48e2fcf-bfde-4647-92bd-6cd1ee4c6dd7"
+    ],
+    "height": 6,
+    "merlons": true,
+    "parts": [
+      {
+        "height": 16,
+        "merlons": true
+      }
+    ],
+    "name": {
+      "az": "Mərdəkan dairəvi qalası",
+      "en": "Mardakan Round Castle",
+      "ru": "Круглая крепость Мардакяна"
+    },
+    "about": {
+      "az": "XIII əsr",
+      "en": "13th century",
+      "ru": "XIII век"
+    },
+    "source": "The walls and the round tower: OpenStreetMap via Overture. Heights approximate."
+  },
+  {
+    "id": "nizami-museum",
+    "kind": "classic",
+    "replaces": [
+      "4c5cc4c8-910b-44ee-bd7c-d49761589d47"
+    ],
+    "height": 18,
+    "name": {
+      "az": "Nizami Ədəbiyyat Muzeyi",
+      "en": "Nizami Museum of Literature",
+      "ru": "Музей литературы имени Низами"
+    },
+    "about": {
+      "az": "İstiqlaliyyət küçəsi",
+      "en": "Istiglaliyyat Street",
+      "ru": "Улица Истиглалийят"
+    },
+    "source": "Footprint: OpenStreetMap via Overture, at the museum in Overture places. Height approximate."
+  },
+  {
+    "id": "opera-theatre",
+    "kind": "classic",
+    "replaces": [
+      "e1474695-73d5-454b-9b36-6c7cbe733b8a"
+    ],
+    "height": 22,
+    "name": {
+      "az": "Opera və Balet Teatrı",
+      "en": "Opera and Ballet Theatre",
+      "ru": "Театр оперы и балета"
+    },
+    "about": {
+      "az": "1911",
+      "en": "1911",
+      "ru": "1911"
+    },
+    "source": "Footprint: OpenStreetMap via Overture, at the theatre in Overture places. Height approximate."
   }
 ]
