@@ -206,5 +206,221 @@
       "ru": "310 м · ресторан на 175 м"
     },
     "source": "Position 40°21′5.79″N 49°49′23.92″E, height 310 m, revolving restaurant at 175 m (Structurae, Wikipedia)."
+  },
+  {
+    "id": "government-house",
+    "kind": "stalinist",
+    "replaces": [
+      "0dcfeae3-91ad-4be1-96b2-c9b64ff968f1"
+    ],
+    "height": 36,
+    "tower": {
+      "at": [
+        49.852553,
+        40.373976
+      ],
+      "w": 28,
+      "d": 17,
+      "tiers": [
+        [
+          50,
+          0
+        ],
+        [
+          59,
+          3
+        ],
+        [
+          66,
+          6
+        ]
+      ],
+      "spire": 14
+    },
+    "name": {
+      "az": "Hökumət Evi",
+      "en": "Government House",
+      "ru": "Дом правительства"
+    },
+    "about": {
+      "az": "1936–1952 · Azadlıq meydanı",
+      "en": "1936–1952 · Freedom Square",
+      "ru": "1936–1952 · площадь Свободы"
+    },
+    "source": "Footprint and 10 floors: OpenStreetMap via Overture; built 1934–1952 (Wikipedia, Government House, Baku). The central tower's tiers are drawn approximately."
+  },
+  {
+    "id": "port-baku-south-tower",
+    "kind": "glasstower",
+    "replaces": [
+      "dedf76b2-2572-4389-9d30-a49b90e6ad6e"
+    ],
+    "floors": 32,
+    "height": 120,
+    "name": {
+      "az": "Port Baku Towers",
+      "en": "Port Baku Towers",
+      "ru": "Port Baku Towers"
+    },
+    "about": {
+      "az": "Cənub qülləsi · 120 m",
+      "en": "South Tower · 120 m",
+      "ru": "Южная башня · 120 м"
+    },
+    "source": "South Tower 120 m, 32 floors (Wikipedia, Port Baku Towers); footprint: OpenStreetMap via Overture."
+  },
+  {
+    "id": "port-baku-north-tower",
+    "kind": "glasstower",
+    "replaces": [
+      "515901c8-9957-4558-b564-7f13a1e7e9d2"
+    ],
+    "floors": 37,
+    "height": 167,
+    "name": {
+      "az": "Port Baku Towers",
+      "en": "Port Baku Towers",
+      "ru": "Port Baku Towers"
+    },
+    "about": {
+      "az": "Şimal qülləsi · 167 m",
+      "en": "North Tower · 167 m",
+      "ru": "Северная башня · 167 м"
+    },
+    "source": "North Tower 167 m, 37 floors (Wikipedia, Port Baku Towers; List of tallest buildings in Azerbaijan); footprint: OpenStreetMap via Overture."
+  },
+  {
+    "id": "aquatics-centre",
+    "kind": "aquatics",
+    "replaces": [
+      "ebc4876f-6b9b-4e67-b365-dfd2c1415897"
+    ],
+    "height": 30,
+    "eaves": 12,
+    "name": {
+      "az": "Su İdmanı Sarayı",
+      "en": "Baku Aquatics Centre",
+      "ru": "Бакинский дворец водных видов спорта"
+    },
+    "about": {
+      "az": "6 000 tamaşaçı · 2015",
+      "en": "6,000 spectators · 2015",
+      "ru": "6 000 зрителей · 2015"
+    },
+    "source": "Elliptical footprint: OpenStreetMap via Overture; 6,000 spectators, design Pujol Arquitectura (Figueras case study). Roof heights approximate."
+  },
+  {
+    "id": "philharmonic-hall",
+    "kind": "classic",
+    "replaces": [
+      "badb5ba3-97eb-4b8f-b38c-f661fc80a275",
+      "0d0eb1df-8cd3-3602-a288-f4972a89892e",
+      "42c7f931-c193-3df2-8740-1f37277a2696",
+      "ec454e8e-578a-3c6c-97e2-fe473eb79030"
+    ],
+    "height": 16,
+    "towers": [
+      {
+        "at": [
+          49.831584,
+          40.3642917
+        ],
+        "r": 5.8,
+        "square": true,
+        "top": 24,
+        "dome": true
+      },
+      {
+        "at": [
+          49.8313553,
+          40.3639572
+        ],
+        "r": 5.8,
+        "square": true,
+        "top": 24,
+        "dome": true
+      }
+    ],
+    "name": {
+      "az": "Azərbaycan Dövlət Filarmoniyası",
+      "en": "Azerbaijan State Philharmonic Hall",
+      "ru": "Азербайджанская государственная филармония"
+    },
+    "about": {
+      "az": "1912 · Qavriil Ter-Mikelov",
+      "en": "1912 · Gavriil Ter-Mikelov",
+      "ru": "1912 · Гавриил Тер-Микелов"
+    },
+    "source": "Footprint and its two 6-level towers: OpenStreetMap via Overture; Italian Renaissance exterior by Gavriil Ter-Mikelov (worldconcerthall.com). Heights and domes approximate."
+  },
+  {
+    "id": "baku-city-hall",
+    "kind": "classic",
+    "replaces": [
+      "1e381f4b-9aaa-41ed-9168-0c5e060197c9"
+    ],
+    "height": 20,
+    "towers": [
+      {
+        "at": [
+          49.831606,
+          40.366881
+        ],
+        "r": 6,
+        "square": true,
+        "top": 33,
+        "dome": true
+      }
+    ],
+    "name": {
+      "az": "Bakı Şəhəri İcra Hakimiyyəti",
+      "en": "Baku City Hall",
+      "ru": "Бакинская мэрия"
+    },
+    "about": {
+      "az": "1904 · saat qülləsi",
+      "en": "1904 · clock tower",
+      "ru": "1904 · башня с часами"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. The clock tower over the middle of the main block is drawn approximately."
+  },
+  {
+    "id": "ismailiyya-palace",
+    "kind": "classic",
+    "texture": "gothic",
+    "replaces": [
+      "821232a0-dd36-4744-a763-959eaaa36949"
+    ],
+    "height": 21,
+    "name": {
+      "az": "İsmailiyyə Sarayı",
+      "en": "Ismailiyya Palace",
+      "ru": "Дворец Исмаилия"
+    },
+    "about": {
+      "az": "1913 · Venesiya qotikası",
+      "en": "1913 · Venetian Gothic",
+      "ru": "1913 · венецианская готика"
+    },
+    "source": "Footprint and 4 floors: OpenStreetMap via Overture (Presidium of the National Academy of Sciences)."
+  },
+  {
+    "id": "heydar-aliyev-palace",
+    "kind": "colonnade",
+    "replaces": [
+      "86b80ac8-dc82-453c-8960-76e33b8005c2"
+    ],
+    "height": 26,
+    "name": {
+      "az": "Heydər Əliyev Sarayı",
+      "en": "Heydar Aliyev Palace",
+      "ru": "Дворец Гейдара Алиева"
+    },
+    "about": {
+      "az": "1972 · konsert sarayı",
+      "en": "1972 · concert palace",
+      "ru": "1972 · концертный дворец"
+    },
+    "source": "Footprint: OpenStreetMap via Overture; height approximate."
   }
 ]

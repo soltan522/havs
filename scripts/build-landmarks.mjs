@@ -10,6 +10,11 @@
 //   lotus    Deniz Mall: petals rising from the star-shaped footprint to the centre
 //   crystal  Crystal Hall: a faceted membrane box, its roof rising to the middle
 //   tvtower  Baku TV Tower: shaft, restaurant pod and mast
+//   glasstower   a glass tower whose top two storeys step back a little
+//   stalinist    Government House: limestone wings and a central tower stepping back in tiers to a spire
+//   classic      a stone building (arched windows, or Venetian Gothic ones) with its towers and domes
+//   colonnade    a modernist palace behind a white colonnade
+//   aquatics     the Aquatic Centre: a roof rising like a wave over glass walls
 //   node scripts/build-landmarks.mjs [id ...]
 // Units are metres; +Y up, +X east, +Z south (the map places the models with bearing 180). Each model's origin is
 // the centre of its footprint at ground level; walls reach below it to the footprint's lowest ground.
@@ -242,6 +247,23 @@ function surface(part, rings, step, height, uvScale = 6) {
 /** Rings of a circle (`n` points) around c at radius r and height y. */
 const circle = (c, r, y, n = 32) => Array.from({ length: n }, (_, k) => [c[0] + r * Math.cos((2 * Math.PI * k) / n), y, c[1] + r * Math.sin((2 * Math.PI * k) / n)]);
 const at = (ring2d, y) => ring2d.map(([x, z]) => [x, y, z]);
+const disc = (c, r, n = 32) => circle(c, r, 0, n).map(([x, , z]) => [x, z]);
+/** A w x d rectangle centred on c, its w side along the unit vector t. */
+const box = (c, t, w, d) => {
+  const m = [-t[1], t[0]];
+  return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => add(c, add(mul(t, (a * w) / 2), mul(m, (b * d) / 2))));
+};
+/** A dome of radius r on the circle around c at height y, with a small lantern on top. */
+function dome(part, c, r, y) {
+  const rings = [];
+  for (let k = 0; k <= 10; k++) {
+    const a = (k / 10) * (Math.PI / 2);
+    rings.push(circle(c, Math.max(r * Math.cos(a), r * 0.16), y + r * Math.sin(a) * 1.1, 32));
+  }
+  loft(part, rings, 2, 2);
+  loft(part, [circle(c, r * 0.16, y + r * 1.1, 12), circle(c, r * 0.16, y + r * 1.45, 12), circle(c, 0.05, y + r * 1.7, 12)], 1, 1);
+  return y + r * 1.7;
+}
 
 // ---------------------------------------------------------------------------------------------------- textures
 const rgb = (c) => `rgb(${c.map(Math.round).join(",")})`;
@@ -298,6 +320,40 @@ const TEXTURES = {
     return `<rect width="256" height="256" fill="${rgb(c)}"/><rect y="${px.y(1.9)}" width="256" height="3" fill="${rgb(shade(c, 0.88))}"/>
       <rect y="${px.y(3.9)}" width="256" height="3" fill="${rgb(shade(c, 0.9))}"/>`;
   } },
+  // Stalinist limestone: tall windows, a string course at every floor, pilaster strips
+  stalin: { w: 3.6, h: 3.8, svg: (px) => {
+    const s = [222, 204, 172];
+    return `<rect width="256" height="256" fill="${rgb(s)}"/><rect x="0" width="${px.x(0.32)}" height="256" fill="${rgb(shade(s, 1.05))}"/>
+      <rect x="${px.x(1.1)}" y="${px.y(0.9)}" width="${px.x(1.4)}" height="${px.y(2.3)}" fill="${rgb([86, 90, 94])}"/>
+      <rect x="${px.x(1.02)}" y="${px.y(3.2)}" width="${px.x(1.56)}" height="${px.y(0.14)}" fill="${rgb(shade(s, 0.84))}"/>
+      <rect y="${px.y(3.62)}" width="256" height="${px.y(0.18)}" fill="${rgb(shade(s, 0.9))}"/>`;
+  } },
+  // cream stone with round-arched windows and a cornice line (image rows run upwards from the floor)
+  classic: { w: 3.6, h: 4.6, svg: (px) => {
+    const s = [234, 220, 188], win = [86, 92, 98];
+    const x0 = px.x(1.15), x1 = px.x(2.45), r = (x1 - x0) / 2;
+    return `<rect width="256" height="256" fill="${rgb(s)}"/><rect x="0" width="${px.x(0.35)}" height="256" fill="${rgb(shade(s, 1.05))}"/>
+      <rect x="${x0}" y="${px.y(0.9)}" width="${x1 - x0}" height="${px.y(2.3)}" fill="${rgb(win)}"/>
+      <ellipse cx="${(x0 + x1) / 2}" cy="${px.y(3.2)}" rx="${r}" ry="${r}" fill="${rgb(win)}"/>
+      <rect y="${px.y(4.3)}" width="256" height="${px.y(0.3)}" fill="${rgb(shade(s, 0.86))}"/>`;
+  } },
+  // Venetian Gothic: pointed-arch windows in pale stone
+  gothic: { w: 3, h: 4.6, svg: (px) => {
+    const s = [218, 202, 170], win = [80, 84, 90];
+    const x0 = px.x(0.95), x1 = px.x(2.05), m = (x0 + x1) / 2;
+    return `<rect width="256" height="256" fill="${rgb(s)}"/>
+      <rect x="${x0}" y="${px.y(0.9)}" width="${x1 - x0}" height="${px.y(2.0)}" fill="${rgb(win)}"/>
+      <polygon points="${x0},${px.y(2.9)} ${x1},${px.y(2.9)} ${m},${px.y(3.75)}" fill="${rgb(win)}"/>
+      <rect x="${px.x(1.47)}" y="${px.y(0.9)}" width="${px.x(0.06)}" height="${px.y(2.4)}" fill="${rgb(s)}"/>
+      <rect y="${px.y(4.35)}" width="256" height="${px.y(0.25)}" fill="${rgb(shade(s, 0.85))}"/>`;
+  } },
+  // white columns before dark glass, under an entablature
+  colonnade: { w: 3, h: 4, svg: (px) => {
+    const w = [238, 236, 230];
+    return `<rect width="256" height="256" fill="${rgb([60, 70, 80])}"/><rect x="0" width="${px.x(0.8)}" height="256" fill="${rgb(w)}"/>
+      <rect x="${px.x(0.8)}" width="${px.x(0.12)}" height="256" fill="${rgb(shade(w, 0.8))}"/>
+      <rect y="${px.y(3.3)}" width="256" height="${px.y(0.7)}" fill="${rgb(w)}"/>`;
+  } },
   // a band of restaurant glazing
   band: { w: 3, h: 3, svg: (px) => {
     const g = [70, 96, 118];
@@ -317,6 +373,7 @@ const PLAIN = {
   darkglass: [58, 72, 84],
   roof: [214, 210, 202],
   mast: [236, 236, 232],
+  dome: [118, 134, 128], // weathered copper
 };
 
 // ---------------------------------------------------------------------------------------------------- the forms
@@ -433,6 +490,69 @@ const KINDS = {
     loft(part("mast"), [circle(c, 1.9, 204, 12), circle(c, 1.2, 260, 12), circle(c, 0.4, l.height, 12)], 2, 6);
     return l.height;
   },
+  glasstower({ part, outer, l, skirt }) {
+    const ring = resample(chaikin(outer, 1), 64);
+    const H = l.height, storey = H / l.floors, crown = H - 2 * storey;
+    const c = centroid(ring);
+    const top = ring.map((p) => add(c, mul(sub(p, c), 0.9)));
+    loft(part("glass"), [at(ring, -skirt), at(ring, crown)], TEXTURES.glass.w, storey);
+    cap(part("roof"), [ring], crown);
+    loft(part("glass"), [at(top, crown), at(top, H)], TEXTURES.glass.w, storey);
+    cap(part("roof"), [top], H);
+    return H;
+  },
+  stalinist({ part, rings, l, local, skirt }) {
+    const H = l.height, T = TEXTURES.stalin;
+    walls(part("stalin"), rings, -skirt, () => H, T.w, T.h);
+    cap(part("roof"), rings, H);
+    // the central tower over the middle of the main block, stepping back in tiers to a spire
+    const c = local(l.tower.at), t = nearestEdge(rings, c).t;
+    let y = H - 1, top = H;
+    for (const [to, inset] of l.tower.tiers) {
+      const r = box(c, t, l.tower.w - 2 * inset, l.tower.d - 2 * inset);
+      walls(part("stalin"), [r], y, () => to, T.w, T.h);
+      cap(part("roof"), [r], to);
+      y = to;
+      top = to;
+    }
+    const base = box(c, t, 4, 4);
+    loft(part("dome"), [at(base, top), at(base, top + 3), at(box(c, t, 0.2, 0.2), top + l.tower.spire)], 2, 2);
+    return top + l.tower.spire;
+  },
+  classic({ part, rings, l, local, skirt }) {
+    const mat = l.texture ?? "classic", T = TEXTURES[mat];
+    walls(part(mat), rings, -skirt, () => l.height, T.w, T.h);
+    cap(part("roof"), rings, l.height);
+    let top = l.height;
+    for (const tw of l.towers ?? []) {
+      const c = local(tw.at);
+      const body = tw.square ? box(c, nearestEdge(rings, c).t, 2 * tw.r, 2 * tw.r) : disc(c, tw.r);
+      walls(part(mat), [body], l.height - 1, () => tw.top, T.w, T.h);
+      cap(part("roof"), [body], tw.top);
+      top = Math.max(top, tw.dome ? dome(part("dome"), c, tw.r * (tw.square ? 0.95 : 0.92), tw.top) : tw.top);
+    }
+    return top;
+  },
+  colonnade({ part, rings, l, skirt }) {
+    walls(part("colonnade"), rings, -skirt, () => l.height, TEXTURES.colonnade.w, TEXTURES.colonnade.h);
+    cap(part("roof"), rings, l.height);
+    return l.height;
+  },
+  aquatics({ part, rings, l, skirt }) {
+    const { c, major } = axes(rings[0]);
+    const us = rings[0].map((p) => dot(sub(p, c), major));
+    const u0 = Math.min(...us), u1 = Math.max(...us);
+    const eaves = l.eaves;
+    // round in section and rising along the building, like a wave
+    const height = (p) => {
+      const u = (dot(sub(p, c), major) - u0) / (u1 - u0);
+      const k = Math.min(nearestEdge(rings, p).d / 34, 1);
+      return eaves + (l.height - eaves) * Math.sqrt(1 - (1 - k) ** 2) * (0.62 + 0.38 * u);
+    };
+    const dense = surface(part("white"), rings, 3, height, 12);
+    walls(part("glass"), dense, -skirt, (p) => height(p) - 0.2, TEXTURES.glass.w, TEXTURES.glass.h);
+    return l.height;
+  },
 };
 
 // ---------------------------------------------------------------------------------------------------- build
@@ -497,7 +617,7 @@ for (const l of landmarks) {
       const c = lin(PLAIN[mat]);
       material = doc.createMaterial(mat).setBaseColorFactor([...c, 1]).setEmissiveFactor(c.map((v) => v * GLOW));
     }
-    material.setRoughnessFactor(["flame", "glass", "band", "darkglass"].includes(mat) ? 0.3 : 0.8).setMetallicFactor(0).setDoubleSided(true);
+    material.setRoughnessFactor(["flame", "glass", "band", "darkglass", "dome"].includes(mat) ? 0.3 : 0.8).setMetallicFactor(0).setDoubleSided(true);
     const prim = doc.createPrimitive()
       .setAttribute("POSITION", doc.createAccessor().setType("VEC3").setArray(new Float32Array(p.pos)).setBuffer(buffer))
       .setAttribute("NORMAL", doc.createAccessor().setType("VEC3").setArray(new Float32Array(p.nor)).setBuffer(buffer))
