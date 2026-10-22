@@ -427,11 +427,14 @@
     "id": "taza-pir-mosque",
     "kind": "mosque",
     "replaces": [
-      "c786da13-23f6-411e-aa79-516a10746582"
+      "c786da13-23f6-411e-aa79-516a10746582",
+      "c7f447c9-1ee9-3c3e-8e91-989b53bbdc9a",
+      "d663df78-2967-36e6-9400-2d7ac5f27cb9",
+      "d3c3f15a-0c60-3526-bbc4-4e1c7bbb61dd"
     ],
     "height": 12,
     "minarets": 2,
-    "minaretHeight": 44,
+    "minaretHeight": 40,
     "name": {
       "az": "Təzəpir Məscidi",
       "en": "Taza Pir Mosque",
@@ -442,7 +445,22 @@
       "en": "1905–1914 · two minarets",
       "ru": "1905–1914 · два минарета"
     },
-    "source": "Footprint: OpenStreetMap via Overture. Dome and minaret heights approximate."
+    "source": "Footprint, dome and the two 10-level minarets where OpenStreetMap maps them (via Overture). Heights approximate.",
+    "domeAt": [
+      49.8286689,
+      40.3721012
+    ],
+    "dome": 9.5,
+    "minaretsAt": [
+      [
+        49.8287935,
+        40.3722021
+      ],
+      [
+        49.8288099,
+        40.3720169
+      ]
+    ]
   },
   {
     "id": "juma-mosque",
@@ -627,5 +645,164 @@
       "ru": "Историческая баня"
     },
     "source": "Footprint: OpenStreetMap via Overture. Domes drawn approximately."
+  },
+  {
+    "id": "four-seasons",
+    "kind": "beauxarts",
+    "replaces": [
+      "af3febbd-d87b-4b1f-8597-dc9b7ba378e7"
+    ],
+    "floors": 9,
+    "height": 36,
+    "cupolas": [
+      "southeast",
+      "southwest"
+    ],
+    "name": {
+      "az": "Four Seasons Baku",
+      "en": "Four Seasons Baku",
+      "ru": "Four Seasons Baku"
+    },
+    "about": {
+      "az": "Otel · Dənizkənarı bulvar",
+      "en": "Hotel · Seaside Boulevard",
+      "ru": "Отель · Приморский бульвар"
+    },
+    "source": "Footprint and 9 floors: OpenStreetMap via Overture. Beaux-Arts front with a mansard and corner cupolas drawn approximately."
+  },
+  {
+    "id": "ritz-carlton",
+    "kind": "stonetower",
+    "replaces": [
+      "46a31b1d-e757-4d78-b5e3-a25af5f35ae2"
+    ],
+    "floors": 33,
+    "height": 132,
+    "name": {
+      "az": "The Ritz-Carlton Baku",
+      "en": "The Ritz-Carlton Baku",
+      "ru": "The Ritz-Carlton Baku"
+    },
+    "about": {
+      "az": "Otel · 33 mərtəbə",
+      "en": "Hotel · 33 floors",
+      "ru": "Отель · 33 этажа"
+    },
+    "source": "Footprint and 33 floors: OpenStreetMap via Overture; height from the floor count."
+  },
+  {
+    "id": "hilton-baku",
+    "kind": "glasstower",
+    "replaces": [
+      "9bc07bbb-70b1-451e-8445-e944fd693bcb"
+    ],
+    "floors": 25,
+    "height": 100,
+    "name": {
+      "az": "Hilton Baku",
+      "en": "Hilton Baku",
+      "ru": "Hilton Baku"
+    },
+    "about": {
+      "az": "Otel · 25 mərtəbə",
+      "en": "Hotel · 25 floors",
+      "ru": "Отель · 25 этажей"
+    },
+    "source": "Footprint and 25 floors: OpenStreetMap via Overture; height from the floor count."
+  },
+  {
+    "id": "jw-marriott-absheron",
+    "kind": "glasstower",
+    "replaces": [
+      "6ec4a65b-4f26-466c-a16b-f28a76911e10"
+    ],
+    "floors": 20,
+    "height": 80,
+    "name": {
+      "az": "JW Marriott Absheron",
+      "en": "JW Marriott Absheron",
+      "ru": "JW Marriott Absheron"
+    },
+    "about": {
+      "az": "Otel · Azadlıq meydanı",
+      "en": "Hotel · Freedom Square",
+      "ru": "Отель · площадь Свободы"
+    },
+    "source": "Footprint and 20 floors: OpenStreetMap via Overture; height from the floor count."
+  },
+  {
+    "id": "puppet-theatre",
+    "kind": "classic",
+    "replaces": [
+      "aa2be18a-46c7-4a79-b16c-24b79a0371b4"
+    ],
+    "height": 16,
+    "towers": [
+      {
+        "corner": "south",
+        "r": 4,
+        "top": 20,
+        "dome": true
+      }
+    ],
+    "name": {
+      "az": "Azərbaycan Dövlət Kukla Teatrı",
+      "en": "Azerbaijan State Puppet Theatre",
+      "ru": "Азербайджанский государственный театр кукол"
+    },
+    "about": {
+      "az": "Bulvar · 1910",
+      "en": "Boulevard · 1910",
+      "ru": "Бульвар · 1910"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. The domed corner tower is drawn approximately."
+  },
+  {
+    "id": "national-drama-theatre",
+    "kind": "classic",
+    "replaces": [
+      "d27d75db-b96e-4c86-b482-6b0e4f16dfc6"
+    ],
+    "height": 20,
+    "name": {
+      "az": "Milli Dram Teatrı",
+      "en": "National Drama Theatre",
+      "ru": "Национальный драматический театр"
+    },
+    "about": {
+      "az": "Füzuli meydanı",
+      "en": "Fuzuli Square",
+      "ru": "Площадь Физули"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Height approximate."
+  },
+  {
+    "id": "mukhtarov-palace",
+    "kind": "classic",
+    "replaces": [
+      "53a441bd-f406-423a-bf83-51c0c365b38d"
+    ],
+    "texture": "gothic",
+    "height": 14,
+    "towers": [
+      {
+        "corner": "southeast",
+        "r": 3,
+        "top": 18,
+        "square": true,
+        "spire": 9
+      }
+    ],
+    "name": {
+      "az": "Səadət Sarayı (Muxtarov Sarayı)",
+      "en": "Mukhtarov Palace (Palace of Happiness)",
+      "ru": "Дворец Мухтарова (Дворец счастья)"
+    },
+    "about": {
+      "az": "1912 · fransız qotikası",
+      "en": "1912 · French Gothic",
+      "ru": "1912 · французская готика"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. The spired tower is drawn approximately."
   }
 ]

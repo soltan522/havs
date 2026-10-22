@@ -17,6 +17,8 @@
 //   aquatics     the Aquatic Centre: a roof rising like a wave over glass walls
 //   mosque   limestone walls, a dome on a drum and minarets on the side away from the qibla (or a mausoleum's dome)
 //   hamam    an old bathhouse: low stone walls under small domes
+//   beauxarts    stone storeys under a zinc mansard, with cupolas on its corners towards the sea
+//   stonetower   a stone tower whose top storeys step back into a crown
 //   node scripts/build-landmarks.mjs [id ...]
 // Units are metres; +Y up, +X east, +Z south (the map places the models with bearing 180). Each model's origin is
 // the centre of its footprint at ground level; walls reach below it to the footprint's lowest ground.
@@ -255,6 +257,56 @@ const box = (c, t, w, d) => {
   const m = [-t[1], t[0]];
   return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => add(c, add(mul(t, (a * w) / 2), mul(m, (b * d) / 2))));
 };
+/** The ring moved d metres inwards with its points in order (mitred, clamped), or null if a point leaves it. */
+function inset(ring, d) {
+  const n = ring.length;
+  const lines = ring.map((a, i) => {
+    const b = ring[(i + 1) % n], l = len(sub(b, a)) || 1, t = mul(sub(b, a), 1 / l);
+    let m = [-t[1], t[0]];
+    const mid = lerp(a, b, 0.5);
+    if (!inRing(ring, mid[0] + m[0] * 0.05, mid[1] + m[1] * 0.05)) m = mul(m, -1);
+    return { p: add(a, mul(m, d)), t };
+  });
+  const out = ring.map((v, i) => {
+    const A = lines[(i + n - 1) % n], B = lines[i];
+    const det = A.t[0] * B.t[1] - A.t[1] * B.t[0];
+    let p = B.p;
+    if (Math.abs(det) > 1e-6) {
+      const s = ((B.p[0] - A.p[0]) * B.t[1] - (B.p[1] - A.p[1]) * B.t[0]) / det;
+      p = add(A.p, mul(A.t, s));
+    }
+    const k = len(sub(p, v));
+    return k > 3 * d ? add(v, mul(sub(p, v), (3 * d) / k)) : p;
+  });
+  return out.every(([x, z]) => inRing(ring, x, z)) ? out : null;
+}
+/** A sloping surface from a ring at y0 back to the same ring moved in (`top`) at y1, textured by storey. */
+function slope(part, ring, top, y0, y1, uScale, vScale) {
+  let run = 0;
+  ring.forEach((a, i) => {
+    const b = ring[(i + 1) % ring.length], A = top[i], B = top[(i + 1) % ring.length], l = len(sub(b, a));
+    if (l < 0.05) return;
+    let n = [(b[1] - a[1]) / l, -(b[0] - a[0]) / l];
+    if (inRing(ring, (a[0] + b[0]) / 2 + n[0] * 0.05, (a[1] + b[1]) / 2 + n[1] * 0.05)) n = mul(n, -1);
+    const rise = y1 - y0, back = len(sub(A, a)), k = Math.hypot(rise, back) || 1;
+    const N = [(n[0] * rise) / k, back / k, (n[1] * rise) / k];
+    const ids = [
+      part.vertex([a[0], y0, a[1]], N, [run / uScale, y0 / vScale]), part.vertex([b[0], y0, b[1]], N, [(run + l) / uScale, y0 / vScale]),
+      part.vertex([B[0], y1, B[1]], N, [(run + l) / uScale, y1 / vScale]), part.vertex([A[0], y1, A[1]], N, [run / uScale, y1 / vScale]),
+    ];
+    run += l;
+    part.tri(ids[0], ids[1], ids[2], N);
+    part.tri(ids[0], ids[2], ids[3], N);
+  });
+}
+/** The point of a ring furthest in a compass direction ("south", "southeast", ...), moved `d` metres back inside. */
+function corner(ring, direction, d) {
+  const dirs = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0], northeast: [0.71, -0.71], northwest: [-0.71, -0.71], southeast: [0.71, 0.71], southwest: [-0.71, 0.71] };
+  const dir = dirs[direction];
+  const v = ring.reduce((b, p) => (dot(p, dir) > dot(b, dir) ? p : b));
+  const c = centroid(ring);
+  return add(v, mul(sub(c, v), d / (len(sub(c, v)) || 1)));
+}
 /** A dome of radius r on the circle around c at height y, with a small lantern on top. */
 function dome(part, c, r, y) {
   const rings = [];
@@ -355,6 +407,13 @@ const TEXTURES = {
     return `<rect width="256" height="256" fill="${rgb([60, 70, 80])}"/><rect x="0" width="${px.x(0.8)}" height="256" fill="${rgb(w)}"/>
       <rect x="${px.x(0.8)}" width="${px.x(0.12)}" height="256" fill="${rgb(shade(w, 0.8))}"/>
       <rect y="${px.y(3.3)}" width="256" height="${px.y(0.7)}" fill="${rgb(w)}"/>`;
+  } },
+  // zinc with a dormer window (a mansard storey)
+  mansard: { w: 3, h: 3.6, svg: (px) => {
+    const z = [122, 130, 138], s = [234, 220, 188];
+    return `<rect width="256" height="256" fill="${rgb(z)}"/><rect y="${px.y(3.3)}" width="256" height="${px.y(0.3)}" fill="${rgb(shade(z, 0.85))}"/>
+      <rect x="${px.x(1.0)}" y="${px.y(0.5)}" width="${px.x(1.0)}" height="${px.y(2.0)}" fill="${rgb(s)}"/>
+      <rect x="${px.x(1.12)}" y="${px.y(0.65)}" width="${px.x(0.76)}" height="${px.y(1.7)}" fill="${rgb([80, 88, 96])}"/>`;
   } },
   // a band of restaurant glazing
   band: { w: 3, h: 3, svg: (px) => {
@@ -528,11 +587,15 @@ const KINDS = {
     cap(part("roof"), rings, l.height);
     let top = l.height;
     for (const tw of l.towers ?? []) {
-      const c = local(tw.at);
+      const c = tw.corner ? corner(rings[0], tw.corner, tw.r * 1.4) : local(tw.at);
       const body = tw.square ? box(c, nearestEdge(rings, c).t, 2 * tw.r, 2 * tw.r) : disc(c, tw.r);
       walls(part(mat), [body], l.height - 1, () => tw.top, T.w, T.h);
       cap(part("roof"), [body], tw.top);
-      top = Math.max(top, tw.dome ? dome(part("dome"), c, tw.r * (tw.square ? 0.95 : 0.92), tw.top) : tw.top);
+      if (tw.spire) {
+        // a pointed slate spire
+        loft(part("dome"), [at(body, tw.top), at(body.map((p) => lerp(p, c, 0.97)), tw.top + tw.spire)], 2, 2);
+        top = Math.max(top, tw.top + tw.spire);
+      } else top = Math.max(top, tw.dome ? dome(part("dome"), c, tw.r * (tw.square ? 0.95 : 0.92), tw.top) : tw.top);
     }
     return top;
   },
@@ -541,7 +604,7 @@ const KINDS = {
     cap(part("roof"), rings, l.height);
     return l.height;
   },
-  mosque({ part, rings, l, skirt }) {
+  mosque({ part, rings, l, local, skirt }) {
     const H = l.height, T = TEXTURES.stone;
     walls(part("stone"), rings, -skirt, () => H, T.w, T.h);
     cap(part("stone"), rings, H, true, T.w);
@@ -549,7 +612,7 @@ const KINDS = {
     const { c: c0, major, minor } = axes(rings[0]);
     const us = rings[0].map((p) => dot(sub(p, c0), major)), vs = rings[0].map((p) => dot(sub(p, c0), minor));
     const [ua, ub, va, vb] = [Math.min(...us), Math.max(...us), Math.min(...vs), Math.max(...vs)];
-    const c = add(c0, add(mul(major, (ua + ub) / 2), mul(minor, (va + vb) / 2)));
+    const c = l.domeAt ? local(l.domeAt) : add(c0, add(mul(major, (ua + ub) / 2), mul(minor, (va + vb) / 2)));
     const a = (ub - ua) / 2, b = (vb - va) / 2;
     // the dome on a low drum over the middle
     const r = Math.min(l.dome ?? Math.min(0.72 * Math.min(a, b), 11), Math.min(a, b) * 0.95);
@@ -562,7 +625,8 @@ const KINDS = {
       .map(([i, j]) => add(c, add(mul(major, i * (a - 2.2)), mul(minor, j * (b - 2.2)))))
       .sort((p, q) => dot(sub(p, c), qibla) - dot(sub(q, c), qibla))
       .slice(0, l.minarets ?? 0);
-    for (const m of corners) {
+    // where OpenStreetMap maps the minarets, they stand there
+    for (const m of l.minaretsAt ? l.minaretsAt.map(local) : corners) {
       const M = l.minaretHeight, sh = part("stone");
       loft(sh, [circle(m, 1.7, -skirt, 12), circle(m, 1.6, M * 0.72, 12)], T.w, T.h);
       // the muezzin's balcony, the upper shaft and a pointed cap
@@ -588,6 +652,35 @@ const KINDS = {
       if (inside(rings, p[0], p[1])) top = Math.max(top, dome(part("stonedome"), p, r, H));
     }
     return top;
+  },
+  beauxarts({ part, rings, l, skirt }) {
+    const T = TEXTURES.classic, storey = l.height / l.floors, cornice = l.height - storey;
+    const top = inset(rings[0], 1.8);
+    walls(part("classic"), rings, -skirt, () => (top ? cornice : l.height), T.w, T.h);
+    let peak = l.height;
+    if (top) {
+      slope(part("mansard"), rings[0], top, cornice, l.height, TEXTURES.mansard.w, TEXTURES.mansard.h);
+      cap(part("roof"), [top], l.height);
+    } else cap(part("roof"), rings, l.height);
+    // cupolas on the corners towards the sea
+    for (const dir of l.cupolas ?? []) {
+      const c = corner(rings[0], dir, 5);
+      const body = disc(c, 3.6, 20);
+      walls(part("classic"), [body], cornice - 1, () => l.height + 2, T.w, T.h);
+      peak = Math.max(peak, dome(part("dome"), c, 3.4, l.height + 2));
+    }
+    return peak;
+  },
+  stonetower({ part, rings, l, skirt }) {
+    const T = TEXTURES.stalin, storey = l.height / l.floors;
+    // the top storeys step back twice into a crown
+    const t1 = inset(rings[0], 2.5), t2 = t1 && inset(rings[0], 5.5);
+    const y1 = l.height - (t1 ? 4 * storey : 0), y2 = l.height - (t2 ? 2 * storey : 0);
+    walls(part("stalin"), rings, -skirt, () => y1, T.w, T.h);
+    cap(part("roof"), rings, y1);
+    if (t1) { walls(part("stalin"), [t1], y1 - 0.5, () => y2, T.w, T.h); cap(part("roof"), [t1], y2); }
+    if (t2) { walls(part("stalin"), [t2], y2 - 0.5, () => l.height, T.w, T.h); cap(part("roof"), [t2], l.height); }
+    return l.height;
   },
   aquatics({ part, rings, l, skirt }) {
     const { c, major } = axes(rings[0]);
