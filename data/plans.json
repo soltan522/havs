@@ -2564,5 +2564,63 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey seaside villa in the Ottoman yali tradition, pale sage-green painted timber weatherboarding with white trim, tall white sash windows with louvred shutters in a regular rhythm, a dark slate hip roof with wide eaves on carved brackets, a narrow timber veranda along the ground floor, attached single garage on the right clad in matching boards, no pool, a lawn ending at a low stone sea wall, tea bushes, magnolias and feijoa shrubs, Caspian shore at Astara with wooded Talysh hills behind, soft overcast afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "bulbula-90",
+    "style": "pavilion",
+    "roof": "flat",
+    "inspiration": "seabreeze-white",
+    "mirror": true,
+    "title": {
+      "az": "Bülbülə Villası",
+      "en": "Bulbula Villa",
+      "ru": "Вилла Бюльбюля"
+    },
+    "summary": {
+      "az": "Bülbülədə qar kimi ağ birmərtəbəli pavilyon villa: nazik ağ polad dirəklər üzərində çox incə ağ düz dam, hər tərəfdə çərçivəsiz tam hündürlükdə şüşə divarlar və yataq otaqlarını əhatə edən bütöv ağ divar. İki yataq otağı, ağ alüminium jalüzlü qaraj və ağ terazzo haşiyəli dekorativ hovuz.",
+      "en": "A snow-white single-storey pavilion villa in Bulbula: an ultra-thin white flat roof on slender white steel columns, frameless full-height glass walls on every side and a solid white wall wrapping the bedrooms. Two bedrooms, a garage behind white aluminium louvres and a decorative pool with white terrazzo edging.",
+      "ru": "Белоснежная одноэтажная вилла-павильон в Бюльбюле: сверхтонкая белая плоская кровля на тонких белых стальных колоннах, безрамные стеклянные стены в полную высоту со всех сторон и глухая белая стена вокруг спален. Две спальни, гараж за белыми алюминиевыми ламелями и декоративный бассейн с бортом из белого терраццо."
+    },
+    "areaM2": 180,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": true,
+    "pool": true,
+    "tree": "olive",
+    "ratio": 2,
+    "priceCents": 109000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey snow-white pavilion villa, an ultra-thin white flat roof canopy floating on slender white steel columns, frameless full-height glass walls, a solid white wall wrapping the bedrooms at one end, attached single garage on the right behind white aluminium louvres, decorative rectangular swimming pool with white terrazzo edging in front of the house, a raked gravel courtyard with one sculptural olive tree and white agapanthus, flat Absheron plain at Bulbula, soft pastel evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "sitalchay-91",
+    "style": "modern",
+    "roof": "flat",
+    "inspiration": "seabreeze-miami",
+    "mirror": true,
+    "title": {
+      "az": "Sitalçay Villası",
+      "en": "Sitalchay Villa",
+      "ru": "Вилла Ситалчай"
+    },
+    "summary": {
+      "az": "Sitalçay çimərliyində yığcam iki mərtəbəli Mayami modern ev: hər mərtəbənin kənarında nazik çıxıntılı karnizləri olan ağ suvaq, künc pəncərələri və birinci mərtəbə açırımları üzərində ağ kozırklar. Üç yataq otağı, qaraj və açıq terazzo döşəməli hovuz.",
+      "en": "A compact two-storey Miami-modern beach house at Sitalchay: crisp white render with thin projecting ledges at each floor, recessed corner windows and slim white canopies over the ground-floor openings. Three bedrooms, a garage and a pool with a pale terrazzo deck.",
+      "ru": "Компактный двухэтажный пляжный дом в стиле майами-модерн в Ситалчае: чистая белая штукатурка с тонкими выступающими карнизами на каждом этаже, утопленные угловые окна и тонкие белые козырьки над проёмами первого этажа. Три спальни, гараж и бассейн с палубой из светлого терраццо."
+    },
+    "areaM2": 225,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": true,
+    "tree": "palm",
+    "ratio": 1.4,
+    "priceCents": 119000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey Miami-modern beach house, crisp white render with thin projecting ledges at each floor, recessed corner windows, slim white eyebrow canopies over the ground floor openings, strictly rectilinear massing, attached single garage on the right, rectangular swimming pool with a pale terrazzo deck and teak sun loungers in front of the house, clusters of royal palms and pink oleander, sandy Caspian beach at Sitalchay, bright late morning sun, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
