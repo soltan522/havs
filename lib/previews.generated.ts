@@ -3178,5 +3178,69 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "bulbula-90": {
+    "cover": "/plans/bulbula-90/cover.jpg",
+    "hover": "/plans/bulbula-90/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/bulbula-90/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/bulbula-90/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/bulbula-90/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/bulbula-90/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/bulbula-90/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/bulbula-90/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "sitalchay-91": {
+    "cover": "/plans/sitalchay-91/cover.jpg",
+    "hover": "/plans/sitalchay-91/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/sitalchay-91/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sitalchay-91/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/sitalchay-91/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/sitalchay-91/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/sitalchay-91/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/sitalchay-91/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/sitalchay-91/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };

@@ -1956,5 +1956,49 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-21"
+  },
+  "bulbula-90": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bulbula-90-drawings.pdf",
+        "bytes": 542161,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "bulbula-90.dwg",
+        "bytes": 51158
+      },
+      {
+        "kind": "cad",
+        "name": "bulbula-90.dxf",
+        "bytes": 124665
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-22"
+  },
+  "sitalchay-91": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sitalchay-91-drawings.pdf",
+        "bytes": 579636,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sitalchay-91.dwg",
+        "bytes": 75544
+      },
+      {
+        "kind": "cad",
+        "name": "sitalchay-91.dxf",
+        "bytes": 186838
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-22"
   }
 }
