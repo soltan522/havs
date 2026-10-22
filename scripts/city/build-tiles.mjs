@@ -1,10 +1,11 @@
-// Cuts the city buildings (data/city/*.geojson, made by scripts/city/build_city.py) into the static vector tiles the
+// Cuts the city buildings (data/city/*.geojson.gz, made by scripts/city/build_city.py) into the static vector tiles the
 // projects map draws Baku from: public/tiles/buildings/14/<x>/<y>.pbf, one layer "buildings", plus index.json listing
 // the tiles and the areas covered. Each building goes whole into the tile holding its centroid (no clipping), so the
 // 3D layer builds every building once and a tap finds it whole.
 //   node scripts/city/build-tiles.mjs
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { gunzipSync } from "node:zlib";
 import { fromGeojsonVt } from "@maplibre/vt-pbf";
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), "../..");
@@ -16,8 +17,8 @@ const mercY = (lat) => (1 - Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 36
 
 const tiles = new Map();
 const areas = [];
-for (const file of readdirSync(path.join(root, "data/city")).filter((f) => f.endsWith(".geojson")).sort()) {
-  const fc = JSON.parse(readFileSync(path.join(root, "data/city", file), "utf8"));
+for (const file of readdirSync(path.join(root, "data/city")).filter((f) => f.endsWith(".geojson.gz")).sort()) {
+  const fc = JSON.parse(gunzipSync(readFileSync(path.join(root, "data/city", file))).toString("utf8"));
   areas.push({ name: fc.name, bounds: fc.bounds, buildings: fc.features.length });
   for (const f of fc.features) {
     const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;

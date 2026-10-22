@@ -12,7 +12,8 @@ name, W, S, E, N, OUT = sys.argv[1], *map(float, sys.argv[2:6]), sys.argv[6]
 HAVS = "/home/user/havs"
 s3 = fs.S3FileSystem(anonymous=True, region="us-west-2", proxy_options=os.environ.get("HTTPS_PROXY"))
 REL = "overturemaps-us-west-2/release/2026-10-21.0/"
-bb = (pc.field("bbox", "xmin") > W) & (pc.field("bbox", "xmax") < E) & (pc.field("bbox", "ymin") > S) & (pc.field("bbox", "ymax") < N)
+# every building touching the area, kept when its centroid is inside, so neighbouring areas share no building and miss none
+bb = (pc.field("bbox", "xmax") > W) & (pc.field("bbox", "xmin") < E) & (pc.field("bbox", "ymax") > S) & (pc.field("bbox", "ymin") < N)
 M = 111320 * math.cos(math.radians((S + N) / 2))
 def area_m2(g): return g.area * M * 110540
 
@@ -36,6 +37,8 @@ for typ in ("building", "building_part"):
         if r.get("is_underground"): continue
         g = shapely.wkb.loads(r["geometry"])
         if g.geom_type not in ("Polygon", "MultiPolygon") or not g.is_valid: g = g.buffer(0)
+        c = g.centroid
+        if not (W <= c.x < E and S <= c.y < N): continue
         a = area_m2(g)
         if a < 12: continue
         if any(skip[i].intersects(g.representative_point()) or skip[i].intersects(g) for i in skip_tree.query(g)): continue
@@ -122,5 +125,7 @@ for r in rows:
     def rnd(o): return [rnd(v) for v in o] if isinstance(o, (list, tuple)) and o and isinstance(o[0], (list, tuple)) else [round(o[0], 6), round(o[1], 6)]
     geo["coordinates"] = rnd(geo["coordinates"])
     feats.append({"type": "Feature", "geometry": geo, "properties": props})
-json.dump({"type": "FeatureCollection", "name": name, "bounds": [W, S, E, N], "features": feats}, open(OUT, "w"), ensure_ascii=False, separators=(",", ":"))
+import gzip
+with gzip.open(OUT, "wt", encoding="utf-8") as fh:
+    json.dump({"type": "FeatureCollection", "name": name, "bounds": [W, S, E, N], "features": feats}, fh, ensure_ascii=False, separators=(",", ":"))
 print("written", OUT, len(feats), "features;", sum(1 for f in feats if f["properties"]["e"]), "estimated;", "facade types", collections.Counter(f["properties"]["t"] for f in feats), "terrain tiles", len(tiles))
