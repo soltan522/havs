@@ -306,6 +306,7 @@ export default function ProjectsMap({ items, districts = [], landmarks = [], cit
               ...buildings.map((m) => ({ geometry: axisOf(m), metres: 1 })),
               ...districts.map((d) => ({ geometry: d.zone, metres: 0 })),
               ...(city?.areas ?? []).map((a) => ({ geometry: box(a.bounds), metres: 0 })),
+              ...landmarks.filter((l) => l.hideBase).map((l) => ({ geometry: l.footprint, metres: 0 })),
             ]);
             if (city && cityModule) {
               // every building of the covered areas, drawn in 3D and tappable through invisible extrusions of the same tiles

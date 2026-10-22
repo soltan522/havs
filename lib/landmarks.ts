@@ -19,6 +19,8 @@ export type Landmark = {
   floors?: number;
   homes: boolean;
   replaces: string[];
+  /** Outside the city layer: the map's own blocks under it are hidden. */
+  hideBase: boolean;
 };
 
 export function landmarksIn(lang: Locale): Landmark[] {
@@ -37,6 +39,7 @@ export function landmarksIn(lang: Locale): Landmark[] {
       ...("floors" in l ? { floors: l.floors } : {}),
       homes: "homes" in l && l.homes === true,
       replaces: l.replaces,
+      hideBase: "hideBase" in g && g.hideBase === true,
     }];
   });
 }

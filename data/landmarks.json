@@ -804,5 +804,92 @@
       "ru": "1912 · французская готика"
     },
     "source": "Footprint: OpenStreetMap via Overture. The spired tower is drawn approximately."
+  },
+  {
+    "id": "martyrs-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "3ac47bd9-ecf4-444d-adcb-f4593faaffc3"
+    ],
+    "height": 12,
+    "minarets": 1,
+    "minaretHeight": 38,
+    "name": {
+      "az": "Şəhidlər Məscidi",
+      "en": "Martyrs' Mosque",
+      "ru": "Мечеть Шехидлер"
+    },
+    "about": {
+      "az": "Şəhidlər Xiyabanı",
+      "en": "Martyrs' Lane",
+      "ru": "Аллея шехидов"
+    },
+    "source": "Footprint: OpenStreetMap via Overture, at the Alley of Martyrs Mosque in Overture places. Dome and minaret drawn approximately."
+  },
+  {
+    "id": "bibi-heybat-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "66f9bb22-1923-44da-b74e-bf586cdcccbf"
+    ],
+    "height": 12,
+    "minarets": 2,
+    "minaretHeight": 40,
+    "domeColor": "teal",
+    "name": {
+      "az": "Bibiheybət Məscidi",
+      "en": "Bibi-Heybat Mosque",
+      "ru": "Мечеть Биби-Эйбат"
+    },
+    "about": {
+      "az": "Bibiheybət ziyarətgahı",
+      "en": "Bibi-Heybat shrine",
+      "ru": "Святилище Биби-Эйбат"
+    },
+    "source": "Footprint: OpenStreetMap via Overture (fetched by scripts/city/fetch_footprints.py at the Bibi-Heybat Mosque in Overture places). Domes and minarets drawn approximately."
+  },
+  {
+    "id": "olympic-stadium",
+    "kind": "stadium",
+    "replaces": [
+      "710ba99f-f9ad-468e-8240-481fc595a9b8"
+    ],
+    "height": 60,
+    "name": {
+      "az": "Bakı Olimpiya Stadionu",
+      "en": "Baku Olympic Stadium",
+      "ru": "Бакинский олимпийский стадион"
+    },
+    "about": {
+      "az": "68 700 yer · 2015",
+      "en": "68,700 seats · 2015",
+      "ru": "68 700 мест · 2015"
+    },
+    "source": "Footprint: OpenStreetMap via Overture; about 60 m high and 68,700 seats (Wikipedia, Structurae)."
+  },
+  {
+    "id": "national-flag",
+    "kind": "flagpole",
+    "replaces": [],
+    "at": [
+      49.839348,
+      40.341911
+    ],
+    "height": 162,
+    "flag": [
+      70,
+      35
+    ],
+    "name": {
+      "az": "Dövlət Bayrağı Meydanı",
+      "en": "National Flag Square",
+      "ru": "Площадь государственного флага"
+    },
+    "about": {
+      "az": "162 m · bayraq 70 × 35 m",
+      "en": "162 m · flag 70 × 35 m",
+      "ru": "162 м · флаг 70 × 35 м"
+    },
+    "source": "Pole 162 m, flag about 70 x 35 m; placed at the National Flag Square in Overture places."
   }
 ]

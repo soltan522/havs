@@ -18,8 +18,12 @@
 //   mosque   limestone walls, a dome on a drum and minarets on the side away from the qibla (or a mausoleum's dome)
 //   hamam    an old bathhouse: low stone walls under small domes
 //   beauxarts    stone storeys under a zinc mansard, with cupolas on its corners towards the sea
+//   stadium      the Olympic Stadium: a membrane facade, a white roof over the stands and the pitch
+//   flagpole     the National Flag Square's pole with the flag flying
 //   stonetower   a stone tower whose top storeys step back into a crown
 //   node scripts/build-landmarks.mjs [id ...]
+// Landmarks outside the city layer take their footprint from data/landmarks.extra.geojson (scripts/city/fetch_footprints.py);
+// one with no footprint (a flagpole) stands at its `at` point.
 // Units are metres; +Y up, +X east, +Z south (the map places the models with bearing 180). Each model's origin is
 // the centre of its footprint at ground level; walls reach below it to the footprint's lowest ground.
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -299,6 +303,18 @@ function slope(part, ring, top, y0, y1, uScale, vScale) {
     part.tri(ids[0], ids[2], ids[3], N);
   });
 }
+/** A surface between two rings with matching points (a at height ya, b at yb), facing up. */
+function band(part, a, ya, b, yb) {
+  for (let i = 0; i < a.length; i++) {
+    const j = (i + 1) % a.length;
+    const P = [[a[i][0], ya, a[i][1]], [a[j][0], ya, a[j][1]], [b[j][0], yb, b[j][1]], [b[i][0], yb, b[i][1]]];
+    let N = norm3(cross3(sub3(P[1], P[0]), sub3(P[3], P[0]))) ?? [0, 1, 0];
+    if (N[1] < 0) N = N.map((v) => -v);
+    const ids = P.map((p) => part.vertex(p, N, [p[0] / 6, p[2] / 6]));
+    part.tri(ids[0], ids[1], ids[2], N);
+    part.tri(ids[0], ids[2], ids[3], N);
+  }
+}
 /** The point of a ring furthest in a compass direction ("south", "southeast", ...), moved `d` metres back inside. */
 function corner(ring, direction, d) {
   const dirs = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0], northeast: [0.71, -0.71], northwest: [-0.71, -0.71], southeast: [0.71, 0.71], southwest: [-0.71, 0.71] };
@@ -415,6 +431,16 @@ const TEXTURES = {
       <rect x="${px.x(1.0)}" y="${px.y(0.5)}" width="${px.x(1.0)}" height="${px.y(2.0)}" fill="${rgb(s)}"/>
       <rect x="${px.x(1.12)}" y="${px.y(0.65)}" width="${px.x(0.76)}" height="${px.y(1.7)}" fill="${rgb([80, 88, 96])}"/>`;
   } },
+  // the flag of Azerbaijan, 2:1 (crescent and star drawn half as wide, as the tile is stretched)
+  flag: { w: 2, h: 1, svg: () => {
+    const star = Array.from({ length: 16 }, (_, k) => {
+      const a = (k * Math.PI) / 8 - Math.PI / 2, r = k % 2 ? 9 : 20;
+      return `${148 + (r * Math.cos(a)) / 2},${128 + r * Math.sin(a)}`;
+    }).join(" ");
+    return `<rect width="256" height="86" fill="rgb(0,181,226)"/><rect y="85" width="256" height="86" fill="rgb(239,51,64)"/>
+      <rect y="170" width="256" height="86" fill="rgb(80,158,47)"/><ellipse cx="124" cy="128" rx="18" ry="36" fill="#fff"/>
+      <ellipse cx="131" cy="128" rx="15" ry="30" fill="rgb(239,51,64)"/><polygon points="${star}" fill="#fff"/>`;
+  } },
   // a band of restaurant glazing
   band: { w: 3, h: 3, svg: (px) => {
     const g = [70, 96, 118];
@@ -436,6 +462,9 @@ const PLAIN = {
   mast: [236, 236, 232],
   dome: [118, 134, 128], // weathered copper
   stonedome: [206, 186, 150], // domes of Absheron limestone
+  teal: [72, 146, 140], // glazed domes
+  seats: [118, 128, 142],
+  pitch: [86, 140, 82],
 };
 
 // ---------------------------------------------------------------------------------------------------- the forms
@@ -682,6 +711,28 @@ const KINDS = {
     if (t2) { walls(part("stalin"), [t2], y2 - 0.5, () => l.height, T.w, T.h); cap(part("roof"), [t2], l.height); }
     return l.height;
   },
+  stadium({ part, rings, l, skirt }) {
+    const ring = resample(chaikin(rings[0], 2), 96), H = l.height;
+    walls(part("crystal"), [ring], -skirt, () => H, TEXTURES.crystal.w, TEXTURES.crystal.h);
+    const roofIn = inset(ring, 42), field = roofIn && inset(ring, 62);
+    if (!roofIn || !field) { cap(part("white"), [ring], H); return H; }
+    // a white roof sloping in over the stands, the stands down to the pitch
+    band(part("white"), ring, H, roofIn, H - 6);
+    band(part("seats"), roofIn, H - 16, field, 1.5);
+    cap(part("pitch"), [field], 1.2);
+    return H;
+  },
+  flagpole({ part, l }) {
+    const H = l.height, [w, h] = l.flag;
+    loft(part("mast"), [circle([0, 0], 1.6, -2, 16), circle([0, 0], 0.55, H, 16)], 2, 6);
+    // the flag flying east from the top of the pole
+    const p = part("flag"), y0 = H - h - 1;
+    const ids = [[0.6, y0, 0, 0, 1], [0.6 + w, y0, 0, 1, 1], [0.6 + w, y0 + h, 0, 1, 0], [0.6, y0 + h, 0, 0, 0]]
+      .map(([x, y, z, u, v]) => p.vertex([x, y, z], [0, 0, 1], [u, v]));
+    p.tri(ids[0], ids[1], ids[2], [0, 0, 1]);
+    p.tri(ids[0], ids[2], ids[3], [0, 0, 1]);
+    return H;
+  },
   aquatics({ part, rings, l, skirt }) {
     const { c, major } = axes(rings[0]);
     const us = rings[0].map((p) => dot(sub(p, c), major));
@@ -708,6 +759,19 @@ for (const file of readdirSync(path.join(root, "data/city")).filter((f) => f.end
   const fc = JSON.parse(gunzipSync(readFileSync(path.join(root, "data/city", file))).toString("utf8"));
   for (const f of fc.features) if (wanted.has(f.properties.id)) footprints.set(f.properties.id, f);
 }
+// landmarks outside the city layer
+const extra = new Set();
+try {
+  for (const f of JSON.parse(readFileSync(path.join(root, "data/landmarks.extra.geojson"), "utf8")).features)
+    if (wanted.has(f.properties.id)) { footprints.set(f.properties.id, f); extra.add(f.properties.id); }
+} catch {
+  // no extra footprints yet
+}
+/** A small square around a point, for a landmark with no footprint of its own. */
+const pointFootprint = ([lng, lat], m) => {
+  const dx = m / (111320 * Math.cos((lat * Math.PI) / 180)), dy = m / 110540;
+  return { geometry: { type: "Polygon", coordinates: [[[lng - dx, lat - dy], [lng + dx, lat - dy], [lng + dx, lat + dy], [lng - dx, lat + dy], [lng - dx, lat - dy]]] }, properties: { g: 0, l: 0 } };
+};
 await MeshoptEncoder.ready;
 const generatedFile = path.join(root, "data/landmarks.generated.json");
 const previous = (() => { try { return JSON.parse(readFileSync(generatedFile, "utf8")); } catch { return []; } })();
@@ -718,7 +782,9 @@ for (const l of landmarks) {
     if (keep) generated.push(keep);
     continue;
   }
-  const feats = l.replaces.map((id) => footprints.get(id) ?? (() => { throw new Error(`${l.id}: footprint ${id} not found`); })());
+  const feats = l.replaces.length
+    ? l.replaces.map((id) => footprints.get(id) ?? (() => { throw new Error(`${l.id}: footprint ${id} not found`); })())
+    : [pointFootprint(l.at, 3)];
   const main = feats[0];
   const polys = main.geometry.type === "Polygon" ? [main.geometry.coordinates] : main.geometry.coordinates;
   // the model's origin: the centre of its footprint
@@ -785,6 +851,8 @@ for (const l of landmarks) {
       .map((v) => Math.round(v * 1e6) / 1e6),
     footprint: { type: "MultiPolygon", coordinates: all },
     height: Math.round(height * 10) / 10,
+    // outside the city layer the map's own blocks must be hidden under it
+    ...(l.replaces.some((id) => extra.has(id)) ? { hideBase: true } : {}),
   });
   const tris = Object.values(parts).reduce((n, p) => n + p.idx.length / 3, 0);
   console.log(`public/models/landmark-${l.id}.glb: ${(glb.length / 1024).toFixed(0)} KB, ${tris} triangles, ${Math.round(height)} m`);
