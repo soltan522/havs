@@ -7,6 +7,7 @@ import { specsLine } from "@/lib/copy";
 import { isLocale, type Locale } from "@/lib/i18n";
 import CITY from "@/public/tiles/buildings/index.json";
 import { districtsIn } from "@/lib/districts";
+import { landmarksIn } from "@/lib/landmarks";
 import { placeOf } from "@/lib/places";
 import { formatPrice, planLabel, publishedPlans } from "@/lib/plans";
 import { currency } from "@/lib/providers";
@@ -125,7 +126,7 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
           </Reveal>
         </section>
         <section className="wrap-wide">
-          <ProjectsMap items={items} districts={districtsIn(lang)}
+          <ProjectsMap items={items} districts={districtsIn(lang)} landmarks={landmarksIn(lang)}
             city={{ base: "/tiles/buildings", zoom: CITY.zoom, areas: CITY.areas.map((a) => ({ name: a.name, bounds: [a.bounds[0], a.bounds[1], a.bounds[2], a.bounds[3]] })) }} text={{ ...text, lang }} />
         </section>
       </main>

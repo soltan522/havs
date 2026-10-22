@@ -1,0 +1,210 @@
+[
+  {
+    "id": "flame-tower-1",
+    "kind": "flame",
+    "replaces": [
+      "c3674177-fedf-4b5a-ab2b-ec7b908e46e5"
+    ],
+    "floors": 39,
+    "height": 182,
+    "group": [
+      49.82642,
+      40.35992
+    ],
+    "homes": true,
+    "name": {
+      "az": "Alov Qüllələri",
+      "en": "Flame Towers",
+      "ru": "Flame Towers"
+    },
+    "about": {
+      "az": "Yaşayış qülləsi · 182 m",
+      "en": "Residential tower · 182 m",
+      "ru": "Жилая башня · 182 м"
+    },
+    "source": "Footprint and floors: OpenStreetMap via Overture. Height of the tallest tower 182 m (Wikipedia, Flame Towers)."
+  },
+  {
+    "id": "flame-tower-2",
+    "kind": "flame",
+    "replaces": [
+      "5c00964e-f127-454f-b01f-6970a80667fd"
+    ],
+    "floors": 37,
+    "height": 172,
+    "group": [
+      49.82642,
+      40.35992
+    ],
+    "name": {
+      "az": "Alov Qüllələri",
+      "en": "Flame Towers",
+      "ru": "Flame Towers"
+    },
+    "about": {
+      "az": "Otel qülləsi",
+      "en": "Hotel tower",
+      "ru": "Башня отеля"
+    },
+    "source": "Footprint and floors: OpenStreetMap via Overture; height in proportion to the 182 m tower by floor count."
+  },
+  {
+    "id": "flame-tower-3",
+    "kind": "flame",
+    "replaces": [
+      "43ec16b3-5bdf-4500-bafc-765a5ba44fc2"
+    ],
+    "floors": 34,
+    "height": 159,
+    "group": [
+      49.82642,
+      40.35992
+    ],
+    "name": {
+      "az": "Alov Qüllələri",
+      "en": "Flame Towers",
+      "ru": "Flame Towers"
+    },
+    "about": {
+      "az": "Ofis qülləsi",
+      "en": "Office tower",
+      "ru": "Офисная башня"
+    },
+    "source": "Footprint and floors: OpenStreetMap via Overture; height in proportion to the 182 m tower by floor count."
+  },
+  {
+    "id": "heydar-aliyev-center",
+    "kind": "shell",
+    "replaces": [
+      "993c5240-163b-48f0-b54f-c2119e5151b6"
+    ],
+    "height": 74,
+    "name": {
+      "az": "Heydər Əliyev Mərkəzi",
+      "en": "Heydar Aliyev Center",
+      "ru": "Центр Гейдара Алиева"
+    },
+    "about": {
+      "az": "Zaha Hadid · 2012",
+      "en": "Zaha Hadid · 2012",
+      "ru": "Заха Хадид · 2012"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. The continuous white shell is drawn as a smooth surface over it; heights approximate."
+  },
+  {
+    "id": "socar-tower",
+    "kind": "sail",
+    "replaces": [
+      "cf5a4b9d-05f2-4ed8-86d2-70852fcfe41b"
+    ],
+    "floors": 40,
+    "height": 209,
+    "name": {
+      "az": "SOCAR Tower",
+      "en": "SOCAR Tower",
+      "ru": "SOCAR Tower"
+    },
+    "about": {
+      "az": "209 m · 2016",
+      "en": "209 m · 2016",
+      "ru": "209 м · 2016"
+    },
+    "source": "Position 40°24′18.85″N 49°53′0.81″E and height 209 m (Structurae, Wikipedia); footprint: OpenStreetMap via Overture."
+  },
+  {
+    "id": "maiden-tower",
+    "kind": "stone",
+    "replaces": [
+      "b540e6e6-fe15-459d-b811-671b4a1e6f05",
+      "523986ae-e4bd-3b75-9155-914d15069569"
+    ],
+    "height": 29.5,
+    "name": {
+      "az": "Qız Qalası",
+      "en": "Maiden Tower",
+      "ru": "Девичья башня"
+    },
+    "about": {
+      "az": "İçərişəhər · UNESCO",
+      "en": "Old City · UNESCO",
+      "ru": "Ичеришехер · ЮНЕСКО"
+    },
+    "source": "Footprint with its buttress: OpenStreetMap via Overture; height 29.5 m."
+  },
+  {
+    "id": "carpet-museum",
+    "kind": "carpet",
+    "replaces": [
+      "62c69ac6-af47-402c-b40e-9a8e50e61208"
+    ],
+    "height": 22,
+    "name": {
+      "az": "Azərbaycan Xalça Muzeyi",
+      "en": "Azerbaijan Carpet Museum",
+      "ru": "Музей азербайджанского ковра"
+    },
+    "about": {
+      "az": "Bükülmüş xalça formasında · 2014",
+      "en": "Shaped as a rolled carpet · 2014",
+      "ru": "В форме свёрнутого ковра · 2014"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Form after the rolled-carpet design by Franz Janz; heights approximate."
+  },
+  {
+    "id": "deniz-mall",
+    "kind": "lotus",
+    "replaces": [
+      "f46c0ff0-1c3e-4fa7-9e02-5b096d0532ee"
+    ],
+    "height": 30,
+    "name": {
+      "az": "Dəniz Mall",
+      "en": "Deniz Mall",
+      "ru": "Deniz Mall"
+    },
+    "about": {
+      "az": "Lotus formalı ticarət mərkəzi",
+      "en": "Lotus-shaped shopping centre",
+      "ru": "Торговый центр в форме лотоса"
+    },
+    "source": "Footprint (the lotus petals): OpenStreetMap via Overture; heights approximate."
+  },
+  {
+    "id": "crystal-hall",
+    "kind": "crystal",
+    "replaces": [
+      "addbb6c9-a213-4cd4-ac13-740ff2806a76"
+    ],
+    "height": 24,
+    "name": {
+      "az": "Bakı Kristal Zalı",
+      "en": "Baku Crystal Hall",
+      "ru": "Бакинский кристальный зал"
+    },
+    "about": {
+      "az": "12 000 yer · 2012",
+      "en": "12,000 seats · 2012",
+      "ru": "12 000 мест · 2012"
+    },
+    "source": "Footprint: OpenStreetMap via Overture; height 24 m in the middle (Wikipedia, Baku Crystal Hall)."
+  },
+  {
+    "id": "baku-tv-tower",
+    "kind": "tvtower",
+    "replaces": [
+      "352ac3da-1967-3749-9cfb-8b840d71c39a"
+    ],
+    "height": 310,
+    "name": {
+      "az": "Bakı Teleqülləsi",
+      "en": "Baku TV Tower",
+      "ru": "Бакинская телебашня"
+    },
+    "about": {
+      "az": "310 m · restoran 175 m-də",
+      "en": "310 m · restaurant at 175 m",
+      "ru": "310 м · ресторан на 175 м"
+    },
+    "source": "Position 40°21′5.79″N 49°49′23.92″E, height 310 m, revolving restaurant at 175 m (Structurae, Wikipedia)."
+  }
+]

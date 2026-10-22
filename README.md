@@ -54,6 +54,11 @@ Baku's buildings are drawn in 3D from static vector tiles (`public/tiles/buildin
 `data/city/<area>.geojson.gz` by `node scripts/city/build-tiles.mjs`; the areas come from Overture Maps through
 `scripts/city/build_city.py`, which needs Python with pyarrow, shapely and Pillow). `components/cityBuildings.ts`
 extrudes each tile's buildings in the browser by floor count and facade type; tapping one opens its card.
+Landmarks are drawn as their own detailed models: `data/landmarks.json` lists each one (the city blocks it
+`replaces`, its form, height and a source for the figures) and `node scripts/build-landmarks.mjs [id ...]` builds
+`public/models/landmark-<id>.glb` on the real footprint, with `data/landmarks.generated.json` for the map. The forms
+are drawn from the buildings' known shapes (Flame Towers, Heydar Aliyev Center, SOCAR Tower, Maiden Tower, Carpet
+Museum, Deniz Mall, Crystal Hall, TV Tower); heights the sources do not give are marked approximate there.
 
 ## Local development
 

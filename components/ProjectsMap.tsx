@@ -4,6 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MlMap, MapGeoJSONFeature, Popup } from "maplibre-gl";
 import type { DistrictModel } from "@/lib/districts";
+import type { Landmark } from "@/lib/landmarks";
 import type { Locale } from "@/lib/i18n";
 import { MAP_COLORS, mapStyle, TERRAIN_EXAGGERATION } from "@/lib/map-style";
 
@@ -54,9 +55,10 @@ const KIND_COLOR: Record<MapKind, string> = { villa: MAP_COLORS.villa, interior:
  * Interactive 3D map (MapLibre) with the catalogue projects placed on the towns and districts they are named after,
  * and whole districts drawn as 3D models.
  */
-export default function ProjectsMap({ items, districts = [], city, text }: {
+export default function ProjectsMap({ items, districts = [], landmarks = [], city, text }: {
   items: MapItem[];
   districts?: DistrictModel[];
+  landmarks?: Landmark[];
   /** Baku's buildings in 3D: the static tiles (scripts/city/build-tiles.mjs) and the areas they cover. */
   city?: { base: string; zoom: number; areas: { name: string; bounds: [number, number, number, number] }[] };
   text: MapText & { lang: Locale };
@@ -146,7 +148,7 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         return root;
       };
       // a building of a 3D district: what it is and, until its apartment plans are in, an invitation to send one
-      const buildingCard = (place: string, p: { id?: unknown; name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown; status?: unknown }) => {
+      const buildingCard = (place: string, p: { id?: unknown; name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown; status?: unknown; about?: unknown; homes?: unknown }) => {
         const root = document.createElement("div");
         root.className = "map-card map-card-building";
         const body = document.createElement("span");
@@ -160,12 +162,15 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         };
         add("span", "map-card-label", [place, p.complex].filter(Boolean).join(" · "));
         add("strong", "map-card-title", String(p.name ?? p.complex ?? text.building.home));
-        const floors = (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors));
-        add("span", "map-card-specs", p.status === "construction" ? `${floors} · ${text.building.construction}` : floors);
-        add("span", "map-card-note", text.building.soon);
-        const link = add("a", "map-card-link", `${text.building.send} →`) as HTMLAnchorElement;
-        const label = [p.name ?? p.complex, place].filter(Boolean).join(", ");
-        link.href = `/${text.lang}/plan?${new URLSearchParams({ ...(p.id ? { b: String(p.id) } : {}), l: label })}`;
+        const floors = p.floors ? (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors)) : null;
+        add("span", "map-card-specs", [floors, p.status === "construction" ? text.building.construction : null, p.about].filter(Boolean).join(" · "));
+        // a landmark without homes has no apartment plans to send
+        if (p.about === undefined || p.homes) {
+          add("span", "map-card-note", text.building.soon);
+          const link = add("a", "map-card-link", `${text.building.send} →`) as HTMLAnchorElement;
+          const label = [p.name ?? p.complex, place].filter(Boolean).join(", ");
+          link.href = `/${text.lang}/plan?${new URLSearchParams({ ...(p.id ? { b: String(p.id) } : {}), l: label })}`;
+        }
         root.append(body);
         return root;
       };
@@ -292,7 +297,8 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         // detailed building and district models replace their plain blocks (three.js is loaded only when there are any)
         const buildings = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin }));
         const wholeDistricts = districts.map((d) => ({ id: d.id, src: d.src, bearing: 180, lngLat: d.origin, bounds: d.bounds }));
-        if (buildings.length || wholeDistricts.length || city) {
+        const landmarkModels = landmarks.map((l) => ({ id: l.id, src: l.src, bearing: 180, lngLat: l.origin, bounds: l.bounds }));
+        if (buildings.length || wholeDistricts.length || landmarkModels.length || city) {
           Promise.all([import("./mapModels"), city ? import("./cityBuildings") : null]).then(([{ axisOf, buildingModelsLayer, hideBlocks, modelAt }, cityModule]) => {
             if (disposed) return;
             const box = ([w, s, e, n]: [number, number, number, number]) => ({ type: "Polygon" as const, coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]] });
@@ -303,7 +309,8 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
             ]);
             if (city && cityModule) {
               // every building of the covered areas, drawn in 3D and tappable through invisible extrusions of the same tiles
-              const layer = cityModule.cityBuildingsLayer(maplibregl, map, { base: city.base, exaggeration: TERRAIN_EXAGGERATION });
+              const replaced = landmarks.flatMap((l) => l.replaces);
+              const layer = cityModule.cityBuildingsLayer(maplibregl, map, { base: city.base, exaggeration: TERRAIN_EXAGGERATION, skip: replaced });
               map.addLayer(layer, "item-halo");
               const ws = city.areas.map((a) => a.bounds);
               map.addSource("city", {
@@ -321,6 +328,7 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
                   source: "city",
                   "source-layer": "buildings",
                   minzoom: city.zoom,
+                  filter: ["!", ["in", ["get", "id"], ["literal", replaced]]],
                   paint: {
                     "fill-extrusion-color": "#000",
                     "fill-extrusion-opacity": 0,
@@ -347,7 +355,38 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
               map.on("mouseenter", "city-pick", () => (map.getCanvas().style.cursor = "pointer"));
               map.on("mouseleave", "city-pick", () => (map.getCanvas().style.cursor = ""));
             }
-            map.addLayer(buildingModelsLayer(maplibregl, map, [...buildings, ...wholeDistricts]), "item-halo");
+            map.addLayer(buildingModelsLayer(maplibregl, map, [...buildings, ...wholeDistricts, ...landmarkModels]), "item-halo");
+            // landmarks can be tapped too: invisible extrusions of their footprints
+            if (landmarks.length) {
+              map.addSource("landmarks", {
+                type: "geojson",
+                data: {
+                  type: "FeatureCollection",
+                  features: landmarks.map((l) => ({
+                    type: "Feature",
+                    geometry: l.footprint,
+                    properties: { id: l.id, name: l.name, about: l.about, homes: l.homes, height: l.height, ...(l.floors ? { floors: l.floors } : {}) },
+                  })),
+                },
+              });
+              map.addLayer(
+                { id: "landmarks", type: "fill-extrusion", source: "landmarks", minzoom: 13, paint: { "fill-extrusion-color": "#000", "fill-extrusion-opacity": 0, "fill-extrusion-height": ["get", "height"] } },
+                "item-halo",
+              );
+              map.on("click", "landmarks", (e) => {
+                const f = e.features?.[0];
+                if (!f || map.queryRenderedFeatures(e.point, { layers: ["item-dot", "cluster"] }).length) return;
+                const l = landmarks.find((x) => x.id === f.properties.id);
+                if (!l) return;
+                popupRef.current?.remove();
+                popupRef.current = new maplibregl.Popup({ offset: 12, maxWidth: "300px", className: "map-popup" })
+                  .setLngLat(l.origin)
+                  .setDOMContent(buildingCard(text.building.city, { id: l.id, name: l.name, floors: l.floors, about: l.about, homes: l.homes }))
+                  .addTo(map);
+              });
+              map.on("mouseenter", "landmarks", () => (map.getCanvas().style.cursor = "pointer"));
+              map.on("mouseleave", "landmarks", () => (map.getCanvas().style.cursor = ""));
+            }
             // the districts' buildings can be tapped: invisible extrusions of their footprints, loaded with the district
             const added = new Set<string>();
             const addFootprints = () => {

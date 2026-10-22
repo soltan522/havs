@@ -63,7 +63,7 @@ const hash = (s: string) => {
 
 type Tile = { key: string; x: number; y: number; group: THREE.Group | null; buildings: Map<string, { props: CityBuilding; rings: [number, number][][] }>; used: number };
 
-export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map: MlMap, opts: { base: string; exaggeration: number }): CustomLayerInterface & {
+export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map: MlMap, opts: { base: string; exaggeration: number; skip?: string[] }): CustomLayerInterface & {
   highlight(id: string | null): void;
 } {
   const camera = new THREE.Camera();
@@ -83,6 +83,8 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
   const roof = new THREE.MeshStandardMaterial({ color: "#d9d5cd", emissive: new THREE.Color("#d9d5cd").multiplyScalar(glow), roughness: 0.95 });
   const accent = new THREE.MeshBasicMaterial({ color: "#c49a6c", transparent: true, opacity: 0.6, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 });
   let highlighted: { id: string; mesh: THREE.Mesh; tile: Tile } | null = null;
+  // buildings drawn by their own detailed models
+  const skip = new Set(opts.skip ?? []);
 
   /** Tile pixels to metres around the tile's centre (+x east, +z south), as the layer places each tile. */
   const toLocal = (tx: number, ty: number, extent: number) => {
@@ -182,6 +184,7 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
         const f: VectorTileFeature = layer.feature(i);
         const rings = f.loadGeometry().map((r) => r.map((pt) => [pt.x, pt.y] as [number, number]));
         const item = { props: f.properties as unknown as CityBuilding, rings };
+        if (skip.has(item.props.id)) continue;
         tile.buildings.set(item.props.id, item);
         list.push(item);
       }
