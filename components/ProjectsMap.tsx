@@ -20,6 +20,8 @@ export type MapItem = {
   cover: string;
   href: string;
   lngLat: [number, number];
+  /** A detailed 3D model of the building, shown in place of its plain map block. */
+  model?: { src: string; bearing: number };
 };
 
 export type MapText = {
@@ -128,18 +130,51 @@ export default function ProjectsMap({ items, text }: { items: MapItem[]; text: M
         root.append(img, body);
         return root;
       };
+      // A flight keeps the camera at the ground height MapLibre guessed when it began, from coarse terrain tiles
+      // (near sea level along the Baku shore). Once the target's own tiles are in, lift the camera to the real
+      // ground height there, so the point ends where the flight aimed it — unless the visitor has moved on.
+      const settle = (lngLat: [number, number]) => {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        map.once("idle", () => {
+          const ground = map.queryTerrainElevation(lngLat);
+          const from = map.getCenterElevation();
+          const here = map.getCenter();
+          if (ground === null || Math.abs(ground - from) < 1 || map.getZoom() !== zoom || here.lng !== center.lng || here.lat !== center.lat) return;
+          const start = performance.now();
+          const lift = (now: number) => {
+            if (map.isMoving()) return;
+            const k = Math.min(1, (now - start) / (reduce ? 1 : 800));
+            map.jumpTo({ elevation: from + (ground - from) * (1 - (1 - k) ** 3) });
+            if (k < 1) requestAnimationFrame(lift);
+          };
+          requestAnimationFrame(lift);
+        });
+      };
       const open = (slug: string, fly: boolean) => {
         const item = bySlug.get(slug);
         if (!item) return;
         popupRef.current?.remove();
-        popupRef.current = new maplibregl.Popup({ offset: 16, maxWidth: "300px", className: "map-popup" })
+        // a building with a 3D model keeps the card clear of it: beside it, or below it on a narrow screen
+        const wide = window.innerWidth > 760;
+        const side = !!item.model && wide;
+        const below = !!item.model && !wide;
+        popupRef.current = new maplibregl.Popup({ offset: side ? [110, -110] : below ? 36 : 16, anchor: side ? "left" : below ? "top" : undefined, maxWidth: "300px", className: "map-popup" })
           .setLngLat(item.lngLat)
           .setDOMContent(card(item))
           .addTo(map);
         if (fly) {
           setRotating(false);
-          // the point sits below the centre so the card opens above it
-          map.flyTo({ center: item.lngLat, offset: [0, 110], zoom: item.area === "baku" ? 14.6 : 13.2, pitch: 60, bearing: map.getBearing(), duration: 2600, essential: true });
+          if (item.model) {
+            // close up on the street front and the corner beside it: the building in the middle, or above its card
+            map.flyTo({ center: item.lngLat, offset: [0, wide ? 100 : -50], zoom: wide ? 18.9 : 18.5, pitch: 64, bearing: (item.model.bearing + 150) % 360, duration: 3400, essential: true });
+          } else {
+            // the point sits below the centre so the card opens above it, clear of the panels on a narrow screen
+            map.flyTo({ center: item.lngLat, offset: [0, wide ? 110 : 150], zoom: item.area === "baku" ? 14.6 : 13.2, pitch: 60, bearing: map.getBearing(), duration: 2600, essential: true });
+          }
+          // listening only now skips the moveend of a flight this one interrupted
+          if (map.isMoving()) map.once("moveend", () => settle(item.lngLat));
+          else settle(item.lngLat);
         }
       };
       openRef.current = open;
@@ -212,6 +247,20 @@ export default function ProjectsMap({ items, text }: { items: MapItem[]; text: M
         for (const layer of ["item-dot", "cluster"]) {
           map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
           map.on("mouseleave", layer, () => (map.getCanvas().style.cursor = ""));
+        }
+
+        // detailed building models replace their plain blocks (three.js is loaded only when there are any)
+        const models = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.lngLat }));
+        if (models.length) {
+          import("./mapModels").then(({ buildingModelsLayer, hideBlocksUnder, modelAt }) => {
+            if (disposed) return;
+            hideBlocksUnder(map, "buildings-3d", models);
+            map.addLayer(buildingModelsLayer(maplibregl, map, models), "item-halo");
+            map.on("click", (e) => {
+              const hit = modelAt(models, e.lngLat);
+              if (hit && !map.queryRenderedFeatures(e.point, { layers: ["item-dot", "cluster"] }).length) open(hit.id, false);
+            });
+          });
         }
 
         setReady(true);

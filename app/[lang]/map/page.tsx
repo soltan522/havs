@@ -100,6 +100,7 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
       cover: plan.cover,
       href: `/${lang}/plans/${plan.slug}`,
       lngLat,
+      ...(plan.model ? { model: plan.model } : {}),
     });
   }
   const { title, eyebrow, lead, count, ...text } = t;

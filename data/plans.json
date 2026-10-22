@@ -939,9 +939,13 @@
       11.64
     ],
     "location": [
-      49.8404,
-      40.4056
+      49.84087,
+      40.40554
     ],
+    "model": {
+      "src": "/models/avropa-qapilari-35.glb",
+      "bearing": 340.4
+    },
     "parking": 18,
     "sign": "AVROPA QAPILARI",
     "inspiration": "baku-commercial",

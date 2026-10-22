@@ -157,6 +157,12 @@ for (const plan of plans) {
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
   if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);
   if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
+  if (plan.model !== undefined) {
+    const { src, bearing } = plan.model ?? {};
+    if (typeof src !== "string" || !src.startsWith("/models/") || !existsSync(path.join(root, "public", src))) err(`model.src must point to a file in public/models/, got ${JSON.stringify(src)}`);
+    if (!(bearing >= 0 && bearing < 360)) err("model.bearing must be a compass bearing from 0 to 360");
+    if (plan.location === undefined) err("a plan with a 3D model needs its exact location");
+  }
   // the projects map (/map): Azerbaijan lies within 44.7–50.7 E, 38.3–42 N
   if (plan.location !== undefined) {
     const [lng, lat] = Array.isArray(plan.location) ? plan.location : [];
