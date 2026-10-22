@@ -61,7 +61,9 @@ Landmarks are drawn as their own detailed models: `data/landmarks.json` lists ea
 `public/models/landmark-<id>.glb` on the real footprint, with `data/landmarks.generated.json` for the map. The forms
 are drawn from the buildings' known shapes (Flame Towers, Heydar Aliyev Center, SOCAR Tower, Maiden Tower, Carpet
 Museum, Deniz Mall, Crystal Hall, TV Tower, Government House, Port Baku Towers, Aquatics Centre, Philharmonic Hall,
-City Hall, Ismailiyya Palace, Heydar Aliyev Palace); heights the sources do not give are marked approximate there.
+City Hall, Ismailiyya Palace, Heydar Aliyev Palace, mosques with their domes and minarets, the Palace of the
+Shirvanshahs, caravanserais and bathhouses); heights the sources do not give are marked approximate there. Houses in
+the city layer get a hipped sheet-metal roof where their plan allows one.
 
 ## Local development
 

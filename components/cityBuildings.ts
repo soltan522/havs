@@ -55,6 +55,71 @@ function facadeTexture(fc: Facade) {
   return t;
 }
 
+// sheet-metal roofs of houses, in the usual colours
+const ROOF_COLOURS = ["#9c4a38", "#7e3f33", "#6f747a", "#55665a", "#a7a39b", "#8a5a40"].map((c) => new THREE.Color(c));
+
+/**
+ * A hipped roof over a house's outline (open ring, metres, building on the left of travel) from height y: slopes up
+ * from every wall to the outline moved in by about half the house's narrow width. Null where the plan allows none.
+ */
+function hipped(ring: [number, number][], y: number): { pos: number[]; nor: number[] } | null {
+  const n = ring.length;
+  if (n < 4 || n > 12) return null;
+  let area = 0, perim = 0;
+  ring.forEach((a, i) => {
+    const b = ring[(i + 1) % n];
+    area += a[0] * b[1] - b[0] * a[1];
+    perim += Math.hypot(b[0] - a[0], b[1] - a[1]);
+  });
+  area = Math.abs(area) / 2;
+  if (area < 25 || area > 450) return null;
+  const d = Math.min(Math.max((0.9 * area) / perim, 1.2), 5);
+  const lines = ring.map((a, i) => {
+    const b = ring[(i + 1) % n];
+    const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    const t = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    return { p: [a[0] - t[1] * d, a[1] + t[0] * d], t };
+  });
+  const inner = ring.map((v, i) => {
+    const A = lines[(i + n - 1) % n], B = lines[i];
+    const det = A.t[0] * B.t[1] - A.t[1] * B.t[0];
+    let q = B.p;
+    if (Math.abs(det) > 1e-6) {
+      const s = ((B.p[0] - A.p[0]) * B.t[1] - (B.p[1] - A.p[1]) * B.t[0]) / det;
+      q = [A.p[0] + A.t[0] * s, A.p[1] + A.t[1] * s];
+    }
+    const dx = q[0] - v[0], dz = q[1] - v[1], k = Math.hypot(dx, dz);
+    return (k > 3 * d ? [v[0] + (dx / k) * 3 * d, v[1] + (dz / k) * 3 * d] : q) as [number, number];
+  });
+  const inside = ([x, z]: [number, number]) => {
+    let r = false;
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const [xi, zi] = ring[i], [xj, zj] = ring[j];
+      if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) r = !r;
+    }
+    return r;
+  };
+  if (!inner.every(inside)) return null;
+  const top = y + d * 0.55; // about 29 degrees
+  const pos: number[] = [], nor: number[] = [];
+  const tri = (a: number[], b: number[], c: number[]) => {
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    let nx = u[1] * v[2] - u[2] * v[1], ny = u[2] * v[0] - u[0] * v[2], nz = u[0] * v[1] - u[1] * v[0];
+    if (ny < 0) { [b, c] = [c, b]; nx = -nx; ny = -ny; nz = -nz; }
+    const l = Math.hypot(nx, ny, nz) || 1;
+    pos.push(...a, ...b, ...c);
+    for (let k = 0; k < 3; k++) nor.push(nx / l, ny / l, nz / l);
+  };
+  ring.forEach((a, i) => {
+    const b = ring[(i + 1) % n], A = inner[i], B = inner[(i + 1) % n];
+    tri([a[0], y, a[1]], [b[0], y, b[1]], [B[0], top, B[1]]);
+    tri([a[0], y, a[1]], [B[0], top, B[1]], [A[0], top, A[1]]);
+  });
+  const flat = inner.map(([x, z]) => new THREE.Vector2(x, z));
+  for (const [i, j, k] of THREE.ShapeUtils.triangulateShape(flat, [])) tri([flat[i].x, top, flat[i].y], [flat[j].x, top, flat[j].y], [flat[k].x, top, flat[k].y]);
+  return { pos, nor };
+}
+
 const hash = (s: string) => {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
@@ -81,6 +146,7 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
     return new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: new THREE.Color(glow, glow, glow), roughness: 0.88, side: THREE.DoubleSide, vertexColors: true });
   });
   const roof = new THREE.MeshStandardMaterial({ color: "#d9d5cd", emissive: new THREE.Color("#d9d5cd").multiplyScalar(glow), roughness: 0.95 });
+  const pitchedRoof = new THREE.MeshStandardMaterial({ vertexColors: true, emissive: new THREE.Color("#2a2622"), roughness: 0.7, side: THREE.DoubleSide });
   const accent = new THREE.MeshBasicMaterial({ color: "#c49a6c", transparent: true, opacity: 0.6, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 });
   let highlighted: { id: string; mesh: THREE.Mesh; tile: Tile } | null = null;
   // buildings drawn by their own detailed models
@@ -98,6 +164,7 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
   function extrude(list: { props: CityBuilding; rings: [number, number][][] }[], local: (x: number, y: number) => [number, number], ex: number) {
     const parts = FACADES.map(() => ({ pos: [] as number[], nor: [] as number[], uv: [] as number[], col: [] as number[] }));
     const top = { pos: [] as number[] };
+    const slopes = { pos: [] as number[], nor: [] as number[], col: [] as number[] };
     for (const { props: p, rings } of list) {
       const fc = FACADES[p.t] ?? FACADES[4];
       const ground = p.g * ex;
@@ -136,6 +203,16 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
           }
         }
       }
+      // houses get a hipped roof where their plan allows one
+      const open = pts[0].length > 1 && pts[0][0][0] === pts[0][pts[0].length - 1][0] && pts[0][0][1] === pts[0][pts[0].length - 1][1] ? pts[0].slice(0, -1) : pts[0];
+      const pitched = p.t === 0 && p.f <= 2 && rings.length === 1 ? hipped(open, y1) : null;
+      if (pitched) {
+        const c = ROOF_COLOURS[Math.floor(hash(p.id) * ROOF_COLOURS.length)];
+        slopes.pos.push(...pitched.pos);
+        slopes.nor.push(...pitched.nor);
+        for (let k = 0; k < pitched.pos.length / 3; k++) slopes.col.push(c.r, c.g, c.b);
+        continue;
+      }
       // roof: each outer ring with the holes that follow it
       const yr = p.f >= 2 ? y1 - PARAPET : y1;
       outers.forEach((oi, j) => {
@@ -161,6 +238,13 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
       g.setAttribute("color", new THREE.Float32BufferAttribute(pt.col, 3));
       group.add(new THREE.Mesh(g, walls[i]));
     });
+    if (slopes.pos.length) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(slopes.pos, 3));
+      g.setAttribute("normal", new THREE.Float32BufferAttribute(slopes.nor, 3));
+      g.setAttribute("color", new THREE.Float32BufferAttribute(slopes.col, 3));
+      group.add(new THREE.Mesh(g, pitchedRoof));
+    }
     if (top.pos.length) {
       const g = new THREE.BufferGeometry();
       g.setAttribute("position", new THREE.Float32BufferAttribute(top.pos, 3));

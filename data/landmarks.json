@@ -422,5 +422,210 @@
       "ru": "1972 · концертный дворец"
     },
     "source": "Footprint: OpenStreetMap via Overture; height approximate."
+  },
+  {
+    "id": "taza-pir-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "c786da13-23f6-411e-aa79-516a10746582"
+    ],
+    "height": 12,
+    "minarets": 2,
+    "minaretHeight": 44,
+    "name": {
+      "az": "Təzəpir Məscidi",
+      "en": "Taza Pir Mosque",
+      "ru": "Мечеть Тазапир"
+    },
+    "about": {
+      "az": "1905–1914 · iki minarə",
+      "en": "1905–1914 · two minarets",
+      "ru": "1905–1914 · два минарета"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Dome and minaret heights approximate."
+  },
+  {
+    "id": "juma-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "79d6eac0-d340-479e-b94f-b3fedb923a67"
+    ],
+    "height": 10,
+    "minarets": 1,
+    "minaretHeight": 24,
+    "domeColor": "stonedome",
+    "name": {
+      "az": "Cümə Məscidi",
+      "en": "Juma Mosque",
+      "ru": "Джума-мечеть"
+    },
+    "about": {
+      "az": "İçərişəhər",
+      "en": "Old City",
+      "ru": "Ичеришехер"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Heights approximate."
+  },
+  {
+    "id": "seyid-murtuza-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "3d0d5cb4-2e2d-4da0-9031-c71359e7f288"
+    ],
+    "height": 7,
+    "minarets": 0,
+    "domeColor": "stonedome",
+    "name": {
+      "az": "Seyid Murtuza Məscidi",
+      "en": "Seyid Murtuza Mosque",
+      "ru": "Мечеть Сеид Муртуза"
+    },
+    "about": {
+      "az": "İçərişəhər",
+      "en": "Old City",
+      "ru": "Ичеришехер"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Heights approximate."
+  },
+  {
+    "id": "huseyniyya-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "90ef4b3f-60ca-40ef-8e88-3e1c4c726d1b"
+    ],
+    "height": 12,
+    "minarets": 2,
+    "minaretHeight": 36,
+    "name": {
+      "az": "Hüseyniyyə Məscidi",
+      "en": "Huseyniyya Mosque",
+      "ru": "Мечеть Гусейния"
+    },
+    "about": {
+      "az": "Məscid",
+      "en": "Mosque",
+      "ru": "Мечеть"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Dome and minarets drawn approximately."
+  },
+  {
+    "id": "sahib-az-zaman-mosque",
+    "kind": "mosque",
+    "replaces": [
+      "1132c43b-1da1-4733-951c-5fe6b45bbe74"
+    ],
+    "height": 14,
+    "minarets": 2,
+    "minaretHeight": 45,
+    "name": {
+      "az": "Sahib əz-Zaman Məscidi",
+      "en": "Sahib az-Zaman Mosque",
+      "ru": "Мечеть Сахиб аз-Заман"
+    },
+    "about": {
+      "az": "Məscid",
+      "en": "Mosque",
+      "ru": "Мечеть"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Dome and minarets drawn approximately."
+  },
+  {
+    "id": "shirvanshah-tomb",
+    "kind": "mosque",
+    "replaces": [
+      "8f4b2b37-6841-482f-871c-5280a7655008"
+    ],
+    "height": 7,
+    "minarets": 0,
+    "domeColor": "stonedome",
+    "name": {
+      "az": "Şirvanşahlar türbəsi",
+      "en": "Shirvanshahs' Mausoleum",
+      "ru": "Усыпальница Ширваншахов"
+    },
+    "about": {
+      "az": "Şirvanşahlar Sarayı · XV əsr",
+      "en": "Palace of the Shirvanshahs · 15th century",
+      "ru": "Дворец Ширваншахов · XV век"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Heights approximate."
+  },
+  {
+    "id": "shirvanshah-palace",
+    "kind": "stone",
+    "replaces": [
+      "a616149a-d111-4cda-aeaa-91bc84e8e170"
+    ],
+    "height": 12,
+    "smooth": 0,
+    "name": {
+      "az": "Şirvanşahlar Sarayı",
+      "en": "Palace of the Shirvanshahs",
+      "ru": "Дворец Ширваншахов"
+    },
+    "about": {
+      "az": "XV əsr · UNESCO",
+      "en": "15th century · UNESCO",
+      "ru": "XV век · ЮНЕСКО"
+    },
+    "source": "Footprint: OpenStreetMap via Overture (the residential building). Height approximate."
+  },
+  {
+    "id": "multani-caravanserai",
+    "kind": "stone",
+    "replaces": [
+      "74146417-2211-4058-9f71-b8a4dc7f0814"
+    ],
+    "height": 8,
+    "smooth": 0,
+    "name": {
+      "az": "Multani Karvansarayı",
+      "en": "Multani Caravanserai",
+      "ru": "Караван-сарай Мултани"
+    },
+    "about": {
+      "az": "XV əsr · İçərişəhər",
+      "en": "15th century · Old City",
+      "ru": "XV век · Ичеришехер"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Height approximate."
+  },
+  {
+    "id": "old-hamam",
+    "kind": "hamam",
+    "replaces": [
+      "1e7c7365-c054-48a5-8cf8-58f5a1f6f8e6"
+    ],
+    "height": 4,
+    "name": {
+      "az": "Qədim Hamam",
+      "en": "Old Bathhouse",
+      "ru": "Старая баня"
+    },
+    "about": {
+      "az": "İçərişəhər",
+      "en": "Old City",
+      "ru": "Ичеришехер"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Domes drawn approximately."
+  },
+  {
+    "id": "taza-bey-hamam",
+    "kind": "hamam",
+    "replaces": [
+      "d7a1a32b-efc5-49ff-962d-03fd44738766"
+    ],
+    "height": 5,
+    "name": {
+      "az": "Təzə Bəy Hamamı",
+      "en": "Taza Bey Bathhouse",
+      "ru": "Баня Таза-бей"
+    },
+    "about": {
+      "az": "Tarixi hamam",
+      "en": "Historic bathhouse",
+      "ru": "Историческая баня"
+    },
+    "source": "Footprint: OpenStreetMap via Overture. Domes drawn approximately."
   }
 ]

@@ -15,6 +15,8 @@
 //   classic      a stone building (arched windows, or Venetian Gothic ones) with its towers and domes
 //   colonnade    a modernist palace behind a white colonnade
 //   aquatics     the Aquatic Centre: a roof rising like a wave over glass walls
+//   mosque   limestone walls, a dome on a drum and minarets on the side away from the qibla (or a mausoleum's dome)
+//   hamam    an old bathhouse: low stone walls under small domes
 //   node scripts/build-landmarks.mjs [id ...]
 // Units are metres; +Y up, +X east, +Z south (the map places the models with bearing 180). Each model's origin is
 // the centre of its footprint at ground level; walls reach below it to the footprint's lowest ground.
@@ -374,6 +376,7 @@ const PLAIN = {
   roof: [214, 210, 202],
   mast: [236, 236, 232],
   dome: [118, 134, 128], // weathered copper
+  stonedome: [206, 186, 150], // domes of Absheron limestone
 };
 
 // ---------------------------------------------------------------------------------------------------- the forms
@@ -438,7 +441,7 @@ const KINDS = {
     return H;
   },
   stone({ part, outer, l, skirt }) {
-    const ring = chaikin(outer, 1);
+    const ring = chaikin(outer, l.smooth ?? 1);
     walls(part("stone"), [ring], -skirt, () => l.height, TEXTURES.stone.w, TEXTURES.stone.h);
     cap(part("stone"), [ring], l.height, true, TEXTURES.stone.w);
     return l.height;
@@ -537,6 +540,54 @@ const KINDS = {
     walls(part("colonnade"), rings, -skirt, () => l.height, TEXTURES.colonnade.w, TEXTURES.colonnade.h);
     cap(part("roof"), rings, l.height);
     return l.height;
+  },
+  mosque({ part, rings, l, skirt }) {
+    const H = l.height, T = TEXTURES.stone;
+    walls(part("stone"), rings, -skirt, () => H, T.w, T.h);
+    cap(part("stone"), rings, H, true, T.w);
+    // the footprint's box along its main axes
+    const { c: c0, major, minor } = axes(rings[0]);
+    const us = rings[0].map((p) => dot(sub(p, c0), major)), vs = rings[0].map((p) => dot(sub(p, c0), minor));
+    const [ua, ub, va, vb] = [Math.min(...us), Math.max(...us), Math.min(...vs), Math.max(...vs)];
+    const c = add(c0, add(mul(major, (ua + ub) / 2), mul(minor, (va + vb) / 2)));
+    const a = (ub - ua) / 2, b = (vb - va) / 2;
+    // the dome on a low drum over the middle
+    const r = Math.min(l.dome ?? Math.min(0.72 * Math.min(a, b), 11), Math.min(a, b) * 0.95);
+    const drum = H + r * 0.3;
+    walls(part("stone"), [disc(c, r * 1.04)], H - 0.5, () => drum, T.w, T.h);
+    let top = dome(part(l.domeColor ?? "dome"), c, r, drum);
+    // minarets on the side away from the qibla (Mecca lies at a bearing of about 205 degrees from Baku)
+    const qibla = [Math.sin((205 * Math.PI) / 180), -Math.cos((205 * Math.PI) / 180)];
+    const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+      .map(([i, j]) => add(c, add(mul(major, i * (a - 2.2)), mul(minor, j * (b - 2.2)))))
+      .sort((p, q) => dot(sub(p, c), qibla) - dot(sub(q, c), qibla))
+      .slice(0, l.minarets ?? 0);
+    for (const m of corners) {
+      const M = l.minaretHeight, sh = part("stone");
+      loft(sh, [circle(m, 1.7, -skirt, 12), circle(m, 1.6, M * 0.72, 12)], T.w, T.h);
+      // the muezzin's balcony, the upper shaft and a pointed cap
+      loft(sh, [circle(m, 1.6, M * 0.72, 12), circle(m, 2.5, M * 0.74, 12), circle(m, 2.5, M * 0.77, 12), circle(m, 1.25, M * 0.79, 12), circle(m, 1.2, M * 0.9, 12)], T.w, T.h);
+      loft(part(l.domeColor ?? "dome"), [circle(m, 1.5, M * 0.9, 12), circle(m, 0.05, M, 12)], 1, 1);
+      top = Math.max(top, M);
+    }
+    return top;
+  },
+  hamam({ part, rings, l, skirt }) {
+    const H = l.height, T = TEXTURES.stone;
+    walls(part("stone"), rings, -skirt, () => H, T.w, T.h);
+    cap(part("stone"), rings, H, true, T.w);
+    // small stone domes over the halls, in a two-by-two grid
+    const { c, major, minor } = axes(rings[0]);
+    const us = rings[0].map((p) => dot(sub(p, c), major)), vs = rings[0].map((p) => dot(sub(p, c), minor));
+    const a = (Math.max(...us) - Math.min(...us)) / 4, b = (Math.max(...vs) - Math.min(...vs)) / 4;
+    const mid = add(c, add(mul(major, (Math.max(...us) + Math.min(...us)) / 2), mul(minor, (Math.max(...vs) + Math.min(...vs)) / 2)));
+    const r = Math.min(a, b, 3.5) * 0.85;
+    let top = H;
+    for (const [i, j] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const p = add(mid, add(mul(major, i * a), mul(minor, j * b)));
+      if (inside(rings, p[0], p[1])) top = Math.max(top, dome(part("stonedome"), p, r, H));
+    }
+    return top;
   },
   aquatics({ part, rings, l, skirt }) {
     const { c, major } = axes(rings[0]);
