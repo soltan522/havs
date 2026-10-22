@@ -1,4 +1,5 @@
-// Builds the 3D model of a whole district for the projects map (public/models/district-<id>.glb) from
+// Builds the 3D model of a whole district for the projects map (public/models/district-<id>.glb, plus the buildings'
+// footprints in district-<id>.geojson for picking them on the map) from
 // data/districts/<id>.json: every building is extruded from its footprint to its floor count, with a facade of window
 // rows, a flat roof behind a parapet and its own ground height on the map's terrain. The inputs come from Overture Maps
 // (OpenStreetMap and Microsoft ML footprints); floor counts the data lacks are estimated, and flagged so.
@@ -170,6 +171,23 @@ for (const id of process.argv.slice(2)) {
   const glb = await new NodeIO().registerExtensions([KHRMeshQuantization]).writeBinary(doc);
   const out = path.join(root, "public/models", `district-${id}.glb`);
   writeFileSync(out, glb);
+  // footprints for the map: tapping a building opens its card
+  const footprints = {
+    type: "FeatureCollection",
+    features: district.buildings.map((b) => ({
+      type: "Feature",
+      geometry: { type: "MultiPolygon", coordinates: b.polygons.map((rings) => rings.map((ring) => [...ring, ring[0]])) },
+      properties: {
+        id: b.id,
+        ...(b.name ? { name: b.name } : {}),
+        ...(b.complex ? { complex: b.complex } : {}),
+        floors: b.floors,
+        estimated: b.estimated,
+        height: Math.round((b.floors * FLOOR + (b.floors >= 2 ? PARAPET : 0.3)) * 10) / 10,
+      },
+    })),
+  };
+  writeFileSync(path.join(root, "public/models", `district-${id}.geojson`), JSON.stringify(footprints));
   const tris = Object.values(buckets).reduce((n, b) => n + b.idx.length / 3, 0);
   const est = district.buildings.filter((b) => b.estimated).length;
   console.log(`${path.relative(root, out)}: ${(glb.length / 1024).toFixed(0)} KB, ${district.buildings.length} buildings (${est} with estimated floors), ${tris} triangles`);

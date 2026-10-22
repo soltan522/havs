@@ -5,7 +5,7 @@ import ProjectsMap, { type MapArea, type MapItem, type MapText } from "@/compone
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { specsLine } from "@/lib/copy";
 import { isLocale, type Locale } from "@/lib/i18n";
-import { DISTRICTS } from "@/lib/districts";
+import { districtsIn } from "@/lib/districts";
 import { placeOf } from "@/lib/places";
 import { formatPrice, planLabel, publishedPlans } from "@/lib/plans";
 import { currency } from "@/lib/providers";
@@ -26,6 +26,7 @@ const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: str
     loading: "Xəritə yüklənir…",
     noMap: "Brauzeriniz 3D xəritəni göstərə bilmir — aşağıdakı siyahıdan istifadə edin.",
     note: "Nöqtələr layihənin adını aldığı qəsəbə və ya rayonun mərkəzini göstərir. Bütün layihələr konseptdir, tikilmiş ev deyil.",
+    building: { home: "Yaşayış binası", floors: "{n} mərtəbə", estimated: "≈ {n} mərtəbə (təxmini)", soon: "Bu binanın mənzil planları və hazır dizaynları hazırlanır.", send: "Mənzil planınızı göndərin" },
   },
   en: {
     title: "Projects on the map",
@@ -42,6 +43,7 @@ const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: str
     loading: "Loading the map…",
     noMap: "Your browser cannot show the 3D map — use the list below.",
     note: "Points mark the centre of the town or district a project is named after. All projects are concepts, not built houses.",
+    building: { home: "Residential building", floors: "{n} floors", estimated: "≈ {n} floors (estimated)", soon: "Apartment plans and ready designs for this building are on the way.", send: "Send us your apartment plan" },
   },
   ru: {
     title: "Проекты на карте",
@@ -58,6 +60,7 @@ const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: str
     loading: "Загрузка карты…",
     noMap: "Ваш браузер не может показать 3D-карту — воспользуйтесь списком ниже.",
     note: "Точки отмечают центр посёлка или района, в честь которого назван проект. Все проекты — концепты, а не построенные дома.",
+    building: { home: "Жилой дом", floors: "{n} этажей", estimated: "≈ {n} этажей (оценка)", soon: "Планировки квартир и готовые дизайны для этого дома готовятся.", send: "Пришлите планировку вашей квартиры" },
   },
 };
 
@@ -121,7 +124,7 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
           </Reveal>
         </section>
         <section className="wrap-wide">
-          <ProjectsMap items={items} districts={DISTRICTS} text={{ ...text, lang }} />
+          <ProjectsMap items={items} districts={districtsIn(lang)} text={{ ...text, lang }} />
         </section>
       </main>
       <Footer locale={lang} />

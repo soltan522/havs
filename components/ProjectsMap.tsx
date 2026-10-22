@@ -36,6 +36,8 @@ export type MapText = {
   loading: string;
   noMap: string;
   note: string;
+  /** Card of a building in a 3D district; `{n}` is the floor count. */
+  building: { home: string; floors: string; estimated: string; soon: string; send: string };
 };
 
 type View = { center: [number, number]; zoom: number; pitch: number; bearing: number };
@@ -135,6 +137,28 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
         add("span", "map-card-row", `${item.price}`);
         add("span", "map-card-link", `${text.view} →`);
         root.append(img, body);
+        return root;
+      };
+      // a building of a 3D district: what it is and, until its apartment plans are in, an invitation to send one
+      const buildingCard = (district: DistrictModel, p: Record<string, unknown>) => {
+        const root = document.createElement("div");
+        root.className = "map-card map-card-building";
+        const body = document.createElement("span");
+        body.className = "map-card-body";
+        const add = (tag: string, cls: string, value: string) => {
+          const el = document.createElement(tag);
+          el.className = cls;
+          el.textContent = value;
+          body.appendChild(el);
+          return el;
+        };
+        add("span", "map-card-label", [district.name, p.complex].filter(Boolean).join(" · "));
+        add("strong", "map-card-title", String(p.name ?? p.complex ?? text.building.home));
+        add("span", "map-card-specs", (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors)));
+        add("span", "map-card-note", text.building.soon);
+        const link = add("a", "map-card-link", `${text.building.send} →`) as HTMLAnchorElement;
+        link.href = `/${text.lang}/contact`;
+        root.append(body);
         return root;
       };
       // A flight keeps the camera at the ground height MapLibre guessed when it began, from coarse terrain tiles
@@ -268,6 +292,40 @@ export default function ProjectsMap({ items, districts = [], text }: { items: Ma
               ...districts.map((d) => ({ geometry: d.zone, metres: 0 })),
             ]);
             map.addLayer(buildingModelsLayer(maplibregl, map, [...buildings, ...wholeDistricts]), "item-halo");
+            // the districts' buildings can be tapped: invisible extrusions of their footprints, loaded with the district
+            const added = new Set<string>();
+            const addFootprints = () => {
+              if (map.getZoom() < 12) return;
+              const v = map.getBounds();
+              for (const d of districts) {
+                const [w, s, e, n] = d.bounds;
+                if (added.has(d.id) || !(w < v.getEast() && e > v.getWest() && s < v.getNorth() && n > v.getSouth())) continue;
+                added.add(d.id);
+                const layer = `district-${d.id}`;
+                map.addSource(layer, { type: "geojson", data: d.footprints });
+                map.addLayer(
+                  { id: layer, type: "fill-extrusion", source: layer, minzoom: 13, paint: { "fill-extrusion-color": "#000", "fill-extrusion-opacity": 0, "fill-extrusion-height": ["get", "height"] } },
+                  "item-halo",
+                );
+                map.on("click", layer, (e) => {
+                  const f = e.features?.[0];
+                  if (!f || map.queryRenderedFeatures(e.point, { layers: ["item-dot", "cluster"] }).length || modelAt(buildings, e.lngLat)) return;
+                  // the card opens over the building's footprint, not on the ground behind it
+                  const g = f.geometry as { type: string; coordinates: number[][][] | number[][][][] };
+                  const ring = (g.type === "Polygon" ? g.coordinates[0] : g.coordinates[0][0]) as number[][];
+                  const at: [number, number] = [ring.reduce((a, c) => a + c[0], 0) / ring.length, ring.reduce((a, c) => a + c[1], 0) / ring.length];
+                  popupRef.current?.remove();
+                  popupRef.current = new maplibregl.Popup({ offset: 12, maxWidth: "300px", className: "map-popup" })
+                    .setLngLat(at)
+                    .setDOMContent(buildingCard(d, f.properties))
+                    .addTo(map);
+                });
+                map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
+                map.on("mouseleave", layer, () => (map.getCanvas().style.cursor = ""));
+              }
+            };
+            addFootprints();
+            map.on("moveend", addFootprints);
             map.on("click", (e) => {
               const hit = modelAt(buildings, e.lngLat);
               if (hit && !map.queryRenderedFeatures(e.point, { layers: ["item-dot", "cluster"] }).length) open(hit.id, false);
