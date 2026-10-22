@@ -20,8 +20,8 @@ export type MapItem = {
   cover: string;
   href: string;
   lngLat: [number, number];
-  /** A detailed 3D model of the building, shown in place of its plain map block. */
-  model?: { src: string; bearing: number };
+  /** A detailed 3D model of the building, shown in place of its plain map block; `origin` is the centre of its footprint. */
+  model?: { src: string; bearing: number; origin: [number, number] };
 };
 
 export type MapText = {
@@ -159,22 +159,23 @@ export default function ProjectsMap({ items, text }: { items: MapItem[]; text: M
         const wide = window.innerWidth > 760;
         const side = !!item.model && wide;
         const below = !!item.model && !wide;
-        popupRef.current = new maplibregl.Popup({ offset: side ? [110, -110] : below ? 36 : 16, anchor: side ? "left" : below ? "top" : undefined, maxWidth: "300px", className: "map-popup" })
-          .setLngLat(item.lngLat)
+        popupRef.current = new maplibregl.Popup({ offset: side ? [140, -70] : below ? 36 : 16, anchor: side ? "left" : below ? "top" : undefined, maxWidth: "300px", className: "map-popup" })
+          .setLngLat(side ? item.model!.origin : item.lngLat)
           .setDOMContent(card(item))
           .addTo(map);
         if (fly) {
           setRotating(false);
+          const center = item.model?.origin ?? item.lngLat;
           if (item.model) {
             // close up on the street front and the corner beside it: the building in the middle, or above its card
-            map.flyTo({ center: item.lngLat, offset: [0, wide ? 100 : -50], zoom: wide ? 18.9 : 18.5, pitch: 64, bearing: (item.model.bearing + 150) % 360, duration: 3400, essential: true });
+            map.flyTo({ center, offset: [0, wide ? 90 : -80], zoom: wide ? 18.9 : 18.3, pitch: 64, bearing: (item.model.bearing + 150) % 360, duration: 3400, essential: true });
           } else {
             // the point sits below the centre so the card opens above it, clear of the panels on a narrow screen
             map.flyTo({ center: item.lngLat, offset: [0, wide ? 110 : 150], zoom: item.area === "baku" ? 14.6 : 13.2, pitch: 60, bearing: map.getBearing(), duration: 2600, essential: true });
           }
           // listening only now skips the moveend of a flight this one interrupted
-          if (map.isMoving()) map.once("moveend", () => settle(item.lngLat));
-          else settle(item.lngLat);
+          if (map.isMoving()) map.once("moveend", () => settle(center));
+          else settle(center);
         }
       };
       openRef.current = open;
@@ -250,7 +251,7 @@ export default function ProjectsMap({ items, text }: { items: MapItem[]; text: M
         }
 
         // detailed building models replace their plain blocks (three.js is loaded only when there are any)
-        const models = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.lngLat }));
+        const models = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin }));
         if (models.length) {
           import("./mapModels").then(({ buildingModelsLayer, hideBlocksUnder, modelAt }) => {
             if (disposed) return;

@@ -158,10 +158,16 @@ for (const plan of plans) {
   if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);
   if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
   if (plan.model !== undefined) {
-    const { src, bearing } = plan.model ?? {};
+    const { src, bearing, origin } = plan.model ?? {};
     if (typeof src !== "string" || !src.startsWith("/models/") || !existsSync(path.join(root, "public", src))) err(`model.src must point to a file in public/models/, got ${JSON.stringify(src)}`);
     if (!(bearing >= 0 && bearing < 360)) err("model.bearing must be a compass bearing from 0 to 360");
     if (plan.location === undefined) err("a plan with a 3D model needs its exact location");
+    else if (origin !== undefined) {
+      // the model stands at its own surveyed spot, next to the map point (its entrance, say)
+      const [lng, lat] = Array.isArray(origin) ? origin : [];
+      const metres = Math.hypot((lng - plan.location[0]) * 111320 * Math.cos((lat * Math.PI) / 180), (lat - plan.location[1]) * 110540);
+      if (!(metres < 60)) err(`model.origin must be [longitude, latitude] within 60 m of location, got ${JSON.stringify(origin)}`);
+    }
   }
   // the projects map (/map): Azerbaijan lies within 44.7–50.7 E, 38.3–42 N
   if (plan.location !== undefined) {
