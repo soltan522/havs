@@ -5,7 +5,7 @@
     "replaces": [
       "c3674177-fedf-4b5a-ab2b-ec7b908e46e5"
     ],
-    "floors": 39,
+    "floors": 33,
     "height": 182,
     "group": [
       49.82642,
@@ -22,7 +22,7 @@
       "en": "Residential tower · 182 m",
       "ru": "Жилая башня · 182 м"
     },
-    "source": "Footprint and floors: OpenStreetMap via Overture. Height of the tallest tower 182 m (Wikipedia, Flame Towers)."
+    "source": "Footprint: OpenStreetMap via Overture. Floors 33 (Structurae); height of the tallest tower 182 m (Wikipedia, Flame Towers)."
   },
   {
     "id": "flame-tower-2",
@@ -30,8 +30,8 @@
     "replaces": [
       "5c00964e-f127-454f-b01f-6970a80667fd"
     ],
-    "floors": 37,
-    "height": 172,
+    "floors": 30,
+    "height": 165,
     "group": [
       49.82642,
       40.35992
@@ -46,7 +46,7 @@
       "en": "Hotel tower",
       "ru": "Башня отеля"
     },
-    "source": "Footprint and floors: OpenStreetMap via Overture; height in proportion to the 182 m tower by floor count."
+    "source": "Footprint: OpenStreetMap via Overture. Floors 30 (Structurae); height in proportion to the 182 m tower by floor count."
   },
   {
     "id": "flame-tower-3",
@@ -54,8 +54,8 @@
     "replaces": [
       "43ec16b3-5bdf-4500-bafc-765a5ba44fc2"
     ],
-    "floors": 34,
-    "height": 159,
+    "floors": 28,
+    "height": 154,
     "group": [
       49.82642,
       40.35992
@@ -70,7 +70,7 @@
       "en": "Office tower",
       "ru": "Офисная башня"
     },
-    "source": "Footprint and floors: OpenStreetMap via Overture; height in proportion to the 182 m tower by floor count."
+    "source": "Footprint: OpenStreetMap via Overture. Floors 28 (Structurae); height in proportion to the 182 m tower by floor count."
   },
   {
     "id": "heydar-aliyev-center",

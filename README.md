@@ -48,7 +48,9 @@ at the place its slug is named after in `data/places.json` (`null` keeps a name 
 by `node scripts/build-district-models.mjs <id>`; correct a building's `floors` there and rebuild.
 `data/districts/complexes.json` overrides a whole residential complex with a sourced floor count, its construction
 status (shown on the building's card) and facade details; Sea Breeze is drawn in its resort style (white walls,
-panoramic glazing, balconies with glass railings, glass towers, the Caspian Dream Liner's stepped decks). The models are
+panoramic glazing, balconies with glass railings, glass towers, the Caspian Dream Liner's stepped decks), Ağ Şəhər in its
+Parisian one (stone fronts with French windows over shopfronts, a cornice and a zinc mansard storey; stone towers with
+a stepped crown). The models are
 meshopt-compressed, so the map's GLTFLoader carries the meshopt decoder.
 Baku's buildings are drawn in 3D from static vector tiles (`public/tiles/buildings/14/<x>/<y>.pbf`, built from
 `data/city/<area>.geojson.gz` by `node scripts/city/build-tiles.mjs`; the areas come from Overture Maps through

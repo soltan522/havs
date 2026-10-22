@@ -5,7 +5,8 @@
 // (OpenStreetMap and Microsoft ML footprints); floor counts the data lacks are estimated, and flagged so.
 // data/districts/complexes.json overrides a residential complex's floor count with a sourced figure and picks its
 // facade: Sea Breeze is drawn in its resort style (white walls, panoramic glazing, balcony bands with glass railings,
-// glass towers, the stepped decks of the Caspian Dream Liner); Ağ Şəhər keeps plain window rows.
+// glass towers, the stepped decks of the Caspian Dream Liner); Ağ Şəhər in its Parisian one (stone fronts with French
+// windows over shopfronts, a cornice and a zinc mansard storey; stone towers with a stepped crown).
 //   node scripts/build-district-models.mjs seabreeze whitecity
 // Units are metres; +Y up, +X east, +Z south (the map places district models with bearing 180). Origin: the district's
 // `origin` at its terrain height, so the model stands on the terrain when placed at queryTerrainElevation(origin).
@@ -31,10 +32,13 @@ const PALETTES = {
   seabreeze: { wall: [247, 245, 240], glass: [146, 168, 176], frame: [228, 225, 218], roof: [226, 223, 216] },
   whitecity: { wall: [245, 241, 232], glass: [138, 150, 158], frame: [226, 220, 207], roof: [224, 219, 209] },
 };
-// districts drawn in the resort style; the others keep plain window rows
+// districts drawn in the resort style and in the Parisian one
 const RESORT = new Set(["seabreeze"]);
+const PARIS = new Set(["whitecity"]);
 const COMPLEXES = JSON.parse(readFileSync(path.join(root, "data/districts/complexes.json"), "utf8"));
 
+const IRON = [58, 60, 62]; // wrought-iron railings
+const ZINC = [122, 130, 138]; // mansard roofs
 const EARTH = 40075016.686;
 const mercX = (lng) => (lng + 180) / 360;
 const mercY = (lat) => (1 - Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360)) / Math.PI) / 2;
@@ -43,6 +47,8 @@ const mercY = (lat) => (1 - Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 36
  * One window bay of one storey; image rows run from floor level (top) to the next floor (bottom), as glTF reads v.
  *   window: a punched window (villas, Ağ Şəhər)    panorama: floor-to-ceiling glazing between white slab edges
  *   curtain: a glass curtain wall with spandrels   strip: the continuous window band of a ship's deck
+ *   paris: a French window with its iron railing   shop: a shopfront under a stone band
+ *   mansard: zinc with a dormer window             stonetower: a stone tower's window between pilasters
  */
 async function facadeTexture(kind, { wall, glass, frame }) {
   const S = 128;
@@ -58,6 +64,14 @@ async function facadeTexture(kind, { wall, glass, frame }) {
     curtain: [rect(0, 0, BAY, FLOOR, sky), rect(0, 1.6, BAY, FLOOR, dark(sky, 0.93)), rect(0, 0, BAY, 0.7, dark(glass, 0.95)),
       rect(0, 0, 0.06, FLOOR, frame), rect(1.47, 0, 1.53, FLOOR, frame), rect(0, 0.68, BAY, 0.74, frame)],
     strip: [rect(0, 0.9, BAY, 2.55, sky), rect(0, 1.8, BAY, 2.55, dark(sky, 0.93)), rect(1.47, 0.9, 1.53, 2.55, frame), rect(0, 0.84, BAY, 0.9, frame)],
+    paris: [rect(0, 0, BAY, 0.12, dark(wall, 0.9)), rect(0.82, 0.3, 2.18, 2.78, frame), rect(0.9, 0.38, 2.1, 2.7, dark(glass, 0.72)),
+      rect(1.47, 0.38, 1.53, 2.7, frame), rect(0.76, 0.3, 2.24, 0.38, IRON), rect(0.76, 1.12, 2.24, 1.18, IRON),
+      ...[0.95, 1.2, 1.45, 1.7, 1.95].map((x) => rect(x, 0.38, x + 0.03, 1.12, IRON))],
+    shop: [rect(0.22, 0, 2.78, 2.75, dark(glass, 0.62)), rect(0.22, 0, 2.78, 0.5, dark(glass, 0.5)), rect(1.47, 0, 1.53, 2.75, frame),
+      rect(0, 2.75, BAY, FLOOR, dark(wall, 0.88))],
+    mansard: [rect(0, 0, BAY, FLOOR, ZINC), rect(0, 2.9, BAY, FLOOR, dark(ZINC, 0.85)), rect(1.0, 0.45, 2.0, 2.4, wall), rect(1.12, 0.6, 1.88, 2.25, dark(glass, 0.7))],
+    stonetower: [rect(0, 0, 0.16, FLOOR, dark(wall, 0.93)), rect(0.5, 0.55, 2.5, 2.75, dark(glass, 0.8)), rect(1.47, 0.55, 1.53, 2.75, frame),
+      rect(0.5, 0.55, 2.5, 0.65, frame)],
   };
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}">
     <rect width="${S}" height="${S}" fill="rgb(${wall.join(",")})"/>${parts[kind].join("")}</svg>`;
@@ -223,6 +237,60 @@ function buildDistrict(id) {
     }
   };
 
+  /** A ring moved `d` metres into the building (holes grow), keeping its points in order; null if it collapses. */
+  const intoSolid = (ring, d, solid) => {
+    const n = ring.length;
+    const lines = ring.map((a, i) => {
+      const b = ring[(i + 1) % n];
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      const t = [(b[0] - a[0]) / len, (b[1] - a[1]) / len];
+      let m = [-t[1], t[0]];
+      if (!solid((a[0] + b[0]) / 2 + m[0] * 0.05, (a[1] + b[1]) / 2 + m[1] * 0.05)) m = [-m[0], -m[1]];
+      return { p: [a[0] + m[0] * d, a[1] + m[1] * d], t };
+    });
+    const moved = ring.map((v, i) => {
+      const A = lines[(i + n - 1) % n], B = lines[i];
+      const det = A.t[0] * B.t[1] - A.t[1] * B.t[0];
+      let p = B.p;
+      if (Math.abs(det) > 1e-6) {
+        const s = ((B.p[0] - A.p[0]) * B.t[1] - (B.p[1] - A.p[1]) * B.t[0]) / det;
+        p = [A.p[0] + A.t[0] * s, A.p[1] + A.t[1] * s];
+      }
+      const dx = p[0] - v[0], dz = p[1] - v[1], k = Math.hypot(dx, dz);
+      return k > 3 * d ? [v[0] + (dx / k) * 3 * d, v[1] + (dz / k) * 3 * d] : p;
+    });
+    return moved.every(([x, z]) => solid(x, z)) ? moved : null;
+  };
+  /** A stone cornice along every edge of a ring, its top at y. */
+  const cornice = (ring, solid, y) => {
+    for (const e of edges(ring, solid)) {
+      const P = (s, out, h) => [e.a[0] + e.t[0] * s + e.n[0] * out, h, e.a[1] + e.t[1] * s + e.n[1] * out];
+      quad(bucket("slab"), [P(0, 0, y), P(e.len, 0, y), P(e.len, 0.5, y), P(0, 0.5, y)], [0, 1, 0]);
+      quad(bucket("slab"), [P(0, 0.5, y - 0.4), P(e.len, 0.5, y - 0.4), P(e.len, 0.5, y), P(0, 0.5, y)], [e.n[0], 0, e.n[1]]);
+    }
+  };
+  /** A sloping mansard storey from `rings` at y0 back to `tops` (the same rings moved in) at y1. */
+  const mansard = (rings, tops, solid, y0, y1, ground, tint) => {
+    const b = bucket("mansard");
+    const v = (y) => (y - ground) / FLOOR;
+    rings.forEach((ring, r) => {
+      let run = 0;
+      ring.forEach((a, j) => {
+        const c = ring[(j + 1) % ring.length], A = tops[r][j], C = tops[r][(j + 1) % ring.length];
+        const len = Math.hypot(c[0] - a[0], c[1] - a[1]);
+        if (len < 0.05) return;
+        let n = [-(c[1] - a[1]) / len, (c[0] - a[0]) / len];
+        if (solid((a[0] + c[0]) / 2 + n[0] * 0.05, (a[1] + c[1]) / 2 + n[1] * 0.05)) n = [-n[0], -n[1]];
+        const rise = y1 - y0, back = Math.hypot(A[0] - a[0], A[1] - a[1]);
+        const k = Math.hypot(rise, back) || 1;
+        quad(b, [[a[0], y0, a[1]], [c[0], y0, c[1]], [C[0], y1, C[1]], [A[0], y1, A[1]]], [(n[0] * rise) / k, back / k, (n[1] * rise) / k],
+          [[run / BAY, v(y0)], [(run + len) / BAY, v(y0)], [(run + len) / BAY, v(y1)], [run / BAY, v(y1)]], tint);
+        run += len;
+      });
+    });
+  };
+
+  const paris = PARIS.has(id);
   const out = [];
   district.buildings.forEach((bld, i) => {
     const pts0 = bld.polygons.map((rings) => rings.map((ring) => ring.map(local)));
@@ -255,6 +323,36 @@ function buildDistrict(id) {
           from = to;
           top = y1 + (to === floors ? PARAPET : 0);
         }
+        continue;
+      }
+      if (paris && floors >= 3 && floors < 15 && partArea >= 200) {
+        // shopfronts, stone storeys with French windows, a cornice and a zinc mansard storey
+        const g = bld.ground, yShop = g + FLOOR, yCornice = g + (floors - 1) * FLOOR, yTop = g + floors * FLOOR;
+        const tops = rings.map((r) => intoSolid(r, 1.7, solid));
+        for (const ring of rings) {
+          walls("shop", ring, solid, bottom, yShop, g, tint);
+          walls("paris", ring, solid, yShop, tops.every(Boolean) ? yCornice : yTop, g, tint);
+        }
+        if (tops.every(Boolean)) {
+          for (const ring of rings) cornice(ring, solid, yCornice);
+          mansard(rings, tops, solid, yCornice, yTop, g, tint);
+          roof("roof", tops, yTop);
+        } else roof("roof", rings, yTop);
+        top = yTop;
+        continue;
+      }
+      if (paris && floors >= 15) {
+        // a stone tower whose top two storeys step back into a crown
+        const g = bld.ground, yCrown = g + (floors - 2) * FLOOR, yTop = g + floors * FLOOR;
+        const crown = insetRing(rings[0], 2.5);
+        for (const ring of rings) walls("stonetower", ring, solid, bottom, crown ? yCrown : yTop, g, tint);
+        if (crown) {
+          for (const ring of rings) cornice(ring, solid, yCrown);
+          roof("roof", rings, yCrown);
+          walls("stonetower", crown, (x, z) => inRing(crown, x, z), yCrown, yTop + PARAPET, g, tint);
+          roof("roof", [crown], yTop);
+        } else roof("roof", rings, yTop);
+        top = yTop + PARAPET;
         continue;
       }
       const height = floors * FLOOR + (floors >= 2 ? PARAPET : 0.3);
@@ -311,7 +409,7 @@ for (const id of process.argv.slice(2)) {
     rail: doc.createMaterial("rail").setBaseColorFactor([...rgb(palette.glass).slice(0, 3), 0.42]).setAlphaMode("BLEND")
       .setRoughnessFactor(0.2).setMetallicFactor(0).setDoubleSided(true),
   };
-  for (const kind of ["window", "panorama", "curtain", "strip"]) if (used.has(kind)) materials[kind] = await textured(kind);
+  for (const kind of ["window", "panorama", "curtain", "strip", "paris", "shop", "mansard", "stonetower"]) if (used.has(kind)) materials[kind] = await textured(kind);
   const mesh = doc.createMesh(id);
   // opaque first, the glass railings last
   for (const b of Object.values(buckets).sort((x, y) => (x.mat === "rail") - (y.mat === "rail"))) {
