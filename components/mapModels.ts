@@ -1,6 +1,7 @@
 import type { CustomLayerInterface, CustomRenderMethodInput, Map as MlMap } from "maplibre-gl";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 
 /** A detailed 3D model (glTF) standing on the map in place of the plain OpenStreetMap blocks under it. */
 export type BuildingModel = {
@@ -45,7 +46,8 @@ export function buildingModelsLayer(maplibregl: MapLibre, map: MlMap, models: Bu
   scene.add(sun);
   const placed = models.map((m) => ({ ...m, object: null as THREE.Object3D | null, requested: false }));
   let renderer: THREE.WebGLRenderer | null = null;
-  const loader = new GLTFLoader();
+  // district models are meshopt-compressed
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 
   const inView = (p: (typeof placed)[number], zoom: number) => {
     if (map.getZoom() < zoom) return false;

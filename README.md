@@ -46,6 +46,10 @@ at the place its slug is named after in `data/places.json` (`null` keeps a name 
 `public/models/`) replaces its plain map block. Whole districts (Sea Breeze, Ağ Şəhər) are drawn as 3D models built from
 `data/districts/<id>.json` — Overture Maps footprints with floor counts, `"estimated": true` where the data had none —
 by `node scripts/build-district-models.mjs <id>`; correct a building's `floors` there and rebuild.
+`data/districts/complexes.json` overrides a whole residential complex with a sourced floor count, its construction
+status (shown on the building's card) and facade details; Sea Breeze is drawn in its resort style (white walls,
+panoramic glazing, balconies with glass railings, glass towers, the Caspian Dream Liner's stepped decks). The models are
+meshopt-compressed, so the map's GLTFLoader carries the meshopt decoder.
 Baku's buildings are drawn in 3D from static vector tiles (`public/tiles/buildings/14/<x>/<y>.pbf`, built from
 `data/city/<area>.geojson.gz` by `node scripts/city/build-tiles.mjs`; the areas come from Overture Maps through
 `scripts/city/build_city.py`, which needs Python with pyarrow, shapely and Pillow). `components/cityBuildings.ts`

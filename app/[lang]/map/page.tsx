@@ -27,7 +27,7 @@ const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: str
     loading: "Xəritə yüklənir…",
     noMap: "Brauzeriniz 3D xəritəni göstərə bilmir — aşağıdakı siyahıdan istifadə edin.",
     note: "Nöqtələr layihənin adını aldığı qəsəbə və ya rayonun mərkəzini göstərir. Bütün layihələr konseptdir, tikilmiş ev deyil.",
-    building: { city: "Bakı", home: "Bina", floors: "{n} mərtəbə", estimated: "≈ {n} mərtəbə (təxmini)", soon: "Bu binanın mənzil planları və hazır dizaynları hazırlanır.", send: "Mənzil planınızı göndərin" },
+    building: { city: "Bakı", home: "Bina", floors: "{n} mərtəbə", estimated: "≈ {n} mərtəbə (təxmini)", construction: "tikilir", soon: "Bu binanın mənzil planları və hazır dizaynları hazırlanır.", send: "Mənzil planınızı göndərin" },
   },
   en: {
     title: "Projects on the map",
@@ -44,7 +44,7 @@ const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: str
     loading: "Loading the map…",
     noMap: "Your browser cannot show the 3D map — use the list below.",
     note: "Points mark the centre of the town or district a project is named after. All projects are concepts, not built houses.",
-    building: { city: "Baku", home: "Building", floors: "{n} floors", estimated: "≈ {n} floors (estimated)", soon: "Apartment plans and ready designs for this building are on the way.", send: "Send us your apartment plan" },
+    building: { city: "Baku", home: "Building", floors: "{n} floors", estimated: "≈ {n} floors (estimated)", construction: "under construction", soon: "Apartment plans and ready designs for this building are on the way.", send: "Send us your apartment plan" },
   },
   ru: {
     title: "Проекты на карте",
@@ -61,7 +61,7 @@ const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: str
     loading: "Загрузка карты…",
     noMap: "Ваш браузер не может показать 3D-карту — воспользуйтесь списком ниже.",
     note: "Точки отмечают центр посёлка или района, в честь которого назван проект. Все проекты — концепты, а не построенные дома.",
-    building: { city: "Баку", home: "Здание", floors: "{n} этажей", estimated: "≈ {n} этажей (оценка)", soon: "Планировки квартир и готовые дизайны для этого дома готовятся.", send: "Пришлите планировку вашей квартиры" },
+    building: { city: "Баку", home: "Здание", floors: "{n} этажей", estimated: "≈ {n} этажей (оценка)", construction: "строится", soon: "Планировки квартир и готовые дизайны для этого дома готовятся.", send: "Пришлите планировку вашей квартиры" },
   },
 };
 

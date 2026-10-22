@@ -1,0 +1,41 @@
+{
+  "seabreeze": {
+    "Sky Park": {
+      "floors": 24,
+      "source": "seabreeze.az/en/real-estate/sky-park-2: 24 floors, 1,008 apartments; Evrascon (htsengineering.evrascon.com/en/projects/sky-park): four 24-storey buildings"
+    },
+    "Park Residences 2": {
+      "floors": 7,
+      "source": "president.az (April 2025): ten 7-storey buildings with 1,260 apartments"
+    },
+    "Park Residences 3": {
+      "floors": 9,
+      "status": "construction",
+      "source": "seabreeze.az/en/projects/apartments/park-residences-3: ten 9-storey buildings, 1,620 apartments, delivery 2026"
+    },
+    "Harbour Residence": {
+      "floors": 9,
+      "status": "construction",
+      "source": "seabreeze.az/en/projects/apartments/harbour-residence: 3 buildings, 9 floors, 624 apartments, under construction"
+    },
+    "Caspian Dream Liner": {
+      "floors": 11,
+      "status": "construction",
+      "shape": "liner",
+      "source": "president.az / news.az (2025): an 11-storey building shaped like a liner, on an artificial island"
+    },
+    "Blue Waters": {
+      "floors": 11,
+      "status": "construction",
+      "balconies": "wave",
+      "source": "seabreeze.az/en/real-estate: 11 floors, sea-wave facade; completion 2028"
+    },
+    "Park Residence Nardaran": {
+      "balconies": "rhythm",
+      "source": "Archpoint (homeworlddesign.com): balconies and loggias of varied shapes, panoramic glazing"
+    },
+    "Polo Residence": { "balconies": "rhythm" },
+    "White Villas 1": { "balconies": "rhythm" },
+    "White Villas 2": { "balconies": "rhythm" }
+  }
+}

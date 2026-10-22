@@ -37,7 +37,7 @@ export type MapText = {
   noMap: string;
   note: string;
   /** Card of a building in a 3D district; `{n}` is the floor count. */
-  building: { city: string; home: string; floors: string; estimated: string; soon: string; send: string };
+  building: { city: string; home: string; floors: string; estimated: string; construction: string; soon: string; send: string };
 };
 
 type View = { center: [number, number]; zoom: number; pitch: number; bearing: number };
@@ -146,7 +146,7 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         return root;
       };
       // a building of a 3D district: what it is and, until its apartment plans are in, an invitation to send one
-      const buildingCard = (place: string, p: { id?: unknown; name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown }) => {
+      const buildingCard = (place: string, p: { id?: unknown; name?: unknown; complex?: unknown; floors?: unknown; estimated?: unknown; status?: unknown }) => {
         const root = document.createElement("div");
         root.className = "map-card map-card-building";
         const body = document.createElement("span");
@@ -160,7 +160,8 @@ export default function ProjectsMap({ items, districts = [], city, text }: {
         };
         add("span", "map-card-label", [place, p.complex].filter(Boolean).join(" · "));
         add("strong", "map-card-title", String(p.name ?? p.complex ?? text.building.home));
-        add("span", "map-card-specs", (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors)));
+        const floors = (p.estimated ? text.building.estimated : text.building.floors).replace("{n}", String(p.floors));
+        add("span", "map-card-specs", p.status === "construction" ? `${floors} · ${text.building.construction}` : floors);
         add("span", "map-card-note", text.building.soon);
         const link = add("a", "map-card-link", `${text.building.send} →`) as HTMLAnchorElement;
         const label = [p.name ?? p.complex, place].filter(Boolean).join(", ");
