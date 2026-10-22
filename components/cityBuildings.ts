@@ -252,9 +252,9 @@ export function cityBuildingsLayer(maplibregl: typeof import("maplibre-gl"), map
           }
         }
       }
-      // houses get a hipped roof where their plan allows one
+      // houses and villas (up to three floors and 450 m²) get a hipped roof where their plan allows one
       const open = pts[0].length > 1 && pts[0][0][0] === pts[0][pts[0].length - 1][0] && pts[0][0][1] === pts[0][pts[0].length - 1][1] ? pts[0].slice(0, -1) : pts[0];
-      const pitched = p.t === 0 && p.f <= 2 && rings.length === 1 ? hipped(open, y1) : null;
+      const pitched = (p.t === 0 || p.t === 4) && p.f <= 3 && rings.length === 1 ? hipped(open, y1) : null;
       if (pitched) {
         const c = ROOF_COLOURS[Math.floor(hash(p.id) * ROOF_COLOURS.length)];
         slopes.pos.push(...pitched.pos);

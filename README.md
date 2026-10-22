@@ -65,8 +65,8 @@ City Hall, Ismailiyya Palace, Heydar Aliyev Palace, mosques with their domes and
 Shirvanshahs, caravanserais and bathhouses, hotels, theatres and palaces, the Olympic Stadium, the National Flag);
 heights the sources do not give are marked approximate there. A landmark outside the city layer's areas takes its
 footprint from `data/landmarks.extra.geojson`, fetched from Overture by `python3 scripts/city/fetch_footprints.py
-<key>:<lng>,<lat>`. Houses in
-the city layer get a hipped sheet-metal roof where their plan allows one.
+<key>:<lng>,<lat>`. Houses and small villas (up to three floors and 450 m²) in the city layer get a hipped
+sheet-metal roof where their plan allows one.
 
 ## Local development
 
