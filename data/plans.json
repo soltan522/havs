@@ -3091,5 +3091,424 @@
       40.7511
     ],
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey Tuscan-style farmhouse villa, thick walls of rough grey river stone with lime mortar, terracotta tiled gable roof, deep-set oak windows, an oak pergola with grape vines along the front terrace, no garage, rectangular swimming pool with a rough stone deck in front of the house, walnut and quince trees, a cypress avenue leading to a wooden gate, green foothills of the Greater Caucasus at Basgal, hazy late summer afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "naxchivan-107",
+    "style": "bizcenter",
+    "roof": "flat",
+    "inspiration": "caspian-glass-office",
+    "layout": "a",
+    "facade": "glass",
+    "title": {
+      "az": "Naxçıvan Biznes Mərkəzi",
+      "en": "Nakhchivan Business Centre",
+      "ru": "Бизнес-центр Нахчыван"
+    },
+    "summary": {
+      "az": "On iki mərtəbəli biznes mərkəzi: nazik qara profilli, hər mərtəbədə açıq rəngli zolaqlı şəffaf şüşə fasad, iki pilləkən, liftlər və sanitar qovşaqlardan ibarət mərkəzi nüvə və onun iki tərəfində açıq ofis zonaları. Birinci mərtəbədə şüşə kozırk altında giriş holu, kafe və ticarət sahəsi, qarşıda giriş meydanı və iki tərəfdə avtodayanacaq.",
+      "en": "A twelve-storey business centre in a curtain wall of low-iron glass with slim black mullions and a light band at every floor, its central core of two stairs, lifts and WCs between two open-plan office wings. The entrance hall under a glass canopy, a cafe and a retail unit on the ground floor, an entrance plaza in front and car parks either side.",
+      "ru": "Двенадцатиэтажный бизнес-центр в навесном фасаде из осветлённого стекла с тонкими чёрными импостами и светлым поясом на каждом этаже: центральное ядро с двумя лестницами, лифтами и санузлами между двумя крыльями открытых офисов. На первом этаже входной холл под стеклянным козырьком, кафе и торговое помещение, перед зданием входная площадь и парковки с двух сторон."
+    },
+    "areaM2": 10800,
+    "floors": 12,
+    "bedrooms": 0,
+    "bathrooms": 24,
+    "garage": false,
+    "pool": false,
+    "priceCents": 1709000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "business",
+      "units": 1
+    },
+    "parking": 64,
+    "location": [
+      45.407,
+      39.2175
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a twelve-storey contemporary business centre, a clean rectangular glass slab with a curtain wall of low-iron glass and slim black mullions, a light grey slab-edge band at every floor, a fully glazed ground floor with a glass entrance canopy on steel tie rods, an entrance plaza of pale granite paving with young plane trees and benches, parked cars at the sides, a new city quarter of Nakhchivan with the mountains far behind, clear late afternoon light with reflections of the sky, eye-level three-quarter view from the plaza, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "sabunchu-108",
+    "style": "bizcenter",
+    "roof": "flat",
+    "inspiration": "limestone-grid-office",
+    "layout": "b",
+    "facade": "stone",
+    "title": {
+      "az": "Sabunçu Biznes Mərkəzi",
+      "en": "Sabunchu Business Centre",
+      "ru": "Бизнес-центр Сабунчу"
+    },
+    "summary": {
+      "az": "Bakının daş memarlığı ənənəsində səkkiz mərtəbəli ofis binası: mişar əhəngdaşı dirəklər və arakəsmələrdən ibarət nizamlı tor, aralarında dərinə oturdulmuş lent şüşələr; hər mərtəbədə nüvə və iclas otaqları arxada, açıq və ayrıca ofislər ön tərəfdə. Küçə səviyyəsində tam hündürlükdə şüşə arxasında kafe, giriş holu və ticarət sahəsi, iki tərəfdə avtodayanacaq və arxada xidmət həyəti.",
+      "en": "An eight-storey office building in the Baku stone tradition: a regular grid of sawn limestone piers and spandrels with deep-set ribbon glazing, the core and meeting rooms along the back and open-plan and cellular offices along the front of every floor. A cafe, the entrance hall and a retail unit behind full-height glass at street level, with car parks either side and a service yard behind.",
+      "ru": "Восьмиэтажное офисное здание в традиции бакинского камня: регулярная сетка пилёных известняковых пилонов и простенков с глубоко посаженным ленточным остеклением; на каждом этаже ядро и переговорные вдоль задней стены, открытые и отдельные кабинеты вдоль фасада. На уровне улицы за витражами кафе, входной холл и торговое помещение, по сторонам парковки, позади хозяйственный двор."
+    },
+    "areaM2": 6400,
+    "floors": 8,
+    "bedrooms": 0,
+    "bathrooms": 16,
+    "garage": false,
+    "pool": false,
+    "priceCents": 1049000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "business",
+      "units": 1
+    },
+    "parking": 64,
+    "location": [
+      49.9339,
+      40.4481
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of an eight-storey office building, a strict regular grid of sawn honey limestone piers and stone spandrels, deep-set ribbon windows in black frames between the piers, a fully glazed ground floor with a cafe and a glass entrance canopy, wide pavement with mature plane trees, a quiet street in the Sabunchu district of Baku, soft morning light raking across the stone, eye-level three-quarter view from across the street, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "shirvan-109",
+    "style": "bizcenter",
+    "roof": "flat",
+    "inspiration": "terracotta-office-slab",
+    "layout": "c",
+    "facade": "terracotta",
+    "title": {
+      "az": "Şirvan Biznes Mərkəzi",
+      "en": "Shirvan Business Centre",
+      "ru": "Бизнес-центр Ширван"
+    },
+    "summary": {
+      "az": "Terrakota lövhələrlə üzlənmiş, bürünc çərçivəli lent pəncərələri olan uzun altı mərtəbəli ofis binası: hər iki ucunda nüvə və hər mərtəbədə iki ayrıca açıq ofis sahəsi. Birinci mərtəbədə tam hündürlükdə şüşə arxasında restoran, giriş holu və fitnes klubu, qarşıda giriş meydanı və iki tərəfdə avtodayanacaq.",
+      "en": "A long six-storey office slab clad in terracotta baguettes with ribbon windows in bronze frames, a core at each end and two open-plan tenancies on every floor. A restaurant, the entrance hall and a fitness club behind full-height glazing on the ground floor, an entrance plaza and car parks either side.",
+      "ru": "Протяжённое шестиэтажное офисное здание, облицованное терракотовыми ламелями, с ленточными окнами в бронзовых рамах, ядрами на обоих концах и двумя открытыми офисами на каждом этаже. На первом этаже за витражами ресторан, входной холл и фитнес-клуб, перед зданием входная площадь и парковки с двух сторон."
+    },
+    "areaM2": 6600,
+    "floors": 6,
+    "bedrooms": 0,
+    "bathrooms": 25,
+    "garage": false,
+    "pool": false,
+    "priceCents": 1079000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "business",
+      "units": 1
+    },
+    "parking": 68,
+    "location": [
+      48.9464,
+      39.9546
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a long six-storey contemporary office building clad in vertical terracotta rainscreen baguettes, long horizontal ribbon windows in bronze frames on every floor, a full-height glazed ground floor with a glass entrance canopy, an entrance plaza with low planters and young trees, cars parked at the sides, a wide boulevard in the city of Shirvan on the Kura plain, warm late afternoon sun glowing on the terracotta, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "fuzuli-110",
+    "style": "hotel",
+    "roof": "flat",
+    "inspiration": "boulevard-hotel",
+    "layout": "a",
+    "facade": "stone",
+    "title": {
+      "az": "Füzuli Oteli",
+      "en": "Fuzuli Hotel",
+      "ru": "Отель Физули"
+    },
+    "summary": {
+      "az": "Mişar əhəngdaşından birinci mərtəbəsi və nizamlı otaq pəncərələri olan ağ suvaqlı yuxarı mərtəbələri ilə yeddi mərtəbəli şəhər oteli: otaqlar mərkəzi dəhlizin iki tərəfində, pilləkənlər hər iki ucda. Tam hündürlükdə şüşə arxasında lobbi və resepşn, restoran və lounge bar, arxada mətbəx və xidmət otaqları, giriş üzərində şüşə kozırk və yanında avtodayanacaq.",
+      "en": "A seven-storey city hotel with a sawn-limestone ground floor and white-rendered upper floors of regular guest-room windows, the rooms on either side of a central corridor with stairs at both ends. Lobby and reception, restaurant and lounge bar behind full-height glazing, the kitchen and back of house behind, a glass canopy over the drop-off and parking beside the hotel.",
+      "ru": "Семиэтажный городской отель: первый этаж из пилёного известняка и белые оштукатуренные этажи с ровными рядами окон номеров, номера по обе стороны центрального коридора, лестницы в обоих торцах. За витражами лобби с ресепшен, ресторан и лаунж-бар, за ними кухня и служебные помещения; над подъездом стеклянный козырёк, рядом парковка."
+    },
+    "areaM2": 4900,
+    "floors": 7,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 819000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "hotel",
+      "units": 1
+    },
+    "parking": 30,
+    "rooms": 84,
+    "location": [
+      47.1486,
+      39.6007
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a seven-storey contemporary city hotel, a sawn limestone ground floor with full-height glazing to the lobby, restaurant and lounge bar, six upper floors in smooth white render with regular rows of tall guest-room windows in bronze frames, a slim flat roof edge, a glass canopy on steel tie rods over the drop-off, potted olive trees at the entrance, a new tree-lined avenue in the rebuilt city of Fuzuli, warm evening light with the lobby glowing, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "naftalan-111",
+    "style": "hotel",
+    "roof": "flat",
+    "inspiration": "spa-resort-hotel",
+    "layout": "b",
+    "facade": "render",
+    "title": {
+      "az": "Naftalan Kurort Oteli",
+      "en": "Naftalan Spa Hotel",
+      "ru": "Курортный отель Нафталан"
+    },
+    "summary": {
+      "az": "Ağ suvaqlı uzun beş mərtəbəli kurort oteli: hər otaq tam hündürlükdə şüşə ilə çərçivəsiz şüşə məhəccərli balkona açılır, dəhliz arxa fasad boyunca uzanır. Birinci mərtəbədə lobbi, restoran, lounge bar və spa, arxada hovuzlu bağ, giriş zonasının yanında avtodayanacaq.",
+      "en": "A long five-storey spa resort hotel in white render: every guest room opens through full-height glazing onto a balcony with a frameless glass balustrade, the corridor runs along the back. Lobby, restaurant, lounge bar and spa on the ground floor, a pool garden behind and parking beside the drop-off.",
+      "ru": "Протяжённый пятиэтажный курортный отель в белой штукатурке: каждый номер выходит через остекление в пол на балкон с безрамным стеклянным ограждением, коридор проходит вдоль задней стены. На первом этаже лобби, ресторан, лаунж-бар и спа, позади сад с бассейном, у подъезда парковка."
+    },
+    "areaM2": 4000,
+    "floors": 5,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "tree": "pine",
+    "priceCents": 689000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "hotel",
+      "units": 1
+    },
+    "parking": 38,
+    "rooms": 40,
+    "location": [
+      46.8212,
+      40.5064
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a long spa resort hotel of exactly five storeys, a glazed ground floor with the lobby and restaurant under a glass entrance canopy and four upper floors of guest rooms, smooth white render, every guest room with full-height glazing onto a continuous balcony with frameless glass balustrades, thin white slab edges, lawns with pines and oleanders, the spa resort town of Naftalan on the plain with low hills behind, soft morning light, eye-level three-quarter view from the drive, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "tovuz-112",
+    "style": "restaurant",
+    "roof": "flat",
+    "inspiration": "garden-restaurant",
+    "layout": "a",
+    "facade": "timber",
+    "title": {
+      "az": "Tovuz Bağ Restoranı",
+      "en": "Tovuz Garden Restaurant",
+      "ru": "Ресторан-сад Товуз"
+    },
+    "summary": {
+      "az": "Tünd yağlanmış taxtadan birmərtəbəli bağ restoranı: tam hündürlükdə şüşə arxasında yemək zalı və bar, ön terras boyu üzüm tənəkli dərin palıd çardaq, arxada mətbəx, soyuducu kamera və sanitar qovşaqlar. Bağ terrası, avtodayanacaq və xidmət həyəti baş planda göstərilib.",
+      "en": "A single-storey garden restaurant in dark-oiled timber: the dining hall and bar behind full-height glazing, a deep oak pergola with vines across the front terrace, the kitchen, cold room and WCs behind. The garden terrace, car park and service yard are laid out on the masterplan.",
+      "ru": "Одноэтажный ресторан-сад в тёмном промасленном дереве: обеденный зал и бар за панорамным остеклением, глубокая дубовая пергола с виноградом вдоль террасы, позади кухня, холодильная камера и санузлы. Садовая терраса, парковка и хозяйственный двор показаны на генплане."
+    },
+    "areaM2": 420,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "tree": "round",
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "dining",
+      "units": 1
+    },
+    "parking": 22,
+    "seats": 118,
+    "location": [
+      45.6159,
+      40.9925
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a single-storey garden restaurant, walls of dark oiled vertical timber boards, full-height glazing into the dining hall and bar, a flat roof with a thin edge, a deep oak pergola covered in grape vines along the whole front terrace with wooden tables beneath, string lights, walnut and plane trees, green foothills near Tovuz behind, warm summer dusk with the interior glowing, eye-level three-quarter view from the garden, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "barda-113",
+    "style": "restaurant",
+    "roof": "flat",
+    "inspiration": "brick-city-restaurant",
+    "layout": "b",
+    "facade": "brick",
+    "title": {
+      "az": "Bərdə Restoranı",
+      "en": "Barda Restaurant",
+      "ru": "Ресторан Барда"
+    },
+    "summary": {
+      "az": "İsti qırmızı klinker kərpicdən, iri polad çərçivəli pəncərələri olan iki mərtəbəli şəhər restoranı: birinci mərtəbədə yemək zalı və bar, ikincidə tədbir zalı və üç ayrıca otaq, şüşə məhəccərli dam terrası. Arxada mətbəx, soyuducu kamera və anbar, qarşıda terras və yanında avtodayanacaq.",
+      "en": "A two-storey city restaurant in warm red clinker brick with large steel-framed windows: the dining hall and bar on the ground floor, an event hall with three private dining rooms upstairs, and a roof terrace behind a glass balustrade. The kitchen, cold room and dry store at the back, a front terrace and a car park beside it.",
+      "ru": "Двухэтажный городской ресторан из тёплого красного клинкерного кирпича с большими окнами в стальных рамах: на первом этаже обеденный зал и бар, на втором банкетный зал и три приватных кабинета, на крыше терраса за стеклянным ограждением. Сзади кухня, холодильная камера и склад, перед входом терраса, рядом парковка."
+    },
+    "areaM2": 760,
+    "floors": 2,
+    "bedrooms": 0,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": false,
+    "priceCents": 199000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "dining",
+      "units": 1
+    },
+    "parking": 22,
+    "seats": 265,
+    "location": [
+      47.1246,
+      40.3812
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey city restaurant in warm red clinker brick, large black steel-framed windows on both floors, a flat roof with a roof terrace behind a frameless glass balustrade and a small rooftop pavilion, a front terrace with bistro tables under young plane trees, a quiet street corner in the town of Barda, early evening light with the windows glowing, eye-level three-quarter view from across the street, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "neftchala-114",
+    "style": "restaurant",
+    "roof": "flat",
+    "inspiration": "seafront-grill",
+    "layout": "c",
+    "facade": "glass",
+    "title": {
+      "az": "Neftçala Sahil Qril",
+      "en": "Neftchala Seafront Grill",
+      "ru": "Гриль-ресторан Нефтчала"
+    },
+    "summary": {
+      "az": "Nazik polad dirəklər üzərində dərin düz örtük altında dəniz kənarı qril restoranı: travertin divarlar və tam hündürlükdə şüşə, ön tərəfdə yemək zalı, açıq manqal və bar, Xəzərə baxan örtülü terras. Mətbəx, soyuducu kamera və sanitar qovşaqlar arxa tərəfdədir.",
+      "en": "A seafront grill restaurant under a deep flat canopy on slender steel columns: travertine walls and full-height glazing, the dining room, an open charcoal grill and the bar along the front, a covered terrace facing the Caspian. The kitchen, cold room and WCs are at the back.",
+      "ru": "Приморский гриль-ресторан под глубоким плоским навесом на тонких стальных колоннах: травертиновые стены и панорамное остекление, вдоль фасада обеденный зал, открытый мангал и бар, крытая терраса с видом на Каспий. Кухня, холодильная камера и санузлы в задней части."
+    },
+    "areaM2": 380,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "tree": "palm",
+    "priceCents": 149000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "dining",
+      "units": 1
+    },
+    "parking": 22,
+    "seats": 99,
+    "location": [
+      49.2486,
+      39.3791
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a single-storey seafront grill restaurant, a deep thin flat roof canopy on slender graphite steel columns, honed travertine walls and full-height glazing, an open charcoal grill visible inside, a covered terrace with wooden tables facing the sea, dune grasses and tamarisk shrubs, the Caspian shore at Neftchala, golden sunset light, eye-level three-quarter view from the beach path, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "qriz-115",
+    "style": "restaurant",
+    "roof": "gable",
+    "inspiration": "mountain-lodge",
+    "layout": "d",
+    "facade": "lodge",
+    "title": {
+      "az": "Qrız Dağ Restoranı",
+      "en": "Griz Mountain Lodge",
+      "ru": "Горный ресторан Грыз"
+    },
+    "summary": {
+      "az": "İki mərtəbəli dağ restoranı: boz çay daşından birinci mərtəbədə yemək zalı, çay otağı və təndir çörəkxanası, yuxarıda tünd taxta üzlüklü mərtəbədə qalereyaya açılan dörd ayrıca otaq, daş bacalı falslı metal ikimaili dam. Arxada mətbəx və sanitar qovşaqlar, terras və avtodayanacaq baş planda.",
+      "en": "A two-storey mountain restaurant: a grey river-stone ground floor with the dining hall, a tea room and a tandir bakery, dark timber above with four private rooms off a gallery, under a standing-seam pitched roof with a stone chimney. The kitchen and WCs at the back, a terrace and parking on the masterplan.",
+      "ru": "Двухэтажный горный ресторан: первый этаж из серого речного камня с обеденным залом, чайной и тандырной пекарней, выше тёмная деревянная обшивка и четыре приватных кабинета вдоль галереи, двускатная фальцевая кровля с каменной трубой. Кухня и санузлы сзади, терраса и парковка на генплане."
+    },
+    "areaM2": 560,
+    "floors": 2,
+    "bedrooms": 0,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": false,
+    "tree": "pine",
+    "priceCents": 169000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "dining",
+      "units": 1
+    },
+    "parking": 20,
+    "seats": 151,
+    "location": [
+      48.2423,
+      41.2144
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey mountain restaurant lodge, a ground floor of grey river stone with large steel-framed windows, an upper floor clad in dark larch boards with a row of windows, a long dark standing-seam metal pitched roof with the eaves facing the viewer and a stone chimney, a stone-paved terrace with wooden tables and benches, beech forest and the snowy peaks of the Greater Caucasus above the village of Griz, crisp clear autumn afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "shamkir-116",
+    "style": "banquet",
+    "roof": "flat",
+    "inspiration": "wedding-palace",
+    "layout": "a",
+    "facade": "stone",
+    "title": {
+      "az": "Şəmkir Şadlıq Sarayı",
+      "en": "Shamkir Wedding Hall",
+      "ru": "Свадебный дворец Шамкир"
+    },
+    "summary": {
+      "az": "Bir hündür mərtəbəli şadlıq sarayı: ağ rəngli pilyastr kolonnadası və aralarında tam hündürlükdə şüşə, ön tərəfdə foye, səhnəsi və rəqs meydançası olan banket zalı, gəlin otağı və VIP salon. Xidmət dəhlizi boyu mətbəx və təsərrüfat otaqları, qarşıda fəvvarəli meydan və iki tərəfdə avtodayanacaq.",
+      "en": "A wedding hall on one tall storey behind a colonnade of warm-white pilasters with full-height glazing: a foyer across the front, the banquet hall with its stage and dance floor, a bridal room and a VIP lounge. The kitchen and back of house along a service corridor, a forecourt with a fountain and car parks on both sides.",
+      "ru": "Свадебный дворец на один высокий этаж за колоннадой тёплых белых пилястр с остеклением в полную высоту: фойе вдоль фасада, банкетный зал со сценой и танцполом, комната невесты и VIP-зал. Кухня и служебные помещения вдоль сервисного коридора, перед входом площадь с фонтаном, по обе стороны парковки."
+    },
+    "areaM2": 1600,
+    "floors": 1,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": false,
+    "priceCents": 329000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "events",
+      "units": 1
+    },
+    "parking": 108,
+    "seats": 518,
+    "location": [
+      46.0246,
+      40.8358
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a single tall storey wedding and banquet hall, a long flat-roofed facade with a colonnade of tall warm-white rendered pilasters, full-height glazing between the pilasters, two glass entrance canopies, a slim flat roof edge, a stone-paved forecourt with a long rectangular fountain, an avenue of cypresses, the town of Shamkir with green hills beyond, dusk with warm golden light from the hall, slightly raised three-quarter view from the forecourt, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "lokbatan-117",
+    "style": "apartments",
+    "roof": "flat",
+    "inspiration": "baku-residence",
+    "layout": "a",
+    "facade": "render",
+    "title": {
+      "az": "Lökbatan Yaşayış Binası",
+      "en": "Lokbatan Residence",
+      "ru": "Жилой дом Локбатан"
+    },
+    "summary": {
+      "az": "Ağ suvaqlı, nizamlı pəncərələri olan doqquz mərtəbəli yaşayış binası: hər yuxarı mərtəbədə üç mənzil ön, iki mənzil arxa tərəfdə, hər mənzildə qonaq otağı və mətbəx, iki yataq otağı, hamam otağı, ön mənzillərdə şüşə məhəccərli balkon. Birinci mərtəbədə mağazalar və giriş lobbisi, arxada uşaq meydançalı həyət, yanında avtodayanacaq.",
+      "en": "A nine-storey apartment building in white render with regular windows: on each upper floor three flats along the front and two at the back, every flat with a living room and kitchen, two bedrooms and a bathroom, the front flats with a glass-balustraded balcony. Shops and the entrance lobby on the ground floor, a residents' courtyard with a play area behind and parking beside the building.",
+      "ru": "Девятиэтажный жилой дом в белой штукатурке с регулярными окнами: на каждом этаже три квартиры с фасада и две со двора, в каждой гостиная с кухней, две спальни и ванная, у квартир с фасада балкон со стеклянным ограждением. На первом этаже магазины и входной холл, во дворе детская площадка, рядом парковка."
+    },
+    "areaM2": 5850,
+    "floors": 9,
+    "bedrooms": 84,
+    "bathrooms": 42,
+    "garage": false,
+    "pool": false,
+    "priceCents": 969000,
+    "published": true,
+    "demo": true,
+    "project": {
+      "kind": "residential",
+      "units": 1
+    },
+    "parking": 32,
+    "flats": 42,
+    "location": [
+      49.7308,
+      40.3253
+    ],
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a nine-storey contemporary apartment building, smooth white render with regular rows of windows in bronze frames, glass-balustraded balconies in front of the living rooms, a thin slab band at every floor, a ground floor of shopfronts with a glazed entrance lobby in the middle, a wide pavement with young trees, the growing suburb of Lokbatan near Baku, clear morning light, eye-level three-quarter view from the street, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
   }
 ]
