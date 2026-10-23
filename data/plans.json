@@ -3510,5 +3510,102 @@
       40.3253
     ],
     "prompt": "Professional architectural visualization, photorealistic exterior render of a nine-storey contemporary apartment building, smooth white render with regular rows of windows in bronze frames, glass-balustraded balconies in front of the living rooms, a thin slab band at every floor, a ground floor of shopfronts with a glazed entrance lobby in the middle, a wide pavement with young trees, the growing suburb of Lokbatan near Baku, clear morning light, eye-level three-quarter view from the street, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
+  },
+  {
+    "slug": "avropa-zavod-118",
+    "style": "factory",
+    "roof": "gable",
+    "project": {
+      "kind": "industrial",
+      "units": 1
+    },
+    "drawings": "custom",
+    "title": {
+      "az": "Avropa Qapıları Xırdalan Zavodu",
+      "en": "Avropa Qapilari Xirdalan Door Factory",
+      "ru": "Завод Avropa Qapıları в Хырдалане"
+    },
+    "summary": {
+      "az": "Avropa Qapıları-nın Xırdalanda, Niyazi küçəsindəki 2,3 hektarlıq qapı zavodunun peyk şəkli, açıq xəritə məlumatları və sahibkarın fotoları əsasında konsept yenidənqurması: mövcud beş bina saxlanılır, mərkəzdəki yeni rəngləmə-qurutma binası emal, rəngləmə və yığımı bir U-axında birləşdirir, küçəyə baxan iki mərtəbəli sərgi-ofis binası isə qızılı fırlanan lamelləri və «Qızıl Qapı» portalı ilə zavodun üzü olur. Yük maşınları ayrıca darvazadan bağın içindəki zolaqla şimal-şərq həyətinə gedir; damlarda 560 kVt (pik) günəş stansiyası, 28 avtomobil və 13 furqon yeri var, zavod tikinti mərhələlərində dayanmadan işləyir.",
+      "en": "A concept redevelopment of Avropa Qapıları's 2.3-hectare door factory on Niyazi Street in Xırdalan, drawn from satellite imagery, open map data and the owner's photographs: the five existing halls are kept, a new paint and drying building in the middle links machining, painting and assembly into one U-shaped flow, and a two-storey showroom and office block on the street becomes the factory's face with gold pivoting fins and a corner «Golden Gate» portal. Lorries use their own gate and a lane through the orchard to the north-east yard; the roofs carry a 560 kWp solar plant, there are 28 car and 13 van bays, and the factory keeps running through every construction phase.",
+      "ru": "Концепция реконструкции дверного завода Avropa Qapıları площадью 2,3 га на улице Ниязи в Хырдалане по спутниковым снимкам, открытым картографическим данным и фотографиям владельца: пять существующих корпусов сохраняются, новый окрасочно-сушильный корпус в центре объединяет обработку, окраску и сборку в единый U-образный поток, а двухэтажный выставочно-офисный корпус на улице с золотыми поворотными ламелями и угловым порталом «Золотые ворота» становится лицом завода. Грузовики въезжают через отдельные ворота по полосе через сад во двор на северо-востоке; на кровлях солнечная станция 560 кВт (пик), 28 мест для автомобилей и 13 для фургонов, а завод работает без остановки на всех этапах строительства."
+    },
+    "areaM2": 7664,
+    "floors": 2,
+    "bedrooms": 0,
+    "bathrooms": 6,
+    "garage": false,
+    "pool": false,
+    "parking": 28,
+    "staff": 204,
+    "siteM2": 23255,
+    "priceCents": 22992000,
+    "published": true,
+    "demo": true,
+    "location": [
+      49.72373,
+      40.45146
+    ],
+    "model": {
+      "src": "/models/avropa-zavod.glb",
+      "bearing": 180,
+      "origin": [
+        49.7237,
+        40.4514095
+      ],
+      "replaces": [
+        "06688ce9-2548-44a4-9a17-3f761716057f",
+        "0efd261e-7772-4820-8080-8ca402406c5c",
+        "129304e3-bff4-4e72-b292-78ecd787cfb2",
+        "1b6d299b-fb23-449c-9107-168ed1d84ec5",
+        "25708898-fc6c-4068-af9a-eb8ed1bbcce3",
+        "39164e5c-3403-4545-a05f-f149b3f4b921",
+        "44357f5e-616b-46ed-b35d-ec6389a5a713",
+        "61f0be78-2d15-4320-a374-3c62ca37c21f",
+        "7c70d513-c024-4f9a-83ef-f0aa05f04ebb",
+        "8b627faa-941b-4c29-bebd-4d7728bf7a12",
+        "942c90d4-3909-4b83-b1b0-f7c3e4ffce80",
+        "958d62c7-c34d-432d-ad68-cbf970229252",
+        "e2511bdb-803c-4bb0-a4a3-a7bb3eaaa505"
+      ],
+      "zoom": 16.8
+    },
+    "sheetTitles": [
+      {
+        "az": "Dəqiq sahə xəritəsi",
+        "en": "Exact site map",
+        "ru": "Точный план участка"
+      },
+      {
+        "az": "Ərazinin təhlili",
+        "en": "Site analysis",
+        "ru": "Анализ участка"
+      },
+      {
+        "az": "Mövcud vəziyyət",
+        "en": "Existing conditions",
+        "ru": "Существующее положение"
+      },
+      {
+        "az": "Baş plan",
+        "en": "Masterplan",
+        "ru": "Генеральный план"
+      },
+      {
+        "az": "İstehsal axını və zal planları",
+        "en": "Production flow and hall layouts",
+        "ru": "Производственный поток и планы цехов"
+      },
+      {
+        "az": "Sərgi və ofis binası",
+        "en": "Showroom and office building",
+        "ru": "Выставочно-офисный корпус"
+      },
+      {
+        "az": "3D görünüşlər, mərhələlər, xərclər",
+        "en": "3D views, phasing, cost",
+        "ru": "3D-виды, этапы, стоимость"
+      }
+    ]
   }
 ]

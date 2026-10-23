@@ -9,7 +9,7 @@ import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
 import { placeOf } from "@/lib/places";
 import { visitorCurrency } from "@/lib/geo";
-import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isResidential, PALETTE_LABELS, planLabel, priceBasis } from "@/lib/plans";
+import { findPlan, formatNumber, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isCustomDrawn, isResidential, PALETTE_LABELS, planLabel, priceBasis, type GalleryItem } from "@/lib/plans";
 
 const LOCKED = new Set(["schedules"]);
 
@@ -25,7 +25,13 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
   // sheets that carry the sellable detail are shown locked; the rest open in the lightbox
   const open = plan.gallery.filter((item) => !LOCKED.has(item.kind));
 
-  const name = (kind: string) => planSheetName(c, plan, kind);
+  // a custom-drawn set names each of its sheets (plan.sheetTitles, in order); the renders keep the usual label
+  const custom = isCustomDrawn(plan);
+  const images = plan.gallery.filter((item) => item.kind === "image");
+  const name = (item: GalleryItem) => (item.kind === "image" ? plan.sheetTitles?.[images.indexOf(item)]?.[lang] : undefined) ?? planSheetName(c, plan, item.kind);
+  // a custom-drawn sheet keeps the number in its own title block (A1-01 …); everything else is numbered in gallery order
+  const sheetNo = (item: GalleryItem) => (custom && item.kind === "image" ? `A1-${String(images.indexOf(item) + 1).padStart(2, "0")}` : null);
+  const number = (item: GalleryItem, i: number) => sheetNo(item) ?? String(i + 1).padStart(2, "0");
   const area: [string, string][] = plan.project && plan.project.units > 1
     ? [
         [c.project.houses, String(plan.project.units)],
@@ -33,7 +39,16 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
         [c.project.total, `${plan.project.units * plan.areaM2} m²`],
       ]
     : [[t.area, `${plan.areaM2} m²`]];
-  const specs: [string, string][] = plan.interior
+  const specs: [string, string][] = custom
+    ? [
+        // a whole site: the buildings' gross floor area, the plot, and the people and cars it is laid out for
+        [c.project.total, `${formatNumber(plan.areaM2, lang)} m²`],
+        ...(plan.siteM2 ? [[c.project.siteArea, `${formatNumber(plan.siteM2, lang)} m²`] as [string, string]] : []),
+        [t.floors, String(plan.floors)],
+        [c.project.parking, String(plan.parking ?? 0)],
+        ...(plan.staff ? [[c.project.staff, String(plan.staff)] as [string, string]] : []),
+      ]
+    : plan.interior
     ? [
         [c.interior.type, INTERIOR_TYPE_LABELS[plan.interior.type][lang]],
         [c.interior.palette, PALETTE_LABELS[plan.interior.palette][lang]],
@@ -77,9 +92,9 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                 <Reveal key={item.src} variant="clip" delay={i === 0 ? 0 : 80}>
                   {LOCKED.has(item.kind) ? (
                     <Link className="sheet sheet-locked" href={checkoutHref} data-cursor={c.toCheckout}>
-                      <Image src={item.src} alt={`${plan.title[lang]} — ${name(item.kind)}`} width={1600} height={1067} sizes="(max-width: 960px) 100vw, 58vw" />
+                      <Image src={item.src} alt={`${plan.title[lang]} — ${name(item)}`} width={1600} height={1067} sizes="(max-width: 960px) 100vw, 58vw" />
                       <span className="sheet-label">
-                        <i>{String(i + 1).padStart(2, "0")}</i> {name(item.kind)}
+                        <i>{number(item, i)}</i> {name(item)}
                       </span>
                       <span className="lock-overlay">
                         <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true">
@@ -94,21 +109,21 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                   <div className={`sheet sheet-${item.kind.startsWith("plan") ? "plan" : item.kind}`} data-sheet={open.indexOf(item)} data-cursor={c.zoom}>
                     <Image
                       src={item.src}
-                      alt={`${plan.title[lang]} — ${name(item.kind)}`}
+                      alt={`${plan.title[lang]} — ${name(item)}`}
                       width={1600}
                       height={1067}
                       priority={i === 0}
                       sizes="(max-width: 960px) 100vw, 58vw"
                     />
                     <span className="sheet-label">
-                      <i>{String(i + 1).padStart(2, "0")}</i> {name(item.kind)}
+                      <i>{number(item, i)}</i> {name(item)}
                     </span>
                   </div>
                   )}
                 </Reveal>
               ))}
             </figure>
-            <Lightbox items={open.map((item) => ({ src: item.src, label: name(item.kind) }))} closeLabel={c.close} />
+            <Lightbox items={open.map((item) => ({ src: item.src, label: sheetNo(item) ? `${sheetNo(item)} · ${name(item)}` : name(item) }))} closeLabel={c.close} />
           </div>
           <aside className="detail-side">
             <span className="style-tag">{planLabel(plan, lang)}{plan.demo ? ` · ${c.sampleBadge}` : ""}</span>
@@ -127,15 +142,16 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                 <div key={k}><b>{k}</b><span>{v}</span></div>
               ))}
             </div>
-            <span className="muted small">{c.priceFrom} · {t.includes}: {t.formats}</span>
+            {/* a custom-drawn set has no package: the price is for the design, and the set is supplied on request (the note below) */}
+            <span className="muted small">{custom ? c.custom.priceLabel : `${c.priceFrom} · ${t.includes}: ${t.formats}`}</span>
             <div className="price">{formatPrice(plan.priceCents, lang, cur)}</div>
             <span className="muted small price-basis">{priceBasis(plan, lang, cur)}</span>
             {plan.package && <PackagePanel pkg={plan.package} lang={lang} checkoutHref={checkoutHref} />}
 
-            {plan.demo && <p className="note">{c.sampleNote}</p>}
+            {custom ? <p className="note">{plan.demo ? c.custom.sampleNote : c.custom.notes[0]}</p> : plan.demo && <p className="note">{c.sampleNote}</p>}
             <div className="detail-actions">
               <Link className="btn" href={checkoutHref} data-magnetic>
-                {c.toCheckout} <span className="arrow">→</span>
+                {custom ? c.custom.cta : c.toCheckout} <span className="arrow">→</span>
               </Link>
               <Link className="btn secondary" href={`/${lang}/contact`}>
                 {c.contactToCustomise}

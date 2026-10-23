@@ -13,6 +13,8 @@ export type BuildingModel = {
   bearing: number;
   /** Area the model covers, [west, south, east, north]: it is only loaded once the map shows it. */
   bounds?: [number, number, number, number];
+  /** A whole site (it stands in place of several city buildings): a tap anywhere on the model opens it, not only near its origin. */
+  site?: boolean;
 };
 
 type MapLibre = typeof import("maplibre-gl");
@@ -21,6 +23,11 @@ type Geometry = { type: "MultiPoint" | "Polygon" | "MultiPolygon"; coordinates: 
 // like the map's own 3D buildings, models show from street level zooms; they load a little before that
 const DRAW_ZOOM = 13;
 const LOAD_ZOOM = 12;
+
+// loaded site models, by id, for tap tests against their own geometry (modelAt)
+const sites = new Map<string, THREE.Object3D>();
+const picker = new THREE.Raycaster();
+const DOWN = new THREE.Vector3(0, -1, 0);
 
 /** The long axis of a single building's model: any map building containing one of these points is the one it replaces. */
 export function axisOf({ lngLat: [lng, lat], bearing }: BuildingModel): Geometry {
@@ -62,6 +69,10 @@ export function buildingModelsLayer(maplibregl: MapLibre, map: MlMap, models: Bu
       p.requested = true;
       loader.load(p.src, (gltf) => {
         p.object = gltf.scene;
+        if (p.site) {
+          gltf.scene.updateMatrixWorld(true);
+          sites.set(p.id, gltf.scene);
+        }
         map.triggerRepaint();
       });
     }
@@ -105,11 +116,21 @@ export function buildingModelsLayer(maplibregl: MapLibre, map: MlMap, models: Bu
   };
 }
 
-/** True when a click lands on (or right next to) a model. */
+/**
+ * The model a click lands on: within `metres` of a building model's origin, or, for a loaded site model, anywhere
+ * its own geometry covers (a vertical ray through the tapped ground point, in the model's metres).
+ */
 export function modelAt(models: BuildingModel[], lngLat: { lng: number; lat: number }, metres = 14) {
-  return models.find(({ lngLat: [lng, lat] }) => {
+  return models.find(({ id, lngLat: [lng, lat], bearing }) => {
     const dx = (lngLat.lng - lng) * 111320 * Math.cos((lat * Math.PI) / 180);
     const dy = (lngLat.lat - lat) * 110540;
-    return Math.hypot(dx, dy) < metres;
+    const site = sites.get(id);
+    if (!site) return Math.hypot(dx, dy) < metres;
+    // east/north metres into the model's frame: +Z points along the bearing, +X along bearing − 90°, as in the render matrix
+    const b = (bearing * Math.PI) / 180;
+    const x = -dx * Math.cos(b) + dy * Math.sin(b);
+    const z = dx * Math.sin(b) + dy * Math.cos(b);
+    picker.set(new THREE.Vector3(x, 10000, z), DOWN);
+    return picker.intersectObject(site, true).length > 0;
   });
 }

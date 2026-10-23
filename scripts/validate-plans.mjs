@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, PALETTES, planSheets, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, isCustomDrawn, PALETTES, planSheets, PROJECT_RULES, scheduleSheet, SHEET_H, SHEET_W, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -36,9 +36,11 @@ const projectTag = (p) => (p.interior ? `interior:${p.interior.type}` : p.projec
 // an interior repeats a design when the same kind of space has the same palette and bedrooms
 const designKey = (p) => (p.interior ? [projectTag(p), p.interior.palette, p.bedrooms].join("|") : [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-", ...(p.layout ? [p.layout] : [])].join("|"));
 const layoutKey = (p) => (p.project || p.interior ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|"));
-const firstBy = (keyFn) => {
+// custom-drawn plans have no generated design to compare: the design rules below look at generated plans only
+const generated = plans.filter((p) => !isCustomDrawn(p));
+const firstBy = (keyFn, list = plans) => {
   const map = new Map();
-  for (const p of plans) {
+  for (const p of list) {
     const k = keyFn(p);
     if (!map.has(k)) map.set(k, []);
     map.get(k).push(p.slug);
@@ -47,11 +49,11 @@ const firstBy = (keyFn) => {
 };
 for (const [k, slugs] of firstBy((p) => stem(p.slug ?? ""))) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: the same place name "${k}" is used more than once`);
 for (const l of LANGS) for (const [k, slugs] of firstBy((p) => norm(p.title?.[l] ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical ${l} title "${k}"`);
-for (const [k, slugs] of firstBy(designKey)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool = ${k}) — change at least one of these`);
+for (const [k, slugs] of firstBy(designKey, generated)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool = ${k}) — change at least one of these`);
 // same style and storeys with almost the same area reads as the same house
-for (let i = 0; i < plans.length; i++) {
-  for (let j = i + 1; j < plans.length; j++) {
-    const a = plans[i], b = plans[j];
+for (let i = 0; i < generated.length; i++) {
+  for (let j = i + 1; j < generated.length; j++) {
+    const a = generated[i], b = generated[j];
     if (a.style === b.style && a.floors === b.floors && projectTag(a) === projectTag(b) && (a.layout ?? "") === (b.layout ?? "") && Math.abs(a.areaM2 - b.areaM2) < 25) errors.push(`${a.slug}, ${b.slug}: same style and floors with areas only ${Math.abs(a.areaM2 - b.areaM2)} m² apart — make them clearly different`);
   }
 }
@@ -67,7 +69,7 @@ for (let i = 0; i < briefs.length; i++) {
     else if (jaccard >= 0.6) warnings.push(`${briefs[i].slug}, ${briefs[j].slug}: render prompts are ${Math.round(jaccard * 100)}% alike`);
   }
 }
-for (const [k, slugs] of firstBy(layoutKey)) if (slugs.length > 2) warnings.push(`${slugs.join(", ")}: ${slugs.length} villas share the floor-plan layout ${k} — vary bedrooms, garage, pool or mirror`);
+for (const [k, slugs] of firstBy(layoutKey, generated)) if (slugs.length > 2) warnings.push(`${slugs.join(", ")}: ${slugs.length} villas share the floor-plan layout ${k} — vary bedrooms, garage, pool or mirror`);
 for (const [k, slugs] of firstBy((p) => norm(p.summary?.en ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical English summary`);
 
 // concept renders must not be near-copies of each other (perceptual difference hash, 256 bits)
@@ -127,7 +129,7 @@ for (const plan of plans) {
   for (const field of ["garage", "pool", "published", "demo"]) if (typeof plan[field] !== "boolean") err(`${field} must be true or false`);
   const perFloor = plan.areaM2 / plan.floors;
   const [minFloor, maxFloor] = rules.floorArea ?? [80, 320];
-  if (perFloor < minFloor || perFloor > maxFloor) err(`area per floor ${perFloor.toFixed(0)} m² is outside ${minFloor}–${maxFloor} m² — the generated plans would not be credible`);
+  if (!rules.custom && (perFloor < minFloor || perFloor > maxFloor)) err(`area per floor ${perFloor.toFixed(0)} m² is outside ${minFloor}–${maxFloor} m² — the generated plans would not be credible`);
   if (plan.style === "duplex" && plan.bedrooms !== 6) err("duplex template has exactly 6 bedrooms (3 per unit)");
   if (plan.project !== undefined) {
     const pr = PROJECT_RULES[plan.project?.kind];
@@ -152,7 +154,7 @@ for (const plan of plans) {
     if (plan.style === "restaurant" && lay !== "d" && plan.facade === "lodge") err('facade "lodge" is for the mountain lodge (layout d)');
     if (plan.garage || plan.pool) err("commercial buildings park cars on the masterplan and have no private pool: set garage and pool to false");
   } else if (plan.layout !== undefined || plan.facade !== undefined) err(`"layout" and "facade" are for the commercial building styles`);
-  if (plan.footprint !== undefined) {
+  if (plan.footprint !== undefined && !rules.custom) {
     // existing buildings keep their measured footprint instead of one derived from the area
     const [fw, fd] = Array.isArray(plan.footprint) ? plan.footprint : [];
     if (!(fw >= 6 && fw <= 60 && fd >= 6 && fd <= 40)) err("footprint must be [width, depth] in metres, as surveyed");
@@ -162,9 +164,12 @@ for (const plan of plans) {
   if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);
   if (plan.priceCents % 100 !== 0) err("priceCents must be a whole amount");
   if (plan.model !== undefined) {
-    const { src, bearing, origin } = plan.model ?? {};
+    const { src, bearing, origin, replaces, zoom } = plan.model ?? {};
     if (typeof src !== "string" || !src.startsWith("/models/") || !existsSync(path.join(root, "public", src))) err(`model.src must point to a file in public/models/, got ${JSON.stringify(src)}`);
     if (!(bearing >= 0 && bearing < 360)) err("model.bearing must be a compass bearing from 0 to 360");
+    // city-layer buildings the model stands in place of (ids in public/tiles/buildings), and the map close-up for a large site
+    if (replaces !== undefined && !(Array.isArray(replaces) && replaces.length && replaces.every((id) => typeof id === "string" && id))) err("model.replaces must be a list of city building ids");
+    if (zoom !== undefined && !(typeof zoom === "number" && zoom >= 14 && zoom <= 20)) err("model.zoom must be a map zoom from 14 to 20");
     if (plan.location === undefined) err("a plan with a 3D model needs its exact location");
     else if (origin !== undefined) {
       // the model stands at its own surveyed spot, next to the map point (its entrance, say)
@@ -182,6 +187,37 @@ for (const plan of plans) {
   }
   const price = catalogPrice(plan);
   if (plan.priceCents !== price * 100) err(`priceCents must be ${price * 100} (${plan.areaM2} m²${plan.project?.units > 1 ? ` × ${plan.project.units} houses` : ""} × ${PRICE_PER_M2} per m²), not ${plan.priceCents}`);
+
+  // the site reads plan.drawings, the scripts the style: both must say the same
+  if (plan.drawings !== undefined && plan.drawings !== "custom") err('drawings must be "custom" or left out');
+  else if (!!rules.custom !== (plan.drawings === "custom")) err(rules.custom ? `style ${plan.style} is drawn outside the generator: set "drawings": "custom"` : `"drawings": "custom" is only for the custom-drawn styles (${Object.keys(STYLE_RULES).filter((s) => STYLE_RULES[s].custom).join(", ")})`);
+  for (const field of ["staff", "siteM2"]) if (plan[field] !== undefined && !(Number.isInteger(plan[field]) && plan[field] > 0)) err(`${field} must be a positive integer`);
+  if (plan.sheetTitles !== undefined && !rules.custom) err("sheetTitles name the sheets of a custom-drawn set");
+
+  if (rules.custom) {
+    // drawn outside the generator: nothing to render or count here — the listing carries its own figures and previews
+    if (plan.footprint !== undefined || plan.layout !== undefined) err("footprint and layout only drive the generator; a custom-drawn plan takes neither");
+    if (plan.parking !== undefined && !(Number.isInteger(plan.parking) && plan.parking >= 0)) err("parking must be a whole number");
+    // the generator-side rules for these sit with the layouts above, which a custom style has none of
+    if (plan.pool) err("a custom-drawn site has no private pool: set pool to false");
+    if (rules.commercial && plan.bedrooms !== 0) err("commercial buildings have no bedrooms: set bedrooms to 0");
+    const rdir = path.join(root, "renders", plan.slug);
+    if (!(existsSync(rdir) && (await readdir(rdir)).some((f) => /\.(jpe?g|png|webp)$/i.test(f)))) err(`custom drawings need concept renders in renders/${plan.slug}/`);
+    const pdir = path.join(root, "public", "plans", plan.slug);
+    const sheets = existsSync(pdir) ? (await readdir(pdir)).filter((f) => /^image-\d+\.jpg$/.test(f)) : [];
+    if (!sheets.length) err(`custom drawings need watermarked sheet previews public/plans/${plan.slug}/image-NN.jpg — put the full-resolution sheets in private-assets/${plan.slug}/ and run npm run previews -- --only ${plan.slug}`);
+    for (const f of sheets) {
+      const { width, height } = await sharp(path.join(pdir, f)).metadata();
+      if (width > SHEET_W || height > SHEET_H) err(`public/plans/${plan.slug}/${f} is ${width}×${height} — public sheet previews are at most ${SHEET_W}×${SHEET_H}`);
+    }
+    // the gallery labels each sheet preview with its own title, in sheet order
+    if (plan.sheetTitles !== undefined) {
+      if (!Array.isArray(plan.sheetTitles) || plan.sheetTitles.length !== sheets.length) err(`sheetTitles must name each of the ${sheets.length} sheet previews, in order`);
+      else plan.sheetTitles.forEach((t, i) => LANGS.forEach((l) => !t?.[l]?.trim() && err(`missing sheetTitles[${i}].${l}`)));
+    }
+    for (const dir of [rdir, pdir]) for (const f of existsSync(dir) ? await readdir(dir, { recursive: true }) : []) if (/\.(pdf|dwg|dxf)$/i.test(f)) err(`${path.relative(root, dir)}/${f}: package files never go in the public repository`);
+    continue;
+  }
 
   // the generated drawings must work and agree with the listing
   let model;

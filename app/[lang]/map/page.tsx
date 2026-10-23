@@ -107,7 +107,17 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
       cover: plan.cover,
       href: `/${lang}/plans/${plan.slug}`,
       lngLat,
-      ...(plan.model ? { model: { src: plan.model.src, bearing: plan.model.bearing, origin: placeOf(plan.slug, plan.model.origin) ?? lngLat } } : {}),
+      ...(plan.model
+        ? {
+            model: {
+              src: plan.model.src,
+              bearing: plan.model.bearing,
+              origin: placeOf(plan.slug, plan.model.origin) ?? lngLat,
+              ...(plan.model.replaces?.length ? { replaces: plan.model.replaces } : {}),
+              ...(plan.model.zoom !== undefined ? { zoom: plan.model.zoom } : {}),
+            },
+          }
+        : {}),
     });
   }
   const { title, eyebrow, lead, count, ...text } = t;

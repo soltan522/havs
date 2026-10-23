@@ -7,14 +7,15 @@ import { PaymentIcon } from "@/components/PaymentIcon";
 import { COPY } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
 import { visitorCurrency } from "@/lib/geo";
-import { areaText, coverOf, deliverables, findPlan, formatPrice, isCommercial, planLabel, priceBasis } from "@/lib/plans";
+import { areaText, coverOf, deliverables, findPlan, formatPrice, isCommercial, isCustomDrawn, planLabel, priceBasis } from "@/lib/plans";
 import { providersFor } from "@/lib/providers";
 import { objectsExist } from "@/lib/store";
 
 /**
  * Payment step: what the buyer gets, the price, their email and the payment methods that are switched on.
  * The form only appears when a provider is configured and every file of the package is in the private bucket,
- * so the site never takes money for something it cannot deliver.
+ * so the site never takes money for something it cannot deliver. A custom-drawn set is never sold here: its page is
+ * an order request (summary, design price, contact), whatever files the bucket holds.
  */
 export default async function CheckoutPage({
   params,
@@ -33,24 +34,29 @@ export default async function CheckoutPage({
   const k = c.checkout;
   const cur = await visitorCurrency();
   const providers = providersFor(cur);
-  const stored = providers.length > 0 && (await objectsExist(deliverables(plan).map((d) => d.key)));
+  // a custom-drawn set is supplied on request: no payment form, download promise or one-house licence
+  const custom = isCustomDrawn(plan);
+  const stored = !custom && providers.length > 0 && (await objectsExist(deliverables(plan).map((d) => d.key)));
   const price = formatPrice(plan.priceCents, lang, cur);
   const errorText = error && error in k.errors ? k.errors[error as keyof typeof k.errors] : null;
+  const notes = custom ? c.custom.notes : k.notes;
+  const title = custom ? c.custom.title : k.title;
+  const steps: readonly string[] = custom ? c.custom.steps : k.steps;
 
   return (
     <>
       <Header locale={lang} path={`/plans/${slug}/checkout`} />
       <main className="wrap checkout">
         <Link className="back" href={`/${lang}/plans/${slug}`}>← {plan.title[lang]}</Link>
-        <ol className="steps" aria-label={k.title}>
-          {k.steps.map((step, i) => (
+        <ol className="steps" aria-label={title}>
+          {steps.map((step, i) => (
             <li key={step} className={i === 1 ? "current" : i === 0 ? "done" : ""}>
               <i>{i + 1}</i>
               {step}
             </li>
           ))}
         </ol>
-        <h1 className="checkout-title">{k.title}</h1>
+        <h1 className="checkout-title">{title}</h1>
         <div className="checkout-grid">
           <section className="checkout-summary" aria-label={k.summary}>
             <div className="media">
@@ -62,7 +68,7 @@ export default async function CheckoutPage({
             </p>
             {plan.package && <PackagePanel pkg={plan.package} lang={lang} />}
             <ul className="checkout-notes">
-              {k.notes.map((n) => (
+              {notes.map((n) => (
                 <li key={n}>{n}</li>
               ))}
             </ul>
@@ -70,11 +76,11 @@ export default async function CheckoutPage({
 
           <section className="checkout-pay" aria-label={k.method}>
             <div className="pay-total">
-              <span>{k.total}</span>
+              <span>{custom ? c.custom.priceLabel : k.total}</span>
               <b>{price}</b>
             </div>
             <p className="pay-sub muted small">
-              {plan.title[lang]} · {t.formats}
+              {plan.title[lang]} · {custom ? c.custom.formats : t.formats}
               <br />
               {priceBasis(plan, lang, cur)}
             </p>
@@ -120,7 +126,7 @@ export default async function CheckoutPage({
               </form>
             ) : (
               <>
-                <p className="note">{providers.length === 0 ? k.soon : k.unavailable}</p>
+                <p className="note">{custom ? c.custom.request : providers.length === 0 ? k.soon : k.unavailable}</p>
                 <Link className="btn" href={`/${lang}/contact`} data-magnetic>
                   {c.contactToOrder} <span className="arrow">→</span>
                 </Link>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
-import { deliverables, findPlan } from "@/lib/plans";
+import { deliverables, findPlan, isCustomDrawn } from "@/lib/plans";
 import { createOrder, objectsExist, updateOrder, type Provider } from "@/lib/store";
 import { createLemonCheckout } from "@/lib/payments/lemonsqueezy";
 import { createStripeCheckout } from "@/lib/payments/stripe";
@@ -25,6 +25,8 @@ export async function POST(request: Request) {
   if (!plan) return NextResponse.redirect(`${base}/${locale}/plans`, 303);
   const checkoutPage = `${base}/${locale}/plans/${plan.slug}/checkout`;
   const back = (error: string) => NextResponse.redirect(`${checkoutPage}?error=${error}`, 303);
+  // a custom-drawn set is supplied on request, never sold online — whatever files the bucket may hold
+  if (isCustomDrawn(plan)) return back("unavailable");
 
   // The price shown and charged follows the visitor's country: 30 AZN/m² in Azerbaijan, 30 USD/m² elsewhere.
   const cur = requestCurrency(request);

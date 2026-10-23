@@ -14,7 +14,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import SVGtoPDF from "svg-to-pdfkit";
-import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
+import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, isCustomDrawn, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
 
 const require = createRequire(import.meta.url);
 const root = process.cwd();
@@ -31,7 +31,10 @@ const meta = existsSync(META) ? JSON.parse(await readFile(META, "utf8")) : {};
 const args = process.argv.slice(2);
 const only = args.includes("--only") ? new Set(args[args.indexOf("--only") + 1].split(",")) : null;
 const missing = args.includes("--missing");
-const selected = plans.filter((p) => (only ? only.has(p.slug) : missing ? !meta[p.slug] : true));
+// custom-drawn plans have no generated package: their full set is made outside the repository and supplied on request
+// (the checkout never sells one), so nothing is built, recorded in data/packages.json or uploaded for them
+for (const p of plans) if (isCustomDrawn(p) && only?.has(p.slug)) console.warn(`${p.slug}: custom drawings — no package is generated`);
+const selected = plans.filter((p) => !isCustomDrawn(p) && (only ? only.has(p.slug) : missing ? !meta[p.slug] : true));
 
 const tool = (envName, fallback) => {
   const p = process.env[envName] || fallback;

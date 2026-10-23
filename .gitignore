@@ -9,3 +9,8 @@ private-assets/
 
 # Generated drawing packages (uploaded to the private bucket, never committed)
 deliverables/
+
+# Drawing package files (PDF / DWG / DXF) are sold from the private bucket: never commit one anywhere in the repo
+*.[pP][dD][fF]
+*.[dD][wW][gG]
+*.[dD][xX][fF]
