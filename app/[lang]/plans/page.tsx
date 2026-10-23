@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, specsLine } from "@/lib/copy";
+import { visitorCurrency } from "@/lib/geo";
+import { pricedAreaM2 } from "@/lib/pricing";
 import { isLocale } from "@/lib/i18n";
 import { formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
-import { currency } from "@/lib/providers";
 
 type Search = { style?: string; floors?: string; sort?: string };
 
@@ -21,6 +22,7 @@ export default async function Catalogue({
   if (!isLocale(lang)) notFound();
   const q = await searchParams;
   const c = COPY[lang];
+  const cur = await visitorCurrency();
   const all = publishedPlans();
   const styles = (Object.keys(STYLE_LABELS) as PlanStyle[]).filter((s) => all.some((p) => p.style === s));
   const style = styles.includes(q.style as PlanStyle) ? (q.style as PlanStyle) : undefined;
@@ -30,7 +32,7 @@ export default async function Catalogue({
   let plans = all.filter((p) => (!style || p.style === style) && (!floors || p.floors === floors));
   if (sort === "price-asc") plans = [...plans].sort((a, b) => a.priceCents - b.priceCents);
   if (sort === "price-desc") plans = [...plans].sort((a, b) => b.priceCents - a.priceCents);
-  if (sort === "area") plans = [...plans].sort((a, b) => b.areaM2 - a.areaM2);
+  if (sort === "area") plans = [...plans].sort((a, b) => pricedAreaM2(b) - pricedAreaM2(a));
 
   const href = (next: Partial<Search>) => {
     const merged = { style, floors: floors ? String(floors) : undefined, sort, ...next };
@@ -92,7 +94,7 @@ export default async function Catalogue({
                     {specsLine(lang, plan)}
                   </p>
                   <div className="row">
-                    <span className="price">{formatPrice(plan.priceCents, lang, currency())}</span>
+                    <span className="price">{formatPrice(plan.priceCents, lang, cur)}</span>
                     <span className="link-arrow">{c.view} →</span>
                   </div>
                 </Link>

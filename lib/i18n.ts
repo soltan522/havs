@@ -24,7 +24,6 @@ export const UI = {
     backToCatalog: "← Bütün planlar",
     download: "Yüklə",
     orderNotFound: "Sifariş tapılmadı",
-    currencySymbol: "$",
     footer: "© havs.dev — bütün hüquqlar qorunur",
   },
   en: {
@@ -44,7 +43,6 @@ export const UI = {
     backToCatalog: "← All plans",
     download: "Download",
     orderNotFound: "Order not found",
-    currencySymbol: "$",
     footer: "© havs.dev — all rights reserved",
   },
   ru: {
@@ -64,7 +62,6 @@ export const UI = {
     backToCatalog: "← Все проекты",
     download: "Скачать",
     orderNotFound: "Заказ не найден",
-    currencySymbol: "$",
     footer: "© havs.dev — все права защищены",
   },
 } as const;

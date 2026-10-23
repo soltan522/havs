@@ -8,16 +8,17 @@ import ProcessBlueprint from "@/components/motion/ProcessBlueprint";
 import ScrollStatement from "@/components/motion/ScrollStatement";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, specsLine } from "@/lib/copy";
+import { visitorCurrency } from "@/lib/geo";
 import { isLocale } from "@/lib/i18n";
 import { LANDING } from "@/lib/landing";
 import { areaText, coverOf, formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
-import { currency } from "@/lib/providers";
 
 export default async function Landing({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = LANDING[lang];
   const c = COPY[lang];
+  const cur = await visitorCurrency();
   const plans = publishedPlans();
   const featured = plans.slice(0, 6);
   const heroPlan = plans.find((p) => p.gallery[0]?.kind === "render") ?? plans[0];
@@ -107,7 +108,7 @@ export default async function Landing({ params }: { params: Promise<{ lang: stri
                 <h3>{plan.title[lang]}</h3>
                 <span className="muted small">{specsLine(lang, plan)}</span>
               </div>
-              <span className="price">{formatPrice(plan.priceCents, lang, currency())}</span>
+              <span className="price">{formatPrice(plan.priceCents, lang, cur)}</span>
             </div>
           </Link>
         ))}

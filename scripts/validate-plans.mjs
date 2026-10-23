@@ -22,19 +22,11 @@ const placesFile = path.join(root, "data", "places.json");
 const PLACES = existsSync(placesFile) ? JSON.parse(await readFile(placesFile, "utf8")) : {};
 
 /**
- * Catalogue price rule for sample villas (USD): ~$300 + $4.2/m², rounded to …90, +$100 for premium styles.
- * A multi-unit project: the typical house, plus 35 % of it for every further house on the masterplan.
+ * Catalogue price rule (lib/pricing.ts): 30 per m² of drawn floor area, all houses of a multi-unit project together.
+ * The site shows the same number as AZN to visitors in Azerbaijan and as USD to everyone else.
  */
-export function suggestedPrice(plan) {
-  // interior design package: ~$300 + $9/m²
-  if (plan.interior) return Math.round((300 + 9 * plan.areaM2) / 100) * 100 - 10;
-  // commercial and apartment buildings: ~$900 + $1.5/m²
-  if (STYLE_RULES[plan.style]?.commercial || STYLE_RULES[plan.style]?.residential) return Math.round((900 + 1.5 * plan.areaM2) / 100) * 100 - 10;
-  const premium = ["tuscan", "coastal", "luxury", "mediterranean", "absheron", "noir", "yali"].includes(plan.style) ? 100 : 0;
-  const house = Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
-  if (!plan.project) return house;
-  return Math.round(((house + 10) * (1 + 0.35 * (plan.project.units - 1))) / 100) * 100 - 10;
-}
+export const PRICE_PER_M2 = 30;
+export const catalogPrice = (plan) => plan.areaM2 * Math.max(1, plan.project?.units ?? 1) * PRICE_PER_M2;
 
 // ---- nothing may repeat an existing design
 const norm = (s) => s.toLocaleLowerCase("en").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\u0400-\u04ff]+/g, " ").trim();
@@ -168,7 +160,7 @@ for (const plan of plans) {
   if (plan.tree !== undefined && !TREES.includes(plan.tree)) err(`tree must be one of ${TREES.join(", ")}`);
   if (plan.mirror !== undefined && typeof plan.mirror !== "boolean") err("mirror must be true or false");
   if (plan.inspiration !== undefined && !INSPIRATIONS.has(plan.inspiration)) err(`inspiration "${plan.inspiration}" is not a family in docs/design-references.md (${[...INSPIRATIONS].join(", ")})`);
-  if (plan.priceCents % 100 !== 0) err("priceCents must be whole dollars");
+  if (plan.priceCents % 100 !== 0) err("priceCents must be a whole amount");
   if (plan.model !== undefined) {
     const { src, bearing, origin } = plan.model ?? {};
     if (typeof src !== "string" || !src.startsWith("/models/") || !existsSync(path.join(root, "public", src))) err(`model.src must point to a file in public/models/, got ${JSON.stringify(src)}`);
@@ -188,8 +180,8 @@ for (const plan of plans) {
   } else if (!(plan.slug?.replace(/-\d+$/, "") in PLACES)) {
     warnings.push(`${id}: no map position — add "location": [longitude, latitude] (centre of the place it is named after) so it shows on /map`);
   }
-  const suggested = suggestedPrice(plan);
-  if (Math.abs(plan.priceCents / 100 - suggested) / suggested > 0.15) warnings.push(`${id}: price $${plan.priceCents / 100} is more than 15% from the rule ($${suggested})`);
+  const price = catalogPrice(plan);
+  if (plan.priceCents !== price * 100) err(`priceCents must be ${price * 100} (${plan.areaM2} m²${plan.project?.units > 1 ? ` × ${plan.project.units} houses` : ""} × ${PRICE_PER_M2} per m²), not ${plan.priceCents}`);
 
   // the generated drawings must work and agree with the listing
   let model;

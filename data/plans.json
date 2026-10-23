@@ -19,7 +19,7 @@
     "bathrooms": 5,
     "garage": true,
     "pool": true,
-    "priceCents": 189000,
+    "priceCents": 1140000,
     "published": true,
     "demo": true
   },
@@ -43,7 +43,7 @@
     "bathrooms": 4,
     "garage": true,
     "pool": true,
-    "priceCents": 179000,
+    "priceCents": 1020000,
     "published": true,
     "demo": true
   },
@@ -67,7 +67,7 @@
     "bathrooms": 4,
     "garage": false,
     "pool": true,
-    "priceCents": 129000,
+    "priceCents": 720000,
     "published": true,
     "demo": true
   },
@@ -91,7 +91,7 @@
     "bathrooms": 5,
     "garage": true,
     "pool": true,
-    "priceCents": 219000,
+    "priceCents": 1260000,
     "published": true,
     "demo": true
   },
@@ -115,7 +115,7 @@
     "bathrooms": 4,
     "garage": false,
     "pool": false,
-    "priceCents": 119000,
+    "priceCents": 690000,
     "published": true,
     "demo": true
   },
@@ -139,7 +139,7 @@
     "bathrooms": 2,
     "garage": true,
     "pool": true,
-    "priceCents": 139000,
+    "priceCents": 780000,
     "published": true,
     "demo": true
   },
@@ -163,7 +163,7 @@
     "bathrooms": 6,
     "garage": true,
     "pool": true,
-    "priceCents": 269000,
+    "priceCents": 1680000,
     "published": true,
     "demo": true
   },
@@ -187,7 +187,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": true,
-    "priceCents": 109000,
+    "priceCents": 630000,
     "published": true,
     "demo": true
   },
@@ -211,7 +211,7 @@
     "bathrooms": 4,
     "garage": true,
     "pool": true,
-    "priceCents": 179000,
+    "priceCents": 1080000,
     "published": true,
     "demo": true
   },
@@ -235,7 +235,7 @@
     "bathrooms": 4,
     "garage": false,
     "pool": false,
-    "priceCents": 159000,
+    "priceCents": 1020000,
     "published": true,
     "demo": true
   },
@@ -260,7 +260,7 @@
     "garage": true,
     "pool": true,
     "ratio": 1.5,
-    "priceCents": 169000,
+    "priceCents": 960000,
     "published": true,
     "demo": true,
     "tree": "pine",
@@ -287,7 +287,7 @@
     "garage": true,
     "pool": false,
     "ratio": 1.9,
-    "priceCents": 129000,
+    "priceCents": 690000,
     "published": true,
     "demo": true,
     "tree": "round"
@@ -312,7 +312,7 @@
     "bathrooms": 4,
     "garage": false,
     "pool": true,
-    "priceCents": 159000,
+    "priceCents": 840000,
     "published": true,
     "demo": true
   },
@@ -338,7 +338,7 @@
     "garage": true,
     "pool": true,
     "tree": "olive",
-    "priceCents": 219000,
+    "priceCents": 1260000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey contemporary villa in a gated estate on the Absheron coast near Baku, sawn Absheron limestone walls on the ground floor and side walls, crisp white render upper volume cantilevering over a wide terrace, warm timber soffits under deep flat roof slabs, bronze window frames, frameless glass balustrade, attached double garage on the right with a timber door, infinity pool facing the Caspian Sea with a limestone deck, olive and pomegranate trees, golden hour light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -367,7 +367,7 @@
     "pool": true,
     "tree": "pine",
     "ratio": 1.5,
-    "priceCents": 159000,
+    "priceCents": 840000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey seaside villa among Caspian pine trees, light grey-white render on the ground floor, large panels of vertical natural oak boards wrapping the whole upper floor, flat roofs with thin white fascias, floor-to-ceiling sliding glass doors, no garage, rectangular swimming pool with pale stone deck, sea buckthorn and sandy garden, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -395,7 +395,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 2,
-    "priceCents": 149000,
+    "priceCents": 750000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a long low single-storey contemporary villa wrapped around a private garden, sawn Absheron limestone facades and garden walls, a deep flat roof with a slim white fascia projecting over a continuous terrace, floor-to-ceiling glazing, attached single garage on the right, long reflecting lap pool in the courtyard, raked gravel, olive trees and lavender, late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -424,7 +424,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.25,
-    "priceCents": 179000,
+    "priceCents": 1020000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a two-storey villa seen over a tall Absheron limestone garden wall with a timber entrance gate, solid limestone facades with deep-set bronze-framed windows, a roof terrace with a spa pool and slim steel pergola, no garage, rectangular pool with travertine deck in the front garden, fig and mulberry trees, blue hour with warm interior lighting, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -452,7 +452,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.7,
-    "priceCents": 169000,
+    "priceCents": 960000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of two-storey waterfront villa in the Bosphorus yalı tradition on the Caspian shore, painted timber weatherboarding in pale grey with white trim, tall timber sash windows with timber shutters in a regular rhythm, a slate hip roof with deep eaves and a brick chimney, a stone quay terrace along the water with a small timber jetty, no garage, no pool, Judas trees in pink bloom and a lawn, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -481,7 +481,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.6,
-    "priceCents": 189000,
+    "priceCents": 1080000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of luxury two-storey contemporary villa with a dark sophisticated palette, charcoal render facades, rows of slim bronze vertical fins in front of the upper floor windows, crisp thin flat roof slabs with clean vertical lines, floor-to-ceiling glazing glowing with warm interior light, attached single garage on the right with a bronze door, rectangular swimming pool with a dark basalt deck in front of the house, royal palms and clipped boxwood, dusk with a deep blue sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -510,7 +510,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 2.1,
-    "priceCents": 129000,
+    "priceCents": 690000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of snow-white high-tech single-storey villa, smooth white walls and a razor-thin flat roof edge, deeply recessed glazing with thin black window frames, no garage, a private courtyard with a long rectangular decorative pool and a small timber terrace in front of the house, clipped green hedges, white gravel and slender cypress trees, bright clear midday light with crisp shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -538,7 +538,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 1.8,
-    "priceCents": 139000,
+    "priceCents": 720000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of single-storey Absheron summer house in the Mediterranean tradition, white lime stucco walls, an arched loggia along the front, a terracotta tile hip roof with deep eaves, green timber shutters, no garage, a small rectangular pool with a sandstone deck in front of the house, a vine pergola over the terrace, fig and olive trees, a dry garden behind sand-coloured stone walls, warm late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -567,7 +567,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 1.4,
-    "priceCents": 229000,
+    "priceCents": 1350000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of luxury three-storey contemporary villa in a gated garden estate, dark grey natural stone ground floor, two crisp white upper floors with recessed oak-lined window bays and panoramic glazing, a thin flat roof slab, attached double garage on the right with an oak door, infinity-edge swimming pool on a stepped garden terrace with a pale limestone deck, a garden wall of Absheron stone, tall cypress trees and a clipped lawn, soft overcast morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -596,7 +596,7 @@
     "pool": true,
     "tree": "pine",
     "ratio": 1.3,
-    "priceCents": 159000,
+    "priceCents": 900000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of two-storey modern villa set in a mature oak and pine forest, white render walls combined with rough grey stone, warm oak timber soffits under flat roofs, a tall stone chimney, full-height glazing opening to a lawn, attached single garage on the right with a timber door, rectangular swimming pool in the lawn under old trees, ferns and moss at the forest edge, misty soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -627,7 +627,7 @@
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 339000,
+    "priceCents": 3780000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic aerial three-quarter view from a drone at 35 metres of a terrace of exactly seven attached two-storey contemporary townhouses in one straight row, warm red clinker brick facades with thin white concrete slab bands between the floors, floor-to-ceiling glazing with bronze frames, oak timber panels around each front door, flat roofs with thin white edges, front doors in mirrored pairs, small front courts with low clipped hedges and one parked car each, tree-lined residential street in front, private rear gardens with timber fences behind, a small pocket park with a playground at one end of the row, green hillside suburb of Baku, soft late afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -658,7 +658,7 @@
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 289000,
+    "priceCents": 3150000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic aerial three-quarter view from a drone of a rural farm estate in the green foothills of the Greater Caucasus, exactly five single-storey farmhouses of rough river stone with terracotta tile gable roofs, stone chimneys and oak pergolas with grape vines along their south fronts, the five houses arranged side by side on a gentle arc all facing the viewer, behind them a large stone winery barn with a terracotta roof and a smaller stables building around a gravel farmyard, a straight cypress avenue driveway leading up through rows of vineyard in the foreground, a natural pond and a small rectangular swimming pool with a pool house, walnut orchard, golden hour light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -689,7 +689,7 @@
     "garage": false,
     "pool": false,
     "tree": "pine",
-    "priceCents": 359000,
+    "priceCents": 4140000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic aerial three-quarter view from a drone of a small mountain chalet village of exactly six identical two-storey chalets on a pine-forested slope in the Greater Caucasus, grey split stone ground floors, dark vertical timber upper floors, steep dark graphite standing-seam metal gable roofs with the gables facing the valley, fully glazed gable ends and timber balconies, private timber decks, the six chalets staggered in two rows of three along winding gravel lanes, a larger stone and timber spa lodge with a parking area at the entrance, snow-capped peaks in the background, late afternoon autumn light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -718,7 +718,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 2,
-    "priceCents": 149000,
+    "priceCents": 780000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey coastal beach villa, white smooth render walls, a very deep thin white flat roof slab overhanging a long covered terrace, floor-to-ceiling glazing with slim bronze frames along the whole front, no garage, rectangular swimming pool with a pale stone deck in front of the house, royal palms and dune grasses, the Caspian Sea beach behind low sand dunes at Lankaran, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -746,7 +746,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.3,
-    "priceCents": 139000,
+    "priceCents": 750000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey Miami-modern villa, white render walls with crisp horizontal white slab bands and eyebrow overhangs, a tall travertine-clad fin beside the entrance, floor-to-ceiling glazing with bronze frames, first-floor terrace with a frameless glass balustrade across the facade, flat roof, no garage, rectangular swimming pool with a terrazzo deck in front of the house, royal palms and white gravel, Absheron seaside setting near Nardaran, blue hour with warm interior light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -774,7 +774,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.2,
-    "priceCents": 139000,
+    "priceCents": 810000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey minimalist villa of crisp white plaster cubes, recessed floor-to-ceiling glazing with thin bronze frames, flat roof with a roof terrace and a frameless glass balustrade, attached single garage on the right, long narrow lap pool with a pale stone deck in front of the house, low garden walls of rough local limestone, old plane trees, green mountain landscape of Shusha in the background, soft clear morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -803,7 +803,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 1.8,
-    "priceCents": 159000,
+    "priceCents": 870000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey Tuscan villa, honey limestone ashlar walls, terracotta tile hip roof with a stone chimney, an arched loggia across the living rooms, timber casement windows with sage green shutters, attached single garage on the right with a terracotta roof and an oak door, rectangular swimming pool with a travertine deck in front of the house, tall cypress trees, vineyards on the rolling hills of Shamakhi, golden hour, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -831,7 +831,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.5,
-    "priceCents": 249000,
+    "priceCents": 1500000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury contemporary villa with two storeys above the garden, dark grey natural stone cladding on the ground floor, a crisp white rendered upper volume, deep flat slab roof, floor-to-ceiling glazing with bronze frames, upper terrace with a frameless glass balustrade, no garage, rectangular swimming pool set in a lawn in front of the house, old walnut and chestnut forest all around, misty green foothills of Zaqatala, soft late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -860,7 +860,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 1.35,
-    "priceCents": 169000,
+    "priceCents": 900000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey dark contemporary villa, charcoal mineral render walls, bronze vertical aluminium fins beside the entrance, dark crisp flat roof slabs, floor-to-ceiling glazing with bronze frames, first-floor terrace with a frameless glass balustrade over the living rooms, no garage, rectangular swimming pool with a dark stone deck in front of the house, silver olive trees and ornamental grasses, Absheron seaside setting at Zira, blue hour with warm interior light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -889,7 +889,7 @@
     "pool": true,
     "tree": "pine",
     "ratio": 2.2,
-    "priceCents": 159000,
+    "priceCents": 900000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey glass pavilion villa, honed travertine walls, a deep thin flat canopy roof on slender graphite steel columns, full-height glazing all along the front, attached single garage on the right, long narrow lap pool with a travertine deck in front of the house, tall pine forest around, mountain lake setting of Goygol, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -921,7 +921,7 @@
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 409000,
+    "priceCents": 6300000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic aerial three-quarter view from a drone at 30 metres of a modern single-storey neighbourhood supermarket building, a tall rectangular box clad in anthracite grey composite facade panels, a full-width glass shopfront under a plain light grey fascia band with no signage, a warm timber canopy over the entrance on slender steel columns, flat roof with rooflights and rooftop plant, a large car park in front with about one hundred marked parking bays, parked cars, planted islands with young trees and two small trolley shelters, a delivery yard with a white truck at the loading dock behind the building, Absheron suburb setting near Baku, clear late afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no logos, no text, no watermark"
@@ -970,7 +970,7 @@
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 329000,
+    "priceCents": 4818000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a tall slender six-storey corner office building in Baku, viewed at eye level from the street corner with the whole building in frame and sky above. Count of floors: one tall glazed ground floor, then FIVE rows of windows above it (floors two to six), so six storeys in total. The building corner is cut at 45 degrees and is a full-height glazed bay between two wide black anodised aluminium vertical frames, with a black spandrel band at each of the six floors. The long facade on the right is white with black aluminium vertical frames and black-framed windows; three stacked black-clad balconies sit on floors three, four and five, with one more ordinary window floor above the top balcony; further right a round silver stair tower with narrow windows rises a little above the roof. The shorter facade on the left is white with three black-framed windows on each of the five upper floors. The ground floor is a glazed showroom of premium entrance doors with a glass canopy on steel tie rods over the entrance next to the corner. On the roof edge above the corner a light steel frame holds big green letters in two lines reading AVROPA and QAPILARI. Glass roof balustrade, plane trees on a clean empty pavement, soft late-afternoon light, warm interior lighting, 24mm lens, Corona render quality, no people, no cars, no other text, no watermark"
@@ -1007,7 +1007,7 @@
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 169000,
+    "priceCents": 1572000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a refurbished roadside door and window showroom in Xirdalan near Baku, eye-level three-quarter view from across a paved forecourt. A flat-roofed rectangular building about 23 metres wide and 9 metres tall with one double-height storey: the street facade is divided into four equal bays by five slender rounded pilasters in warm white render; every bay is filled with two tiers of tall glazing in a fine black steel grid of small panes, separated by a slim horizontal band; in the lower tier of the left bay a pair of glass entrance doors under a small glass canopy on steel tie rods; a slim light grey parapet coping; along the top of the facade a long deep green sign band with gilded capital letters reading AVROPA QAPILARI. Through the glass a bright double-height showroom with premium entrance doors on display and a mezzanine gallery at the back. In front a clean paved forecourt with a row of empty perpendicular parking bays, a low single-storey neighbouring building on the left, older apartment blocks in the background, a few street trees, clear spring afternoon light, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no cars, no other text, no watermark"
@@ -1037,7 +1037,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 159000,
+    "priceCents": 420000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of the living room of a classic Baku apartment in a historic building: high ceilings with plaster cornices and warm white wall panelling, oak herringbone parquet, a bottle-green velvet sofa, a fireplace surround in Calacatta-style marble, aged brass picture lights, a crystal chandelier over a walnut dining table, tall double windows onto a leafy Baku street, sage silk wallcovering on the feature wall, soft afternoon light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1067,7 +1067,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 109000,
+    "priceCents": 258000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a Japandi open kitchen and living room in a Baku apartment: pale ash plank floor, rice-paper limewashed walls, a slatted ash feature wall with a low media unit, a low oat linen sofa, ash veneer kitchen with a honed basalt worktop, a washi paper pendant over a small round dining table, a single branch in a ceramic vase, soft morning light through linen curtains, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1097,7 +1097,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 79000,
+    "priceCents": 174000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a small Scandinavian one-bedroom flat with an open kitchen and living room: white oak floor, soft white walls with one fjord-blue accent wall, white lacquer and oak kitchen with a light grey quartz worktop, a dove-grey wool sofa and a mustard armchair, an opal glass pendant over a round oak table for two, built-in shelving around the window, bright daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1127,7 +1127,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 199000,
+    "priceCents": 570000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a dark luxury penthouse living room and kitchen at dusk with floor-to-ceiling windows over the Caspian Sea and city lights: smoked oak chevron parquet, walnut wall panelling with thin bronze inlays, a black marble kitchen island with white veining, cognac leather lounge chairs, a taupe velvet sofa, champagne bronze details, linear cove lighting and a glass chandelier, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1157,7 +1157,7 @@
     "bathrooms": 4,
     "garage": false,
     "pool": false,
-    "priceCents": 279000,
+    "priceCents": 840000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a Mediterranean seaside villa living room on the Absheron coast: hand-made terracotta tile floor, warm white lime-plastered walls with arched niches, exposed timber ceiling beams, a linen slipcovered sofa, rattan pendant lights, a travertine coffee table, limed oak shelving, olive branches in a clay vase, glazed doors open to a terrace and the sea, bright summer light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1187,7 +1187,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 159000,
+    "priceCents": 420000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a contemporary Azerbaijani tea house interior: walnut floor and clay-plastered walls, geometric timber lattice screens inspired by shebeke windows, pomegranate-red velvet banquettes along the wall, small round travertine tables with pear-shaped tea glasses, hammered copper pendant lamps, a walnut bar counter with carved panels, encaustic cement tiles with carpet motifs at the bar, warm evening light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1217,7 +1217,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 109000,
+    "priceCents": 276000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a small Art Deco fashion boutique: emerald green fluted wall panels, black lacquer shelving with polished brass trims and curved display niches, a terrazzo floor with brass inlay lines, a round display plinth, blush velvet curtains at the fitting rooms, a cash desk clad in emerald with a green marble top, opal globe pendants and brass track spots, clothes hanging on brass rails, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1247,7 +1247,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 259000,
+    "priceCents": 780000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of an industrial loft office: polished concrete floor, a reclaimed red brick wall, black steel framed glass partitions to a meeting room, clusters of oiled oak desks with charcoal felt dividers under black linear pendant lights, a cognac leather sofa in the breakout corner, green plants, large windows with daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1277,7 +1277,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 169000,
+    "priceCents": 450000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a calm biophilic dental clinic reception and waiting area: a rounded birch plywood reception desk, a preserved green moss wall, sage upholstered seating, warm white walls, pale oak vinyl floor, circular pendant lights, soft daylight through large windows, indoor plants, spotless and welcoming, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1307,7 +1307,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 129000,
+    "priceCents": 330000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a mid-century modern beauty salon: cream terrazzo floor with terracotta chips, walnut slatted walls, styling stations with round brass-framed mirrors and walnut counters, mustard and teal velvet salon chairs, opal globe pendant lights, a reception desk with a terracotta-pink quartz top, warm light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1339,7 +1339,7 @@
     "mirror": true,
     "garage": false,
     "pool": false,
-    "priceCents": 129000,
+    "priceCents": 336000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a warm minimal open living and dining room in a Baku apartment: white oak wide plank floor, linen-white walls, a travertine-effect plaster feature wall with a built-in white oak media unit, a low ecru boucle sofa, a travertine dining table under a sculptural paper pendant, soft bronze details, concealed cove lighting, sheer linen curtains, afternoon light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1371,7 +1371,7 @@
     "ratio": 1.75,
     "garage": false,
     "pool": false,
-    "priceCents": 229000,
+    "priceCents": 675000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a Japandi penthouse lounge with floor-to-ceiling windows over the Caspian Sea: pale ash floorboards, limewashed walls, a long slatted ash wall hiding storage, a low oat boucle sectional, a basalt coffee table, an oversized washi lantern, a bonsai on a low bench, soft morning light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1403,7 +1403,7 @@
     "mirror": true,
     "garage": false,
     "pool": false,
-    "priceCents": 209000,
+    "priceCents": 600000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a Scandinavian two-storey mountain villa living room: a double-height space with a white oak open staircase, white oak floor, soft white walls with one fjord-blue wall, a dove-grey wool sofa and a mustard armchair beside a black wood stove, opal glass pendants, big windows onto snowy mountains and pine trees, bright winter daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1436,7 +1436,7 @@
     "mirror": true,
     "garage": false,
     "pool": false,
-    "priceCents": 189000,
+    "priceCents": 525000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of an elegant dining room and library in a historic central Baku apartment in the evening: floor-to-ceiling walnut bookshelves with thin bronze inlays framing an arched doorway, a long black marble table for eight with cognac leather chairs, a glass chandelier, smoked oak chevron floor, taupe walls, sheer curtains on tall windows, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1468,7 +1468,7 @@
     "mirror": true,
     "garage": false,
     "pool": false,
-    "priceCents": 269000,
+    "priceCents": 795000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a neoclassical penthouse salon in Baku: plaster mouldings and panelled walls in warm white, oak herringbone parquet, a pair of bottle-green velvet sofas facing a Calacatta marble fireplace, aged brass wall lights, a crystal chandelier, tall French doors open to a terrace overlooking the seaside boulevard, golden evening light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1499,7 +1499,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 119000,
+    "priceCents": 285000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a bright Nordic coffee house and bakery: a long coffee bar with a pale oak front and a grey terrazzo top, handmade white vertical tiles behind the bar, fresh bread on oak shelves, an espresso machine, opal glass pendants, an oak banquette along the wall with fog-blue linen cushions and small terrazzo tables, big shop windows with daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1530,7 +1530,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 149000,
+    "priceCents": 390000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a luxurious jewellery and accessories boutique: walnut and glass display cases with black marble tops, a pin spot light over each case, walnut wall panelling with fine champagne bronze inlays and backlit display niches, smoked oak chevron floor, a curved black marble cash desk, dark taupe walls, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1561,7 +1561,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 189000,
+    "priceCents": 540000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a creative design studio office: cork floor, long birch plywood desks with sage felt dividers and task lamps, a planted shelving wall with hanging greenery, sage felt acoustic panels, terracotta accents, linear pendants, large windows along the studio with bright daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1592,7 +1592,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 119000,
+    "priceCents": 315000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a calm dental studio reception that feels like a boutique hotel lobby: a curved white oak reception desk with a warm white solid-surface top, a travertine-effect plaster feature wall with concealed cove light, ecru upholstered lounge chairs, soft bronze details, white oak effect floor, a sculptural pendant, soft daylight, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1623,7 +1623,7 @@
     "bathrooms": 1,
     "garage": false,
     "pool": false,
-    "priceCents": 169000,
+    "priceCents": 450000,
     "published": true,
     "demo": true,
     "prompt": "Professional interior visualization, photorealistic render of a hair and barber studio with workshop character: polished concrete floor, a reclaimed brick wall, black steel framed round mirrors above oiled oak stations with concrete tops, cognac leather barber chairs, filament pendant lights, black track spots, a few plants, warm light, 24mm lens, eye-level, Corona render quality, no people, no text, no logos, no watermark"
@@ -1651,7 +1651,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.3,
-    "priceCents": 169000,
+    "priceCents": 1020000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey mountain chalet villa, grey fieldstone ground floor, dark larch timber boarding on the upper floor, a steep standing-seam metal gable roof with the gable facing the viewer, a fully glazed gable end with a timber balcony across it, attached single garage on the right built into the slope, no pool, alpine meadow and pine trees, high Caucasus mountain village setting with snow-capped peaks behind, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1680,7 +1680,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.7,
-    "priceCents": 159000,
+    "priceCents": 900000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey stone farmhouse villa, rough river-stone walls with lime mortar, a terracotta tile gable roof with deep timber eaves, an oak pergola covered with grape vines along the garden front, timber-framed French doors, no garage, no pool, a gravel courtyard with an old stone well in front of the house, walnut trees and vineyard rows on gentle Caucasus foothills, golden hour, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1709,7 +1709,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.5,
-    "priceCents": 159000,
+    "priceCents": 840000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey Mediterranean villa in the Absheron summer-house tradition, white lime stucco walls, a terracotta tile hip roof, an arched loggia with three round arches, wrought-iron window grilles, a vine pergola over a paved courtyard, attached single garage on the right, no pool, a walled garden of fig and pomegranate trees, sandy Absheron village setting near the sea at Hovsan, soft afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1738,7 +1738,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 1.4,
-    "priceCents": 199000,
+    "priceCents": 1140000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey island villa inspired by Ottoman waterside mansions, ochre-painted horizontal timber cladding with white trim, a regular row of tall white sash windows, a lead-grey hipped roof with wide overhanging eaves, a projecting upper bay above the entrance, no garage, long rectangular swimming pool on a stone quay along the water, tall cypress trees, calm Caspian sea at Pirallahi, late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1766,7 +1766,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.4,
-    "priceCents": 99000,
+    "priceCents": 510000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury one-storey white courtyard villa in a high-tech style, flawless white walls, slender black window frames, a crisp flat roof edge, a walled private patio framed by clipped boxwood hedges, no garage, narrow ornamental pool running along the patio wall with pale paving, Dubendi seaside village, bright midday sun with sharp shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1794,7 +1794,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.8,
-    "priceCents": 169000,
+    "priceCents": 1020000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey Miami-modern resort villa, white render with long horizontal bands, thin eyebrow canopies over the windows, pale aqua accents in the window reveals, rectilinear plan with crisp corners, no garage, rectangular swimming pool with a terrazzo terrace in front of the house, royal palms and low tropical planting, Caspian beach setting at Amburan, bright afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1822,7 +1822,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 1.3,
-    "priceCents": 139000,
+    "priceCents": 720000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey coastal villa, light sand render ground floor combined with a timber-framed upper volume clad in vertical oak boards, thin deep flat roof slabs, a first-floor terrace with a frameless glass balustrade, attached single garage on the right, rectangular swimming pool with a limestone deck in front of the house, silver olive trees and lavender, Absheron village setting at Fatmayi, warm golden hour, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1850,7 +1850,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.6,
-    "priceCents": 209000,
+    "priceCents": 1200000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury three-level contemporary villa, natural Absheron stone base level, two upper levels with panoramic floor-to-ceiling glazing in oak frames, slim flat roof slabs with deep overhangs, a long Absheron stone garden wall in front, attached double garage on the right, no pool, a terraced lawn with stone steps in front of the house, fig and mulberry trees, gated estate street at Goradil, soft evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1878,7 +1878,7 @@
     "pool": false,
     "tree": "cypress",
     "ratio": 1.6,
-    "priceCents": 169000,
+    "priceCents": 930000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey contemporary villa in white plaster and rough local stone, long horizontal stone walls, deep flat roof slabs over wide terraces, full-height glazing with thin bronze frames, no garage, no pool, a stone-walled courtyard garden with gravel and wild thyme in front of the house, cypress and olive trees, rocky hillside setting at Gobustan with a distant view of the Caspian, late golden light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1906,7 +1906,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.6,
-    "priceCents": 169000,
+    "priceCents": 960000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey beachfront coastal villa, white render walls with sliding teak louvre screens, deep overhanging thin flat roof slabs over covered terraces, full-height glazing, attached single garage on the right, no pool, a wide teak deck stepping down through dune grasses onto the sand, tall pines behind and the Caspian beach in front, Yalama forest coast, soft morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1934,7 +1934,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.2,
-    "priceCents": 149000,
+    "priceCents": 840000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey alpine-style house, ground level in honey-coloured local stone, weathered silver spruce cladding above, a steep dark metal roof with its pitched end towards the camera, the pitched end fully glazed above a deep covered timber porch, attached single garage on the right, no pool, misty beech forest on a steep slope, Talysh mountains of Lerik behind, soft overcast morning, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1962,7 +1962,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.6,
-    "priceCents": 109000,
+    "priceCents": 540000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey stone cottage villa, whitewashed limestone walls, a terracotta tile gable roof, a long timber veranda with carved posts along the front, small timber-framed windows with shutters, attached single garage on the right built of the same stone, no pool, a kitchen garden and a row of old walnut trees, green forested foothills of Oguz, warm late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -1990,7 +1990,7 @@
     "pool": true,
     "tree": "pine",
     "ratio": 1.9,
-    "priceCents": 149000,
+    "priceCents": 780000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a slender luxury two-storey waterside mansion, pale blue-grey painted clapboard walls with white corner boards, a long even rhythm of tall white sash windows with louvred shutters, a slate hip roof with deep bracketed eaves, no garage, long narrow swimming pool on a stone quay with a small timber jetty, umbrella pines and roses, calm Caspian water at dusk with distant shoreline lights, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2018,7 +2018,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 1.7,
-    "priceCents": 229000,
+    "priceCents": 1380000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a large luxury two-storey estate villa, split-face honey limestone on the ground floor, a wide upper-floor wing in smooth white plaster projecting over the terrace, oak-lined undersides of thick flat roofs, frameless glass railings, no garage, infinity swimming pool with a pale limestone deck in front of the house looking out to the Caspian, pomegranate and olive trees, gated estate lane at Kurdakhani, golden hour, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2047,7 +2047,7 @@
     "pool": false,
     "tree": "olive",
     "ratio": 2,
-    "priceCents": 139000,
+    "priceCents": 765000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey long garden pavilion villa, a long honey limestone garden wall, a deep thin flat roof on slender bronze columns, full-height glazing along a shaded courtyard terrace, no garage, no pool, a quiet gravel courtyard planted with olive trees and lavender, Absheron village setting at Mashtaga, soft late morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2076,7 +2076,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 1.9,
-    "priceCents": 219000,
+    "priceCents": 1320000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a wide luxury two-storey dark contemporary villa, graphite plaster walls, tall vertical bronze louvres across the upper floor, black-edged flat roofs, a basalt stone plinth, attached double garage on the right, long rectangular swimming pool with a basalt deck in front of the house, a row of tall cypresses along the garden wall, Absheron setting at Saray, twilight with glowing windows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2105,7 +2105,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.8,
-    "priceCents": 149000,
+    "priceCents": 870000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury single-level woodland house, walls of split grey fieldstone, a massive stone fireplace chimney rising above a thin flat roof, wall-to-wall glass doors sliding onto the grass, cedar-lined eaves, attached single garage on the right, no pool, an open grass clearing under ancient oaks and tall pines, Caucasus foothill forest at Gakh, dappled morning sun, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2134,7 +2134,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.5,
-    "priceCents": 259000,
+    "priceCents": 1590000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury hillside villa on three levels, a rough-cut stone garden level with sliding glass doors, two upper floors wrapped in glass behind narrow vertical timber fins, thin projecting flat roofs, no garage, a long travertine-edged swimming pool in front of the house, fig and mulberry trees around a clipped lawn, Absheron estate setting at Ramana, warm evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2162,7 +2162,7 @@
     "pool": false,
     "tree": "olive",
     "ratio": 1.4,
-    "priceCents": 169000,
+    "priceCents": 990000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey white minimal villa, white plaster cubic volumes combined with walls of rough red local stone, deep-set recessed windows, a roof terrace with a slim glass balustrade, attached single garage on the right, no pool, a dry garden of olive trees and wild herbs on gravel, red striped mountains of Khizi behind, clear afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2190,7 +2190,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.8,
-    "priceCents": 199000,
+    "priceCents": 1140000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey beach villa, white render walls with slatted teak sun screens, slim cantilevered roof plates over shaded verandas on both floors, frameless glass balustrades, no garage, infinity swimming pool on the sand in front of the house edged with dune grasses, tamarisk trees, wide empty Caspian beach at Khudat, soft early morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2219,7 +2219,7 @@
     "pool": true,
     "tree": "pine",
     "ratio": 1.25,
-    "priceCents": 209000,
+    "priceCents": 1260000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a large luxury two-storey mountain chalet, a ground floor of rough dark basalt blocks, horizontal larch boards stained deep brown on the upper floor, a steep standing-seam zinc roof with its gable towards the camera and a tall fully glazed gable wall, a timber balcony running across the upper floor, attached double garage on the right, heated rectangular swimming pool on a basalt terrace in front of the house, alpine meadow with scattered pines and birches, snow-dusted ridges of the Lesser Caucasus above Gadabay, clear crisp autumn afternoon, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2247,7 +2247,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.5,
-    "priceCents": 119000,
+    "priceCents": 615000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey farmhouse villa, walls of rounded river cobbles laid between bands of red brick, a terracotta tile gable roof with wide timber eaves, a deep oak pergola heavy with grapevines along the front, tall timber doors with arched fanlights, no garage, compact rectangular swimming pool with a red brick edge in front of the house, hazelnut orchard and old chestnut trees, densely forested Greater Caucasus slopes of Balakan behind, warm early evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2275,7 +2275,7 @@
     "pool": false,
     "tree": "cypress",
     "ratio": 2,
-    "priceCents": 139000,
+    "priceCents": 720000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a long luxury one-storey Tuscan-style country villa, honey-toned rubble limestone walls with dressed stone quoins, a terracotta tile hip roof, a five-bay arched loggia facing the garden, olive-green timber shutters, no garage, an arched oak entrance door, no pool, a gravel forecourt with a round stone fountain in front of the house, pomegranate orchards and slender cypresses on the plain of Goychay, golden late afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2303,7 +2303,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.6,
-    "priceCents": 219000,
+    "priceCents": 1290000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey lakeside timber mansion in the Bosphorus yali tradition, cream painted weatherboarding with dark green trim, a long even row of tall timber sash windows on both floors, a central entrance under a small timber canopy, a grey slate hip roof with deep eaves, attached double garage on the right clad in the same boarding, no pool, a stone quay with a small timber boathouse and a moored rowing boat, plane trees along the shore, wide still water of the Mingachevir reservoir at sunrise with pink mist, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2331,7 +2331,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 1.8,
-    "priceCents": 109000,
+    "priceCents": 600000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury one-storey snow-white high-tech villa, smooth white walls, long horizontal glazing in ultra-thin silver frames, a sharp-edged flat roof with a hidden gutter, attached single garage on the right behind a flush white door, rectangular swimming pool with a white limestone deck in front of the house set in pale gravel, sculpted olive trees and ornamental grasses, flat sunlit Absheron landscape at Zabrat, clear blue morning sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2360,7 +2360,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.5,
-    "priceCents": 199000,
+    "priceCents": 1230000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a large luxury two-storey Miami-modern villa, white render with layered horizontal floor slabs, a long thin canopy above the ground-floor sliding glass walls, an upper terrace behind a solid white parapet with a slim glass rail, strictly rectilinear plan, no garage, rectangular swimming pool with a cream terrazzo deck and white sun loungers in front of the house, royal palms and magenta bougainvillea, calm Caspian shore near Alat, late afternoon sun with long shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2389,7 +2389,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.7,
-    "priceCents": 189000,
+    "priceCents": 1050000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey seaside villa, off-white render on the ground floor, vertical larch slats wrapping the upper floor, deep cantilevered flat roof slabs with timber soffits, sliding teak louvre panels shading the bedroom windows, attached single garage on the right, no pool, a lawn running down to a sandy path through the dunes, tall coastal pine forest of Shabran, soft hazy morning light over the Caspian, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2418,7 +2418,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.3,
-    "priceCents": 239000,
+    "priceCents": 1425000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury three-storey contemporary forest villa, a base of dark grey split-face stone, a white rendered top volume cantilevering over a fully glazed middle floor, thin flat roof slabs with warm timber soffits, a tall stone chimney rising beside the glazing, attached double garage on the right, no pool, mature pine and beech forest close around the house, misty valley of Dashkasan in the Lesser Caucasus, cool blue hour with warm interior light glowing, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2447,7 +2447,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 2.1,
-    "priceCents": 129000,
+    "priceCents": 675000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey courtyard villa, long low walls of sawn Absheron limestone, a deep flat roof slab with a timber soffit reaching over a shaded terrace, frameless full-height glazing with bronze frames, no garage, long reflecting swimming pool along the terrace with a limestone deck in front of the house, olive trees and rosemary in pale gravel, sandy Caspian coast near Jorat, warm sunset glow, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2476,7 +2476,7 @@
     "pool": false,
     "tree": "cypress",
     "ratio": 1.4,
-    "priceCents": 139000,
+    "priceCents": 690000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey Mediterranean villa, white stucco walls, a terracotta tile hip roof with deep eaves, tall arched windows on the ground floor, wrought-iron balconies on the upper floor, a stone-paved entrance terrace under a vine pergola, attached single garage on the right, no pool, terraced vineyards and dark cypress trees on the rolling Agsu hills, warm afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2504,7 +2504,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.1,
-    "priceCents": 109000,
+    "priceCents": 570000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey mountain house, a ground floor of rough river stone laid in lime mortar, vertical dark oak boards on the upper floor, a steep standing-seam copper roof with its gable towards the camera, the gable end glazed from floor to ridge, a small carved timber balcony under the gable, no garage, no pool, a stone-walled terrace with an old walnut tree, steep green forested valley of the Girdimanchay river near Lahij, soft morning mist lifting, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2532,7 +2532,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.6,
-    "priceCents": 89000,
+    "priceCents": 450000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a small luxury one-storey stone farmhouse, walls of grey mountain stone with heavy timber lintels, a terracotta tile gable roof with a slender stone chimney, a front porch on sturdy oak posts with a vine climbing over it, small deep-set windows with oak shutters, no garage, no pool, a fenced orchard of apple and plum trees with a few wooden beehives, alpine meadows and the snowy Greater Caucasus ridge above Ilisu, crisp clear morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2560,7 +2560,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.5,
-    "priceCents": 139000,
+    "priceCents": 690000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey seaside villa in the Ottoman yali tradition, pale sage-green painted timber weatherboarding with white trim, tall white sash windows with louvred shutters in a regular rhythm, a dark slate hip roof with wide eaves on carved brackets, a narrow timber veranda along the ground floor, attached single garage on the right clad in matching boards, no pool, a lawn ending at a low stone sea wall, tea bushes, magnolias and feijoa shrubs, Caspian shore at Astara with wooded Talysh hills behind, soft overcast afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2589,7 +2589,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 2,
-    "priceCents": 109000,
+    "priceCents": 540000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey snow-white pavilion villa, an ultra-thin white flat roof canopy floating on slender white steel columns, frameless full-height glass walls, a solid white wall wrapping the bedrooms at one end, attached single garage on the right behind white aluminium louvres, decorative rectangular swimming pool with white terrazzo edging in front of the house, a raked gravel courtyard with one sculptural olive tree and white agapanthus, flat Absheron plain at Bulbula, soft pastel evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2618,7 +2618,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.4,
-    "priceCents": 119000,
+    "priceCents": 675000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a compact luxury two-storey Miami-modern beach house, crisp white render with thin projecting ledges at each floor, recessed corner windows, slim white eyebrow canopies over the ground floor openings, strictly rectilinear massing, attached single garage on the right, rectangular swimming pool with a pale terrazzo deck and teak sun loungers in front of the house, clusters of royal palms and pink oleander, sandy Caspian beach at Sitalchay, bright late morning sun, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2647,7 +2647,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.8,
-    "priceCents": 229000,
+    "priceCents": 1350000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a large luxury two-storey villa, warm white render on the ground floor above a low grey stone plinth, an upper floor clad in honey-coloured vertical oak boards with a long ribbon of bronze-framed glazing, thin deep flat roof slabs, a first-floor terrace with frameless glass balustrades along the full width, attached double garage on the right with two separate doors, no pool, a huge old oak tree in the foreground, autumn lawn scattered with golden leaves, dense oak and hornbeam lowland forest near Khachmaz behind, blue hour with warm light glowing from every window, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2676,7 +2676,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 1.3,
-    "priceCents": 179000,
+    "priceCents": 990000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey dark contemporary villa, smooth charcoal render, slender bronze vertical fins screening the upper-floor windows, dark flat roof slabs with thin edges, a recessed glazed ground floor glowing with warm light, no garage, rectangular black-tiled swimming pool with a dark basalt deck in front of the house, tall columnar cypresses and clipped boxwood along a stone garden wall, quiet Absheron suburb at Mehdiabad, deep blue dusk, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2705,7 +2705,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.5,
-    "priceCents": 199000,
+    "priceCents": 1110000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury three-storey contemporary villa on a gentle slope, a lower garden level of honey Absheron stone opening onto a sunken lawn, a middle floor of panoramic glazing between oak-clad piers, a white top floor set back behind a roof terrace, thin flat roof slabs, no garage, no pool, a long Absheron stone garden wall with a timber gate, old mulberry and fig trees, quiet estate lane at Digah, soft hazy morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2733,7 +2733,7 @@
     "pool": false,
     "tree": "cypress",
     "ratio": 1.7,
-    "priceCents": 139000,
+    "priceCents": 780000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey hillside villa, a long white plaster volume resting on a plinth of rough local stone, deep-set glazing with slim black frames, a flat roof with a low parapet, a stone-paved terrace looking over the valley, no garage, no pool, cypress and olive trees on dry terraced hillsides, rolling Gobustan hills near Maraza, golden evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2761,7 +2761,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.9,
-    "priceCents": 139000,
+    "priceCents": 690000,
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey beachfront villa, white render walls, sliding teak louvre screens across the bedroom windows, a deep flat roof overhang shading a long timber deck, attached single garage on the right, rectangular swimming pool set into the deck in front of the house, dune grasses and tamarisk shrubs, wide sandy Caspian beach at Gurgan, clear early morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
@@ -2790,7 +2790,7 @@
     "pool": true,
     "tree": "olive",
     "ratio": 1.6,
-    "priceCents": 199000,
+    "priceCents": 1140000,
     "published": true,
     "demo": true,
     "location": [
@@ -2822,7 +2822,7 @@
     "pool": false,
     "tree": "olive",
     "ratio": 2.0,
-    "priceCents": 119000,
+    "priceCents": 570000,
     "published": true,
     "demo": true,
     "location": [
@@ -2855,7 +2855,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.6,
-    "priceCents": 89000,
+    "priceCents": 435000,
     "published": true,
     "demo": true,
     "location": [
@@ -2888,7 +2888,7 @@
     "pool": true,
     "tree": "palm",
     "ratio": 1.7,
-    "priceCents": 219000,
+    "priceCents": 1380000,
     "published": true,
     "demo": true,
     "location": [
@@ -2920,7 +2920,7 @@
     "pool": false,
     "tree": "cypress",
     "ratio": 2.0,
-    "priceCents": 209000,
+    "priceCents": 1260000,
     "published": true,
     "demo": true,
     "location": [
@@ -2953,7 +2953,7 @@
     "pool": true,
     "tree": "round",
     "ratio": 1.8,
-    "priceCents": 119000,
+    "priceCents": 600000,
     "published": true,
     "demo": true,
     "location": [
@@ -2985,7 +2985,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.5,
-    "priceCents": 289000,
+    "priceCents": 1800000,
     "published": true,
     "demo": true,
     "location": [
@@ -3017,7 +3017,7 @@
     "pool": false,
     "tree": "round",
     "ratio": 1.6,
-    "priceCents": 189000,
+    "priceCents": 1050000,
     "published": true,
     "demo": true,
     "location": [
@@ -3050,7 +3050,7 @@
     "pool": false,
     "tree": "pine",
     "ratio": 1.2,
-    "priceCents": 159000,
+    "priceCents": 930000,
     "published": true,
     "demo": true,
     "location": [
@@ -3083,7 +3083,7 @@
     "pool": true,
     "tree": "cypress",
     "ratio": 1.7,
-    "priceCents": 119000,
+    "priceCents": 600000,
     "published": true,
     "demo": true,
     "location": [
@@ -3115,7 +3115,7 @@
     "bathrooms": 24,
     "garage": false,
     "pool": false,
-    "priceCents": 1709000,
+    "priceCents": 32400000,
     "published": true,
     "demo": true,
     "project": {
@@ -3152,7 +3152,7 @@
     "bathrooms": 16,
     "garage": false,
     "pool": false,
-    "priceCents": 1049000,
+    "priceCents": 19200000,
     "published": true,
     "demo": true,
     "project": {
@@ -3189,7 +3189,7 @@
     "bathrooms": 25,
     "garage": false,
     "pool": false,
-    "priceCents": 1079000,
+    "priceCents": 19800000,
     "published": true,
     "demo": true,
     "project": {
@@ -3226,7 +3226,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 819000,
+    "priceCents": 14700000,
     "published": true,
     "demo": true,
     "project": {
@@ -3265,7 +3265,7 @@
     "garage": false,
     "pool": false,
     "tree": "pine",
-    "priceCents": 689000,
+    "priceCents": 12000000,
     "published": true,
     "demo": true,
     "project": {
@@ -3304,7 +3304,7 @@
     "garage": false,
     "pool": false,
     "tree": "round",
-    "priceCents": 149000,
+    "priceCents": 1260000,
     "published": true,
     "demo": true,
     "project": {
@@ -3342,7 +3342,7 @@
     "bathrooms": 4,
     "garage": false,
     "pool": false,
-    "priceCents": 199000,
+    "priceCents": 2280000,
     "published": true,
     "demo": true,
     "project": {
@@ -3381,7 +3381,7 @@
     "garage": false,
     "pool": false,
     "tree": "palm",
-    "priceCents": 149000,
+    "priceCents": 1140000,
     "published": true,
     "demo": true,
     "project": {
@@ -3420,7 +3420,7 @@
     "garage": false,
     "pool": false,
     "tree": "pine",
-    "priceCents": 169000,
+    "priceCents": 1680000,
     "published": true,
     "demo": true,
     "project": {
@@ -3458,7 +3458,7 @@
     "bathrooms": 2,
     "garage": false,
     "pool": false,
-    "priceCents": 329000,
+    "priceCents": 4800000,
     "published": true,
     "demo": true,
     "project": {
@@ -3496,7 +3496,7 @@
     "bathrooms": 42,
     "garage": false,
     "pool": false,
-    "priceCents": 969000,
+    "priceCents": 17550000,
     "published": true,
     "demo": true,
     "project": {

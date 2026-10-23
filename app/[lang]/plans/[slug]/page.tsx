@@ -8,8 +8,8 @@ import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
 import { placeOf } from "@/lib/places";
-import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isResidential, PALETTE_LABELS, planLabel } from "@/lib/plans";
-import { currency } from "@/lib/providers";
+import { visitorCurrency } from "@/lib/geo";
+import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isResidential, PALETTE_LABELS, planLabel, priceBasis } from "@/lib/plans";
 
 const LOCKED = new Set(["schedules"]);
 
@@ -20,6 +20,7 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
   if (!plan) notFound();
   const t = UI[lang];
   const c = COPY[lang];
+  const cur = await visitorCurrency();
   const checkoutHref = `/${lang}/plans/${slug}/checkout`;
   // sheets that carry the sellable detail are shown locked; the rest open in the lightbox
   const open = plan.gallery.filter((item) => !LOCKED.has(item.kind));
@@ -127,7 +128,8 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
               ))}
             </div>
             <span className="muted small">{c.priceFrom} · {t.includes}: {t.formats}</span>
-            <div className="price">{formatPrice(plan.priceCents, lang, currency())}</div>
+            <div className="price">{formatPrice(plan.priceCents, lang, cur)}</div>
+            <span className="muted small price-basis">{priceBasis(plan, lang, cur)}</span>
             {plan.package && <PackagePanel pkg={plan.package} lang={lang} checkoutHref={checkoutHref} />}
 
             {plan.demo && <p className="note">{c.sampleNote}</p>}

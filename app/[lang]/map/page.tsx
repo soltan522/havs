@@ -10,7 +10,7 @@ import { districtsIn } from "@/lib/districts";
 import { landmarksIn } from "@/lib/landmarks";
 import { placeOf } from "@/lib/places";
 import { formatPrice, planLabel, publishedPlans } from "@/lib/plans";
-import { currency } from "@/lib/providers";
+import { visitorCurrency } from "@/lib/geo";
 
 const TEXT: Record<Locale, MapText & { title: string; eyebrow: string; lead: string; count: (n: number) => string }> = {
   az: {
@@ -91,6 +91,7 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = TEXT[lang];
+  const cur = await visitorCurrency();
   const items: MapItem[] = [];
   for (const plan of publishedPlans()) {
     const lngLat = placeOf(plan.slug, plan.location);
@@ -102,7 +103,7 @@ export default async function MapPage({ params }: { params: Promise<{ lang: stri
       title: plan.title[lang],
       label: planLabel(plan, lang),
       specs: specsLine(lang, plan),
-      price: formatPrice(plan.priceCents, lang, currency()),
+      price: formatPrice(plan.priceCents, lang, cur),
       cover: plan.cover,
       href: `/${lang}/plans/${plan.slug}`,
       lngLat,
