@@ -188,6 +188,8 @@ export const STYLE_RULES = {
   restaurant: { roofs: ["flat", "gable"], floors: [1, 2], projectOnly: true, commercial: true, floorArea: [180, 900], layouts: { a: [1], b: [2], c: [1], d: [2] }, metric: "seats" },
   banquet: { roofs: ["flat"], floors: [1], projectOnly: true, commercial: true, floorArea: [800, 2600], layouts: { a: null }, metric: "seats" },
   apartments: { roofs: ["flat"], floors: [5, 6, 7, 8, 9, 10, 11, 12], projectOnly: true, residential: true, floorArea: [380, 900], layouts: { a: null }, metric: "flats" },
+  // custom: drawn outside this generator (no SPEC): the finished sheet set is supplied as images in private-assets/<slug>/
+  factory: { roofs: ["flat", "gable"], floors: [1, 2, 3], projectOnly: true, commercial: true, custom: true },
 };
 
 /** Multi-unit projects (plan.project.kind): how many houses each layout is drawn for. */
@@ -202,7 +204,11 @@ export const PROJECT_RULES = {
   dining: { units: [1], styles: ["restaurant"], label: "RESTAURANT" },
   events: { units: [1], styles: ["banquet"], label: "WEDDING AND BANQUET HALL" },
   residential: { units: [1], styles: ["apartments"], label: "APARTMENT BUILDING" },
+  industrial: { units: [1], styles: ["factory"], label: "FACTORY" },
 };
+
+/** A plan whose drawings were made outside this generator: no generated sheets, checks or package (STYLE_RULES custom). */
+export const isCustomDrawn = (plan) => !!STYLE_RULES[plan.style]?.custom;
 
 /** Cladding and layout a commercial plan is drawn with (plan.facade / plan.layout, else the first option). */
 export const FACADE_OPTIONS = Object.fromEntries(Object.entries(FACADES).map(([style, f]) => [style, Object.keys(f)]));

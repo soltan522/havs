@@ -16,7 +16,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, interiorSheets, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, interiorSheets, isCustomDrawn, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "./drawings.mjs";
 
 const root = process.cwd();
 const SOURCE = path.join(root, "private-assets");
@@ -68,6 +68,17 @@ const nn = (i) => String(i + 1).padStart(2, "0");
 for (const plan of selected) {
   const { slug } = plan;
   const outDir = path.join(OUT, slug);
+  const custom = isCustomDrawn(plan);
+  const sources = await listImages(path.join(SOURCE, slug));
+  if (custom && !sources.length) {
+    // a custom sheet set is previewed only from its full-resolution originals, which are never committed: keep what is there
+    if (existsSync(outDir)) {
+      console.warn(`${slug}: custom drawings — private-assets/${slug}/ is not on this machine, keeping public/plans/${slug}/ as it is`);
+      continue;
+    }
+    throw new Error(`${slug}: custom drawings — put the full-resolution sheet images in private-assets/${slug}/ first`);
+  }
+  if (custom && !(await listImages(path.join(RENDERS, slug))).length) throw new Error(`${slug}: custom drawings need concept renders in renders/${slug}/`);
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
@@ -92,8 +103,7 @@ for (const plan of selected) {
   }
 
   // 2. real material (watermarked) or generated concept sheets
-  const sources = await listImages(path.join(SOURCE, slug));
-  const model = buildModel(plan);
+  const model = custom ? null : buildModel(plan);
   if (sources.length) {
     for (const [i, name] of sources.entries()) await writePreview(path.join(SOURCE, slug, name), path.join(outDir, `image-${nn(i)}.jpg`));
   } else if (model.interior) {
@@ -116,7 +126,7 @@ for (const plan of selected) {
 
   // 3. card images: the first render (or first image), and the rendered elevation on hover
   // (an interior shows its cutaway on hover instead of the building's elevation)
-  const hover = model.interior ? cutawaySheet(model, "", { bare: true }) : elevationSheet(model, "", true);
+  const hover = custom ? path.join(RENDERS, slug, renders[1] ?? renders[0]) : model.interior ? cutawaySheet(model, "", { bare: true }) : elevationSheet(model, "", true);
   const coverSrc = renders.length ? path.join(RENDERS, slug, renders[0]) : sources.length ? path.join(SOURCE, slug, sources[0]) : hover;
   await card(coverSrc, path.join(outDir, "cover.jpg"));
   await card(hover, path.join(outDir, "cover-2.jpg"));
