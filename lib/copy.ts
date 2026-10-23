@@ -99,6 +99,8 @@ export const COPY = {
       roomsShort: "otaq",
       seatsShort: "yer",
       flatsShort: "mənzil",
+      staff: "İş yerləri",
+      siteArea: "Torpaq sahəsi",
     },
     interior: {
       type: "Layihə növü",
@@ -115,6 +117,20 @@ export const COPY = {
     },
     sampleNote:
       "Konsept layihə: vizualizasiya dizayn ideyasını göstərir, çertyojlar konsept mərhələsinə aiddir və tikintidən əvvəl yerli memar və mühəndis tərəfindən uyğunlaşdırılmalıdır. Paket (PDF, DWG, DXF) ödənişdən dərhal sonra yüklənir; layihəni sahənizə uyğunlaşdırmaq üçün bizimlə əlaqə saxlayın.",
+    custom: {
+      priceLabel: "Layihə qiyməti",
+      cta: "Sifariş üçün sorğu",
+      title: "Sifariş sorğusu",
+      steps: ["Layihə", "Sorğu"],
+      request: "Bu çertyoj dəsti onlayn satılmır: sorğu göndərin, tam A1 dəstini (PDF, DXF) sizə təqdim edəcəyik.",
+      formats: "A1 çertyoj dəsti · PDF, DXF",
+      sampleNote:
+        "Konsept layihə: vizualizasiyalar və A1 vərəqləri dizayn ideyasını konsept mərhələsində göstərir, tikintidən əvvəl yerli memar və mühəndis tərəfindən işlənməlidir. Tam A1 çertyoj dəsti (PDF, DXF) sifarişlə hazırlanır — əlaqə saxlayın.",
+      notes: [
+        "Tam A1 çertyoj dəsti (PDF, DXF) sifarişlə hazırlanır — əlaqə saxlayın.",
+        "Layihə konsept mərhələsindədir: tikintidən əvvəl yerli memar və mühəndis tərəfindən uyğunlaşdırılmalıdır.",
+      ],
+    },
     contactToOrder: "Sifariş üçün əlaqə",
     contactToCustomise: "Fərdiləşdirmə üçün əlaqə",
     sheets: "Konsept vərəqləri",
@@ -217,6 +233,8 @@ export const COPY = {
       roomsShort: "rooms",
       seatsShort: "seats",
       flatsShort: "flats",
+      staff: "Workplaces",
+      siteArea: "Site area",
     },
     interior: {
       type: "Project type",
@@ -233,6 +251,20 @@ export const COPY = {
     },
     sampleNote:
       "Concept project: the visualisation shows the design intent and the drawings are concept-stage, to be adapted by a local architect and engineer before construction. The package (PDF, DWG, DXF) downloads right after payment; contact us to adapt the design to your plot.",
+    custom: {
+      priceLabel: "Design price",
+      cta: "Request the drawing set",
+      title: "Order request",
+      steps: ["Project", "Request"],
+      request: "This drawing set is not sold online: send us a request and we will supply the full A1 set (PDF, DXF).",
+      formats: "A1 drawing set · PDF, DXF",
+      sampleNote:
+        "Concept project: the visualisations and A1 sheets show the design intent at concept stage, to be developed by a local architect and engineer before construction. The full A1 drawing set (PDF, DXF) is supplied on request — get in touch.",
+      notes: [
+        "The full A1 drawing set (PDF, DXF) is supplied on request — get in touch.",
+        "This is a concept-stage design: a local architect and engineer must adapt it before construction.",
+      ],
+    },
     contactToOrder: "Contact to order",
     contactToCustomise: "Contact to customise",
     sheets: "Concept sheets",
@@ -335,6 +367,8 @@ export const COPY = {
       roomsShort: "номеров",
       seatsShort: "мест",
       flatsShort: "квартир",
+      staff: "Рабочие места",
+      siteArea: "Площадь участка",
     },
     interior: {
       type: "Тип проекта",
@@ -351,6 +385,20 @@ export const COPY = {
     },
     sampleNote:
       "Концептуальный проект: визуализация показывает замысел, чертежи — стадии концепции, перед строительством их адаптируют местный архитектор и инженер. Пакет (PDF, DWG, DXF) скачивается сразу после оплаты; чтобы адаптировать проект под ваш участок, свяжитесь с нами.",
+    custom: {
+      priceLabel: "Цена проекта",
+      cta: "Запросить комплект",
+      title: "Запрос на заказ",
+      steps: ["Проект", "Запрос"],
+      request: "Этот комплект чертежей не продаётся онлайн: отправьте запрос, и мы предоставим полный комплект A1 (PDF, DXF).",
+      formats: "Комплект чертежей A1 · PDF, DXF",
+      sampleNote:
+        "Концептуальный проект: визуализации и листы A1 показывают замысел на стадии концепции, перед строительством его прорабатывают местный архитектор и инженер. Полный комплект чертежей A1 (PDF, DXF) предоставляется по запросу — свяжитесь с нами.",
+      notes: [
+        "Полный комплект чертежей A1 (PDF, DXF) предоставляется по запросу — свяжитесь с нами.",
+        "Проект стадии концепции: перед строительством его адаптируют местный архитектор и инженер.",
+      ],
+    },
     contactToOrder: "Связаться для заказа",
     contactToCustomise: "Адаптация проекта",
     sheets: "Концептуальные листы",

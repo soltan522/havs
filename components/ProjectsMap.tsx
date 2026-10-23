@@ -22,8 +22,11 @@ export type MapItem = {
   cover: string;
   href: string;
   lngLat: [number, number];
-  /** A detailed 3D model of the building, shown in place of its plain map block; `origin` is the centre of its footprint. */
-  model?: { src: string; bearing: number; origin: [number, number] };
+  /**
+   * A detailed 3D model of the building, shown in place of its plain map block; `origin` is the centre of its footprint.
+   * A model of a whole site names the city buildings it stands in place of (`replaces`) and its close-up zoom (`zoom`).
+   */
+  model?: { src: string; bearing: number; origin: [number, number]; replaces?: string[]; zoom?: number };
 };
 
 export type MapText = {
@@ -203,7 +206,9 @@ export default function ProjectsMap({ items, districts = [], landmarks = [], cit
         const wide = window.innerWidth > 760;
         const side = !!item.model && wide;
         const below = !!item.model && !wide;
-        popupRef.current = new maplibregl.Popup({ offset: side ? [140, -70] : below ? 36 : 16, anchor: side ? "left" : below ? "top" : undefined, maxWidth: "300px", className: "map-popup" })
+        // a whole site (its own close-up zoom) reaches further towards the viewer: its card starts lower beneath it
+        const site = item.model?.zoom !== undefined;
+        popupRef.current = new maplibregl.Popup({ offset: side ? [140, -70] : below ? (site ? 90 : 36) : 16, anchor: side ? "left" : below ? "top" : undefined, maxWidth: "300px", className: "map-popup" })
           .setLngLat(side ? item.model!.origin : item.lngLat)
           .setDOMContent(card(item))
           .addTo(map);
@@ -212,7 +217,9 @@ export default function ProjectsMap({ items, districts = [], landmarks = [], cit
           const center = item.model?.origin ?? item.lngLat;
           if (item.model) {
             // close up on the street front and the corner beside it: the building in the middle, or above its card
-            map.flyTo({ center, offset: [0, wide ? 90 : -80], zoom: wide ? 18.9 : 18.3, pitch: 64, bearing: (item.model.bearing + 150) % 360, duration: 3400, essential: true });
+            // (a whole site sets its own zoom so all of it fits; a narrow screen shows it a little further out)
+            const zoom = item.model.zoom !== undefined ? item.model.zoom - (wide ? 0 : 0.6) : wide ? 18.9 : 18.3;
+            map.flyTo({ center, offset: [0, wide ? 90 : site ? -130 : -80], zoom, pitch: 64, bearing: (item.model.bearing + 150) % 360, duration: 3400, essential: true });
           } else {
             // the point sits below the centre so the card opens above it, clear of the panels on a narrow screen
             map.flyTo({ center: item.lngLat, offset: [0, wide ? 110 : 150], zoom: item.area === "baku" ? 14.6 : 13.2, pitch: 60, bearing: map.getBearing(), duration: 2600, essential: true });
@@ -295,7 +302,8 @@ export default function ProjectsMap({ items, districts = [], landmarks = [], cit
         }
 
         // detailed building and district models replace their plain blocks (three.js is loaded only when there are any)
-        const buildings = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin }));
+        // a model standing in place of city buildings covers a whole site: taps anywhere on it open its card
+        const buildings = items.filter((i) => i.model).map((i) => ({ id: i.slug, src: i.model!.src, bearing: i.model!.bearing, lngLat: i.model!.origin, ...(i.model!.replaces?.length ? { site: true } : {}) }));
         const wholeDistricts = districts.map((d) => ({ id: d.id, src: d.src, bearing: 180, lngLat: d.origin, bounds: d.bounds }));
         const landmarkModels = landmarks.map((l) => ({ id: l.id, src: l.src, bearing: 180, lngLat: l.origin, bounds: l.bounds }));
         if (buildings.length || wholeDistricts.length || landmarkModels.length || city) {
@@ -310,7 +318,7 @@ export default function ProjectsMap({ items, districts = [], landmarks = [], cit
             ]);
             if (city && cityModule) {
               // every building of the covered areas, drawn in 3D and tappable through invisible extrusions of the same tiles
-              const replaced = landmarks.flatMap((l) => l.replaces);
+              const replaced = [...landmarks.flatMap((l) => l.replaces), ...items.flatMap((i) => i.model?.replaces ?? [])];
               const layer = cityModule.cityBuildingsLayer(maplibregl, map, { base: city.base, exaggeration: TERRAIN_EXAGGERATION, skip: replaced });
               map.addLayer(layer, "item-halo");
               const ws = city.areas.map((a) => a.bounds);
