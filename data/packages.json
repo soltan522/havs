@@ -2330,5 +2330,247 @@
     ],
     "sheets": 6,
     "builtAt": "2026-10-23"
+  },
+  "naxchivan-107": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "naxchivan-107-drawings.pdf",
+        "bytes": 614622,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "naxchivan-107.dwg",
+        "bytes": 526867
+      },
+      {
+        "kind": "cad",
+        "name": "naxchivan-107.dxf",
+        "bytes": 1501847
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "sabunchu-108": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sabunchu-108-drawings.pdf",
+        "bytes": 737223,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sabunchu-108.dwg",
+        "bytes": 398957
+      },
+      {
+        "kind": "cad",
+        "name": "sabunchu-108.dxf",
+        "bytes": 1154326
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "shirvan-109": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shirvan-109-drawings.pdf",
+        "bytes": 589897,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "shirvan-109.dwg",
+        "bytes": 346829
+      },
+      {
+        "kind": "cad",
+        "name": "shirvan-109.dxf",
+        "bytes": 948678
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "fuzuli-110": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "fuzuli-110-drawings.pdf",
+        "bytes": 675791,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "fuzuli-110.dwg",
+        "bytes": 396147
+      },
+      {
+        "kind": "cad",
+        "name": "fuzuli-110.dxf",
+        "bytes": 1111652
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "naftalan-111": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "naftalan-111-drawings.pdf",
+        "bytes": 616358,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "naftalan-111.dwg",
+        "bytes": 243537
+      },
+      {
+        "kind": "cad",
+        "name": "naftalan-111.dxf",
+        "bytes": 663325
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "tovuz-112": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "tovuz-112-drawings.pdf",
+        "bytes": 656398,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "tovuz-112.dwg",
+        "bytes": 58911
+      },
+      {
+        "kind": "cad",
+        "name": "tovuz-112.dxf",
+        "bytes": 143739
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-23"
+  },
+  "barda-113": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "barda-113-drawings.pdf",
+        "bytes": 607030,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "barda-113.dwg",
+        "bytes": 92936
+      },
+      {
+        "kind": "cad",
+        "name": "barda-113.dxf",
+        "bytes": 236330
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "neftchala-114": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "neftchala-114-drawings.pdf",
+        "bytes": 607095,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "neftchala-114.dwg",
+        "bytes": 59732
+      },
+      {
+        "kind": "cad",
+        "name": "neftchala-114.dxf",
+        "bytes": 143437
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-23"
+  },
+  "qriz-115": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qriz-115-drawings.pdf",
+        "bytes": 666536,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "qriz-115.dwg",
+        "bytes": 85230
+      },
+      {
+        "kind": "cad",
+        "name": "qriz-115.dxf",
+        "bytes": 217712
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
+  },
+  "shamkir-116": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shamkir-116-drawings.pdf",
+        "bytes": 613384,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shamkir-116.dwg",
+        "bytes": 90037
+      },
+      {
+        "kind": "cad",
+        "name": "shamkir-116.dxf",
+        "bytes": 219006
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-23"
+  },
+  "lokbatan-117": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "lokbatan-117-drawings.pdf",
+        "bytes": 618584,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "lokbatan-117.dwg",
+        "bytes": 689482
+      },
+      {
+        "kind": "cad",
+        "name": "lokbatan-117.dxf",
+        "bytes": 1865275
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-23"
   }
 }
