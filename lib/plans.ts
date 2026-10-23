@@ -239,7 +239,7 @@ export const findPlan = (slug: string) => publishedPlans().find((p) => p.slug ==
 
 const intlLocale = (locale: Locale) => (locale === "az" ? "az-AZ" : locale === "ru" ? "ru-RU" : "en-US");
 
-/** "9 000 AZN" in manat (written with the code, as customers in Azerbaijan expect); "$9,000" / "9 000 $" in dollars. */
+/** Manat with the code, as customers in Azerbaijan expect ("9.000 AZN" in az); dollars as "$9,000" (en) or "9.000 $" (az). */
 export function formatPrice(cents: number, locale: Locale, currency: string): string {
   if (currency === "AZN") return `${new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 0 }).format(cents / 100)} AZN`;
   return new Intl.NumberFormat(intlLocale(locale), {

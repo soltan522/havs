@@ -45,6 +45,7 @@ export const COPY = {
         method: "Ödəniş üsulunu seçin.",
         unavailable: "Bu layihənin faylları hazır deyil, ona görə ödəniş alınmadı. Bizimlə əlaqə saxlayın.",
         provider: "Ödəniş səhifəsi açılmadı. Bir azdan yenidən cəhd edin və ya başqa üsul seçin.",
+        currency: "Qiymət olduğunuz ölkəyə görə yeniləndi. Yeni məbləği yoxlayın və yenidən ödəyin.",
       },
     },
     order: {
@@ -162,6 +163,7 @@ export const COPY = {
         method: "Choose a payment method.",
         unavailable: "The files of this project are not ready, so no payment was taken. Please contact us.",
         provider: "The payment page did not open. Try again in a moment or choose another method.",
+        currency: "The price was updated for your country. Please check the new amount and pay again.",
       },
     },
     order: {
@@ -279,6 +281,7 @@ export const COPY = {
         method: "Выберите способ оплаты.",
         unavailable: "Файлы этого проекта не готовы, поэтому оплата не принята. Свяжитесь с нами.",
         provider: "Страница оплаты не открылась. Повторите через минуту или выберите другой способ.",
+        currency: "Цена обновлена для вашей страны. Проверьте новую сумму и оплатите ещё раз.",
       },
     },
     order: {

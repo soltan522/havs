@@ -13,5 +13,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (order.provider !== "bank") return NextResponse.json({ error: "not_bank_order" }, { status: 400 });
 
   await updateOrder(id, { status: "paid" });
-  return NextResponse.json({ ok: true, id, status: "paid" });
+  return NextResponse.json({ ok: true, id, status: "paid", amount_cents: order.amount_cents, currency: order.currency });
 }

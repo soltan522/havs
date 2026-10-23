@@ -87,6 +87,7 @@ export default async function CheckoutPage({
               <form method="POST" action="/api/checkout" className="pay-form">
                 <input type="hidden" name="slug" value={plan.slug} />
                 <input type="hidden" name="locale" value={lang} />
+                <input type="hidden" name="currency" value={cur} />
                 <label className="pay-field">
                   <span>{k.email}</span>
                   <input type="email" name="email" required maxLength={254} autoComplete="email" inputMode="email" placeholder="name@example.com" />

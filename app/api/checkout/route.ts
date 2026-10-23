@@ -28,6 +28,8 @@ export async function POST(request: Request) {
 
   // The price shown and charged follows the visitor's country: 30 AZN/m² in Azerbaijan, 30 USD/m² elsewhere.
   const cur = requestCurrency(request);
+  // The buyer must pay in the currency the checkout page showed; if their country changed since (VPN, mobile IP), show the new price.
+  if (String(form.get("currency") ?? "") !== cur) return back("currency");
   if (!providersFor(cur).includes(provider)) return back("method");
   if (email.length > 254 || !EMAIL.test(email)) return back("email");
   // Never take money for files that cannot be delivered: every file must already be in the private bucket.

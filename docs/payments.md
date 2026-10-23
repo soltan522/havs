@@ -18,8 +18,11 @@ is in the private Supabase bucket, so the site never takes money for files it ca
 Every package costs 30 per m² of its floor area (`lib/pricing.ts`). Vercel tells the site the visitor's country
 (`x-vercel-ip-country`): visitors in Azerbaijan see and pay the amount in **AZN**, everyone else in **USD**. Lemon
 Squeezy (USD store), PayPal and NOWPayments cannot take manat, so a visitor from Azerbaijan is offered only the methods
-that can: a card through Stripe and the bank transfer (`providersFor` in `lib/providers.ts`). `DEFAULT_CURRENCY` is no
-longer used.
+that can: a card through Stripe and the bank transfer (`providersFor` in `lib/providers.ts`). Stripe needs a company in
+a Stripe country, so with the setup below (Lemon Squeezy, NOWPayments, bank) **visitors from Azerbaijan can pay only by
+bank transfer in manat**; without `BANK_TRANSFER_DETAILS` they see "online payment opens soon". The checkout form sends
+the currency it showed, and the order is refused (the page shows the new price) if the visitor's country changed before
+paying. `DEFAULT_CURRENCY` is no longer used.
 
 ## 0. Files first
 
@@ -56,7 +59,8 @@ For tests use a sandbox account at account-sandbox.nowpayments.io with `NOWPAYME
 ## 3. Bank transfer
 
 `BANK_TRANSFER_DETAILS` is shown on the order page (multi-line text: recipient, bank, IBAN, SWIFT). The buyer puts the
-order number in the payment reference. When the money arrives, find the order in Supabase (Table Editor → `orders`,
+order number in the payment reference. Orders from Azerbaijan are in AZN, all others in USD: confirm an order only when
+the amount **and the currency** received match the order (`amount_cents`, `currency`). When the money arrives, find the order in Supabase (Table Editor → `orders`,
 filter by email or by the first 8 characters of the id) and set `status` to `paid` — the buyer's order page then
 shows the downloads. With `ADMIN_TOKEN` set, the same can be done from a terminal:
 

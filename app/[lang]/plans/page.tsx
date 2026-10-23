@@ -5,6 +5,7 @@ import { Footer, Header } from "@/components";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, specsLine } from "@/lib/copy";
 import { visitorCurrency } from "@/lib/geo";
+import { pricedAreaM2 } from "@/lib/pricing";
 import { isLocale } from "@/lib/i18n";
 import { formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
 
@@ -31,7 +32,7 @@ export default async function Catalogue({
   let plans = all.filter((p) => (!style || p.style === style) && (!floors || p.floors === floors));
   if (sort === "price-asc") plans = [...plans].sort((a, b) => a.priceCents - b.priceCents);
   if (sort === "price-desc") plans = [...plans].sort((a, b) => b.priceCents - a.priceCents);
-  if (sort === "area") plans = [...plans].sort((a, b) => b.areaM2 - a.areaM2);
+  if (sort === "area") plans = [...plans].sort((a, b) => pricedAreaM2(b) - pricedAreaM2(a));
 
   const href = (next: Partial<Search>) => {
     const merged = { style, floors: floors ? String(floors) : undefined, sort, ...next };
