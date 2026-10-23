@@ -150,6 +150,29 @@ A **surveyed building** (`urban`: the owner's existing office building) keeps it
 (`npm run validate` checks it against `areaM2` and `floors`); the owner's own photos and plans go in
 `renders/<slug>/owner/` and appear in the gallery after the concept renders.
 
+## Commercial and apartment buildings (only when asked)
+
+One building on its plot, with its forecourt, car parks and service yard or garden on the masterplan:
+`"project": { "kind": "business" | "hotel" | "dining" | "events" | "residential", "units": 1 }` with the styles
+`bizcenter`, `hotel`, `restaurant`, `banquet` and `apartments`. `"layout"` picks the drawn plan and `"facade"` the
+cladding (`STYLE_RULES` and `FACADES` in `scripts/drawings.mjs`):
+
+| style | floors | layouts | facades | the listing counts |
+|---|---|---|---|---|
+| `bizcenter` | 4–14 | `a` central core, `b` core at the back, `c` a core at each end | `glass`, `stone`, `terracotta` | WCs, parking |
+| `hotel` | 3–10 | `a` rooms either side of a corridor, `b` one row of rooms with balconies | `stone`, `render` | `"rooms"` (guest rooms) |
+| `restaurant` | `a` 1, `b` 2, `c` 1, `d` 2 | `a` garden, `b` city with an event hall upstairs, `c` seafront grill, `d` mountain lodge (`"roof": "gable"`, facade `lodge`) | `stone`, `glass`, `brick`, `timber`, `lodge` | `"seats"` |
+| `banquet` | 1 | `a` wedding hall | `travertine`, `stone` | `"seats"` |
+| `apartments` | 5–12 | `a` flats either side of a corridor, shops below | `render`, `brick` | `"flats"`, bedrooms in all flats |
+
+`areaM2` is the whole building (per floor: `floorArea` in `STYLE_RULES`); `"bedrooms": 0` except for apartments,
+`"bathrooms"` = WCs and bathrooms in the drawings, `"parking"` = bays on the masterplan, `"garage"` and `"pool"`
+false; optional `"ratio"` up to 4.0 (a resort hotel is long and narrow). `npm run validate` prints the exact bathrooms,
+parking, rooms, seats and flats. Identical upper floors are drawn once as the typical floor plan. Price rule:
+~$900 + $1.5/m². Take the design families from the commercial section of `docs/design-references.md`; the render
+shows the building with the storeys, cladding and canopy of the drawings, eye-level or slightly raised, with no
+signage, logos or text.
+
 ## Interior design projects (only when asked)
 
 An entry with `"style": "interior"` sells an interior design concept instead of a building:

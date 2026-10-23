@@ -8,7 +8,7 @@ import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
 import { placeOf } from "@/lib/places";
-import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, PALETTE_LABELS, planLabel } from "@/lib/plans";
+import { findPlan, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isResidential, PALETTE_LABELS, planLabel } from "@/lib/plans";
 import { currency } from "@/lib/providers";
 
 const LOCKED = new Set(["schedules"]);
@@ -43,7 +43,17 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
           : [[t.bedrooms, String(plan.bedrooms)] as [string, string], [c.bathrooms, String(plan.bathrooms)] as [string, string]]),
       ]
     : isCommercial(plan)
-    ? [...area, [t.floors, String(plan.floors)], [c.project.wcs, String(plan.bathrooms)], [c.project.parking, String(plan.parking ?? 0)]]
+    ? [
+        ...area,
+        [t.floors, String(plan.floors)],
+        ...(plan.rooms ? [[c.project.rooms, String(plan.rooms)] as [string, string]] : []),
+        ...(plan.seats ? [[c.project.seats, String(plan.seats)] as [string, string]] : []),
+        // a hotel lists its guest rooms (each with its own shower room) instead of the public WCs
+        ...(plan.rooms ? [] : [[c.project.wcs, String(plan.bathrooms)] as [string, string]]),
+        [c.project.parking, String(plan.parking ?? 0)],
+      ]
+    : isResidential(plan)
+    ? [...area, [t.floors, String(plan.floors)], [c.project.flats, String(plan.flats ?? 0)], [t.bedrooms, String(plan.bedrooms)], [c.bathrooms, String(plan.bathrooms)], [c.project.parking, String(plan.parking ?? 0)]]
     : [
         ...area,
         [t.floors, String(plan.floors)],

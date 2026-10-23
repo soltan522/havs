@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, PALETTES, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, PALETTES, planSheets, PROJECT_RULES, scheduleSheet, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -28,8 +28,8 @@ const PLACES = existsSync(placesFile) ? JSON.parse(await readFile(placesFile, "u
 export function suggestedPrice(plan) {
   // interior design package: ~$300 + $9/m²
   if (plan.interior) return Math.round((300 + 9 * plan.areaM2) / 100) * 100 - 10;
-  // commercial buildings: ~$900 + $1.5/m²
-  if (STYLE_RULES[plan.style]?.commercial) return Math.round((900 + 1.5 * plan.areaM2) / 100) * 100 - 10;
+  // commercial and apartment buildings: ~$900 + $1.5/m²
+  if (STYLE_RULES[plan.style]?.commercial || STYLE_RULES[plan.style]?.residential) return Math.round((900 + 1.5 * plan.areaM2) / 100) * 100 - 10;
   const premium = ["tuscan", "coastal", "luxury", "mediterranean", "absheron", "noir", "yali"].includes(plan.style) ? 100 : 0;
   const house = Math.round((300 + 4.2 * plan.areaM2) / 100) * 100 - 10 + premium;
   if (!plan.project) return house;
@@ -42,7 +42,7 @@ const stem = (slug) => slug.replace(/-\d+$/, "");
 // a multi-unit project is its own kind of design: it never collides with a single villa of the same style
 const projectTag = (p) => (p.interior ? `interior:${p.interior.type}` : p.project ? `${p.project.kind}×${p.project.units}` : "villa");
 // an interior repeats a design when the same kind of space has the same palette and bedrooms
-const designKey = (p) => (p.interior ? [projectTag(p), p.interior.palette, p.bedrooms].join("|") : [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-"].join("|"));
+const designKey = (p) => (p.interior ? [projectTag(p), p.interior.palette, p.bedrooms].join("|") : [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-", ...(p.layout ? [p.layout] : [])].join("|"));
 const layoutKey = (p) => (p.project || p.interior ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|"));
 const firstBy = (keyFn) => {
   const map = new Map();
@@ -60,7 +60,7 @@ for (const [k, slugs] of firstBy(designKey)) if (slugs.length > 1) errors.push(`
 for (let i = 0; i < plans.length; i++) {
   for (let j = i + 1; j < plans.length; j++) {
     const a = plans[i], b = plans[j];
-    if (a.style === b.style && a.floors === b.floors && projectTag(a) === projectTag(b) && Math.abs(a.areaM2 - b.areaM2) < 25) errors.push(`${a.slug}, ${b.slug}: same style and floors with areas only ${Math.abs(a.areaM2 - b.areaM2)} m² apart — make them clearly different`);
+    if (a.style === b.style && a.floors === b.floors && projectTag(a) === projectTag(b) && (a.layout ?? "") === (b.layout ?? "") && Math.abs(a.areaM2 - b.areaM2) < 25) errors.push(`${a.slug}, ${b.slug}: same style and floors with areas only ${Math.abs(a.areaM2 - b.areaM2)} m² apart — make them clearly different`);
   }
 }
 // render prompts (the design brief) must differ, not just the names
@@ -147,7 +147,19 @@ for (const plan of plans) {
     if (plan.garage) err("projects park cars on the masterplan: set garage to false");
     if (plan.sign !== undefined && (typeof plan.sign !== "string" || !/^[A-Z0-9 .&-]{2,24}$/.test(plan.sign))) err("sign must be 2–24 capital letters (the owner's own name only — never a third-party brand)");
   } else if (rules.projectOnly) err(`style ${plan.style} is only drawn as part of a project (set "project")`);
-  if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= 2.2)) err("ratio must be between 1.0 and 2.2");
+  const maxRatio = rules.layouts ? 4.0 : 2.2;
+  if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= maxRatio)) err(`ratio must be between 1.0 and ${maxRatio}`);
+  if (rules.layouts) {
+    // commercial buildings: a drawn plan (layout) and cladding (facade); some plans fix the storeys and roof
+    const lay = plan.layout ?? "a";
+    if (!(lay in rules.layouts)) err(`layout must be one of ${Object.keys(rules.layouts).join(", ")}`);
+    else if (rules.layouts[lay] && !rules.layouts[lay].includes(plan.floors)) err(`layout ${lay} of a ${plan.style} is drawn on ${rules.layouts[lay].join(" or ")} floor(s)`);
+    if (plan.facade !== undefined && !(FACADE_OPTIONS[plan.style] ?? []).includes(plan.facade)) err(`facade must be one of ${(FACADE_OPTIONS[plan.style] ?? []).join(", ")}`);
+    if (plan.style === "restaurant" && (lay === "d") !== (plan.roof === "gable")) err("the mountain lodge (layout d) has the pitched roof; the other restaurants are flat-roofed");
+    if (plan.style === "restaurant" && lay === "d" && plan.facade !== "lodge") err('the mountain lodge (layout d) takes facade "lodge"');
+    if (plan.style === "restaurant" && lay !== "d" && plan.facade === "lodge") err('facade "lodge" is for the mountain lodge (layout d)');
+    if (plan.garage || plan.pool) err("commercial buildings park cars on the masterplan and have no private pool: set garage and pool to false");
+  } else if (plan.layout !== undefined || plan.facade !== undefined) err(`"layout" and "facade" are for the commercial building styles`);
   if (plan.footprint !== undefined) {
     // existing buildings keep their measured footprint instead of one derived from the area
     const [fw, fd] = Array.isArray(plan.footprint) ? plan.footprint : [];
@@ -185,7 +197,7 @@ for (const plan of plans) {
     model = buildModel(plan);
     const sheets = model.interior
       ? [...interiorSheets(model).flatMap((sh) => [sh.svg(), sh.kind === "schedules" ? null : sh.svg({ preview: true })]).filter(Boolean), cutawaySheet(model, "", { bare: true })]
-      : [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), scheduleSheet(model, "x"), ...model.levels.map((_, i) => floorPlanSheet(model, i, "x"))];
+      : [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), scheduleSheet(model, "x"), ...planSheets(model).map((p) => floorPlanSheet(model, p.index, "x", { title: p.title }))];
     if (model.project) sheets.push(axonometricSheet(model, "x", { typical: true }));
     for (const svg of sheets) {
       const s = svg.toString();
@@ -208,7 +220,8 @@ for (const plan of plans) {
     const gross = grossFloorArea(model);
     if (Math.abs(gross - plan.areaM2) / plan.areaM2 > 0.05) err(`the drawings have ${gross.toFixed(0)} m² of floor area (footprint ${plan.footprint.join(" × ")} m on ${plan.floors} levels, less voids) — set areaM2 to ${Math.round(gross)}`);
   }
-  if (model.project && rules.commercial && plan.parking !== model.project.layout.parking) err(`parking is ${plan.parking} but the masterplan draws ${model.project.layout.parking} bays — set parking to ${model.project.layout.parking}`);
+  if (model.project && (rules.commercial || rules.residential) && plan.parking !== model.project.layout.parking) err(`parking is ${plan.parking} but the masterplan draws ${model.project.layout.parking} bays — set parking to ${model.project.layout.parking}`);
+  if (rules.metric && plan[rules.metric] !== model.metrics[rules.metric]) err(`${rules.metric} is ${plan[rules.metric]} but the drawings have ${model.metrics[rules.metric]} — set ${rules.metric} to ${model.metrics[rules.metric]}`);
   const wet = wetRooms(model);
   if (wet !== plan.bathrooms) err(`bathrooms is ${plan.bathrooms} but the generated plans have ${wet} bathrooms/WCs — set bathrooms to ${wet}`);
   const bedrooms = model.levels.reduce((n, lv) => n + lv.spaces.filter((s) => s.kind === "bedroom" || s.kind === "master").length, 0);

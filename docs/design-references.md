@@ -157,6 +157,92 @@ the owner's sign band along the top, a mezzanine gallery inside, forecourt parki
 
 ---
 
+Families for **commercial and apartment buildings** (one building on its plot: `"project": { "kind": …, "units": 1 }`,
+the drawn plan `"layout"` and the cladding `"facade"`, see `docs/daily-villas.md`). The render shows the building as
+the drawings do: the same number of storeys, the cladding of its facade option, the entrance canopy, and no signage,
+logos or text.
+
+### caspian-glass-office — glass business centre
+A business centre in a new city quarter: a clean rectangular slab in a curtain wall of low-iron glass with slim black
+mullions and light slab-edge bands, a glazed double-height lobby under a cantilevered glass canopy, an entrance plaza
+with planting, parking either side.
+- **style** `bizcenter`, `"kind": "business"`, facade `glass`; layout `a` (central core) for 8–14 floors
+- **prompt cues** "curtain wall with slim black mullions", "light slab-edge band at every floor", "glass entrance
+  canopy", "entrance plaza with plane trees", "reflections of the sky", "no signage"
+
+### limestone-grid-office — limestone grid office building
+A sober office building of continuous limestone piers and spandrels with deep-set ribbon glazing between them — the
+Baku tradition of stone facades in a contemporary grid; cafe and retail units behind full-height glass at street level.
+- **style** `bizcenter`, `"kind": "business"`, facade `stone`; layout `b` (core and meeting rooms at the back)
+- **prompt cues** "regular grid of sawn limestone piers", "deep-set glazing between the piers", "stone spandrel at
+  every floor", "glazed ground floor with a cafe", "street trees"
+
+### terracotta-office-slab — terracotta rainscreen office slab
+A long, lower office slab clad in terracotta baguettes, ribbon windows in bronze frames, a core at each end, a
+restaurant, entrance hall and fitness club along the ground floor.
+- **style** `bizcenter`, `"kind": "business"`, facade `terracotta`; layout `c` (two cores, two tenancies per floor)
+- **prompt cues** "terracotta rainscreen baguettes", "long horizontal ribbon windows", "bronze window frames",
+  "full-height glazing at street level", "warm afternoon light on terracotta"
+
+### boulevard-hotel — city hotel in limestone
+A mid-rise city hotel: a sawn-limestone ground floor with full-height glazing to the restaurant, lobby and lounge bar,
+upper floors in white render with regular punched windows of the guest rooms, a glass canopy over the drop-off.
+- **style** `hotel`, `"kind": "hotel"`, facade `stone`, layout `a` (rooms either side of a central corridor)
+- **prompt cues** "limestone base, white render above", "regular rows of guest-room windows", "glass canopy over the
+  drop-off", "bellhop trolley and potted olive trees at the door", "evening light, warm lobby"
+
+### spa-resort-hotel — resort hotel with balconies
+A long, low resort hotel: every guest room with full-height glazing onto a balcony with a glass balustrade, white
+render, a pool garden behind, lobby, restaurant, lounge bar and spa on the ground floor.
+- **style** `hotel`, `"kind": "hotel"`, facade `render`, layout `b` (one row of rooms facing the front)
+- **prompt cues** "continuous balconies with frameless glass balustrades", "white render", "palm and pine garden",
+  "pool garden", "soft morning light"
+
+### garden-restaurant — garden restaurant
+A single-storey restaurant in a garden: dining hall and bar behind full-height glazing, a deep oak pergola with vines
+across the front, the kitchen behind.
+- **style** `restaurant`, `"kind": "dining"`, layout `a`, facade `timber` or `stone`
+- **prompt cues** "oak pergola with grape vines", "full-height glazing", "garden terrace with tables", "walnut and
+  plane trees", "string lights at dusk"
+
+### brick-city-restaurant — two-storey city restaurant
+A brick restaurant in town: the dining hall and bar behind large glazing at street level, an event hall and private
+dining rooms upstairs, a roof terrace.
+- **style** `restaurant`, `"kind": "dining"`, layout `b`, facade `brick`
+- **prompt cues** "warm red clinker brick", "large steel-framed windows", "roof terrace with a glass balustrade",
+  "street corner with plane trees", "evening light"
+
+### seafront-grill — seafront grill under a canopy
+A glass pavilion restaurant on the shore: dining room, open grill (mangal) and bar under a deep flat canopy on slender
+steel columns, a covered terrace facing the sea.
+- **style** `restaurant`, `"kind": "dining"`, layout `c`, facade `glass`
+- **prompt cues** "deep flat canopy on slender steel columns", "travertine walls and full-height glass", "covered
+  terrace with tables", "dune grasses and tamarisk", "Caspian at sunset"
+
+### mountain-lodge — mountain restaurant lodge
+A two-storey restaurant in the mountains: a grey river-stone ground floor with the dining hall and tea room, dark
+timber above with private rooms off a gallery, a standing-seam pitched roof and a stone chimney.
+- **style** `restaurant`, `"kind": "dining"`, layout `d`, facade `lodge`, roof `gable`
+- **prompt cues** "grey river stone below, dark timber above", "standing-seam pitched roof", "stone chimney", "terrace
+  with wooden tables", "beech forest and snowy peaks"
+
+### wedding-palace — wedding and banquet hall
+A wedding hall (şadlıq sarayı): one tall storey behind a colonnade of rendered pilasters with full-height glazing, a
+foyer across the front, the banquet hall for several hundred guests, bridal room and VIP lounge, a forecourt with a
+fountain and car parks either side.
+- **style** `banquet`, `"kind": "events"`, facade `stone` (pilasters) or `travertine`
+- **prompt cues** "tall colonnade of warm-white pilasters", "full-height glazing between the pilasters", "forecourt with
+  a fountain", "cypress avenue", "dusk with warm light from the hall", "no signage"
+
+### baku-residence — mid-rise apartment building
+A mid-rise apartment building of the new Baku suburbs: render or brick facades with regular windows, a glass-balustraded
+balcony for every front living room, shops and the entrance lobby on the ground floor, a residents' courtyard behind.
+- **style** `apartments`, `"kind": "residential"`, facade `render` or `brick`
+- **prompt cues** "N-storey apartment building", "regular rows of windows", "glass balconies", "shopfronts at street
+  level", "young street trees", "children's playground in the courtyard behind"
+
+---
+
 Families for **interior design projects** (`"style": "interior"`, `"interior": { "type": …, "palette": "<id>" }`,
 `"inspiration"` = the same id). The palette sets the materials board, finishes, joinery, colours and light; the
 `type` sets the rooms: `flat` (1–3 bedrooms), `penthouse` (3), `residence` (two-level villa, 3–5), `cafe`, `workspace`,

@@ -56,7 +56,7 @@ export default async function CheckoutPage({
             </div>
             <h2>{plan.title[lang]}</h2>
             <p className="muted small">
-              {planLabel(plan, lang)} · {areaText(plan)} · {t.floors}: {plan.floors} · {isCommercial(plan) ? `${c.project.parking}: ${plan.parking ?? 0}` : plan.interior && !plan.bedrooms ? `${c.project.wcs}: ${plan.bathrooms}` : `${t.bedrooms}: ${plan.bedrooms}`}
+              {planLabel(plan, lang)} · {areaText(plan)} · {t.floors}: {plan.floors} · {plan.rooms ? `${c.project.rooms}: ${plan.rooms}` : plan.seats ? `${c.project.seats}: ${plan.seats}` : plan.flats ? `${c.project.flats}: ${plan.flats}` : isCommercial(plan) ? `${c.project.parking}: ${plan.parking ?? 0}` : plan.interior && !plan.bedrooms ? `${c.project.wcs}: ${plan.bathrooms}` : `${t.bedrooms}: ${plan.bedrooms}`}
             </p>
             {plan.package && <PackagePanel pkg={plan.package} lang={lang} />}
             <ul className="checkout-notes">

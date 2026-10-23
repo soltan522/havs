@@ -80,6 +80,9 @@ const MAT = {
   blackalu: { fill: "#25272a", label: "Black anodised aluminium frames" },
   pilaster: { fill: "#efe8dc", label: "Rendered pilasters, warm white" },
   signGreen: { fill: "#1f4d3a", label: "Sign band, deep green, gilded letters" },
+  terracottaPanel: { fill: "#c07a57", pattern: "fins", label: "Terracotta rainscreen baguettes" },
+  stoneFin: { fill: "#d8c9ac", pattern: "limestone", label: "Limestone piers, sawn finish" },
+  corten: { fill: "#8b4f30", label: "Weathering steel fascia" },
 };
 
 // Per-style design language. walls[i] = cladding of storey i (last entry repeats).
@@ -111,13 +114,51 @@ const SPEC = {
   // interior design project: the shell only; the design language comes from plan.interior.palette
   interior: { walls: ["render"], frame: "bronze", slab: 0.2, storey: 3.0, tree: "round" },
   showroom: { walls: ["render"], frame: "blackalu", glassy: true, slab: 0.3, slabMat: "coping", storey: 4.6, piers: true, pierMat: "pilaster", pierW: 0.8, pane: 0.95, transom: 1.25, signBand: true, entryCanopy: true, canopyGlass: true, slidingEntry: true, projectLabel: "DOOR AND WINDOW SHOWROOM", tree: "round" },
+  // commercial buildings drawn from plan.layout; plan.facade picks the cladding from FACADES below
+  bizcenter: { walls: ["render"], frame: "blackalu", glassy: true, slab: 0.4, slabMat: "coping", storey: 3.8, pane: 1.5, entryCanopy: true, canopyGlass: true, slidingEntry: true, tree: "round" },
+  hotel: { walls: ["limestone"], frame: "bronze", glassy: true, slab: 0.5, storey: 3.3, entryCanopy: true, canopyGlass: true, slidingEntry: true, tree: "round" },
+  restaurant: { walls: ["limestone"], frame: "bronze", glassy: true, slab: 1.2, storey: 4.2, head: 3.6, entryCanopy: true, tree: "olive" },
+  banquet: { walls: ["travertine"], frame: "bronze", glassy: true, slab: 0.8, storey: 6.0, head: 5.2, pane: 1.2, transom: 1.8, entryCanopy: true, canopyGlass: true, slidingEntry: true, projectLabel: "WEDDING AND BANQUET HALL", tree: "cypress" },
+  apartments: { walls: ["render"], frame: "bronze", slab: 0.3, storey: 3.1, tree: "round" },
+};
+
+/** Cladding options of the commercial styles (plan.facade); the first is the default. */
+const FACADES = {
+  bizcenter: {
+    glass: { walls: ["render"], transom: 1.7, windows: "full" },
+    stone: { walls: ["limestone"], piers: true, pierMat: "stoneFin", pierW: 0.9, windows: "ribbon" },
+    terracotta: { walls: ["terracottaPanel"], frame: "bronze", windows: "ribbon" },
+  },
+  hotel: {
+    stone: { walls: ["limestone", "render"], windows: "punched" },
+    render: { walls: ["render"], windows: "punched" },
+  },
+  restaurant: {
+    stone: { walls: ["stoneGrey"], slabMat: "corten" },
+    glass: { walls: ["travertine"], canopy: 2.6, entryCanopy: false },
+    brick: { walls: ["brick"], roofTerrace: true },
+    lodge: { walls: ["stoneGrey", "timber"], roof: "seam", chimney: true, glassy: false, head: 2.9 },
+    timber: { walls: ["timber"], pergola: true, entryCanopy: false },
+  },
+  banquet: {
+    travertine: { walls: ["travertine"] },
+    stone: { walls: ["limestone"], piers: true, pierMat: "pilaster", pierW: 1.1 },
+  },
+  apartments: {
+    render: { walls: ["render"], windows: "punched" },
+    brick: { walls: ["brick"], windows: "punched" },
+  },
 };
 
 const STYLE_EN = {
   modern: "MODERN", tuscan: "TUSCAN", minimal: "MINIMALIST", coastal: "COASTAL", chalet: "CHALET",
   farmhouse: "FARMHOUSE", luxury: "CONTEMPORARY", pavilion: "PAVILION", mediterranean: "MEDITERRANEAN", duplex: "TWIN VILLA",
   absheron: "ABSHERON CONTEMPORARY", noir: "NOIR CONTEMPORARY", yali: "BOSPHORUS YALI", townhouse: "TOWNHOUSE", market: "SUPERMARKET", office: "OFFICE AND SHOWROOM", showroom: "SHOWROOM", interior: "INTERIOR DESIGN",
+  bizcenter: "BUSINESS CENTRE", hotel: "HOTEL", restaurant: "RESTAURANT", banquet: "WEDDING HALL", apartments: "APARTMENT BUILDING",
 };
+
+/** Upper floors by number, for plan titles. */
+const FLOOR_NAMES = ["GROUND", "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH", "SEVENTH", "EIGHTH", "NINTH", "TENTH", "ELEVENTH", "TWELFTH", "THIRTEENTH", "FOURTEENTH"];
 
 const wallMat = (spec, li) => spec.walls[Math.min(li, spec.walls.length - 1)];
 
@@ -141,6 +182,12 @@ export const STYLE_RULES = {
   office: { roofs: ["flat"], floors: [6], projectOnly: true, commercial: true, floorArea: [200, 600] },
   showroom: { roofs: ["flat"], floors: [2], projectOnly: true, commercial: true, floorArea: [150, 600] },
   interior: { roofs: ["flat"], floors: [1, 2], interior: true, floorArea: [40, 320] },
+  // layouts: plan.layout -> the storeys it is drawn for; facades: plan.facade (FACADES); metric: what the listing counts
+  bizcenter: { roofs: ["flat"], floors: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], projectOnly: true, commercial: true, floorArea: [450, 1500], layouts: { a: null, b: null, c: null } },
+  hotel: { roofs: ["flat"], floors: [3, 4, 5, 6, 7, 8, 9, 10], projectOnly: true, commercial: true, floorArea: [400, 1500], layouts: { a: null, b: null }, metric: "rooms" },
+  restaurant: { roofs: ["flat", "gable"], floors: [1, 2], projectOnly: true, commercial: true, floorArea: [180, 900], layouts: { a: [1], b: [2], c: [1], d: [2] }, metric: "seats" },
+  banquet: { roofs: ["flat"], floors: [1], projectOnly: true, commercial: true, floorArea: [800, 2600], layouts: { a: null }, metric: "seats" },
+  apartments: { roofs: ["flat"], floors: [5, 6, 7, 8, 9, 10, 11, 12], projectOnly: true, residential: true, floorArea: [380, 900], layouts: { a: null }, metric: "flats" },
 };
 
 /** Multi-unit projects (plan.project.kind): how many houses each layout is drawn for. */
@@ -150,7 +197,17 @@ export const PROJECT_RULES = {
   cluster: { units: [4, 5, 6], styles: ["chalet", "modern", "absheron", "minimal", "coastal"], label: "VILLAGE CLUSTER" },
   retail: { units: [1], styles: ["market"], label: "NEIGHBOURHOOD SUPERMARKET" },
   urban: { units: [1], styles: ["office", "showroom"], label: "SHOWROOM AND OFFICE BUILDING" },
+  business: { units: [1], styles: ["bizcenter"], label: "BUSINESS CENTRE" },
+  hotel: { units: [1], styles: ["hotel"], label: "HOTEL" },
+  dining: { units: [1], styles: ["restaurant"], label: "RESTAURANT" },
+  events: { units: [1], styles: ["banquet"], label: "WEDDING AND BANQUET HALL" },
+  residential: { units: [1], styles: ["apartments"], label: "APARTMENT BUILDING" },
 };
+
+/** Cladding and layout a commercial plan is drawn with (plan.facade / plan.layout, else the first option). */
+export const FACADE_OPTIONS = Object.fromEntries(Object.entries(FACADES).map(([style, f]) => [style, Object.keys(f)]));
+const facadeOf = (plan) => (FACADES[plan.style] ? (plan.facade ?? Object.keys(FACADES[plan.style])[0]) : null);
+const layoutOf = (plan) => plan.layout ?? "a";
 
 /** Planting symbols the elevation and site plan can draw (optional plan.tree). */
 export const TREES = ["olive", "cypress", "palm", "pine", "round"];
@@ -215,6 +272,11 @@ export function buildModel(plan) {
   if (!SPEC[plan.style]) throw new Error(`no drawing spec for style "${plan.style}"`);
   // a plan may pick the planting that fits its setting (e.g. pines for a forest site)
   let spec = plan.tree ? { ...SPEC[plan.style], tree: plan.tree } : SPEC[plan.style];
+  if (FACADES[plan.style]) {
+    const f = FACADES[plan.style][facadeOf(plan)];
+    if (!f) throw new Error(`${plan.style}: unknown facade "${plan.facade}" (${Object.keys(FACADES[plan.style]).join(", ")})`);
+    spec = { ...spec, ...f, ...(plan.tree ? { tree: plan.tree } : {}) };
+  }
   const itype = plan.style === "interior" ? INTERIOR_TYPES[plan.interior?.type] : null;
   if (plan.style === "interior") {
     if (!itype || !PALETTES[plan.interior.palette]) throw new Error(`interior: unknown type "${plan.interior?.type}" or palette "${plan.interior?.palette}"`);
@@ -224,7 +286,8 @@ export function buildModel(plan) {
   const footprintArea = plan.areaM2 / plan.floors;
   // footprint proportion (width / depth); a plan may override it to vary the massing
   // (a terraced house is deeper than it is wide)
-  const ratio = plan.style === "townhouse" ? 0.67 : plan.ratio ?? (itype ? itype.ratio : null) ?? ({ duplex: 2.0, market: 1.4, office: 1.45 }[plan.style] ?? (above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4));
+  const commercialRatio = { bizcenter: 2.0, hotel: layoutOf(plan) === "b" ? 3.6 : 2.2, restaurant: 1.6, banquet: 1.55, apartments: 2.2 }[plan.style];
+  const ratio = plan.style === "townhouse" ? 0.67 : plan.ratio ?? (itype ? itype.ratio : null) ?? commercialRatio ?? ({ duplex: 2.0, market: 1.4, office: 1.45 }[plan.style] ?? (above === 1 ? 1.7 : plan.roof === "frontgable" ? 1.15 : 1.4));
   // a surveyed building keeps its measured footprint
   const W = plan.footprint ? plan.footprint[0] : r1(Math.sqrt(footprintArea * ratio));
   const D = plan.footprint ? plan.footprint[1] : r1(footprintArea / W);
@@ -235,6 +298,7 @@ export function buildModel(plan) {
   else if (plan.style === "market") levels = [marketLevel(spec)];
   else if (plan.style === "office") levels = officeLevels(spec);
   else if (plan.style === "showroom") levels = showroomLevels(spec);
+  else if (COMMERCIAL_LEVELS[plan.style]) levels = COMMERCIAL_LEVELS[plan.style](plan, W, D, spec);
   else if (itype) levels = interiorLevels(plan, W, D, spec);
   else if (above === 1) levels = [singleStorey(plan, W, D, spec)];
   else levels = twoStorey(plan, W, D, spec);
@@ -280,6 +344,12 @@ export function buildModel(plan) {
     const xs = SHOWROOM.bays.map((f, i, a) => (i === 0 ? 0.4 : i === a.length - 1 ? W - 0.4 : Math.round(f * W * 100) / 100));
     model.columns = xs.flatMap((x) => [[x, 0.4], [x, D - 0.4]]);
   }
+  if (COMMERCIAL_LEVELS[plan.style] && spec.piers) {
+    // stone piers on the facade grid, front and back
+    const n = Math.max(3, Math.round(W / (plan.style === "banquet" ? 6.0 : 4.2)));
+    model.columns = Array.from({ length: n + 1 }, (_, i) => r1(0.45 + ((W - 0.9) * i) / n)).flatMap((x) => [[x, 0.4], [x, D - 0.4]]);
+  }
+  if (COMMERCIAL_LEVELS[plan.style]) model.metrics = commercialMetrics(model);
   Object.assign(model, roofGeometry(model));
   model.site = siteLayout(model);
   if (plan.project) {
@@ -853,6 +923,537 @@ function showroomLevels() {
   return [g, m];
 }
 
+// ------------------------------------------------------------------ commercial buildings
+
+// Templates in footprint fractions like the houses above (y = 0 back, y = 1 the street front), built room by room.
+const newLevel = (name, extra = {}) => ({ name, spaces: [], doors: [], windows: [], ...extra });
+const addRoom = (lv, id, label, kind, x, y, w, h, extra = {}) => lv.spaces.push({ id, label, kind, x, y, w, h, ...extra });
+const addDoor = (lv, space, side, at, w, extra = {}) => lv.doors.push({ space, side, at, w, ...extra });
+const addWin = (lv, space, side, at, w) => lv.windows.push({ space, side, at, w });
+const floorName = (li) => `${FLOOR_NAMES[li] ?? `LEVEL ${li}`} FLOOR PLAN`;
+
+/** Windows along one side of a room: full-height glazing, a ribbon window, or punched openings every ~3.2 m. */
+function facadeWindows(lv, id, side, lenM, style, { w = 1.8, every = 3.2 } = {}) {
+  if (style === "full" || style === "ribbon") return addWin(lv, id, side, 0.5, 99);
+  const n = Math.max(1, Math.round(lenM / every));
+  for (let i = 0; i < n; i++) addWin(lv, id, side, (i + 0.5) / n, Math.max(0.9, Math.min(w, lenM / n - 0.7)));
+}
+
+/** Upper floors of a commercial building: identical floors share a `typical` key and are drawn once. */
+const upperLevel = (li, typical, spec, extra = {}) =>
+  newLevel(floorName(li), { typical, ...(spec.windows === "ribbon" ? { sill: 0.9, head: 2.9 } : spec.windows === "punched" ? { sill: 0.8 } : {}), ...extra });
+
+/**
+ * Business centre on 4–14 floors, three plans (plan.layout):
+ * a — central core (two stairs, lifts and WCs round a lift lobby) between two open-plan office wings;
+ * b — core and meeting rooms along the back, a corridor, open office and cellular offices along the front;
+ * c — a long slab with a core at each end, two tenancies per floor.
+ * The ground floor has the entrance hall with a café or restaurant, a retail unit or fitness club and the service rooms.
+ */
+function bizcenterLevels(plan, W, D, spec) {
+  const lay = layoutOf(plan), style = spec.windows ?? "full";
+  const levels = [];
+  if (lay === "a") {
+    const core = (lv) => {
+      addRoom(lv, "stA", "STAIR", "stair", 0.38, 0.3, 0.06, 0.2);
+      addRoom(lv, "wcM", "WC", "wc", 0.38, 0.5, 0.06, 0.2);
+      addRoom(lv, "lifts", "LIFTS", "lift", 0.44, 0.3, 0.12, 0.12);
+      addRoom(lv, "lob", "LIFT LOBBY", "hall", 0.44, 0.42, 0.12, 0.28);
+      addRoom(lv, "stB", "STAIR", "stair", 0.56, 0.3, 0.06, 0.2);
+      addRoom(lv, "wcF", "WC", "wc", 0.56, 0.5, 0.06, 0.2);
+      addDoor(lv, "stA", "right", 0.85, 1.0);
+      addDoor(lv, "wcM", "right", 0.5, 0.9);
+      addDoor(lv, "stB", "left", 0.85, 1.0);
+      addDoor(lv, "wcF", "left", 0.5, 0.9);
+      addDoor(lv, "lifts", "bottom", 0.5, 99, { open: true });
+      addDoor(lv, "lob", "bottom", 0.5, 99, { open: true });
+    };
+    const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+    addRoom(g, "cafeK", "CAFE KITCHEN", "prep", 0, 0, 0.2, 0.35);
+    addRoom(g, "store", "STORE", "store", 0.2, 0, 0.18, 0.35);
+    addRoom(g, "cafe", "CAFE", "cafe", 0, 0.35, 0.38, 0.65);
+    addRoom(g, "sec", "SECURITY", "office", 0.38, 0, 0.12, 0.22);
+    addRoom(g, "plant", "PLANT ROOM", "store", 0.5, 0, 0.12, 0.22);
+    addRoom(g, "svc", "SERVICE CORRIDOR", "hall", 0.38, 0.22, 0.24, 0.08);
+    core(g);
+    addRoom(g, "hall", "ENTRANCE HALL", "reception", 0.38, 0.7, 0.24, 0.3);
+    addRoom(g, "dock", "LOADING BAY", "dock", 0.62, 0, 0.2, 0.35);
+    addRoom(g, "refuse", "REFUSE", "store", 0.82, 0, 0.18, 0.35);
+    addRoom(g, "shop", "RETAIL UNIT", "boutique", 0.62, 0.35, 0.38, 0.65);
+    addDoor(g, "hall", "bottom", 0.5, 2.4, { entry: true, open: true, sliding: true });
+    addDoor(g, "hall", "left", 0.5, 1.6);
+    addDoor(g, "cafe", "bottom", 0.22, 1.2, { entry: true });
+    addDoor(g, "shop", "bottom", 0.7, 1.4, { entry: true });
+    addDoor(g, "cafeK", "bottom", 0.5, 1.0);
+    addDoor(g, "cafeK", "top", 0.4, 1.0);
+    addDoor(g, "store", "right", 0.74, 0.9);
+    addDoor(g, "sec", "bottom", 0.5, 0.9);
+    addDoor(g, "plant", "bottom", 0.5, 0.9);
+    addDoor(g, "stA", "top", 0.5, 1.0);
+    addDoor(g, "stB", "top", 0.5, 1.0);
+    addDoor(g, "dock", "top", 0.5, 3.0, { open: true });
+    addDoor(g, "dock", "left", 0.74, 1.2);
+    addDoor(g, "refuse", "top", 0.5, 1.2);
+    addWin(g, "hall", "bottom", 0.5, 99);
+    addWin(g, "cafe", "bottom", 0.5, 99);
+    addWin(g, "shop", "bottom", 0.5, 99);
+    facadeWindows(g, "cafe", "left", 0.65 * D, "punched", { w: 2.4 });
+    facadeWindows(g, "shop", "right", 0.65 * D, "punched", { w: 2.4 });
+    addWin(g, "cafeK", "left", 0.5, 1.2);
+    addWin(g, "sec", "top", 0.5, 1.4);
+    levels.push(g);
+    for (let li = 1; li < plan.floors; li++) {
+      const lv = upperLevel(li, "office", spec);
+      addRoom(lv, "offL", "OPEN OFFICE", "openoffice", 0, 0, 0.38, 1);
+      addRoom(lv, "meet", "MEETING ROOM", "meeting", 0.38, 0, 0.12, 0.3);
+      addRoom(lv, "tea", "TEA POINT", "kitchenette", 0.5, 0, 0.12, 0.3);
+      core(lv);
+      addRoom(lv, "brk", "BREAKOUT", "lounge", 0.38, 0.7, 0.24, 0.3);
+      addRoom(lv, "offR", "OPEN OFFICE", "openoffice", 0.62, 0, 0.38, 1);
+      addDoor(lv, "brk", "left", 0.5, 99, { open: true });
+      addDoor(lv, "brk", "right", 0.5, 99, { open: true });
+      addDoor(lv, "meet", "left", 0.5, 0.9);
+      addDoor(lv, "tea", "right", 0.5, 0.9);
+      for (const [id, f] of [["offL", 0.38], ["brk", 0.24], ["offR", 0.38]]) facadeWindows(lv, id, "bottom", f * W, style);
+      for (const [id, f] of [["offL", 0.38], ["meet", 0.12], ["tea", 0.12], ["offR", 0.38]]) facadeWindows(lv, id, "top", f * W, style);
+      facadeWindows(lv, "offL", "left", D, style);
+      facadeWindows(lv, "offR", "right", D, style);
+      levels.push(lv);
+    }
+    return levels;
+  }
+  if (lay === "b") {
+    const back = 0.28, c1 = 0.36;
+    const core = (lv, rooms) => {
+      // stair, rooms, stair, lifts and WCs along the back wall, all opening onto the corridor
+      const row = [["stA", "STAIR", "stair", 0, 0.08], ...rooms, ["stB", "STAIR", "stair", 0.62, 0.72], ["lifts", "LIFTS", "lift", 0.72, 0.86], ["wcM", "WC", "wc", 0.86, 0.93], ["wcF", "WC", "wc", 0.93, 1]];
+      for (const [id, label, kind, x0, x1] of row) {
+        addRoom(lv, id, label, kind, x0, 0, x1 - x0, back);
+        addDoor(lv, id, "bottom", 0.5, kind === "lift" ? 99 : kind === "stair" ? 1.0 : 0.9, kind === "lift" ? { open: true } : {});
+        if (!["lift", "wc", "stair"].includes(kind)) facadeWindows(lv, id, "top", (x1 - x0) * W, style === "full" ? "punched" : style, { w: 2.0 });
+      }
+      addRoom(lv, "corr", "CORRIDOR", "hall", 0, back, 1, c1 - back);
+      addWin(lv, "corr", "left", 0.5, 1.2);
+      addWin(lv, "corr", "right", 0.5, 1.2);
+    };
+    const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+    core(g, [["sec", "SECURITY", "office", 0.08, 0.24], ["mail", "MAIL ROOM", "store", 0.24, 0.38], ["staff", "STAFF ROOM", "staff", 0.38, 0.5], ["plant", "PLANT ROOM", "store", 0.5, 0.62]]);
+    addRoom(g, "cafe", "CAFE", "cafe", 0, c1, 0.32, 1 - c1);
+    addRoom(g, "hall", "ENTRANCE HALL", "reception", 0.32, c1, 0.3, 1 - c1);
+    addRoom(g, "shop", "RETAIL UNIT", "boutique", 0.62, c1, 0.38, 1 - c1);
+    addDoor(g, "cafe", "top", 0.5, 1.2);
+    addDoor(g, "cafe", "bottom", 0.3, 1.2, { entry: true });
+    addDoor(g, "hall", "top", 0.5, 99, { open: true });
+    addDoor(g, "hall", "bottom", 0.5, 2.4, { entry: true, open: true, sliding: true });
+    addDoor(g, "shop", "top", 0.5, 1.2);
+    addDoor(g, "shop", "bottom", 0.7, 1.4, { entry: true });
+    for (const id of ["cafe", "hall", "shop"]) addWin(g, id, "bottom", 0.5, 99);
+    facadeWindows(g, "cafe", "left", (1 - c1) * D, "punched", { w: 2.4 });
+    facadeWindows(g, "shop", "right", (1 - c1) * D, "punched", { w: 2.4 });
+    levels.push(g);
+    for (let li = 1; li < plan.floors; li++) {
+      const lv = upperLevel(li, "office", spec);
+      core(lv, [["m1", "MEETING ROOM", "meeting", 0.08, 0.24], ["m2", "MEETING ROOM", "meeting", 0.24, 0.38], ["tea", "TEA POINT", "kitchenette", 0.38, 0.5], ["prn", "PRINT / STORE", "store", 0.5, 0.62]]);
+      const front = [["open", "OPEN OFFICE", "openoffice", 0, 0.58], ["dir", "DIRECTOR", "director", 0.58, 0.72], ["o1", "OFFICE", "office", 0.72, 0.86], ["o2", "OFFICE", "office", 0.86, 1]];
+      for (const [id, label, kind, x0, x1] of front) {
+        addRoom(lv, id, label, kind, x0, c1, x1 - x0, 1 - c1);
+        addDoor(lv, id, "top", kind === "openoffice" ? 0.5 : 0.2, kind === "openoffice" ? 99 : 0.9, kind === "openoffice" ? { open: true } : {});
+        facadeWindows(lv, id, "bottom", (x1 - x0) * W, style);
+      }
+      facadeWindows(lv, "open", "left", (1 - c1) * D, style);
+      facadeWindows(lv, "o2", "right", (1 - c1) * D, style);
+      levels.push(lv);
+    }
+    return levels;
+  }
+  // c: a core at each end of a long slab
+  const back = 0.3, c1 = 0.38;
+  const ends = (lv, middle) => {
+    const row = [["stL", "STAIR", "stair", 0, 0.07], ["lfL", "LIFTS", "lift", 0.07, 0.13], ["wM1", "WC", "wc", 0.13, 0.17], ["wF1", "WC", "wc", 0.17, 0.21], ...middle, ["wF2", "WC", "wc", 0.79, 0.83], ["wM2", "WC", "wc", 0.83, 0.87], ["lfR", "LIFTS", "lift", 0.87, 0.93], ["stR", "STAIR", "stair", 0.93, 1]];
+    for (const [id, label, kind, x0, x1] of row) {
+      addRoom(lv, id, label, kind, x0, 0, x1 - x0, back);
+      addDoor(lv, id, "bottom", 0.5, kind === "lift" ? 99 : kind === "stair" ? 1.0 : 0.9, kind === "lift" ? { open: true } : {});
+      if (!["lift", "wc", "stair", "cold"].includes(kind)) facadeWindows(lv, id, "top", (x1 - x0) * W, style === "full" ? "punched" : style, { w: 2.0 });
+    }
+    addRoom(lv, "corr", "CORRIDOR", "hall", 0, back, 1, c1 - back);
+    addWin(lv, "corr", "left", 0.5, 1.2);
+    addWin(lv, "corr", "right", 0.5, 1.2);
+  };
+  const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+  ends(g, [["kit", "RESTAURANT KITCHEN", "prep", 0.21, 0.37], ["cold", "COLD ROOM", "cold", 0.37, 0.45], ["sec", "SECURITY", "office", 0.45, 0.63], ["chg", "CHANGING ROOM", "shower", 0.63, 0.79]]);
+  const gFront = [["rest", "RESTAURANT", "restaurant", 0, 0.32], ["hall", "ENTRANCE HALL", "reception", 0.32, 0.68], ["gym", "FITNESS CLUB", "gym", 0.68, 1]];
+  for (const [id, label, kind, x0, x1] of gFront) {
+    addRoom(g, id, label, kind, x0, c1, x1 - x0, 1 - c1);
+    addDoor(g, id, "top", 0.5, kind === "reception" ? 99 : 1.4, kind === "reception" ? { open: true } : {});
+    addDoor(g, id, "bottom", kind === "reception" ? 0.5 : 0.3, kind === "reception" ? 2.6 : 1.4, { entry: true, ...(kind === "reception" ? { open: true, sliding: true } : {}) });
+    addWin(g, id, "bottom", 0.5, 99);
+  }
+  facadeWindows(g, "rest", "left", (1 - c1) * D, "punched", { w: 2.4 });
+  facadeWindows(g, "gym", "right", (1 - c1) * D, "punched", { w: 2.4 });
+  levels.push(g);
+  for (let li = 1; li < plan.floors; li++) {
+    const lv = upperLevel(li, "office", spec);
+    ends(lv, [["m1", "MEETING ROOM", "meeting", 0.21, 0.37], ["tea", "TEA POINT", "kitchenette", 0.37, 0.5], ["m2", "MEETING ROOM", "meeting", 0.5, 0.63], ["prn", "PRINT / STORE", "store", 0.63, 0.79]]);
+    for (const [id, label, x0, x1] of [["offA", "OPEN OFFICE A", 0, 0.5], ["offB", "OPEN OFFICE B", 0.5, 1]]) {
+      addRoom(lv, id, label, "openoffice", x0, c1, x1 - x0, 1 - c1);
+      addDoor(lv, id, "top", 0.5, 99, { open: true });
+      facadeWindows(lv, id, "bottom", (x1 - x0) * W, style);
+    }
+    facadeWindows(lv, "offA", "left", (1 - c1) * D, style);
+    facadeWindows(lv, "offB", "right", (1 - c1) * D, style);
+    levels.push(lv);
+  }
+  return levels;
+}
+
+/** Guest rooms in a row between x0 and x1 (metres): each opens onto the corridor, its en-suite by the door. */
+function guestRooms(lv, W, D, x0, x1, y0, y1, corridor, tag, { bay = 3.7, win = 1.8 } = {}) {
+  const n = Math.max(1, Math.floor((x1 - x0) / bay));
+  const w = (x1 - x0) / n;
+  for (let i = 0; i < n; i++) {
+    const id = `${tag}${i + 1}`;
+    addRoom(lv, id, "GUEST ROOM", "guestroom", (x0 + i * w) / W, y0, w / W, y1 - y0, { corridor });
+    addDoor(lv, id, corridor, i % 2 ? 0.78 : 0.22, 0.9);
+    addWin(lv, id, corridor === "top" ? "bottom" : "top", 0.5, Math.min(win, w - 0.9));
+  }
+}
+
+/**
+ * Hotel on 3–10 floors (plan.layout): a — city hotel, rooms either side of a central corridor, stairs at both ends
+ * and lifts at the back; b — resort hotel, one row of rooms facing the front with balconies, the corridor along
+ * the back. The ground floor has the lobby, restaurant, lounge bar, kitchen and back of house.
+ */
+function hotelLevels(plan, W, D, spec) {
+  const levels = [];
+  const st = 3.2; // stair width (m)
+  if (layoutOf(plan) === "a") {
+    const cw = 1.9, cy0 = (D - cw) / 2 / D, cy1 = (D + cw) / 2 / D;
+    const lift0 = W / 2 - 2.2, lift1 = W / 2 + 2.2;
+    const frame = (lv, backEnds) => {
+      addRoom(lv, "corr", "CORRIDOR", "hall", 0, cy0, 1, cy1 - cy0);
+      addRoom(lv, "stL", "STAIR", "stair", 0, cy1, st / W, 1 - cy1);
+      addRoom(lv, "stR", "STAIR", "stair", 1 - st / W, cy1, st / W, 1 - cy1);
+      addRoom(lv, "lifts", "LIFTS", "lift", lift0 / W, 0, (lift1 - lift0) / W, cy0);
+      addDoor(lv, "stL", "top", 0.5, 1.0);
+      addDoor(lv, "stR", "top", 0.5, 1.0);
+      addDoor(lv, "lifts", "bottom", 0.5, 99, { open: true });
+      addWin(lv, "corr", "left", 0.5, 1.2);
+      addWin(lv, "corr", "right", 0.5, 1.2);
+      for (const [id, label, kind, x0] of backEnds) {
+        addRoom(lv, id, label, kind, x0, 0, st / W, cy0);
+        addDoor(lv, id, "bottom", 0.5, 0.9);
+      }
+    };
+    const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+    frame(g, [["office", "OFFICE", "office", 0], ["plant", "PLANT ROOM", "store", 1 - st / W]]);
+    const gFront = [["rest", "RESTAURANT", "restaurant", st, 0.42 * W], ["lobby", "LOBBY / RECEPTION", "reception", 0.42 * W, 0.62 * W], ["bar", "LOUNGE BAR", "bar", 0.62 * W, W - st]];
+    for (const [id, label, kind, x0, x1] of gFront) {
+      addRoom(g, id, label, kind, x0 / W, cy1, (x1 - x0) / W, 1 - cy1);
+      addDoor(g, id, "top", 0.5, kind === "reception" ? 99 : 1.6, kind === "reception" ? { open: true } : {});
+      addWin(g, id, "bottom", 0.5, 99);
+    }
+    addDoor(g, "lobby", "bottom", 0.5, 2.6, { entry: true, open: true, sliding: true });
+    addDoor(g, "lobby", "left", 0.5, 3.0, { open: true });
+    addDoor(g, "lobby", "right", 0.5, 3.0, { open: true });
+    const gBack = [["kit", "KITCHEN", "prokitchen", st, lift0 - 3.0], ["cold", "COLD STORE", "cold", lift0 - 3.0, lift0], ["lug", "LUGGAGE", "store", lift1, lift1 + 2.8], ["wcM", "WC", "wc", lift1 + 2.8, lift1 + 5.2], ["wcF", "WC", "wc", lift1 + 5.2, lift1 + 7.6], ["staff", "STAFF ROOM", "staff", lift1 + 7.6, W - st]];
+    for (const [id, label, kind, x0, x1] of gBack) {
+      addRoom(g, id, label, kind, x0 / W, 0, (x1 - x0) / W, cy0);
+      addDoor(g, id, "bottom", 0.5, kind === "prokitchen" ? 1.6 : 0.9);
+      if (["prokitchen", "staff"].includes(kind)) facadeWindows(g, id, "top", x1 - x0, "punched", { w: 2.0 });
+    }
+    addDoor(g, "kit", "top", 0.2, 1.2);
+    levels.push(g);
+    for (let li = 1; li < plan.floors; li++) {
+      const lv = upperLevel(li, "rooms", spec, { sill: 0.6, head: 2.75 });
+      frame(lv, [["linen", "LINEN", "store", 0], ["hk", "HOUSEKEEPING", "store", 1 - st / W]]);
+      guestRooms(lv, W, D, st, W - st, cy1, 1, "top", "f");
+      guestRooms(lv, W, D, st, lift0, 0, cy0, "bottom", "l");
+      guestRooms(lv, W, D, lift1, W - st, 0, cy0, "bottom", "r");
+      levels.push(lv);
+    }
+    return levels;
+  }
+  // b: single-loaded resort slab, lifts a third of the way along
+  const cw = 2.0, c1 = cw / D;
+  const lift0 = 0.28 * W, lift1 = lift0 + 4.4;
+  const frame = (lv) => {
+    addRoom(lv, "corr", "CORRIDOR", "hall", 0, 0, 1, c1);
+    addRoom(lv, "stL", "STAIR", "stair", 0, c1, st / W, 1 - c1);
+    addRoom(lv, "stR", "STAIR", "stair", 1 - st / W, c1, st / W, 1 - c1);
+    const ld = 0.42 * (1 - c1); // lifts at the back of the room row, a store in front of them
+    addRoom(lv, "lifts", "LIFTS", "lift", lift0 / W, c1, (lift1 - lift0) / W, ld);
+    // on the ground floor the luggage room off the lobby, above it the service risers
+    addRoom(lv, "linen", lv.typical ? "RISERS / PLANT" : "LUGGAGE", "store", lift0 / W, c1 + ld, (lift1 - lift0) / W, 1 - c1 - ld);
+    if (!lv.typical) addDoor(lv, "linen", "right", 0.5, 0.9);
+    addDoor(lv, "stL", "top", 0.5, 1.0);
+    addDoor(lv, "stR", "top", 0.5, 1.0);
+    addDoor(lv, "lifts", "top", 0.5, 99, { open: true });
+    facadeWindows(lv, "corr", "top", W, "punched", { w: 1.4, every: 7.5 });
+  };
+  const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+  frame(g);
+  const gRow = [["kit", "KITCHEN", "prokitchen", st, 0.13 * W], ["rest", "RESTAURANT", "restaurant", 0.13 * W, lift0], ["lobby", "LOBBY / RECEPTION", "reception", lift1, 0.55 * W], ["bar", "LOUNGE BAR", "bar", 0.55 * W, 0.7 * W], ["spa", "SPA", "treatment", 0.7 * W, 0.86 * W], ["wcM", "WC", "wc", 0.86 * W, 0.86 * W + (0.14 * W - st) / 2], ["wcF", "WC", "wc", 0.86 * W + (0.14 * W - st) / 2, W - st]];
+  for (const [id, label, kind, x0, x1] of gRow) {
+    addRoom(g, id, label, kind, x0 / W, c1, (x1 - x0) / W, 1 - c1);
+    addDoor(g, id, "top", 0.5, ["reception", "restaurant"].includes(kind) ? 99 : kind === "prokitchen" ? 1.6 : 0.9, ["reception", "restaurant"].includes(kind) ? { open: true } : {});
+    if (!["wc", "prokitchen"].includes(kind)) addWin(g, id, "bottom", 0.5, 99);
+  }
+  addWin(g, "kit", "bottom", 0.5, 2.0);
+  addDoor(g, "lobby", "bottom", 0.5, 2.6, { entry: true, open: true, sliding: true });
+  addDoor(g, "rest", "bottom", 0.5, 2.4, { open: true, sliding: true });
+  addDoor(g, "kit", "right", 0.5, 1.6);
+  addDoor(g, "bar", "left", 0.5, 3.0, { open: true });
+  levels.push(g);
+  for (let li = 1; li < plan.floors; li++) {
+    const lv = upperLevel(li, "rooms", spec, { sill: 0.05, head: 2.75 });
+    frame(lv);
+    guestRooms(lv, W, D, st, lift0, c1, 1, "top", "a", { bay: 3.9, win: 99 });
+    guestRooms(lv, W, D, lift1, W - st, c1, 1, "top", "b", { bay: 3.9, win: 99 });
+    lv.balconies = [{ side: "bottom", a0: st / W, a1: lift0 / W, depth: 1.8, glass: true }, { side: "bottom", a0: lift1 / W, a1: 1 - st / W, depth: 1.8, glass: true }];
+    levels.push(lv);
+  }
+  return levels;
+}
+
+/**
+ * Restaurant on one or two floors (plan.layout): a — garden restaurant, dining hall and bar along the front, kitchen
+ * and WCs behind; b — city restaurant, the dining hall below and an event hall with private dining rooms upstairs;
+ * c — seafront grill, an open grill between the dining room and the bar under a deep canopy; d — mountain lodge,
+ * dining hall and tea room below, private rooms off a gallery upstairs under a pitched roof.
+ */
+function restaurantLevels(plan, W, D) {
+  const lay = layoutOf(plan);
+  const row = (lv, y0, y1, rooms) => {
+    for (const [id, label, kind, x0, x1, extra] of rooms) addRoom(lv, id, label, kind, x0, y0, x1 - x0, y1 - y0, extra ?? {});
+  };
+  const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+  if (lay === "a" || lay === "c") {
+    const b = lay === "a" ? 0.4 : 0.36;
+    row(g, 0, b, [["wcM", "WC", "wc", 0, 0.09], ["wcF", "WC", "wc", 0.09, 0.18], ["staff", "STAFF ROOM", "staff", 0.18, 0.3], ["kit", "KITCHEN", "prokitchen", 0.3, lay === "a" ? 0.74 : 0.7], ["cold", "COLD ROOM", "cold", lay === "a" ? 0.74 : 0.7, lay === "a" ? 0.87 : 0.85], ["store", "BAR STORE", "store", lay === "a" ? 0.87 : 0.85, 1]]);
+    if (lay === "a") row(g, b, 1, [["dine", "DINING HALL", "restaurant", 0, 0.66], ["bar", "BAR / LOUNGE", "bar", 0.66, 1]]);
+    else row(g, b, 1, [["dine", "DINING ROOM", "restaurant", 0, 0.52], ["grill", "OPEN GRILL", "grill", 0.52, 0.76], ["bar", "BAR", "bar", 0.76, 1]]);
+    addDoor(g, "dine", "bottom", 0.5, 1.8, { entry: true });
+    addDoor(g, "wcM", "bottom", 0.5, 0.9);
+    addDoor(g, "wcF", "bottom", 0.5, 0.9);
+    addDoor(g, "staff", "right", 0.5, 0.9);
+    addDoor(g, "kit", "bottom", lay === "a" ? 0.4 : 0.7, 1.6);
+    addDoor(g, "kit", "top", 0.15, 1.2);
+    addDoor(g, "cold", "left", 0.5, 1.0);
+    addDoor(g, "store", "bottom", 0.5, 0.9);
+    addDoor(g, "bar", "left", 0.5, 99, { open: true });
+    if (lay === "c") addDoor(g, "grill", "left", 0.5, 99, { open: true });
+    addWin(g, "dine", "bottom", 0.5, 99);
+    addWin(g, "bar", "bottom", 0.5, 99);
+    if (lay === "c") addWin(g, "grill", "bottom", 0.5, 99);
+    addWin(g, "dine", "left", 0.5, 99);
+    facadeWindows(g, "bar", "right", (1 - b) * D, "punched", { w: 2.4 });
+    addWin(g, "kit", "top", 0.6, 2.4);
+    addWin(g, "staff", "top", 0.5, 1.2);
+    return [g];
+  }
+  // two floors: b (city) and d (lodge)
+  const b = lay === "b" ? 0.38 : 0.36;
+  const back = lay === "b"
+    ? [["st", "STAIR", "stair", 0, 0.1], ["wcM", "WC", "wc", 0.1, 0.19], ["wcF", "WC", "wc", 0.19, 0.28], ["kit", "KITCHEN", "prokitchen", 0.28, 0.78]]
+    : [["st", "STAIR", "stair", 0, 0.1], ["wcM", "WC", "wc", 0.1, 0.19], ["wcF", "WC", "wc", 0.19, 0.28], ["kit", "KITCHEN", "prokitchen", 0.28, 0.72], ["bake", "TANDIR BAKERY", "prep", 0.72, 1]];
+  row(g, 0, b, back);
+  if (lay === "b") {
+    addRoom(g, "cold", "COLD ROOM", "cold", 0.78, 0, 0.22, b / 2);
+    addRoom(g, "store", "DRY STORE", "store", 0.78, b / 2, 0.22, b / 2);
+    addDoor(g, "cold", "left", 0.5, 1.0);
+    addDoor(g, "store", "left", 0.5, 0.9);
+    row(g, b, 1, [["dine", "DINING HALL", "restaurant", 0, 0.62], ["bar", "BAR", "bar", 0.62, 1]]);
+  } else {
+    addDoor(g, "bake", "left", 0.5, 1.2);
+    row(g, b, 1, [["dine", "DINING HALL", "restaurant", 0, 0.64], ["bar", "TEA ROOM", "teahall", 0.64, 1]]);
+  }
+  addDoor(g, "st", "bottom", 0.5, 1.2);
+  addDoor(g, "wcM", "bottom", 0.5, 0.9);
+  addDoor(g, "wcF", "bottom", 0.5, 0.9);
+  addDoor(g, "kit", "bottom", 0.3, 1.6);
+  addDoor(g, "kit", "top", 0.2, 1.2);
+  addDoor(g, "dine", "bottom", 0.5, 1.8, { entry: true });
+  addDoor(g, "bar", "left", 0.5, 99, { open: true });
+  addWin(g, "dine", "bottom", 0.5, 99);
+  addWin(g, "bar", "bottom", 0.5, 99);
+  facadeWindows(g, "dine", "left", (1 - b) * D, "punched", { w: 2.4 });
+  facadeWindows(g, "bar", "right", (1 - b) * D, "punched", { w: 2.4 });
+  addWin(g, "kit", "top", 0.6, 2.4);
+  const f = newLevel("FIRST FLOOR PLAN", lay === "d" ? { sill: 0.6, head: 2.6 } : { sill: 0.05 });
+  if (lay === "b") {
+    row(f, 0, b, [["st", "STAIR", "stair", 0, 0.1], ["wcM", "WC", "wc", 0.1, 0.19], ["wcF", "WC", "wc", 0.19, 0.28], ["serv", "SERVERY", "prep", 0.28, 0.5], ["pd1", "PRIVATE DINING", "privatedining", 0.5, 0.67], ["pd2", "PRIVATE DINING", "privatedining", 0.67, 0.84], ["pd3", "PRIVATE DINING", "privatedining", 0.84, 1]]);
+    addRoom(f, "hall", "EVENT HALL", "restaurant", 0, b, 1, 1 - b);
+    for (const id of ["st", "wcM", "wcF", "serv", "pd1", "pd2", "pd3"]) addDoor(f, id, "bottom", 0.5, id === "serv" ? 1.6 : id === "st" ? 1.2 : 0.9);
+    addWin(f, "hall", "bottom", 0.5, 99);
+    facadeWindows(f, "hall", "left", (1 - b) * D, "punched", { w: 2.4 });
+    facadeWindows(f, "hall", "right", (1 - b) * D, "punched", { w: 2.4 });
+    for (const id of ["pd1", "pd2", "pd3", "serv"]) addWin(f, id, "top", 0.5, 1.8);
+    return [g, f];
+  }
+  const corr0 = b, corr1 = b + 0.1;
+  row(f, 0, corr0, [["st", "STAIR", "stair", 0, 0.1], ["wcM", "WC", "wc", 0.1, 0.19], ["wcF", "WC", "wc", 0.19, 0.28], ["serv", "SERVERY", "prep", 0.28, 0.6], ["store", "LINEN / STORE", "store", 0.6, 1]]);
+  addRoom(f, "gal", "GALLERY", "hall", 0, corr0, 1, corr1 - corr0);
+  row(f, corr1, 1, [["k1", "PRIVATE ROOM", "privatedining", 0, 0.25], ["k2", "PRIVATE ROOM", "privatedining", 0.25, 0.5], ["k3", "PRIVATE ROOM", "privatedining", 0.5, 0.75], ["k4", "PRIVATE ROOM", "privatedining", 0.75, 1]]);
+  for (const id of ["st", "wcM", "wcF", "serv", "store"]) addDoor(f, id, "bottom", 0.5, id === "serv" ? 1.4 : id === "st" ? 1.2 : 0.9);
+  for (const id of ["k1", "k2", "k3", "k4"]) {
+    addDoor(f, id, "top", 0.5, 1.0);
+    addWin(f, id, "bottom", 0.5, 2.0);
+  }
+  addWin(f, "k1", "left", 0.5, 1.6);
+  addWin(f, "k4", "right", 0.5, 1.6);
+  addWin(f, "serv", "top", 0.5, 1.6);
+  addWin(f, "gal", "left", 0.5, 1.0);
+  return [g, f];
+}
+
+/**
+ * Wedding and banquet hall on one tall floor: a foyer across the front, the banquet hall with its stage and dance
+ * floor, the bridal room and a VIP lounge either side of the foyer, WCs off the hall, and the kitchen and back of
+ * house along a service corridor at the back.
+ */
+function banquetLevels() {
+  const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05 });
+  const back = 0.21, svc = 0.26, foyer = 0.82, wing = 0.12;
+  const backRow = [["staff", "STAFF ROOM", "staff", 0, 0.14], ["dry", "DRY STORE", "store", 0.14, 0.3], ["kit", "KITCHEN", "prokitchen", 0.3, 0.7], ["cold", "COLD ROOM", "cold", 0.7, 0.8], ["wash", "DISHWASH", "prep", 0.8, 0.9], ["plant", "PLANT ROOM", "store", 0.9, 1]];
+  for (const [id, label, kind, x0, x1] of backRow) {
+    addRoom(g, id, label, kind, x0, 0, x1 - x0, back);
+    addDoor(g, id, "bottom", 0.5, kind === "prokitchen" ? 2.0 : 0.9);
+  }
+  addDoor(g, "kit", "top", 0.2, 1.6, { open: true });
+  addWin(g, "kit", "top", 0.6, 3.0);
+  addWin(g, "staff", "top", 0.5, 1.4);
+  addRoom(g, "svc", "SERVICE CORRIDOR", "hall", 0, back, 1, svc - back);
+  addDoor(g, "svc", "bottom", 0.5, 2.4);
+  addRoom(g, "wcL", "WC", "wc", 0, svc, wing, 0.55 - svc);
+  addRoom(g, "bride", "BRIDAL ROOM", "lounge", 0, 0.55, wing, 0.45);
+  addRoom(g, "hall", "BANQUET HALL", "banquet", wing, svc, 1 - 2 * wing, foyer - svc);
+  addRoom(g, "foyer", "FOYER", "lobby", wing, foyer, 1 - 2 * wing, 1 - foyer);
+  addRoom(g, "wcR", "WC", "wc", 1 - wing, svc, wing, 0.55 - svc);
+  addRoom(g, "vip", "VIP LOUNGE", "lounge", 1 - wing, 0.55, wing, 0.45);
+  addDoor(g, "wcL", "right", 0.5, 1.2);
+  addDoor(g, "wcR", "left", 0.5, 1.2);
+  addDoor(g, "bride", "right", 0.85, 1.0);
+  addDoor(g, "vip", "left", 0.85, 1.0);
+  addDoor(g, "foyer", "top", 0.5, 6.0, { open: true });
+  addDoor(g, "foyer", "bottom", 0.32, 2.6, { entry: true, open: true, sliding: true });
+  addDoor(g, "foyer", "bottom", 0.68, 2.6, { entry: true, open: true, sliding: true });
+  addWin(g, "foyer", "bottom", 0.5, 99);
+  for (const [id, side] of [["bride", "left"], ["bride", "bottom"], ["vip", "right"], ["vip", "bottom"]]) addWin(g, id, side, 0.5, side === "bottom" ? 99 : 2.4);
+  return [g];
+}
+
+/**
+ * Apartment building on 5–12 floors: flats either side of a central corridor, the stair and lifts at the back in the
+ * middle; three flats along the front and two at the back on each upper floor, each with a living room and kitchen,
+ * two bedrooms, a bathroom and a glass-balustraded balcony. Shops and the entrance lobby on the ground floor.
+ */
+function apartmentLevels(plan, W, D, spec) {
+  const cw = 1.8, cy0 = (D - cw) / 2 / D, cy1 = (D + cw) / 2 / D;
+  const core0 = W / 2 - 3.3, core1 = W / 2 + 3.3;
+  // one flat in unit coordinates: u across the flat, v from the corridor (0) to the facade (1)
+  const FLAT = [
+    ["liv", "LIVING / KITCHEN", "open", 0, 0, 0.47, 1],
+    ["hall", "HALL", "hall", 0.47, 0, 0.39, 0.42],
+    ["bath", "BATH", "bath", 0.86, 0, 0.14, 0.42],
+    ["mbr", "MASTER BEDROOM", "master", 0.47, 0.42, 0.27, 0.58],
+    ["br", "BEDROOM", "bedroom", 0.74, 0.42, 0.26, 0.58],
+  ];
+  const flat = (lv, tag, x0, x1, y0, y1, facade, mirror) => {
+    const toX = (u, w) => (mirror ? x1 - (u + w) * (x1 - x0) : x0 + u * (x1 - x0));
+    const toY = (v, h) => (facade === "bottom" ? y0 + v * (y1 - y0) : y1 - (v + h) * (y1 - y0));
+    for (const [id, label, kind, u, v, w, h] of FLAT) addRoom(lv, id + tag, label, kind, toX(u, w), toY(v, h), w * (x1 - x0), h * (y1 - y0), { flat: tag });
+    const corrSide = facade === "bottom" ? "top" : "bottom";
+    const inward = (side) => (mirror ? { left: "right", right: "left" }[side] : side);
+    addDoor(lv, "hall" + tag, corrSide, 0.5, 1.0);
+    addDoor(lv, "hall" + tag, inward("left"), 0.5, 1.2, { open: true });
+    addDoor(lv, "hall" + tag, facade, mirror ? 0.85 : 0.15, 0.9);
+    addDoor(lv, "hall" + tag, facade, mirror ? 0.15 : 0.85, 0.9);
+    addDoor(lv, "bath" + tag, inward("left"), 0.5, 0.8);
+    addWin(lv, "liv" + tag, facade, 0.5, 2.6);
+    addWin(lv, "mbr" + tag, facade, 0.5, 1.6);
+    addWin(lv, "br" + tag, facade, 0.5, 1.4);
+  };
+  const frame = (lv) => {
+    addRoom(lv, "corr", "CORRIDOR", "hall", 0, cy0, 1, cy1 - cy0);
+    addRoom(lv, "st", "STAIR", "stair", core0 / W, 0, 3.3 / W, cy0);
+    addRoom(lv, "lifts", "LIFTS", "lift", (core0 + 3.3) / W, 0, 3.3 / W, cy0);
+    addDoor(lv, "st", "bottom", 0.5, 1.0);
+    addDoor(lv, "lifts", "bottom", 0.5, 99, { open: true });
+    addWin(lv, "st", "top", 0.5, 1.2);
+    addWin(lv, "corr", "left", 0.5, 1.0);
+    addWin(lv, "corr", "right", 0.5, 1.0);
+    // two flats at the back either side of the core
+    flat(lv, "B1", 0, core0 / W, 0, cy0, "top", false);
+    flat(lv, "B2", core1 / W, 1, 0, cy0, "top", true);
+    addWin(lv, "livB1", "left", 0.5, 1.6);
+    addWin(lv, "livB2", "right", 0.5, 1.6);
+  };
+  const g = newLevel("GROUND FLOOR PLAN", { sill: 0.05, head: 2.7 });
+  frame(g);
+  const gFront = [["shopL", "RETAIL UNIT", "boutique", 0, 0.4], ["lobby", "ENTRANCE LOBBY", "reception", 0.4, 0.6], ["shopR", "RETAIL UNIT", "boutique", 0.6, 1]];
+  for (const [id, label, kind, x0, x1] of gFront) {
+    addRoom(g, id, label, kind, x0, cy1, x1 - x0, 1 - cy1);
+    addDoor(g, id, "bottom", 0.5, kind === "reception" ? 2.0 : 1.4, { entry: true });
+    addWin(g, id, "bottom", 0.5, 99);
+  }
+  addDoor(g, "lobby", "top", 0.5, 99, { open: true });
+  addWin(g, "shopL", "left", 0.5, 2.4);
+  addWin(g, "shopR", "right", 0.5, 2.4);
+  const levels = [g];
+  for (let li = 1; li < plan.floors; li++) {
+    const lv = upperLevel(li, "flats", spec);
+    frame(lv);
+    const third = 1 / 3;
+    flat(lv, "F1", 0, third, cy1, 1, "bottom", false);
+    flat(lv, "F2", third, 2 * third, cy1, 1, "bottom", true);
+    flat(lv, "F3", 2 * third, 1, cy1, 1, "bottom", true);
+    addWin(lv, "livF1", "left", 0.5, 1.6);
+    lv.balconies = ["F1", "F2", "F3"].map((t) => {
+      const sp = lv.spaces.find((s) => s.id === "liv" + t);
+      return { side: "bottom", a0: sp.x + 0.03, a1: sp.x + sp.w - 0.03, depth: 1.5, glass: true };
+    });
+    levels.push(lv);
+  }
+  return levels;
+}
+
+const COMMERCIAL_LEVELS = { bizcenter: bizcenterLevels, hotel: hotelLevels, restaurant: restaurantLevels, banquet: banquetLevels, apartments: apartmentLevels };
+
+/** Floor area per seat by room kind (dining at tables, banquet rounds, bar stools). */
+const SEAT_AREA = { restaurant: 1.7, banquet: 1.3, bar: 3.0, privatedining: 2.2, teahall: 2.0, grill: 4.0 };
+
+/** What a commercial listing counts: guest rooms, seats (covers) and flats, from the drawn plans. */
+function commercialMetrics(model) {
+  let rooms = 0, seats = 0;
+  const flats = new Set();
+  model.levels.forEach((lv, li) => {
+    for (const sp of lv.spaces) {
+      if (sp.kind === "guestroom") rooms++;
+      if (sp.flat) flats.add(`${li}:${sp.flat}`);
+      if (SEAT_AREA[sp.kind]) {
+        const r = inner(model, sp);
+        seats += Math.floor((r.w * r.h) / SEAT_AREA[sp.kind]);
+      }
+    }
+  });
+  return { rooms, seats, flats: flats.size };
+}
+
+/** Floor plan sheets of a building: one per level, a run of identical typical floors drawn once. */
+export function planSheets(model) {
+  const runs = [];
+  model.levels.forEach((lv, i) => {
+    const last = runs[runs.length - 1];
+    if (lv.typical && last && model.levels[last.index].typical === lv.typical) last.last = i;
+    else runs.push({ index: i, last: i });
+  });
+  return runs.map((r) =>
+    r.last > r.index
+      ? { ...r, kind: "typical", title: `TYPICAL PLAN · FLOORS ${r.index}–${r.last}` }
+      : { ...r, kind: `plan-${r.index}`, title: model.levels[r.index].name },
+  );
+}
+
 // ------------------------------------------------------------------ geometry helpers
 
 function sideSegment(s, side) {
@@ -933,7 +1534,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
     <g transform="translate(${tbX + 28} 74)">
       <rect x="0" y="-14" width="14" height="14" fill="none" stroke="${ACCENT}" stroke-width="1.6" transform="rotate(45 7 -7)"/>
       <text x="28" y="0" font-size="20" font-weight="600" fill="${INK}" letter-spacing="1">havs.dev</text>
-      <text x="0" y="26" font-size="10.5" fill="${MID}" letter-spacing="2">${plan.style === "interior" ? "ARCHITECTURE · INTERIOR DESIGN" : "ARCHITECTURE · VILLA DESIGN"}</text>
+      <text x="0" y="26" font-size="10.5" fill="${MID}" letter-spacing="2">${plan.style === "interior" ? "ARCHITECTURE · INTERIOR DESIGN" : COMMERCIAL_LEVELS[plan.style] ? "ARCHITECTURE · BUILDING DESIGN" : "ARCHITECTURE · VILLA DESIGN"}</text>
     </g>`;
   rows.forEach(([k, v], i) => {
     const y = 156 + i * 66;
@@ -1094,7 +1695,7 @@ function cadPen(out, layer) {
   };
 }
 
-function furniture(d, kind, inn) {
+function furniture(d, kind, inn, sp = {}) {
   const { x, y, w, h } = inn;
   let g = "";
   const bed = (bw) => {
@@ -1376,6 +1977,72 @@ function furniture(d, kind, inn) {
     case "lift":
       g += d.rect(x + w / 2 - 0.8, y + 0.3, 1.6, 1.6) + d.line(x + w / 2 - 0.8, y + 0.3, x + w / 2 + 0.8, y + 1.9) + d.line(x + w / 2 + 0.8, y + 0.3, x + w / 2 - 0.8, y + 1.9);
       break;
+    // ---- hotels, restaurants and halls
+    case "guestroom": {
+      // en-suite shower room beside the corridor door, wardrobe opposite, double bed against the party wall,
+      // desk and armchair by the window; drawn from the corridor side (sp.corridor) toward the facade
+      const top = sp.corridor !== "bottom";
+      const Y = (v, hh) => (top ? y + v : y + h - v - hh);
+      const bw = Math.min(2.3, w * 0.58), bd = Math.min(2.4, h * 0.36);
+      g += d.rect(x + 0.05, Y(0.05, bd - 0.1), bw - 0.1, bd - 0.1);
+      g += d.rect(x + 0.15, Y(0.15, 0.9), 0.9, 0.9) + d.line(x + 0.15, Y(0.15, 0.9), x + 1.05, Y(0.15, 0.9) + 0.9) + d.line(x + 1.05, Y(0.15, 0.9), x + 0.15, Y(0.15, 0.9) + 0.9);
+      g += d.ellipse(x + bw - 0.45, Y(bd - 0.6, 0.5) + 0.25, 0.18, 0.24) + d.rect(x + 0.2, Y(bd - 0.65, 0.45), 0.6, 0.45, { round: 4 });
+      if (w - bw > 1.2) g += d.rect(x + w - 0.65, Y(0.1, Math.min(1.8, bd)), 0.6, Math.min(1.8, bd));
+      const mid = (bd + h) / 2;
+      const cy = top ? y + mid : y + h - mid;
+      if (h > bd + 2.6) g += d.rect(x + 0.05, cy - 0.8, 2.05, 1.6) + d.rect(x + 0.12, cy - 0.72, 0.42, 0.68, { round: 3 }) + d.rect(x + 0.12, cy + 0.04, 0.42, 0.68, { round: 3 }) + d.line(x + 0.75, cy - 0.8, x + 0.75, cy + 0.8);
+      if (w > 3.2 && h > bd + 4) g += d.rect(x + w - 1.5, Y(h - 0.7, 0.55), 1.3, 0.55) + d.circle(x + w - 0.85, Y(h - 1.25, 0.4) + 0.2, 0.22) + d.rect(x + 0.4, Y(h - 1.2, 0.8), 0.8, 0.8, { round: 5 });
+      break;
+    }
+    case "restaurant":
+      // tables for four on a 2.4 m grid
+      for (let cx = x + 1.5; cx + 1.0 < x + w - 0.4; cx += 2.4) for (let cy = y + 1.5; cy + 1.0 < y + h - 0.6; cy += 2.4) g += d.rect(cx - 0.4, cy - 0.4, 0.8, 0.8) + d.circle(cx - 0.72, cy, 0.2) + d.circle(cx + 0.72, cy, 0.2) + d.circle(cx, cy - 0.72, 0.2) + d.circle(cx, cy + 0.72, 0.2);
+      break;
+    case "banquet": {
+      // stage at the back, the dance floor in front of it, round tables for ten all round
+      const sw = Math.min(w * 0.4, 14), sh = Math.min(3.5, h * 0.18);
+      g += d.rect(x + (w - sw) / 2, y + 0.2, sw, sh) + d.line(x + (w - sw) / 2, y + sh - 0.2, x + (w + sw) / 2, y + sh - 0.2);
+      const fw = Math.min(w * 0.3, 12), fh = Math.min(h * 0.3, 9), fx = x + (w - fw) / 2, fy = y + sh + 1.7;
+      g += d.rect(fx, fy, fw, fh, { dash: "6 4" });
+      for (let cx = x + 2.0; cx + 1.6 < x + w - 0.4; cx += 3.4) {
+        for (let cy = y + sh + 2.2; cy + 1.6 < y + h - 0.6; cy += 3.4) {
+          if (cx > fx - 1.7 && cx < fx + fw + 1.7 && cy > fy - 1.7 && cy < fy + fh + 1.7) continue;
+          g += d.circle(cx, cy, 0.9);
+          for (let k = 0; k < 10; k++) g += d.circle(cx + Math.cos((k / 10) * Math.PI * 2) * 1.3, cy + Math.sin((k / 10) * Math.PI * 2) * 1.3, 0.18);
+        }
+      }
+      break;
+    }
+    case "privatedining": {
+      const tw = Math.min(w - 1.8, 4.2);
+      if (tw > 1.4 && h > 2.8) g += table(x + w / 2, y + h / 2, tw, Math.max(2, Math.floor(tw / 0.7)));
+      g += d.rect(x + 0.1, y + 0.1, Math.min(1.6, w - 0.2), 0.45);
+      break;
+    }
+    case "grill":
+      // charcoal grills (mangal) along the back wall, a tandir oven, the pass counter with stools facing the room
+      g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.8);
+      for (let gx = x + 0.4; gx + 1.4 < x + w - 1.6; gx += 1.8) g += d.rect(gx, y + 0.2, 1.4, 0.6) + d.line(gx, y + 0.5, gx + 1.4, y + 0.5);
+      g += d.circle(x + w - 0.9, y + 1.6, 0.55);
+      if (h > 4) {
+        g += d.rect(x + 0.4, y + 2.4, w - 0.8, 0.6, { round: 2 });
+        for (let sx = x + 0.8; sx < x + w - 0.5; sx += 0.75) g += d.circle(sx, y + 3.35, 0.2);
+      }
+      break;
+    case "prokitchen": {
+      // cooking line along the back wall, two prep islands, cold counter and wash-up at the side
+      g += d.rect(x + 0.1, y + 0.1, w - 0.2, 0.8);
+      for (let bx = x + 0.6; bx + 0.4 < x + w * 0.6; bx += 0.6) g += d.circle(bx, y + 0.5, 0.18);
+      const iw = Math.min(w - 2.6, 6);
+      if (iw > 1.5 && h > 4.2) for (const fy of [0.45, 0.75]) g += d.rect(x + (w - iw) / 2, y + h * fy - 0.45, iw, 0.9);
+      if (w > 4) g += d.rect(x + w - 1.6, y + 1.0, 1.4, 1.4) + d.rect(x + 0.1, y + 1.0, 0.75, Math.min(3, h - 1.4));
+      break;
+    }
+    case "gym":
+      // a row of treadmills along the back, the free-weights floor in front
+      for (let cx = x + 0.6; cx + 0.8 < x + w - 0.4; cx += 1.4) g += d.rect(cx, y + 0.4, 0.8, 1.9, { round: 3 });
+      if (h > 6) g += d.rect(x + 0.6, y + 3.2, w - 1.2, h - 4.2, { dash: "6 4" });
+      break;
   }
   return g;
 }
@@ -1432,18 +2099,18 @@ function surveyPlanFeatures(model, level, px, s, rect) {
   return g;
 }
 
-export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mode = "layout" } = {}) {
+export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mode = "layout", title = null } = {}) {
   const ST = model.storey;
   const { W, D, plan, spec } = model;
   const level = model.levels[levelIndex];
   // interior sets draw the same plan three ways: furniture layout, floor finishes, reflected ceiling and lighting
-  const drawingName = !model.interior || mode === "layout" ? level.name : `${level.floorName ? `${level.floorName} ` : ""}${mode === "finish" ? "FINISHES PLAN" : "CEILING PLAN"}`;
+  const drawingName = title ?? (!model.interior || mode === "layout" ? level.name : `${level.floorName ? `${level.floorName} ` : ""}${mode === "finish" ? "FINISHES PLAN" : "CEILING PLAN"}`);
   const isGround = levelIndex === 0;
   const garage = isGround ? model.garage : null;
   const site = model.site;
   const extraW = garage ? garage.w + 0.5 : 0;
-  const frontExtent = isGround ? Math.max(site.T, site.deck ? site.T + site.deck.h : 0, garage ? 3 : 0) : level.terrace ? level.terrace.depth : 0;
   const outside = (side) => Math.max(0, ...[...(level.balconies ?? []), ...(level.bays ?? [])].filter((b) => b.side === side).map((b) => b.depth));
+  const frontExtent = isGround ? Math.max(site.T, site.deck ? site.T + site.deck.h : 0, garage ? 3 : 0) : level.terrace ? level.terrace.depth : outside("bottom");
   const backOut = outside("top");
   const extraD = Math.max(frontExtent, model.towerArc ? model.towerArc.r + 0.3 : 0) + 1.4 + backOut;
   const margin = 3.0; // axes, bubbles and dimension chains (m)
@@ -1626,8 +2293,8 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
 
   // ---- furniture + room tags (numbers match the room schedule, sheet A-401)
   const pen = svgPen(s, px);
-  if (mode === "layout") for (const sp of level.spaces) g += furniture(pen, sp.kind, inner(model, sp));
-  else if (mode === "ceiling") for (const sp of level.spaces) if (sp.kind === "stair") g += furniture(pen, sp.kind, inner(model, sp));
+  if (mode === "layout") for (const sp of level.spaces) g += furniture(pen, sp.kind, inner(model, sp), sp);
+  else if (mode === "ceiling") for (const sp of level.spaces) if (sp.kind === "stair") g += furniture(pen, sp.kind, inner(model, sp), sp);
   if (mode === "ceiling") {
     const c = ceilingLayout(model, level);
     for (const r of c.cove) g += rect(r.x, r.y, r.w, r.h, `fill="none" stroke="${ACCENT}" stroke-width="1.1" stroke-dasharray="7 4"`);
@@ -1667,7 +2334,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   const hall = level.spaces.find((sp) => sp.kind === "hall") ?? (model.interior && level.spaces.find((sp) => ["reception", "living", "open", "teahall", "boutique", "lounge"].includes(sp.kind))) ?? level.spaces[0];
   const hin = inner(model, hall);
   // a long corridor keeps its room label in the middle, so the tag moves towards its end
-  const [tagX, tagY] = spec.survey && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
+  const [tagX, tagY] = (spec.survey || COMMERCIAL_LEVELS[plan.style]) && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
   if (mode !== "ceiling") g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
     <circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
     <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
@@ -2042,6 +2709,52 @@ function projectLayout(model) {
     for (let ty = plot.y0 + 2; ty < plot.y1 - 1; ty += 6) tree(-2, ty, 1.5);
     for (let tx = 2; tx < W + 4; tx += 6.5) tree(tx, D + 5.6, 1.5);
     shared = `${items.filter((it) => it.t === "bay").length} parking bays behind a barrier · corner forecourt under a glass canopy · roof terrace`;
+  } else if (["business", "hotel", "dining", "events", "residential"].includes(kind)) {
+    // one building on its plot: a forecourt to the road, car parks beside it, service yard or garden behind
+    units.push({ x: 0, y: 0, mirror: false, no: 1 });
+    const rowD = 5, aisle = 6.5, bay = 2.5, lotW = 2 * rowD + aisle;
+    const fc = { business: 10, hotel: 12, dining: 8, events: 16, residential: 8 }[kind];
+    const behind = { business: 14, hotel: layoutOf(plan) === "b" ? 26 : 12, dining: 9, events: 24, residential: 20 }[kind];
+    const west = kind === "events" || kind === "business" ? lotW + 5 : kind === "dining" ? 9 : 6;
+    plot = { x0: -west, y0: -behind, x1: r1(W + 5 + lotW + 2), y1: r1(D + fc) };
+    // a car park: two rows of bays either side of an aisle running front to back
+    const lot = (lx, ly0, ly1) => {
+      items.push({ t: "lane", x: lx + rowD, y: ly0, w: aisle, h: ly1 - ly0, label: "" });
+      for (let by = ly0 + 0.5; by + bay <= ly1 - 0.5; by += bay) items.push({ t: "bay", x: lx, y: by, w: rowD, h: bay }, { t: "bay", x: lx + rowD + aisle, y: by, w: rowD, h: bay });
+      items.push({ t: "label", x: lx + lotW / 2, y: ly0 + 1.6, text: "CAR PARK" });
+    };
+    lot(W + 5, plot.y0 + 2, plot.y1 - 0.5);
+    if (kind === "events" || kind === "business") lot(plot.x0 + 2.5, plot.y0 + 2, plot.y1 - 0.5);
+    const label = { business: "ENTRANCE PLAZA", hotel: "DROP-OFF", dining: "TERRACE", events: "FORECOURT", residential: "" }[kind];
+    const px0 = kind === "events" || kind === "business" ? plot.x0 + lotW + 3 : plot.x0 + 1;
+    items.push({ t: "paving", x: px0, y: D, w: W + 4 - px0, h: fc - 0.6, label: "" });
+    if (label) items.push({ t: "label", x: W * (kind === "events" ? 0.5 : 0.3), y: D + fc - 1.4, text: label });
+    if (kind === "events") items.push({ t: "pond", cx: W / 2, cy: D + fc / 2, rx: 6, ry: 2.6, label: "FOUNTAIN" });
+    if (kind === "hotel" && layoutOf(plan) === "b") {
+      // resort: the pool garden behind the building
+      items.push({ t: "pool", x: W * 0.2, y: -21, w: Math.min(30, W * 0.55), h: 15, pool: { x: W * 0.2 + 3, y: -18, w: Math.min(24, W * 0.55 - 6), d: 9 } });
+      items.push({ t: "label", x: W * 0.2 + Math.min(30, W * 0.55) / 2, y: -3.2, text: "POOL GARDEN" });
+      for (let tx = 2; tx < W; tx += 6) tree(tx, -24 + (rand() - 0.5), 1.6, "palm");
+    } else if (kind === "residential") {
+      // residents' courtyard with a play area
+      items.push({ t: "play", x: W * 0.15, y: -15, w: 12, h: 9, label: "PLAY" });
+      items.push({ t: "label", x: W * 0.6, y: -8, text: "COURTYARD GARDEN" });
+      for (let tx = W * 0.4; tx < W - 2; tx += 5.5) tree(tx, -14 + (rand() - 0.5) * 2, 2.0);
+    } else {
+      items.push({ t: "yard", x: 1, y: -behind + 1, w: Math.min(W - 2, 26), h: behind - 2.5, label: "SERVICE YARD" });
+      for (let tx = Math.min(W - 2, 26) + 4; tx < W - 1; tx += 6) tree(tx, -behind / 2, 1.9);
+    }
+    // planting: a row of trees along the road and the western edge
+    for (let tx = plot.x0 + 3; tx < W + 3; tx += 7) tree(tx, plot.y1 - 1.6, 1.7);
+    for (let ty = plot.y0 + 3; ty < D; ty += 7) tree(plot.x0 + 2.4, ty, 1.9 + rand() * 0.4);
+    const bays = items.filter((it) => it.t === "bay").length;
+    shared = {
+      business: `${bays} parking bays in two car parks · entrance plaza with planting · service yard with loading bay`,
+      hotel: layoutOf(plan) === "b" ? `${bays} parking bays · drop-off under the canopy · pool garden` : `${bays} parking bays · drop-off under the canopy · service yard`,
+      dining: `${bays} parking bays · front terrace · service yard`,
+      events: `${bays} parking bays in two car parks · forecourt with fountain · service yard`,
+      residential: `${bays} parking bays · residents' courtyard with play area`,
+    }[kind];
   } else {
     const margin = 15, gap = 7, deck = 3;
     const perRow = Math.ceil(N / 2);
@@ -2215,7 +2928,7 @@ function masterplanSheet(model, sheetNo, { preview = false } = {}) {
 
   // shadows (sun from the south-west), then houses and shared buildings
   const shadow = (x0, y0, w, h, ht) => {
-    const sh = ht * 0.28;
+    const sh = Math.min(ht * 0.28, 9);
     return `<polygon points="${X(x0)},${Y(y0 + h)} ${X(x0)},${Y(y0)} ${X(x0 + sh * 0.8)},${Y(y0 - sh)} ${X(x0 + w + sh * 0.8)},${Y(y0 - sh)} ${X(x0 + w + sh * 0.8)},${Y(y0 + h - sh)} ${X(x0 + w)},${Y(y0 + h)}" fill="${INK}" fill-opacity=".13"/>`;
   };
   const buildings = items.filter((it) => it.t === "building");
@@ -2640,6 +3353,13 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   }
   model.levels.forEach((lv, li) => {
     for (const b of (lv.balconies ?? []).filter((bb) => bb.side === "bottom")) {
+      if (b.glass) {
+        // balcony slab with a frameless glass balustrade
+        front += box(b.a0 * W, li * ST - 0.25, (b.a1 - b.a0) * W, 0.25, MAT[spec.slabMat ?? "render"].fill, `stroke="${INK}" stroke-width="1"`);
+        front += box(b.a0 * W, li * ST, (b.a1 - b.a0) * W, 1.1, MAT.balustrade.fill, `fill-opacity=".38" stroke="#7fa3ad" stroke-width="1"`);
+        mark("balustrade", b.a1 * W - 0.6, li * ST + 0.7);
+        continue;
+      }
       front += box(b.a0 * W, li * ST - 0.3, (b.a1 - b.a0) * W, 1.4, MAT.blackalu.fill, `stroke="${INK}" stroke-width="1"`);
       front += box(b.a0 * W, li * ST + 1.02, (b.a1 - b.a0) * W, 0.06, "#ffffff", `fill-opacity=".35"`);
     }
@@ -3089,7 +3809,14 @@ function isoHouse(model, P) {
   }
   if (spec.piers && cham) g += poly([P(-0.05, cham.b - 0.3, 0), P(-0.05, cham.b + 0.3, 0), P(-0.05, cham.b + 0.3, wallTop), P(-0.05, cham.b - 0.3, wallTop)], shade(MAT.blackalu.fill, -0.1), 'stroke-width="0.4"');
   model.levels.forEach((lv, li) => {
-    for (const b of (lv.balconies ?? []).filter((bb) => bb.side === "bottom")) g += box(b.a0 * W, b.a1 * W, -b.depth, 0, li * ST - 0.3, li * ST + 1.1, colours("blackalu"));
+    for (const b of (lv.balconies ?? []).filter((bb) => bb.side === "bottom")) {
+      if (!b.glass) {
+        g += box(b.a0 * W, b.a1 * W, -b.depth, 0, li * ST - 0.3, li * ST + 1.1, colours("blackalu"));
+        continue;
+      }
+      g += box(b.a0 * W, b.a1 * W, -b.depth, 0, li * ST - 0.25, li * ST, colours(spec.slabMat ?? "render"));
+      g += poly([P(b.a0 * W, -b.depth, li * ST), P(b.a1 * W, -b.depth, li * ST), P(b.a1 * W, -b.depth, li * ST + 1.1), P(b.a0 * W, -b.depth, li * ST + 1.1)], "#cfe0e6", 'fill-opacity=".45" stroke="#7fa3ad" stroke-width="0.8"');
+    }
   });
   // round stair tower and rooftop sign stand in front of / on top of the roof slab
   if (spec.tower && model.towerArc) {
@@ -3314,7 +4041,18 @@ const OFFICE_FINISH = {
   kitchenette: "Porcelain stoneware 60×60", store: "Sealed screed", racks: "Sealed screed",
 };
 
+const HOSPITALITY_FINISH = {
+  reception: "Honed limestone 60×120", lobby: "Honed limestone 60×120", hall: "Porcelain stoneware 60×120", lift: "Honed limestone",
+  guestroom: "Engineered oak, acoustic underlay", restaurant: "Engineered oak, oiled", privatedining: "Engineered oak, oiled", bar: "Smoked oak herringbone",
+  banquet: "Marble-effect porcelain 120×120, oak parquet dance floor", teahall: "Hand-made terracotta tiles", grill: "Anti-slip porcelain, R11",
+  prokitchen: "Anti-slip resin, coved skirting", prep: "Anti-slip resin, coved skirting", cold: "Insulated floor, anti-slip resin",
+  staff: "Vinyl sheet", store: "Sealed screed", dock: "Power-floated concrete, hardener", treatment: "Porcelain stoneware, heated",
+  gym: "Rubber sports flooring", lounge: "Engineered oak, acoustic underlay", cafe: "Porcelain stoneware 60×60", boutique: "Large-format porcelain 120×120",
+};
+
 function finishFor(style, kind) {
+  if (["bizcenter", "hotel", "restaurant", "banquet"].includes(style)) return HOSPITALITY_FINISH[kind] ?? OFFICE_FINISH[kind] ?? "Porcelain tiles, walls tiled 2.40";
+  if (style === "apartments" && ["reception", "boutique", "lift"].includes(kind)) return HOSPITALITY_FINISH[kind];
   if (style === "market" && MARKET_FINISH[kind]) return MARKET_FINISH[kind];
   if (style === "office" && OFFICE_FINISH[kind]) return OFFICE_FINISH[kind];
   if (style === "showroom") return { dock: "Power-floated concrete, sealed", staff: "Porcelain stoneware 60×60", racks: "Sealed screed" }[kind] ?? OFFICE_FINISH[kind] ?? "Porcelain tiles, walls tiled 2.40";
@@ -3567,8 +4305,10 @@ export function coverSheet(model, renderDataUri, sheetList) {
     ["Net internal area", `${sc.rooms.reduce((n, r) => n + r.area, 0).toFixed(0)} m²`],
     ["Footprint", `${W.toFixed(2)} × ${D.toFixed(2)} m`],
     ["Levels", `${plan.floors}${model.basement ? " (incl. lower level)" : ""}`],
-    ...(STYLE_RULES[plan.style].commercial ? [["WCs", `${plan.bathrooms}`], ["Parking", `${project.layout.parking} bays`]] : [["Bedrooms / bathrooms", `${plan.bedrooms} / ${plan.bathrooms}`]]),
-    ...(STYLE_RULES[plan.style].commercial
+    ...(STYLE_RULES[plan.style].residential ? [["Flats", `${model.metrics.flats}`]] : []),
+    ...(STYLE_RULES[plan.style].metric === "rooms" ? [["Guest rooms", `${model.metrics.rooms}`]] : STYLE_RULES[plan.style].metric === "seats" ? [["Seats", `${model.metrics.seats}`]] : []),
+    ...(STYLE_RULES[plan.style].commercial ? [["WCs", `${plan.bathrooms}`], ["Parking", `${project.layout.parking} bays`]] : [["Bedrooms / bathrooms", `${plan.bedrooms} / ${plan.bathrooms}`], ...(STYLE_RULES[plan.style].residential ? [["Parking", `${project.layout.parking} bays`]] : [])]),
+    ...(STYLE_RULES[plan.style].commercial || STYLE_RULES[plan.style].residential
       ? []
       : [
           ["Garage", model.garage ? `${model.garage.w > 5 ? "Double" : "Single"}, ${(model.garage.w * model.garage.d).toFixed(0)} m²` : "—"],
@@ -3797,7 +4537,7 @@ export function cadLevel(model, levelIndex) {
 
   // furniture and stairs
   const pen = cadPen(ents, "A-FURN");
-  for (const sp of level.spaces) furniture(pen, sp.kind, inner(model, sp));
+  for (const sp of level.spaces) furniture(pen, sp.kind, inner(model, sp), sp);
 
   // room tags
   for (const sp of level.spaces) {

@@ -14,7 +14,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import SVGtoPDF from "svg-to-pdfkit";
-import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
+import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
 
 const require = createRequire(import.meta.url);
 const root = process.cwd();
@@ -53,7 +53,8 @@ function sheetsFor(model, renderUri) {
   const several = !!project && project.units > 1;
   const typical = several ? "Typical house — " : "";
   const list = [{ no: "A-001", title: project ? "Masterplan" : "Site plan", scale: "Graphic", svg: () => sitePlanSheet(model, "A-001") }];
-  model.levels.forEach((lv, i) => list.push({ no: `A-10${i + 1}`, title: typical + (several ? lv.name.toLowerCase() : lv.name.charAt(0) + lv.name.slice(1).toLowerCase()), scale: "Graphic", svg: () => floorPlanSheet(model, i, `A-10${i + 1}`) }));
+  // one sheet per level; a run of identical typical floors is drawn once
+  planSheets(model).forEach((p, k) => list.push({ no: `A-10${k + 1}`, title: typical + (several ? p.title.toLowerCase() : p.title.charAt(0) + p.title.slice(1).toLowerCase()), scale: "Graphic", svg: () => floorPlanSheet(model, p.index, `A-10${k + 1}`, { title: p.title }) }));
   list.push({ no: "A-201", title: project?.kind === "row" ? "Street elevation" : `${typical}${several ? "south" : "South"} elevation`, scale: "Graphic", svg: () => elevationSheet(model, "A-201") });
   list.push({ no: "A-301", title: several ? "Isometric view — whole project" : project ? "Isometric view — whole site" : "Isometric view", scale: "NTS", svg: () => axonometricSheet(model, "A-301") });
   if (several) list.push({ no: "A-302", title: "Isometric view — typical house", scale: "NTS", svg: () => axonometricSheet(model, "A-302", { typical: true }) });

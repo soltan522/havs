@@ -92,6 +92,12 @@ export const COPY = {
       wcs: "Sanitar qovşaqlar",
       parking: "Avtomobil yerləri",
       parkingShort: "avtomobil yeri",
+      rooms: "Otel otaqları",
+      seats: "Oturacaq yerləri",
+      flats: "Mənzillər",
+      roomsShort: "otaq",
+      seatsShort: "yer",
+      flatsShort: "mənzil",
     },
     interior: {
       type: "Layihə növü",
@@ -111,7 +117,7 @@ export const COPY = {
     contactToOrder: "Sifariş üçün əlaqə",
     contactToCustomise: "Fərdiləşdirmə üçün əlaqə",
     sheets: "Konsept vərəqləri",
-    sheetNames: { render: "Konsept vizualizasiya", owner: "Sifarişçinin materialları", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", schedules: "Otaq, qapı və pəncərə cədvəlləri", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı", "Dördüncü mərtəbə planı", "Beşinci mərtəbə planı", "Altıncı mərtəbə planı"] },
+    sheetNames: { render: "Konsept vizualizasiya", owner: "Sifarişçinin materialları", image: "Təqdimat", site: "Baş plan", elevation: "Cənub fasadı", axonometric: "Aksonometriya", schedules: "Otaq, qapı və pəncərə cədvəlləri", typical: "Tipik mərtəbə planı", plans: ["Birinci mərtəbə planı", "İkinci mərtəbə planı", "Üçüncü mərtəbə planı", "Dördüncü mərtəbə planı", "Beşinci mərtəbə planı", "Altıncı mərtəbə planı"] },
     priceFrom: "Paket qiyməti",
   },
   en: {
@@ -203,6 +209,12 @@ export const COPY = {
       wcs: "WCs",
       parking: "Parking bays",
       parkingShort: "parking bays",
+      rooms: "Guest rooms",
+      seats: "Seats",
+      flats: "Flats",
+      roomsShort: "rooms",
+      seatsShort: "seats",
+      flatsShort: "flats",
     },
     interior: {
       type: "Project type",
@@ -222,7 +234,7 @@ export const COPY = {
     contactToOrder: "Contact to order",
     contactToCustomise: "Contact to customise",
     sheets: "Concept sheets",
-    sheetNames: { render: "Concept visualisation", owner: "Owner's photos and plans", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", schedules: "Room, door and window schedules", plans: ["Ground floor plan", "First floor plan", "Second floor plan", "Third floor plan", "Fourth floor plan", "Fifth floor plan"] },
+    sheetNames: { render: "Concept visualisation", owner: "Owner's photos and plans", image: "Presentation", site: "Site plan", elevation: "South elevation", axonometric: "Axonometric view", schedules: "Room, door and window schedules", typical: "Typical floor plan", plans: ["Ground floor plan", "First floor plan", "Second floor plan", "Third floor plan", "Fourth floor plan", "Fifth floor plan"] },
     priceFrom: "Package price",
   },
   ru: {
@@ -314,6 +326,12 @@ export const COPY = {
       wcs: "Санузлы",
       parking: "Парковочные места",
       parkingShort: "парковочных мест",
+      rooms: "Номера",
+      seats: "Посадочные места",
+      flats: "Квартиры",
+      roomsShort: "номеров",
+      seatsShort: "мест",
+      flatsShort: "квартир",
     },
     interior: {
       type: "Тип проекта",
@@ -333,12 +351,12 @@ export const COPY = {
     contactToOrder: "Связаться для заказа",
     contactToCustomise: "Адаптация проекта",
     sheets: "Концептуальные листы",
-    sheetNames: { render: "Концептуальная визуализация", owner: "Материалы заказчика", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", schedules: "Экспликация, двери и окна", plans: ["План первого этажа", "План второго этажа", "План третьего этажа", "План четвёртого этажа", "План пятого этажа", "План шестого этажа"] },
+    sheetNames: { render: "Концептуальная визуализация", owner: "Материалы заказчика", image: "Презентация", site: "Генплан", elevation: "Южный фасад", axonometric: "Аксонометрия", schedules: "Экспликация, двери и окна", typical: "План типового этажа", plans: ["План первого этажа", "План второго этажа", "План третьего этажа", "План четвёртого этажа", "План пятого этажа", "План шестого этажа"] },
     priceFrom: "Цена пакета",
   },
 } satisfies Record<Locale, unknown>;
 
-type SheetNames = { render: string; owner: string; image: string; site: string; elevation: string; axonometric: string; schedules: string; plans: string[] };
+type SheetNames = { render: string; owner: string; image: string; site: string; elevation: string; axonometric: string; schedules: string; typical: string; plans: string[] };
 
 /** Human name of a gallery item, e.g. "First floor plan" for kind "plan-1". */
 export function sheetName(names: SheetNames, kind: string): string {
@@ -371,7 +389,12 @@ export function planSheetName(c: (typeof COPY)[Locale], plan: Plan, kind: string
 /** Card line: "240 m² · 2 floors · 4 bedrooms", or "7 × 180 m² · …" for a project. */
 export function specsLine(lang: Locale, plan: Plan): string {
   if (plan.interior) return `${areaText(plan)} · ${PALETTE_LABELS[plan.interior.palette][lang]}${plan.bedrooms ? ` · ${plan.bedrooms} ${UI[lang].bedrooms.toLowerCase()}` : ""}`;
-  if (isCommercial(plan)) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.parking ?? 0} ${COPY[lang].project.parkingShort}`;
+  const p = COPY[lang].project;
+  // the figure a buyer compares first: guest rooms, seats, flats, else parking
+  if (plan.rooms) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.rooms} ${p.roomsShort}`;
+  if (plan.seats) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.seats} ${p.seatsShort}`;
+  if (plan.flats) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.flats} ${p.flatsShort}`;
+  if (isCommercial(plan)) return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.parking ?? 0} ${p.parkingShort}`;
   return `${areaText(plan)} · ${floorsText(lang, plan.floors, UI[lang].floors)} · ${plan.bedrooms} ${UI[lang].bedrooms.toLowerCase()}`;
 }
 

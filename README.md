@@ -36,7 +36,9 @@ rebuilds and uploads all of them on demand. Plan pages show the files with locke
 them from their order page after payment.
 
 The sample visualisations in `renders/` are AI-generated concept images (Figma AI) and are labelled as such on the site.
-New sample villas are added by a daily routine — see [`docs/daily-villas.md`](docs/daily-villas.md). `npm run validate`
+New sample villas are added by a daily routine — see [`docs/daily-villas.md`](docs/daily-villas.md), which also
+describes the commercial buildings the generator draws (business centres, hotels, restaurants, wedding halls and
+apartment buildings, each from a plan `layout` and a `facade` option). `npm run validate`
 checks `data/plans.json` (styles, roofs, room counts against the generated plans, translations, price rule).
 
 **Projects map** — `/<lang>/map` shows the catalogue on a 3D map (MapLibre GL; OpenFreeMap vector tiles with

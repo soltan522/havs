@@ -23,15 +23,21 @@ export type PlanStyle =
   | "market"
   | "office"
   | "showroom"
-  | "interior";
+  | "interior"
+  | "bizcenter"
+  | "hotel"
+  | "restaurant"
+  | "banquet"
+  | "apartments";
 
 /**
  * row = terrace of townhouses on a street; farm = farmhouses around a vineyard and barn; cluster = houses on a slope
  * around a lodge; retail = one commercial building (supermarket) with its car park and delivery yard;
  * urban = a commercial building in town: a multi-storey showroom and office building on a corner plot, or a
- * roadside showroom with a mezzanine and forecourt parking.
+ * roadside showroom with a mezzanine and forecourt parking. business, hotel, dining, events and residential = one
+ * business centre, hotel, restaurant, wedding hall or apartment building on its plot (plan.layout, plan.facade).
  */
-export type ProjectKind = "row" | "farm" | "cluster" | "retail" | "urban";
+export type ProjectKind = "row" | "farm" | "cluster" | "retail" | "urban" | "business" | "hotel" | "dining" | "events" | "residential";
 
 /** Interior design projects: the kind of space and its design language (docs/design-references.md). */
 export type InteriorType = "flat" | "penthouse" | "residence" | "cafe" | "workspace" | "boutique" | "clinic" | "salon";
@@ -76,6 +82,13 @@ export type Plan = {
   project?: { kind: ProjectKind; units: number };
   /** Commercial buildings: parking bays on the masterplan (bedrooms is 0, bathrooms counts the WCs). */
   parking?: number;
+  /** Commercial buildings: the drawn plan variant and the cladding (scripts/drawings.mjs). */
+  layout?: string;
+  facade?: string;
+  /** Hotel guest rooms, restaurant / hall seats and apartment flats, as the drawings count them. */
+  rooms?: number;
+  seats?: number;
+  flats?: number;
   /** Owner's sign drawn on the building (their own name only). */
   sign?: string;
   /** Surveyed footprint [width, depth] in metres (buildings drawn from the owner's measured plans). */
@@ -141,6 +154,11 @@ export const STYLE_LABELS: Record<PlanStyle, LocalizedText> = {
   office: { az: "Ofis və şourum", en: "Office and showroom", ru: "Офис и шоурум" },
   showroom: { az: "Şourum", en: "Showroom", ru: "Шоурум" },
   interior: { az: "İnteryer dizaynı", en: "Interior design", ru: "Дизайн интерьера" },
+  bizcenter: { az: "İş mərkəzi", en: "Business centre", ru: "Бизнес-центр" },
+  hotel: { az: "Otel", en: "Hotel", ru: "Отель" },
+  restaurant: { az: "Restoran", en: "Restaurant", ru: "Ресторан" },
+  banquet: { az: "Şadlıq sarayı", en: "Wedding hall", ru: "Банкетный зал" },
+  apartments: { az: "Yaşayış binası", en: "Apartment building", ru: "Жилой дом" },
 };
 
 export const INTERIOR_TYPE_LABELS: Record<InteriorType, LocalizedText> = {
@@ -181,6 +199,11 @@ export const PROJECT_LABELS: Record<ProjectKind, LocalizedText> = {
   cluster: { az: "Kənd layihəsi", en: "Village project", ru: "Коттеджный посёлок" },
   retail: { az: "Kommersiya layihəsi", en: "Commercial project", ru: "Коммерческий проект" },
   urban: { az: "Kommersiya binası", en: "Commercial building", ru: "Коммерческое здание" },
+  business: { az: "İş mərkəzi", en: "Business centre", ru: "Бизнес-центр" },
+  hotel: { az: "Otel", en: "Hotel", ru: "Отель" },
+  dining: { az: "Restoran", en: "Restaurant", ru: "Ресторан" },
+  events: { az: "Şadlıq sarayı", en: "Wedding hall", ru: "Банкетный зал" },
+  residential: { az: "Yaşayış binası", en: "Apartment building", ru: "Жилой дом" },
 };
 
 /** Eyebrow label of a plan: its style, or the kind of multi-unit project. */
@@ -191,7 +214,10 @@ export const planLabel = (plan: Plan, lang: Locale) =>
 export const areaText = (plan: Plan) => `${plan.project && plan.project.units > 1 ? `${plan.project.units} × ` : ""}${plan.areaM2} m²`;
 
 /** A commercial building (no bedrooms; WCs and parking instead). */
-export const isCommercial = (plan: Plan) => plan.project?.kind === "retail" || plan.project?.kind === "urban";
+export const isCommercial = (plan: Plan) => ["retail", "urban", "business", "hotel", "dining", "events"].includes(plan.project?.kind ?? "");
+
+/** An apartment building (flats, bedrooms and parking). */
+export const isResidential = (plan: Plan) => plan.project?.kind === "residential";
 
 /** An interior design project of a commercial space (WCs instead of bedrooms). */
 export const isCommercialInterior = (plan: Plan) => !!plan.interior && COMMERCIAL_INTERIORS.includes(plan.interior.type);
