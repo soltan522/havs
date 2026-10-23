@@ -71,9 +71,8 @@ npm ci
      `npm run validate` warns when it is missing and fails when it lies outside Azerbaijan.
    - Summary: two sentences, professional and factual — materials, roof, key spaces, outdoor features.
      Correct Azerbaijani (ə, ı, ö, ü, ğ, ş, ç) and Russian. No superlatives, no claims that it was built.
-   - Price: `npm run validate` prints a warning if the price is more than 15 % from the rule
-     (`suggestedPrice` in `scripts/validate-plans.mjs`: ≈ $300 + $4.2/m², rounded to …90, +$100 for
-     tuscan/coastal/luxury/mediterranean/absheron/noir/yali). Use the rule's value.
+   - Price: `priceCents` = `areaM2` × 30 × 100 (30 per m²; visitors in Azerbaijan see it in AZN, everyone else in
+     USD — `lib/pricing.ts`). `npm run validate` fails on any other value and prints the right one.
    - Bedrooms and bathrooms must match the generated plans: run `npm run validate` — it tells you the
      exact numbers to use if they differ.
 
@@ -136,13 +135,13 @@ npm ci
 A catalogue entry can also be a whole development: a terrace of townhouses, a farm estate, a small village or a
 commercial building (`retail`: a neighbourhood supermarket with its car park, `urban`: a corner office and showroom
 building or a roadside showroom — `"bedrooms": 0`, `"bathrooms"` = WCs,
-`"parking"` = bays on the masterplan, priced at ~$900 + $1.5/m²).
+`"parking"` = bays on the masterplan; priced like everything else at 30 per m²).
 Add `"project": { "kind": "row" | "farm" | "cluster" | "retail" | "urban", "units": N }` to the entry; `areaM2`, `floors`,
 `bedrooms` and `bathrooms` then describe **one** house, and the generator draws the masterplan (A-001), the typical
 house plans, the street elevation (row) or typical elevation, an isometric of the whole project and one of the
 typical house. Allowed kinds, unit counts and styles are in `PROJECT_RULES` in `scripts/drawings.mjs`
 (`townhouse` is only used in a `row`). Projects have no garages (`"garage": false` — parking is on the
-masterplan) and are priced by the rule in `suggestedPrice` (typical house + 35 % per further house).
+masterplan) and are priced on all houses together: `areaM2` × `units` × 30 per m².
 Use a family from the project section of `docs/design-references.md`. The render is an aerial three-quarter view
 of the whole project that shows exactly N houses in the arrangement the masterplan draws: a straight terrace in
 mirrored pairs (`row`), houses on a gentle arc above a vineyard with the barn behind (`farm`), two staggered rows
@@ -171,7 +170,7 @@ cladding (`STYLE_RULES` and `FACADES` in `scripts/drawings.mjs`):
 `"bathrooms"` = WCs and bathrooms in the drawings, `"parking"` = bays on the masterplan, `"garage"` and `"pool"`
 false; optional `"ratio"` up to 4.0 (a resort hotel is long and narrow). `npm run validate` prints the exact bathrooms,
 parking, rooms, seats and flats. Identical upper floors are drawn once as the typical floor plan. Price rule:
-~$900 + $1.5/m². Take the design families from the commercial section of `docs/design-references.md`; the render
+30 per m² of `areaM2`. Take the design families from the commercial section of `docs/design-references.md`; the render
 shows the building with the storeys, cladding and canopy of the drawings, eye-level or slightly raised, with no
 signage, logos or text.
 
@@ -181,7 +180,7 @@ An entry with `"style": "interior"` sells an interior design concept instead of 
 `"interior": { "type": "flat" | "penthouse" | "residence" | "cafe" | "workspace" | "boutique" | "clinic" | "salon",
 "palette": "<family id>" }`, `"inspiration"` = the palette id, `"roof": "flat"`, no garage or pool. `areaM2` is the
 floor area of the space; bedrooms and bathrooms (WCs for commercial spaces) must match the generated layout
-(`npm run validate` prints them); the price rule is ~$300 + $9/m². The package is an interior set: furniture layout,
+(`npm run validate` prints them); the price rule is 30 per m² of `areaM2`. The package is an interior set: furniture layout,
 finishes plan, ceiling and lighting plan per level, interior elevations, a cutaway axonometric, finishes / lighting /
 FF&E schedules and the materials board. Two or three landscape interior renders per project.
 A palette fits only the types it is written for (home palettes: flat, penthouse, residence; each commercial palette:

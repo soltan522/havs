@@ -13,6 +13,14 @@ is in the private Supabase bucket, so the site never takes money for files it ca
 | Stripe | Card, Apple Pay, Google Pay | Only with a company in a Stripe country | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` |
 | PayPal | PayPal | Only with an account that can receive payments | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENV=live` |
 
+## Prices and currencies
+
+Every package costs 30 per m² of its floor area (`lib/pricing.ts`). Vercel tells the site the visitor's country
+(`x-vercel-ip-country`): visitors in Azerbaijan see and pay the amount in **AZN**, everyone else in **USD**. Lemon
+Squeezy (USD store), PayPal and NOWPayments cannot take manat, so a visitor from Azerbaijan is offered only the methods
+that can: a card through Stripe and the bank transfer (`providersFor` in `lib/providers.ts`). `DEFAULT_CURRENCY` is no
+longer used.
+
 ## 0. Files first
 
 The packages (PDF, DWG, DXF) must be in the bucket `plans-private`. Add the repository secrets `SUPABASE_URL` and

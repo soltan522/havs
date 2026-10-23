@@ -1,3 +1,4 @@
+import type { Currency } from "./pricing";
 import type { Provider } from "./store";
 
 /**
@@ -17,5 +18,13 @@ export function availableProviders(): Provider[] {
   return list;
 }
 
+/**
+ * Methods that can charge an order in manat. Lemon Squeezy charges in its store currency (US dollars), and PayPal and
+ * NOWPayments do not take AZN, so visitors from Azerbaijan pay by card through Stripe or by bank transfer.
+ */
+const MANAT_PROVIDERS: Provider[] = ["stripe", "bank"];
+
+/** The switched-on methods that can take a payment in the visitor's currency. */
+export const providersFor = (cur: Currency) => availableProviders().filter((p) => cur === "USD" || MANAT_PROVIDERS.includes(p));
+
 export const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-export const currency = () => process.env.DEFAULT_CURRENCY ?? "USD";

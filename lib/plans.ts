@@ -1,5 +1,6 @@
 import type { Locale } from "./i18n";
 import { PREVIEWS, type SheetKind } from "./previews.generated";
+import { planPriceCents, pricedAreaM2, PRICE_PER_M2, type Currency } from "./pricing";
 import PACKAGES from "@/data/packages.json";
 import RAW from "@/data/plans.json";
 
@@ -74,6 +75,7 @@ export type Plan = {
   bathrooms: number;
   garage: boolean;
   pool: boolean;
+  /** Area × units × PRICE_PER_M2, in minor units; the same number in AZN and USD (lib/pricing.ts, checked by the validator). */
   priceCents: number;
   published: boolean;
   /** Concept project (AI-assisted visualisation and generated concept drawings): labelled as such on the site. */
@@ -128,6 +130,7 @@ function fileKeys(slug: string, pkg: PlanPackage | undefined) {
 // Catalogue lives in data/plans.json so the preview script can read the same data.
 export const PLANS: Plan[] = (RAW as RawPlan[]).map((p) => ({
   ...p,
+  priceCents: planPriceCents(p),
   gallery: PREVIEWS[p.slug]?.sheets ?? [],
   cover: PREVIEWS[p.slug]?.cover ?? "",
   hover: PREVIEWS[p.slug]?.hover ?? "",
@@ -234,10 +237,22 @@ export function deliverables(plan: Plan): { kind: PackageFile["kind"]; key: stri
 export const publishedPlans = () => PLANS.filter((p) => p.published && p.cover);
 export const findPlan = (slug: string) => publishedPlans().find((p) => p.slug === slug);
 
+const intlLocale = (locale: Locale) => (locale === "az" ? "az-AZ" : locale === "ru" ? "ru-RU" : "en-US");
+
+/** "9 000 AZN" in manat (written with the code, as customers in Azerbaijan expect); "$9,000" / "9 000 $" in dollars. */
 export function formatPrice(cents: number, locale: Locale, currency: string): string {
-  return new Intl.NumberFormat(locale === "az" ? "az-AZ" : locale === "ru" ? "ru-RU" : "en-US", {
+  if (currency === "AZN") return `${new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 0 }).format(cents / 100)} AZN`;
+  return new Intl.NumberFormat(intlLocale(locale), {
     style: "currency",
     currency,
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
   }).format(cents / 100);
+}
+
+/** How the price is made up: "1 260 m² × 30 AZN/m²" (all houses of a multi-unit project). */
+export function priceBasis(plan: Plan, locale: Locale, currency: Currency): string {
+  const area = new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 0 }).format(pricedAreaM2(plan));
+  const rate = formatPrice(PRICE_PER_M2 * 100, locale, currency);
+  return `${area} m² × ${rate}/m²`;
 }

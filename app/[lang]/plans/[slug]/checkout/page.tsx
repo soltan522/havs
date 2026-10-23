@@ -6,8 +6,9 @@ import PackagePanel from "@/components/PackagePanel";
 import { PaymentIcon } from "@/components/PaymentIcon";
 import { COPY } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { areaText, coverOf, deliverables, findPlan, formatPrice, isCommercial, planLabel } from "@/lib/plans";
-import { availableProviders, currency } from "@/lib/providers";
+import { visitorCurrency } from "@/lib/geo";
+import { areaText, coverOf, deliverables, findPlan, formatPrice, isCommercial, planLabel, priceBasis } from "@/lib/plans";
+import { providersFor } from "@/lib/providers";
 import { objectsExist } from "@/lib/store";
 
 /**
@@ -30,9 +31,10 @@ export default async function CheckoutPage({
   const t = UI[lang];
   const c = COPY[lang];
   const k = c.checkout;
-  const providers = availableProviders();
+  const cur = await visitorCurrency();
+  const providers = providersFor(cur);
   const stored = providers.length > 0 && (await objectsExist(deliverables(plan).map((d) => d.key)));
-  const price = formatPrice(plan.priceCents, lang, currency());
+  const price = formatPrice(plan.priceCents, lang, cur);
   const errorText = error && error in k.errors ? k.errors[error as keyof typeof k.errors] : null;
 
   return (
@@ -73,6 +75,8 @@ export default async function CheckoutPage({
             </div>
             <p className="pay-sub muted small">
               {plan.title[lang]} · {t.formats}
+              <br />
+              {priceBasis(plan, lang, cur)}
             </p>
             {errorText && (
               <p className="pay-error" role="alert">

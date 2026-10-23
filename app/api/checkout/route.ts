@@ -6,7 +6,8 @@ import { createLemonCheckout } from "@/lib/payments/lemonsqueezy";
 import { createStripeCheckout } from "@/lib/payments/stripe";
 import { createPayPalOrder } from "@/lib/payments/paypal";
 import { createCryptoInvoice } from "@/lib/payments/crypto";
-import { availableProviders, currency, siteUrl } from "@/lib/providers";
+import { requestCurrency } from "@/lib/geo";
+import { providersFor, siteUrl } from "@/lib/providers";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -25,12 +26,13 @@ export async function POST(request: Request) {
   const checkoutPage = `${base}/${locale}/plans/${plan.slug}/checkout`;
   const back = (error: string) => NextResponse.redirect(`${checkoutPage}?error=${error}`, 303);
 
-  if (!availableProviders().includes(provider)) return back("method");
+  // The price shown and charged follows the visitor's country: 30 AZN/m² in Azerbaijan, 30 USD/m² elsewhere.
+  const cur = requestCurrency(request);
+  if (!providersFor(cur).includes(provider)) return back("method");
   if (email.length > 254 || !EMAIL.test(email)) return back("email");
   // Never take money for files that cannot be delivered: every file must already be in the private bucket.
   if (!(await objectsExist(deliverables(plan).map((d) => d.key)))) return back("unavailable");
 
-  const cur = currency();
   let order;
   try {
     order = await createOrder({ plan_slug: plan.slug, provider, amount_cents: plan.priceCents, currency: cur, locale, buyer_email: email });
