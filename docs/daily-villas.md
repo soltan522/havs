@@ -188,6 +188,36 @@ its own type). A commercial space or a three-bedroom flat / penthouse may add `"
 room arrangement, and any
 interior may set `"ratio"` / `"mirror"` so two projects of the same type do not share one plan.
 
+## Custom-drawn entries (only when asked)
+
+A sheet set drawn outside the generator (the first is the Avropa Qapıları door factory, `avropa-zavod-118`: a whole
+site with several buildings on seven A1 sheets) is listed as a **custom-drawn** entry. Nothing in the generator draws,
+counts or packages it; the listing carries its own figures and previews.
+
+- **Style and kind.** The style has `custom: true` in `STYLE_RULES` (`scripts/drawings.mjs`), with its project kind in
+  `PROJECT_RULES` (`factory` / `industrial`, `"units": 1`); the entry sets `"drawings": "custom"` (`npm run validate`
+  requires both to agree). `areaM2` is the gross floor area of all buildings, `"siteM2"` the plot, `"staff"` the
+  workplaces, `"parking"` the car bays; `"bedrooms": 0`, `"garage"` and `"pool"` false, no `"layout"` or `"footprint"`.
+  Price rule as everywhere: 30 per m² of `areaM2`.
+- **Sheet titles.** `"sheetTitles"` names each sheet in az / en / ru, one title per sheet, in sheet order
+  (`private-assets/<slug>/01.jpg` first). The plan page labels the previews with these titles and the sheet numbers
+  (A1-01 …).
+- **Files.** Concept renders go in `renders/<slug>/` (required, committed; the first is the catalogue card). The
+  full-resolution sheet images go in `private-assets/<slug>/` (git-ignored). The PDF, DXF or DWG set never goes in
+  the repository (`.gitignore` blocks them; the validator rejects any in a public folder). Before the previews are
+  built, blur people's faces and remove third-party material (map screenshots, logos, private addresses) from the
+  private copies unless the owner has cleared them for publication.
+- **Previews.** Run `npm run previews -- --only <slug>` on a machine that has `private-assets/<slug>/` and commit
+  `public/plans/<slug>/` and `lib/previews.generated.ts`. CI cannot rebuild them (the originals are not in the
+  repository): it keeps the committed previews and fails if `public/plans/<slug>/` is missing.
+- **No package, no online sale.** `build-packages.mjs` skips these entries, so nothing goes in `data/packages.json` or
+  `renders/manifest.json`. The plan page shows the design price and a request button; the checkout page is an order
+  request with a contact link, and `/api/checkout` refuses them even if files are uploaded to the bucket. The full set
+  is supplied on request.
+- **Map model (optional).** A site model sets `"model": { …, "replaces": [city building ids], "zoom": 16.8 }`:
+  `replaces` hides the city-layer buildings it stands in place of (every building with a real share of its footprint
+  inside the site boundary), `zoom` is the close-up that fits the whole site.
+
 ## Do not
 
 - push to `main` directly, rewrite history, or delete anything except the branch the Action already deletes;

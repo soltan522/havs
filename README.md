@@ -16,6 +16,8 @@ Next.js storefront for villa plans and exterior designs (AZ / EN / RU). Deployed
    This writes JPEGs to `public/plans/<slug>/` and updates `lib/previews.generated.ts`: renders first (the first one
    becomes the catalogue card), then the watermarked images — or, for plans without private originals, the generated
    concept sheets. Commit `public/plans/`, `renders/` and `lib/previews.generated.ts`.
+   A sheet set drawn outside the generator (`"drawings": "custom"`) has its own rules: see "Custom-drawn entries" in
+   [`docs/daily-villas.md`](docs/daily-villas.md).
 4. Set `published: true` (and `demo: false` for a non-concept plan) and deploy.
 
 Plans with `demo: true` are concept projects: they show a concept visualisation plus generated concept sheets
