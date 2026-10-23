@@ -1,6 +1,6 @@
 # Daily villas — runbook
 
-Every day ten new **sample villas** are added to the havs.dev catalogue: a photoreal concept render plus the
+Every day twenty new **sample villas** are added to the havs.dev catalogue: a photoreal concept render plus the
 generated concept sheets (site plan, floor plans, south elevation, isometric). This file is the procedure the
 scheduled routine follows; a person can follow it too.
 
@@ -10,7 +10,7 @@ Never present them as built houses or real client work.
 
 ## How the pipeline works
 
-1. You add ten entries to `data/plans.json` and list their render URLs in `renders/manifest.json`,
+1. You add twenty entries to `data/plans.json` and list their render URLs in `renders/manifest.json`,
    then push a branch `auto/villas-YYYYMMDD` (today's date, UTC).
 2. The GitHub Action **Publish new villas** (`.github/workflows/publish-villas.yml`) downloads the renders,
    runs `npm run previews -- --missing` and `npm run validate -- --require-renders`, builds each new villa's
@@ -30,16 +30,18 @@ git fetch origin main && git checkout -B auto/villas-$(date -u +%Y%m%d) FETCH_HE
 npm ci
 ```
 
-1. **Choose ten concepts.** Read `docs/design-references.md` — the design families taken from the reference
+1. **Choose twenty concepts.** Read `docs/design-references.md` — the design families taken from the reference
    developments (Bilgah, Sea Breeze, Mərdəkan, Istanbul) and the rotation rules — and `data/plans.json` (newest
    entries are at the end). Each villa takes one family (`"inspiration"`) and stores its render prompt (`"prompt"`).
-   Pick a mix of ten:
-   - at least three pitched-roof villas (`tuscan`, `mediterranean`, `farmhouse`, `yali` or `chalet`),
-   - at least four flat-roof contemporary villas (`modern`, `minimal`, `coastal`, `luxury`, `pavilion`, `absheron`
+   Pick a mix of twenty:
+   - at least six pitched-roof villas (`tuscan`, `mediterranean`, `farmhouse`, `yali` or `chalet`),
+   - at least eight flat-roof contemporary villas (`modern`, `minimal`, `coastal`, `luxury`, `pavilion`, `absheron`
      or `noir`),
    - the rest any style, including `duplex`;
-   - at least four single-storey or three-level villas, so the catalogue does not fill up with two-storey houses;
-   - at most two villas of one style and at most two of one design family in the same day.
+   - at least eight single-storey or three-level villas, so the catalogue does not fill up with two-storey houses
+     (single-storey plans have two or three bedrooms; when no free single-storey or three-level design key is left,
+     take fewer and say so in the report);
+   - at most three villas of one style and at most two of one design family in the same day.
    Before writing, list the free design keys (style + floors + bedrooms + garage + pool not used yet) and pick from
    them; `npm run validate` prints the exact bedroom and bathroom counts the generator produces.
    **Nothing may repeat an existing design** — `npm run validate` enforces it and fails on:
@@ -49,7 +51,7 @@ npm ci
    render that looks like a copy of an existing one. It warns when
    more than two villas share one floor-plan layout — then change bedrooms, garage, pool or set `"mirror": true`
    (the mirrored variant flips the plan left-to-right, with the living rooms next to the garage).
-   Read the titles and summaries of the last ten villas and write something different: other materials, other
+   Read the titles and summaries of the last twenty villas and write something different: other materials, other
    setting, other outdoor features. Allowed values per style are in `STYLE_RULES` in `scripts/drawings.mjs`
    (roofs, floors; styles marked `projectOnly` are not single villas); area per floor must be 80–320 m².
    Optional `ratio` (footprint width / depth, 1.0–2.2) varies the massing between villas of the same style, and
