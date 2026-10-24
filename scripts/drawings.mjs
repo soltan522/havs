@@ -1531,7 +1531,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
   const rows = [
     ["PROJECT", plan.title.en.toUpperCase()],
     ["DRAWING", drawing],
-    ["SCALE", scaleNote],
+    ["SCALE", preview && scaleNote === "GRAPHIC SCALE" ? "NOT TO SCALE" : scaleNote],
     ["SHEET / REV", `${sheetNo} / A`],
     ["GROSS AREA", plan.project?.units > 1 ? `${plan.project.units} × ${plan.areaM2} = ${plan.project.units * plan.areaM2} m²` : `${plan.areaM2} m²`],
   ];
@@ -2155,7 +2155,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     if (site.deck) {
       const { deck, pool } = site;
       g += rect(deck.x, deck.y, deck.w, deck.h, `fill="#ebe4d6"`) + rect(deck.x, deck.y, deck.w, deck.h, `fill="url(#p-paving)" stroke="${MID}" stroke-width="0.8"`);
-      g += planPool(px.X(pool.x), px.Y(pool.y), pool.w * s, pool.d * s, `POOL ${pool.w.toFixed(1)} × ${pool.d.toFixed(1)}`);
+      g += planPool(px.X(pool.x), px.Y(pool.y), pool.w * s, pool.d * s, preview ? "POOL" : `POOL ${pool.w.toFixed(1)} × ${pool.d.toFixed(1)}`);
       // planting bed between the deck and the entrance path
       const [b0, b1] = deck.x < site.entryX ? [deck.x + deck.w + 0.4, site.entryX - 1.0] : [site.entryX + 1.0, deck.x - 0.4];
       if (b1 - b0 >= 2) {
@@ -2196,7 +2196,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     g += `<path d="M${f1(px.X(t.x0))} ${f1(px.Y(D))} V${f1(px.Y(D + t.depth))} H${f1(px.X(t.x1))} V${f1(px.Y(D))}" fill="none" stroke="#7fa3ad" stroke-width="3.2"/>`;
     g += `<path d="M${f1(px.X(t.x0))} ${f1(px.Y(D))} V${f1(px.Y(D + t.depth))} H${f1(px.X(t.x1))} V${f1(px.Y(D))}" fill="none" stroke="${INK}" stroke-width="0.6"/>`;
     g += text((t.x0 + t.x1) / 2, D + t.depth / 2 + 0.15, t.label);
-    g += `<text x="${f1(px.X(t.x1) + 6)}" y="${f1(px.Y(D + t.depth) + 12)}" font-family="${FONT}" font-size="9" letter-spacing="1.5" fill="${MID}">GLASS BALUSTRADE h=1.10</text>`;
+    g += `<text x="${f1(px.X(t.x1) + 6)}" y="${f1(px.Y(D + t.depth) + 12)}" font-family="${FONT}" font-size="9" letter-spacing="1.5" fill="${MID}">GLASS BALUSTRADE${preview ? "" : " h=1.10"}</text>`;
   }
 
   // ---- walls: poché footprint, then cut out clear room areas
@@ -2332,8 +2332,8 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     const tw = label.length * fs * 0.68 + 16;
     g += `<rect x="${f1(cx - tw / 2)}" y="${f1(cy - fs - 4)}" width="${f1(tw)}" height="${fs * 2 + 14}" fill="${PAPER}" fill-opacity=".92"/>`;
     g += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
-    const second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? `CH ${roomFinish(model, sp).ch.toFixed(2)}` : `${roomNo[sp.id]} · ${area} m²`;
-    if (sp.kind !== "void") g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
+    const second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? (preview ? "" : `CH ${roomFinish(model, sp).ch.toFixed(2)}`) : `${roomNo[sp.id]} · ${area} m²`;
+    if (sp.kind !== "void" && second) g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
   }
   // finished floor level tag
   const ffl = levelIndex === 0 ? "±0.000" : `+${(levelIndex * ST).toFixed(3)}`;
@@ -2344,7 +2344,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   if (mode !== "ceiling") g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
     <circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
     <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
-    <text x="10" y="3">FFL ${ffl}</text></g>`;
+    <text x="10" y="3">${preview ? "FFL" : `FFL ${ffl}`}</text></g>`;
 
   // ---- dimension chains: detailed at 0.9 m, overall at 1.6 m (left out of public previews)
   if (!preview) {
@@ -2359,7 +2359,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   const gia = level.spaces.reduce((sum, sp) => sum + (sp.kind === "void" ? 0 : inner(model, sp).w * inner(model, sp).h), 0);
   const what = mode === "finish" ? "FLOOR FINISHES, CODES AS ON THE MATERIALS BOARD" : mode === "ceiling" ? "REFLECTED CEILING · LIGHTING · CLEAR HEIGHTS" : `NET INTERNAL AREA ${gia.toFixed(1)} m²`;
   g += sheetTitle(drawingName, `${plan.title.en.toUpperCase()}${unitNote(model)} · ${what} · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
-  g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
+  if (!preview) g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
   let legend;
   if (mode === "finish") {
     const used = [...new Set(level.spaces.filter((sp) => sp.kind !== "void" && sp.kind !== "stair").map((sp) => roomFinish(model, sp).floor))].sort();
@@ -2383,7 +2383,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
 // ------------------------------------------------------------------ site plan sheet
 
 /** Roof plan of one house (and its garage) through the plan-metre mappers X, Y at s px per metre. */
-function roofPlan(model, X, Y, s, { notes = true } = {}) {
+function roofPlan(model, X, Y, s, { notes = true, levels = true } = {}) {
   const { W, D, plan, spec, site } = model;
   const gW = model.garage?.w ?? 0;
   const gD = model.garage?.d ?? 0;
@@ -2423,7 +2423,7 @@ function roofPlan(model, X, Y, s, { notes = true } = {}) {
       for (let i = 0; i < 3; i++) g += rect(W * 0.62 + i * 3.4, D * 0.06, 2.6, 1.8, `fill="#c7c4bd" stroke="${INK}" stroke-width="0.9"`);
     }
     if (spec.roofTerrace) g += rect(W * 0.12, D * 0.15, W * 0.55, D * 0.6, `fill="#e6dfd2" stroke="#7fa3ad" stroke-width="2.2"`) + rect(W * 0.12, D * 0.15, W * 0.55, D * 0.6, `fill="url(#p-paving)"`) + label(W * 0.395, D * 0.47, "ROOF TERRACE", 9, INK);
-    if (notes) g += label(W / 2, D * (spec.roofTerrace ? 0.88 : 0.52), `FLAT ROOF  +${(model.wallTop + 0.45).toFixed(2)}`, 10, INK);
+    if (notes) g += label(W / 2, D * (spec.roofTerrace ? 0.88 : 0.52), levels ? `FLAT ROOF  +${(model.wallTop + 0.45).toFixed(2)}` : "FLAT ROOF", 10, INK);
   } else {
     const x0 = -ov, x1 = W + ov, y0 = -ov, y1 = D + ov;
     const poly = (pts, fill, pat) => `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="${fill}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>` + (pat ? `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="url(#${pat})"/>` : "");
@@ -2443,7 +2443,7 @@ function roofPlan(model, X, Y, s, { notes = true } = {}) {
     }
     if (spec.chimney) g += rect(W * 0.7, D * 0.42, 0.9, 0.9, `fill="#c9b08b" stroke="${INK}" stroke-width="1"`);
     if (level0(model).veranda) g += rect(-0.2, D, W + 0.4, site.T, `fill="none" stroke="${INK}" stroke-width="0.8" stroke-dasharray="6 3"`);
-    if (notes) g += `<rect x="${X(W / 2) - 52}" y="${Y(D * 0.5) - 9}" width="104" height="18" fill="${PAPER}" fill-opacity=".85"/><text x="${X(W / 2)}" y="${Y(D * 0.5) + 4}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${INK}">RIDGE +${model.H.toFixed(2)}</text>`;
+    if (notes) g += `<rect x="${X(W / 2) - 52}" y="${Y(D * 0.5) - 9}" width="104" height="18" fill="${PAPER}" fill-opacity=".85"/><text x="${X(W / 2)}" y="${Y(D * 0.5) + 4}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${INK}">${levels ? `RIDGE +${model.H.toFixed(2)}` : "RIDGE"}</text>`;
   }
   if (model.garage) {
     const gy = D - gD;
@@ -2513,7 +2513,7 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
     g += label(W + gW / 2, (D + plot.y1) / 2 + 1, "DRIVEWAY", 9);
   }
 
-  g += roofPlan(model, X, Y, s);
+  g += roofPlan(model, X, Y, s, { levels: !preview });
 
   // ---- soft landscaping: trees
   const trees = [];
@@ -2544,17 +2544,20 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
   // ---- plot boundary, setbacks and dimensions
   g += rect(plot.x0, plot.y0, PW, PD, `fill="none" stroke="${INK}" stroke-width="1.8" stroke-dasharray="22 5 4 5"`);
   for (const [x, y] of [[plot.x0, plot.y0], [plot.x1, plot.y0], [plot.x1, plot.y1], [plot.x0, plot.y1]]) g += `<circle cx="${X(x)}" cy="${Y(y)}" r="4" fill="${PAPER}" stroke="${INK}" stroke-width="1.2"/>`;
-  g += dimChain([plot.x0, 0, W + gW, plot.x1], plot.y0 - 1.4, s, ox, oy, true, 1);
-  g += dimChain([plot.y0, 0, D, plot.y1], plot.x0 - 1.4, s, ox, oy, false);
+  // public previews leave the dimensions out: the plot chains give the house width and depth
+  if (!preview) {
+    g += dimChain([plot.x0, 0, W + gW, plot.x1], plot.y0 - 1.4, s, ox, oy, true, 1);
+    g += dimChain([plot.y0, 0, D, plot.y1], plot.x0 - 1.4, s, ox, oy, false);
+  }
   g += label(site.entryX, plot.y1 + 1.15, "ENTRY", 9, ACCENT);
   g += `<path d="M${X(site.entryX)} ${Y(plot.y1 + 0.8)} V${Y(plot.y1 - 0.4)} m-5 7 l5 -7 l5 7" fill="none" stroke="${ACCENT}" stroke-width="1.3"/>`;
 
   // site schedule
   const footprint = W * D + gW * gD;
   const plotArea = PW * PD;
-  const rows = [["PLOT (INDICATIVE)", `${PW.toFixed(0)} × ${PD.toFixed(0)} m · ${plotArea.toFixed(0)} m²`], ["BUILT FOOTPRINT", `${footprint.toFixed(0)} m²`], ["SITE COVERAGE", `${((footprint / plotArea) * 100).toFixed(0)} %`], ["GROSS FLOOR AREA", `${plan.areaM2} m²`]];
+  const rows = [["PLOT (INDICATIVE)", preview ? `${plotArea.toFixed(0)} m²` : `${PW.toFixed(0)} × ${PD.toFixed(0)} m · ${plotArea.toFixed(0)} m²`], ["BUILT FOOTPRINT", `${footprint.toFixed(0)} m²`], ["SITE COVERAGE", `${((footprint / plotArea) * 100).toFixed(0)} %`], ["GROSS FLOOR AREA", `${plan.areaM2} m²`]];
   g += sheetTitle("SITE PLAN", `${plan.title.en.toUpperCase()} · ${rows.map(([k, v]) => `${k} ${v}`).slice(1, 3).join(" · ")}`);
-  g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
+  if (!preview) g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
   const schedule = `<text x="${SHEET_W - 330 + 28}" y="${492}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">SITE SCHEDULE</text>` + rows.map(([k, v], i) => `<text x="${SHEET_W - 330 + 28}" y="${530 + i * 44}" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${MID}">${k}</text><text x="${SHEET_W - 330 + 28}" y="${548 + i * 44}" font-family="${FONT}" font-size="14" font-weight="500" fill="${INK}">${esc(v)}</text>`).join("");
   return sheet({ plan, drawing: "SITE PLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true, preview });
 }
@@ -2991,15 +2994,17 @@ function masterplanSheet(model, sheetNo, { preview = false } = {}) {
     else g += `<circle cx="${cx}" cy="${cy}" r="12" fill="${PAPER}" stroke="${INK}" stroke-width="1.1"/><text x="${cx}" y="${f1(cy + 4)}" text-anchor="middle" font-family="${FONT}" font-size="10.5" font-weight="600" fill="${INK}">${String(u.no).padStart(2, "0")}</text>`;
   }
   const unitChain = !preview && project.kind === "row";
-  g += dimChain([plot.x0, plot.x1], plot.y0 - (unitChain ? 3.6 : 2.2), s, ox, oy, true, 1);
-  g += dimChain([plot.y0, plot.y1], plot.x0 - 2.2, s, ox, oy, false);
+  if (!preview) {
+    g += dimChain([plot.x0, plot.x1], plot.y0 - (unitChain ? 3.6 : 2.2), s, ox, oy, true, 1);
+    g += dimChain([plot.y0, plot.y1], plot.x0 - 2.2, s, ox, oy, false);
+  }
   if (unitChain) g += dimChain([plot.x0, ...units.map((u) => u.x), units.length * W, plot.x1], plot.y0 - 1.5, s, ox, oy, true, 1);
 
   // schedule in the title block column
   const plotArea = PW * PD;
   const rows = [
-    ["PLOT (INDICATIVE)", `${PW.toFixed(0)} × ${PD.toFixed(0)} m · ${plotArea >= 10000 ? `${(plotArea / 10000).toFixed(2)} ha` : `${plotArea.toFixed(0)} m²`}`],
-    ...(units.length > 1 ? [["HOUSES", `${units.length} × ${plan.areaM2} m² · ${plan.bedrooms} bedrooms each`]] : [["BUILDING", `${W.toFixed(1)} × ${D.toFixed(1)} m · ${plan.floors > 1 ? `${plan.floors} floors × ` : ""}${model.storey.toFixed(1)} m`]]),
+    ["PLOT (INDICATIVE)", `${preview ? "" : `${PW.toFixed(0)} × ${PD.toFixed(0)} m · `}${plotArea >= 10000 ? `${(plotArea / 10000).toFixed(2)} ha` : `${plotArea.toFixed(0)} m²`}`],
+    ...(units.length > 1 ? [["HOUSES", `${units.length} × ${plan.areaM2} m² · ${plan.bedrooms} bedrooms each`]] : [["BUILDING", preview ? `${plan.floors} ${plan.floors > 1 ? "floors" : "floor"}` : `${W.toFixed(1)} × ${D.toFixed(1)} m · ${plan.floors > 1 ? `${plan.floors} floors × ` : ""}${model.storey.toFixed(1)} m`]]),
     [units.length > 1 ? "TOTAL GROSS FLOOR AREA" : "GROSS FLOOR AREA · PARKING", units.length > 1 ? `${project.totalArea} m²` : `${plan.areaM2} m² · ${project.layout.parking} bays`],
     ["BUILT FOOTPRINT · COVERAGE", `${project.layout.footprint.toFixed(0)} m² · ${((project.layout.footprint / plotArea) * 100).toFixed(0)} %`],
   ];
@@ -3009,7 +3014,7 @@ function masterplanSheet(model, sheetNo, { preview = false } = {}) {
   wrap(project.layout.shared, 38).forEach((line, i) => (schedule += `<text x="${SHEET_W - 330 + 28}" y="${546 + rows.length * 42 + i * 17}" font-family="${FONT}" font-size="12" fill="${INK}">${esc(line)}</text>`));
   const k = s >= 25 ? 1 : s >= 10 ? 2 : s >= 5 ? 5 : 10;
   g += sheetTitle("MASTERPLAN", `${plan.title.en.toUpperCase()} · ${units.length > 1 ? `${units.length} ${PROJECT_WORD[project.kind]} · ` : ""}${kindLabel(model)}`);
-  g += scaleBar(SHEET_W - 330 - 60 - 5 * k * s, SHEET_H - 72, s, k);
+  if (!preview) g += scaleBar(SHEET_W - 330 - 60 - 5 * k * s, SHEET_H - 72, s, k);
   return sheet({ plan, drawing: "MASTERPLAN", sheetNo, scaleNote: "GRAPHIC SCALE", body: g + schedule, defs: materialDefs(s, seed), north: true, preview });
 }
 
@@ -3178,7 +3183,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   env += `<line x1="${X(-leftPad + 0.3)}" y1="${Y(0)}" x2="${X(totalW + rightPad - 0.3)}" y2="${Y(0)}" stroke="${INK}" stroke-width="2.4"/>`;
   if (model.basement) {
     g += box(0, -3.2, W, 3.2, PAPER, `stroke="${INK}" stroke-width="1.2" stroke-dasharray="10 6"`);
-    g += `<text x="${X(W / 2)}" y="${Y(-1.75)}" text-anchor="middle" font-family="${FONT}" font-size="11" letter-spacing="2" fill="${MID}">LOWER LEVEL −3.30 · SPA · CINEMA · OPENS TO REAR GARDEN</text>`;
+    g += `<text x="${X(W / 2)}" y="${Y(-1.75)}" text-anchor="middle" font-family="${FONT}" font-size="11" letter-spacing="2" fill="${MID}">LOWER LEVEL${preview || bare ? "" : " −3.30"} · SPA · CINEMA · OPENS TO REAR GARDEN</text>`;
   }
 
   // ---- background trees (behind the house; in the rear gardens of a terrace)
@@ -3528,7 +3533,7 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     // level markers
     const lx = X(totalW + rightPad - 1.9);
     const levelsZ = [...(model.basement ? [-3.3] : []), 0, ...Array.from({ length: above - 1 }, (_, i) => (i + 1) * ST), plan.roof === "flat" ? wallTop + 0.45 : H];
-    levelsZ.forEach((z) => {
+    if (!preview) levelsZ.forEach((z) => {
       out += `<g font-family="${FONT}" font-size="11" fill="${INK}"><line x1="${lx - 30}" y1="${Y(z)}" x2="${lx + 70}" y2="${Y(z)}" stroke="${INK}" stroke-width="0.7" stroke-dasharray="${z === 0 ? "none" : "6 3"}"/>
         <path d="M${lx} ${Y(z)} l-7 -10 h14 z" fill="${z === 0 ? INK : "none"}" stroke="${INK}" stroke-width="0.9"/>
         <text x="${lx + 12}" y="${Y(z) - 5}">${z === 0 ? "±0.00" : `${z > 0 ? "+" : "−"}${Math.abs(z).toFixed(2)}`}</text></g>`;
@@ -3550,9 +3555,10 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
     out += overlay;
     const defs = materialDefs(s, seed);
     const elevName = row > 1 ? "STREET ELEVATION" : "SOUTH ELEVATION";
-    const what = row > 1 ? `${row} HOUSES IN MIRRORED PAIRS · LEVELS IN METRES` : multi(model) ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO. · LEVELS IN METRES ABOVE GROUND FLOOR` : `${STYLE_EN[plan.style]} · LEVELS IN METRES ABOVE FINISHED GROUND FLOOR`;
+    const levelsNote = preview ? "" : row > 1 ? " · LEVELS IN METRES" : multi(model) ? " · LEVELS IN METRES ABOVE GROUND FLOOR" : " · LEVELS IN METRES ABOVE FINISHED GROUND FLOOR";
+    const what = (row > 1 ? `${row} HOUSES IN MIRRORED PAIRS` : multi(model) ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO.` : STYLE_EN[plan.style]) + levelsNote;
     out += sheetTitle(elevName, `${plan.title.en.toUpperCase()} · ${what}`);
-    out += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
+    if (!preview) out += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
     const legend = keys.map((k) => ({ fill: MAT[k].fill === "#7f949f" ? "url(#glass)" : MAT[k].fill, pattern: MAT[k].pattern ? `p-${MAT[k].pattern}` : null, label: MAT[k].label }));
     legend.title = "MATERIALS";
     return sheet({ plan, drawing: elevName, sheetNo, scaleNote: "GRAPHIC SCALE", body: out, defs, north: false, legend, preview });
@@ -3598,8 +3604,8 @@ export function axonometricSheet(model, sheetNo, { preview = false, typical = fa
   let g = "";
   // ground plate
   g += `<polygon points="${[P(-2.5, frontB - 1, 0), P(W + gW + 2.5, frontB - 1, 0), P(W + gW + 2.5, D + 2.5, 0), P(-2.5, D + 2.5, 0)].join(" ")}" fill="#e6e7d8" fill-opacity=".8"/>`;
-  for (let x = -2; x <= W + gW + 2; x += 1) g += `<polyline points="${P(x, frontB - 1, 0)} ${P(x, D + 2.5, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
-  for (let b = Math.ceil(frontB - 1); b <= D + 2; b += 1) g += `<polyline points="${P(-2.5, b, 0)} ${P(W + gW + 2.5, b, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
+  if (!preview) for (let x = -2; x <= W + gW + 2; x += 1) g += `<polyline points="${P(x, frontB - 1, 0)} ${P(x, D + 2.5, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
+  if (!preview) for (let b = Math.ceil(frontB - 1); b <= D + 2; b += 1) g += `<polyline points="${P(-2.5, b, 0)} ${P(W + gW + 2.5, b, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
   g += isoGround(model, P) + isoHouse(model, P);
 
   const what = multi(model) ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO.` : STYLE_EN[plan.style];
@@ -5949,7 +5955,7 @@ function elevationPicks(model) {
 }
 
 /** One wall elevation drawn into a panel (x0, y0 = top-left, pw × ph px). */
-function wallElevation(model, { kind, sp }, x0, y0, pw, ph, letter) {
+function wallElevation(model, { kind, sp }, x0, y0, pw, ph, letter, preview = false) {
   const r = inner(model, sp);
   const wallW = Math.min(Math.max(r.w, 2.4), 8.5);
   const H = roomFinish(model, sp).ch;
@@ -6135,16 +6141,16 @@ function wallElevation(model, { kind, sp }, x0, y0, pw, ph, letter) {
   g += `<rect x="${X(-0.4)}" y="${Y(0)}" width="${f1((wallW + 0.8) * s)}" height="8" fill="url(#p-earth)"/>`;
   // material tags
   for (const [tx, tz, code] of tags) g += `<g font-family="${FONT}"><circle cx="${X(tx)}" cy="${Y(tz)}" r="10" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><text x="${X(tx)}" y="${f1(+Y(tz) + 3.5)}" text-anchor="middle" font-size="8.5" font-weight="600" fill="${INK}">${code}</text></g>`;
-  // dimensions: width below, ceiling height on the left
+  // dimensions: width below, ceiling height on the left (left out of public previews)
   const dy = +Y(0) + 26;
-  g += `<g stroke="${INK}" stroke-width="0.7" font-family="${FONT}" font-size="10" fill="${INK}"><line x1="${X(0)}" y1="${dy}" x2="${X(wallW)}" y2="${dy}"/><line x1="${X(0)}" y1="${dy - 6}" x2="${X(0)}" y2="${dy + 6}"/><line x1="${X(wallW)}" y1="${dy - 6}" x2="${X(wallW)}" y2="${dy + 6}"/>
+  if (!preview) g += `<g stroke="${INK}" stroke-width="0.7" font-family="${FONT}" font-size="10" fill="${INK}"><line x1="${X(0)}" y1="${dy}" x2="${X(wallW)}" y2="${dy}"/><line x1="${X(0)}" y1="${dy - 6}" x2="${X(0)}" y2="${dy + 6}"/><line x1="${X(wallW)}" y1="${dy - 6}" x2="${X(wallW)}" y2="${dy + 6}"/>
     <text x="${f1((+X(0) + +X(wallW)) / 2)}" y="${dy - 5}" text-anchor="middle" stroke="none">${(wallW * 1000).toFixed(0)}</text>
     <line x1="${f1(+X(0) - 26)}" y1="${Y(0)}" x2="${f1(+X(0) - 26)}" y2="${Y(H)}"/><line x1="${f1(+X(0) - 32)}" y1="${Y(H)}" x2="${f1(+X(0) - 20)}" y2="${Y(H)}"/><line x1="${f1(+X(0) - 32)}" y1="${Y(0)}" x2="${f1(+X(0) - 20)}" y2="${Y(0)}"/>
     <text x="${f1(+X(0) - 30)}" y="${f1((+Y(0) + +Y(H)) / 2)}" text-anchor="middle" stroke="none" transform="rotate(-90 ${f1(+X(0) - 30)} ${f1((+Y(0) + +Y(H)) / 2)})">CH ${(H * 1000).toFixed(0)}</text></g>`;
   // panel title
   g += `<g font-family="${FONT}"><circle cx="${x0 + 18}" cy="${y0 + 14}" r="13" fill="none" stroke="${INK}" stroke-width="1"/><text x="${x0 + 18}" y="${y0 + 19}" text-anchor="middle" font-size="13" font-weight="600" fill="${INK}">${letter}</text>
     <text x="${x0 + 40}" y="${y0 + 12}" font-size="12" font-weight="600" letter-spacing="1.5" fill="${INK}">${esc(sp.label)} — ${ELEVATIONS[kind]}</text>
-    <text x="${x0 + 40}" y="${y0 + 28}" font-size="10" letter-spacing="1.2" fill="${MID}">INTERIOR ELEVATION · DIMENSIONS IN MILLIMETRES</text></g>`;
+    <text x="${x0 + 40}" y="${y0 + 28}" font-size="10" letter-spacing="1.2" fill="${MID}">INTERIOR ELEVATION · ${preview ? "PREVIEW" : "DIMENSIONS IN MILLIMETRES"}</text></g>`;
   return g;
 }
 
@@ -6154,7 +6160,7 @@ export function interiorElevationsSheet(model, sheetNo, { preview = false } = {}
   const areaW = SHEET_W - 330 - 36 - 50, areaH = SHEET_H - 72 - 130;
   const pw = areaW / 2, ph = areaH / 2;
   let g = "";
-  picks.forEach((pk, i) => (g += wallElevation(model, pk, 36 + 24 + (i % 2) * pw, 36 + 22 + Math.floor(i / 2) * ph, pw, ph, "ABCD"[i])));
+  picks.forEach((pk, i) => (g += wallElevation(model, pk, 36 + 24 + (i % 2) * pw, 36 + 22 + Math.floor(i / 2) * ph, pw, ph, "ABCD"[i], preview)));
   const legend = paletteOf(model).materials.map((m) => ({ fill: m.fill, pattern: m.pattern && m.pattern !== "plain" ? `ip-${m.pattern}` : null, label: `${m.code}  ${m.name.split(",")[0]}` }));
   legend.title = "MATERIALS";
   g += sheetTitle("INTERIOR ELEVATIONS", `${plan.title.en.toUpperCase()} · ${paletteOf(model).name} · MATERIAL CODES AS ON THE MATERIALS BOARD (A-501)`);
