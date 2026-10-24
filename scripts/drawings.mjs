@@ -1531,7 +1531,7 @@ function sheet({ plan, drawing, sheetNo, scaleNote, body, defs = "", north, lege
   const rows = [
     ["PROJECT", plan.title.en.toUpperCase()],
     ["DRAWING", drawing],
-    ["SCALE", preview && scaleNote === "GRAPHIC SCALE" ? "NOT TO SCALE" : scaleNote],
+    ["SCALE", preview && scaleNote.startsWith("GRAPHIC") ? "NOT TO SCALE" : scaleNote],
     ["SHEET / REV", `${sheetNo} / A`],
     ["GROSS AREA", plan.project?.units > 1 ? `${plan.project.units} × ${plan.areaM2} = ${plan.project.units * plan.areaM2} m²` : `${plan.areaM2} m²`],
   ];
