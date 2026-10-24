@@ -113,7 +113,7 @@ for (const plan of selected) {
       else await render(sh.svg({ preview: true }), path.join(outDir, `${sh.kind}.jpg`));
     }
   } else {
-    // public previews: watermarked, without dimension chains — the full sheets are only in the paid package
+    // public previews: watermarked, without dimensions, level heights or a scale bar — the full sheets are only in the paid package
     const preview = { preview: true };
     await render(sitePlanSheet(model, "A-001", preview), path.join(outDir, "site.jpg"));
     // one sheet per level; a run of identical typical floors is drawn once (typical.jpg)
@@ -126,7 +126,7 @@ for (const plan of selected) {
 
   // 3. card images: the first render (or first image), and the rendered elevation on hover
   // (an interior shows its cutaway on hover instead of the building's elevation)
-  const hover = custom ? path.join(RENDERS, slug, renders[1] ?? renders[0]) : model.interior ? cutawaySheet(model, "", { bare: true }) : elevationSheet(model, "", true);
+  const hover = custom ? path.join(RENDERS, slug, renders[1] ?? renders[0]) : model.interior ? cutawaySheet(model, "", { bare: true }) : elevationSheet(model, "", true, { preview: true });
   const coverSrc = renders.length ? path.join(RENDERS, slug, renders[0]) : sources.length ? path.join(SOURCE, slug, sources[0]) : hover;
   await card(coverSrc, path.join(outDir, "cover.jpg"));
   await card(hover, path.join(outDir, "cover-2.jpg"));
