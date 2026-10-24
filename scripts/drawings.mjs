@@ -2330,9 +2330,9 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     const fs = inn.w * s < 90 ? 9 : 11;
     const label = inn.w * s < 70 && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label;
     const tw = label.length * fs * 0.68 + 16;
-    g += `<rect x="${f1(cx - tw / 2)}" y="${f1(cy - fs - 4)}" width="${f1(tw)}" height="${fs * 2 + 14}" fill="${PAPER}" fill-opacity=".92"/>`;
-    g += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
     const second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? (preview ? "" : `CH ${roomFinish(model, sp).ch.toFixed(2)}`) : `${roomNo[sp.id]} · ${area} m²`;
+    g += `<rect x="${f1(cx - tw / 2)}" y="${f1(cy - fs - 4)}" width="${f1(tw)}" height="${second ? fs * 2 + 14 : fs + 10}" fill="${PAPER}" fill-opacity=".92"/>`;
+    g += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
     if (sp.kind !== "void" && second) g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
   }
   // finished floor level tag
@@ -2341,10 +2341,10 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   const hin = inner(model, hall);
   // a long corridor keeps its room label in the middle, so the tag moves towards its end
   const [tagX, tagY] = (spec.survey || COMMERCIAL_LEVELS[plan.style]) && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
-  if (mode !== "ceiling") g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
+  if (mode !== "ceiling" && !preview) g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
     <circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
     <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
-    <text x="10" y="3">${preview ? "FFL" : `FFL ${ffl}`}</text></g>`;
+    <text x="10" y="3">FFL ${ffl}</text></g>`;
 
   // ---- dimension chains: detailed at 0.9 m, overall at 1.6 m (left out of public previews)
   if (!preview) {
@@ -2357,7 +2357,7 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   }
 
   const gia = level.spaces.reduce((sum, sp) => sum + (sp.kind === "void" ? 0 : inner(model, sp).w * inner(model, sp).h), 0);
-  const what = mode === "finish" ? "FLOOR FINISHES, CODES AS ON THE MATERIALS BOARD" : mode === "ceiling" ? "REFLECTED CEILING · LIGHTING · CLEAR HEIGHTS" : `NET INTERNAL AREA ${gia.toFixed(1)} m²`;
+  const what = mode === "finish" ? "FLOOR FINISHES, CODES AS ON THE MATERIALS BOARD" : mode === "ceiling" ? `REFLECTED CEILING · LIGHTING${preview ? "" : " · CLEAR HEIGHTS"}` : `NET INTERNAL AREA ${gia.toFixed(1)} m²`;
   g += sheetTitle(drawingName, `${plan.title.en.toUpperCase()}${unitNote(model)} · ${what} · ${preview ? "PREVIEW" : "DIMENSIONS IN METRES"}`);
   if (!preview) g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
   let legend;
@@ -2443,7 +2443,7 @@ function roofPlan(model, X, Y, s, { notes = true, levels = true } = {}) {
     }
     if (spec.chimney) g += rect(W * 0.7, D * 0.42, 0.9, 0.9, `fill="#c9b08b" stroke="${INK}" stroke-width="1"`);
     if (level0(model).veranda) g += rect(-0.2, D, W + 0.4, site.T, `fill="none" stroke="${INK}" stroke-width="0.8" stroke-dasharray="6 3"`);
-    if (notes) g += `<rect x="${X(W / 2) - 52}" y="${Y(D * 0.5) - 9}" width="104" height="18" fill="${PAPER}" fill-opacity=".85"/><text x="${X(W / 2)}" y="${Y(D * 0.5) + 4}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${INK}">${levels ? `RIDGE +${model.H.toFixed(2)}` : "RIDGE"}</text>`;
+    if (notes) g += `<rect x="${X(W / 2) - (levels ? 52 : 30)}" y="${Y(D * 0.5) - 9}" width="${levels ? 104 : 60}" height="18" fill="${PAPER}" fill-opacity=".85"/><text x="${X(W / 2)}" y="${Y(D * 0.5) + 4}" text-anchor="middle" font-family="${FONT}" font-size="10" letter-spacing="2" fill="${INK}">${levels ? `RIDGE +${model.H.toFixed(2)}` : "RIDGE"}</text>`;
   }
   if (model.garage) {
     const gy = D - gD;
