@@ -889,8 +889,9 @@ const KINDS = {
       block(part("mast"), add(tc, mul(dir, 0.15)), along, w, 0.1, y0 - 0.15, y0);
       peak = y0 + h;
     }
-    // the five-storey classical wing (the second footprint): cornice, attic balustrade, the tall arched glass entrance
-    for (const w of others) {
+    // the five-storey classical blocks (the other footprints): cornice, attic balustrade, the tall arched glass bay
+    // (l.entrance = { on: index in others, side: "north", at: metres from the west end }; default: the longest side of each)
+    others.forEach((w, wi) => {
       const H = 5 * TEXTURES.satpodium.h - 1.5, wo = w[0];
       walls(part("satpodium"), w, -skirt, () => H, TEXTURES.satpodium.w, TEXTURES.satpodium.h);
       const o = outset(wo, 0.8);
@@ -900,21 +901,26 @@ const KINDS = {
       const at2 = inset(wo, 0.5) ?? wo;
       walls(part("satcream"), [at2], H + 1.0, () => H + 2.2, 2, 2);
       cap(part("roof"), [at2], H + 1.9);
-      // the entrance bay at the west end of its longest side
-      let best = null;
-      wo.forEach((a, i) => { const b = wo[(i + 1) % wo.length]; if (!best || len(sub(b, a)) > len(sub(best[1], best[0]))) best = [a, b]; });
-      const [a, b] = best, L = len(sub(b, a)), t = mul(sub(b, a), 1 / L);
-      let n = [t[1], -t[0]];
-      const mid = lerp(a, b, 0.5);
-      if (inRing(wo, mid[0] + n[0] * 0.05, mid[1] + n[1] * 0.05)) n = mul(n, -1);
+      const E = l.entrance;
+      if (E && E.on !== wi) return;
+      // the entrance bay: on the named side (outward normal closest to it) or at the west end of the longest side
+      const edges = wo.map((a, i) => {
+        const b = wo[(i + 1) % wo.length], L = len(sub(b, a)), t = mul(sub(b, a), 1 / L);
+        let n = [t[1], -t[0]];
+        const mid = lerp(a, b, 0.5);
+        if (inRing(wo, mid[0] + n[0] * 0.05, mid[1] + n[1] * 0.05)) n = mul(n, -1);
+        return { a, b, L, t, n };
+      });
+      const sideDir = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] }[E?.side];
+      const { a, b, t, n } = sideDir ? edges.reduce((p, q) => (dot(q.n, sideDir) > dot(p.n, sideDir) ? q : p)) : edges.reduce((p, q) => (q.L > p.L ? q : p));
       const west = a[0] < b[0] ? a : b, tw = a[0] < b[0] ? t : mul(t, -1);
-      const ec = add(add(west, mul(tw, 4.5)), mul(n, 0.06)), ew = 4.2, eh = 11;
+      const ec = add(add(west, mul(tw, E?.at ?? 4.5)), mul(n, 0.06)), ew = 4.2, eh = 11;
       const g = part("darkglass"), arch = [];
       for (let k = 0; k <= 12; k++) { const ang = Math.PI * (1 - k / 12); arch.push([Math.cos(ang) * ew / 2, eh + Math.sin(ang) * ew / 2]); }
       const outline = [[-ew / 2, 0], [ew / 2, 0], ...arch.slice().reverse()];
       flat3(g, outline.map(([s, y]) => [ec[0] + tw[0] * s, y, ec[1] + tw[1] * s]), [n[0], 0, n[1]]);
       block(part("satcream"), add(ec, mul(n, 0.15)), tw, ew + 1.4, 0.3, eh + ew / 2, eh + ew / 2 + 0.6);
-    }
+    });
     return peak;
   },
   stadium({ part, rings, l, skirt }) {
