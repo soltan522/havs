@@ -3512,7 +3512,7 @@
     "prompt": "Professional architectural visualization, photorealistic exterior render of a nine-storey contemporary apartment building, smooth white render with regular rows of windows in bronze frames, glass-balustraded balconies in front of the living rooms, a thin slab band at every floor, a ground floor of shopfronts with a glazed entrance lobby in the middle, a wide pavement with young trees, the growing suburb of Lokbatan near Baku, clear morning light, eye-level three-quarter view from the street, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no logos, no signage, no watermark"
   },
   {
-    "slug": "avropa-zavod-118",
+    "slug": "avropa-fabrik-118",
     "style": "factory",
     "roof": "gable",
     "project": {
@@ -3547,7 +3547,7 @@
       40.45146
     ],
     "model": {
-      "src": "/models/avropa-zavod.glb",
+      "src": "/models/avropa-fabrik.glb",
       "bearing": 180,
       "origin": [
         49.7237,

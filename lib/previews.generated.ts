@@ -4091,60 +4091,60 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
       }
     ]
   },
-  "avropa-zavod-118": {
-    "cover": "/plans/avropa-zavod-118/cover.jpg",
-    "hover": "/plans/avropa-zavod-118/cover-2.jpg",
+  "avropa-fabrik-118": {
+    "cover": "/plans/avropa-fabrik-118/cover.jpg",
+    "hover": "/plans/avropa-fabrik-118/cover-2.jpg",
     "sheets": [
       {
-        "src": "/plans/avropa-zavod-118/render-01.jpg",
+        "src": "/plans/avropa-fabrik-118/render-01.jpg",
         "kind": "render"
       },
       {
-        "src": "/plans/avropa-zavod-118/render-02.jpg",
+        "src": "/plans/avropa-fabrik-118/render-02.jpg",
         "kind": "render"
       },
       {
-        "src": "/plans/avropa-zavod-118/render-03.jpg",
+        "src": "/plans/avropa-fabrik-118/render-03.jpg",
         "kind": "render"
       },
       {
-        "src": "/plans/avropa-zavod-118/render-04.jpg",
+        "src": "/plans/avropa-fabrik-118/render-04.jpg",
         "kind": "render"
       },
       {
-        "src": "/plans/avropa-zavod-118/render-05.jpg",
+        "src": "/plans/avropa-fabrik-118/render-05.jpg",
         "kind": "render"
       },
       {
-        "src": "/plans/avropa-zavod-118/render-06.jpg",
+        "src": "/plans/avropa-fabrik-118/render-06.jpg",
         "kind": "render"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-01.jpg",
+        "src": "/plans/avropa-fabrik-118/image-01.jpg",
         "kind": "image"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-02.jpg",
+        "src": "/plans/avropa-fabrik-118/image-02.jpg",
         "kind": "image"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-03.jpg",
+        "src": "/plans/avropa-fabrik-118/image-03.jpg",
         "kind": "image"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-04.jpg",
+        "src": "/plans/avropa-fabrik-118/image-04.jpg",
         "kind": "image"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-05.jpg",
+        "src": "/plans/avropa-fabrik-118/image-05.jpg",
         "kind": "image"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-06.jpg",
+        "src": "/plans/avropa-fabrik-118/image-06.jpg",
         "kind": "image"
       },
       {
-        "src": "/plans/avropa-zavod-118/image-07.jpg",
+        "src": "/plans/avropa-fabrik-118/image-07.jpg",
         "kind": "image"
       }
     ]
