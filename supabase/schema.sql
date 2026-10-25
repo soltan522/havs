@@ -53,3 +53,17 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('plan-uploads', 'plan-uploads', false, 15728640,
         array['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'])
 on conflict (id) do nothing;
+
+-- Sign-in link requests (app/api/auth/login, lib/store.ts): limits per visitor address and per e-mail address.
+-- Server-only (service role); RLS on with no policies, so the grants give no other role any rows.
+create table if not exists public.auth_attempts (
+  id         bigint generated always as identity primary key,
+  ip         text not null check (char_length(ip) <= 64),
+  email      text not null check (char_length(email) <= 254),
+  created_at timestamptz not null default now()
+);
+create index if not exists auth_attempts_ip_idx on public.auth_attempts (ip, created_at);
+create index if not exists auth_attempts_email_idx on public.auth_attempts (email, created_at);
+alter table public.auth_attempts enable row level security;
+grant select, insert, update, delete on public.auth_attempts to authenticated;
+grant all on public.auth_attempts to service_role;
