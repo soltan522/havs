@@ -176,7 +176,7 @@ export const STYLE_LABELS: Record<PlanStyle, LocalizedText> = {
   restaurant: { az: "Restoran", en: "Restaurant", ru: "Ресторан" },
   banquet: { az: "Şadlıq sarayı", en: "Wedding hall", ru: "Банкетный зал" },
   apartments: { az: "Yaşayış binası", en: "Apartment building", ru: "Жилой дом" },
-  factory: { az: "Zavod", en: "Factory", ru: "Завод" },
+  factory: { az: "Fabrik", en: "Factory", ru: "Фабрика" },
 };
 
 export const INTERIOR_TYPE_LABELS: Record<InteriorType, LocalizedText> = {

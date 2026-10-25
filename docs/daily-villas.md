@@ -190,7 +190,7 @@ interior may set `"ratio"` / `"mirror"` so two projects of the same type do not 
 
 ## Custom-drawn entries (only when asked)
 
-A sheet set drawn outside the generator (the first is the Avropa Qapıları door factory, `avropa-zavod-118`: a whole
+A sheet set drawn outside the generator (the first is the Avropa Qapıları door factory, `avropa-fabrik-118`: a whole
 site with several buildings on seven A1 sheets) is listed as a **custom-drawn** entry. Nothing in the generator draws,
 counts or packages it; the listing carries its own figures and previews.
 

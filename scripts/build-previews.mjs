@@ -48,11 +48,13 @@ function watermarkSvg(width, height) {
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${marks}</svg>`);
 }
 
-async function writePreview(input, outFile) {
-  const resized = await sharp(input)
+// soften: a slight blur at preview size so the small dimension and table text of a full drawing sheet cannot be read
+async function writePreview(input, outFile, { soften = false } = {}) {
+  let img = sharp(input)
     .rotate()
-    .resize({ width: SHEET_W, height: SHEET_H, fit: "inside", withoutEnlargement: true })
-    .toBuffer({ resolveWithObject: true });
+    .resize({ width: SHEET_W, height: SHEET_H, fit: "inside", withoutEnlargement: true });
+  if (soften) img = sharp(await img.toBuffer()).blur(1.1);
+  const resized = await img.toBuffer({ resolveWithObject: true });
   const { width, height } = resized.info;
   await sharp(resized.data)
     .composite([{ input: watermarkSvg(width, height), top: 0, left: 0 }])
@@ -105,7 +107,7 @@ for (const plan of selected) {
   // 2. real material (watermarked) or generated concept sheets
   const model = custom ? null : buildModel(plan);
   if (sources.length) {
-    for (const [i, name] of sources.entries()) await writePreview(path.join(SOURCE, slug, name), path.join(outDir, `image-${nn(i)}.jpg`));
+    for (const [i, name] of sources.entries()) await writePreview(path.join(SOURCE, slug, name), path.join(outDir, `image-${nn(i)}.jpg`), { soften: custom });
   } else if (model.interior) {
     // interior set: layouts, finishes, ceilings, elevations, cutaway and materials board; schedules as a locked teaser
     for (const sh of interiorSheets(model)) {
