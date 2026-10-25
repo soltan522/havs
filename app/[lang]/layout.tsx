@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import AuthRelay from "@/components/AuthRelay";
 import Cursor from "@/components/motion/Cursor";
 import HtmlLang from "@/components/motion/HtmlLang";
 import SmoothScroll from "@/components/motion/SmoothScroll";
@@ -30,6 +31,7 @@ export default async function LangLayout({
         <span className="bar" />
       </div>
       <HtmlLang lang={lang} />
+      <AuthRelay lang={lang} />
       <SmoothScroll />
       <Cursor />
       {/* lang on the wrapper makes CSS uppercase use the right rules (no Turkish dotted İ on EN/RU pages) */}
