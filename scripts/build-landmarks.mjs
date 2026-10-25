@@ -23,6 +23,9 @@
 //   fortress     castle walls with merlons, and its keep or towers (the other footprints it replaces), or the
 //                fire temple's walls round its domed altar
 //   stonetower   a stone tower whose top storeys step back into a crown
+//   satplaza     SAT Plaza: a cream limestone tower with balconies on every floor, a rusticated base, a zinc mansard
+//                storey with stone gables, a round corner tower under a dome carrying the SAT PLAZA letters, and the
+//                five-storey classical wing in front of it (the other footprint) with its tall arched glass entrance
 //   node scripts/build-landmarks.mjs [id ...]
 // Landmarks outside the city layer take their footprint from data/landmarks.extra.geojson (scripts/city/fetch_footprints.py);
 // one with no footprint (a flagpole) stands at its `at` point.
@@ -286,6 +289,37 @@ function inset(ring, d) {
   });
   return out.every(([x, z]) => inRing(ring, x, z)) ? out : null;
 }
+/** The ring moved d metres outwards (mitred, clamped). */
+function outset(ring, d) {
+  const n = ring.length;
+  const lines = ring.map((a, i) => {
+    const b = ring[(i + 1) % n], l = len(sub(b, a)) || 1, t = mul(sub(b, a), 1 / l);
+    let m = [-t[1], t[0]];
+    const mid = lerp(a, b, 0.5);
+    if (inRing(ring, mid[0] + m[0] * 0.05, mid[1] + m[1] * 0.05)) m = mul(m, -1);
+    return { p: add(a, mul(m, d)), t };
+  });
+  return ring.map((v, i) => {
+    const A = lines[(i + n - 1) % n], B = lines[i];
+    const det = A.t[0] * B.t[1] - A.t[1] * B.t[0];
+    let p = B.p;
+    if (Math.abs(det) > 1e-6) {
+      const s = ((B.p[0] - A.p[0]) * B.t[1] - (B.p[1] - A.p[1]) * B.t[0]) / det;
+      p = add(A.p, mul(A.t, s));
+    }
+    const k = len(sub(p, v));
+    return k > 3 * d ? add(v, mul(sub(p, v), (3 * d) / k)) : p;
+  });
+}
+const norm2 = (v) => mul(v, 1 / (len(v) || 1));
+/** A flat polygon in 3D (points in order, all in one plane), facing along n. */
+function flat3(part, pts, n) {
+  const ax = Math.abs(n[1]) > 0.9 ? [1, 0, 0] : norm3(cross3([0, 1, 0], n)), ay = cross3(n, ax);
+  const uv = pts.map((p) => [p[0] * ax[0] + p[1] * ax[1] + p[2] * ax[2], p[0] * ay[0] + p[1] * ay[1] + p[2] * ay[2]]);
+  const ids = pts.map((p, i) => part.vertex(p, n, [uv[i][0] / 4, uv[i][1] / 4]));
+  const tri = earcut(uv.flat());
+  for (let k = 0; k < tri.length; k += 3) part.tri(ids[tri[k]], ids[tri[k + 1]], ids[tri[k + 2]], n);
+}
 /** A sloping surface from a ring at y0 back to the same ring moved in (`top`) at y1, textured by storey. */
 function slope(part, ring, top, y0, y1, uScale, vScale) {
   let run = 0;
@@ -462,6 +496,58 @@ const TEXTURES = {
       <rect y="170" width="256" height="86" fill="rgb(80,158,47)"/><ellipse cx="124" cy="128" rx="18" ry="36" fill="#fff"/>
       <ellipse cx="131" cy="128" rx="15" ry="30" fill="rgb(239,51,64)"/><polygon points="${star}" fill="#fff"/>`;
   } },
+  // SAT Plaza: cream limestone, one window per 3.6 m bay with a stone surround, a sill and a fine string course
+  satstone: { w: 3.6, h: 3.3, svg: (px) => {
+    const s = [236, 223, 194], win = [62, 72, 84];
+    return `<rect width="256" height="256" fill="${rgb(s)}"/>
+      <rect x="${px.x(0.85)}" y="${px.y(0.0)}" width="${px.x(1.9)}" height="${px.y(2.75)}" fill="${rgb(shade(s, 1.05))}"/>
+      <rect x="${px.x(1.0)}" y="${px.y(0.05)}" width="${px.x(1.6)}" height="${px.y(2.5)}" fill="${rgb(win)}"/>
+      <rect x="${px.x(1.78)}" y="${px.y(0.05)}" width="${px.x(0.05)}" height="${px.y(2.5)}" fill="${rgb([228, 226, 218])}"/>
+      <rect x="${px.x(1.0)}" y="${px.y(1.85)}" width="${px.x(1.6)}" height="${px.y(0.05)}" fill="${rgb([228, 226, 218])}"/>
+      <rect x="${px.x(0.78)}" y="${px.y(2.75)}" width="${px.x(2.04)}" height="${px.y(0.14)}" fill="${rgb(shade(s, 0.84))}"/>
+      <rect y="${px.y(3.18)}" width="256" height="${px.y(0.12)}" fill="${rgb(shade(s, 0.9))}"/>`;
+  } },
+  // SAT Plaza's base: rusticated stone courses and round-arched openings
+  satbase: { w: 3.6, h: 3.3, svg: (px) => {
+    const s = [226, 208, 170], win = [62, 72, 82];
+    const x0 = px.x(0.85), x1 = px.x(2.75), r = (x1 - x0) / 2;
+    let out = `<rect width="256" height="256" fill="${rgb(s)}"/>`;
+    for (let k = 0; k < 6; k++) out += `<rect y="${px.y(k * 0.55)}" width="256" height="3" fill="${rgb(shade(s, 0.8))}"/>`;
+    return out + `<rect x="${x0}" y="${px.y(0.3)}" width="${x1 - x0}" height="${px.y(1.9)}" fill="${rgb(win)}"/>
+      <ellipse cx="${(x0 + x1) / 2}" cy="${px.y(2.2)}" rx="${r}" ry="${r * 0.8}" fill="${rgb(win)}"/>`;
+  } },
+  // SAT Plaza's classical podium, one 5.4 m bay over its full 20.6 m height (as measured off the Google photo): banded
+  // rustication and a tall opening in the 7.7 m ground storey, giant piers, paired lights in the two upper storeys
+  // with a hood, an apron and a sill course between them, the architrave, frieze and cornice
+  satpodium: { w: 5.4, h: 20.6, px: [256, 1024], svg: () => {
+    const s = [206, 188, 154], win = [58, 66, 76], X = (m) => Math.round((m / 5.4) * 256), Y = (m) => Math.round((m / 20.6) * 1024);
+    const r = (x0, y0, x1, y1, c) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${X(x1) - X(x0)}" height="${Y(y1) - Y(y0)}" fill="${rgb(c)}"/>`;
+    let out = r(0, 0, 5.4, 20.6, s);
+    for (let k = 1; k <= 10; k++) out += r(0, k * 0.7 - 0.05, 5.4, k * 0.7, shade(s, 0.74));
+    out += r(0, 7.7, 0.9, 18.3, shade(s, 1.06)) + r(4.5, 7.7, 5.4, 18.3, shade(s, 1.06)) + r(0.9, 7.7, 0.96, 18.3, shade(s, 0.85));
+    out += r(1.3, 0.7, 4.1, 6.2, win) + r(2.68, 0.7, 2.72, 6.2, [120, 110, 98]);
+    out += r(0, 7.2, 5.4, 7.7, shade(s, 1.08)) + r(0, 7.15, 5.4, 7.2, shade(s, 0.7));
+    for (const [y0, y1] of [[8.2, 11.9], [14.2, 17.8]]) {
+      out += r(1.0, y0 - 0.2, 2.45, y1 + 0.2, shade(s, 1.04)) + r(2.95, y0 - 0.2, 4.4, y1 + 0.2, shade(s, 1.04));
+      out += r(1.1, y0, 2.35, y1, win) + r(3.05, y0, 4.3, y1, win);
+      out += r(1.1, y1 - 0.95, 2.35, y1 - 0.9, [120, 110, 98]) + r(3.05, y1 - 0.95, 4.3, y1 - 0.9, [120, 110, 98]);
+    }
+    out += r(0.9, 12.0, 4.5, 12.3, shade(s, 1.1)) + r(0.9, 11.95, 4.5, 12.0, shade(s, 0.7)) + r(1.1, 12.5, 4.3, 13.4, shade(s, 0.95));
+    out += r(0, 13.6, 5.4, 13.9, shade(s, 1.06)) + r(0, 18.3, 5.4, 18.5, shade(s, 1.05)) + r(0, 19.15, 5.4, 19.2, shade(s, 0.65));
+    out += r(0, 19.2, 5.4, 20.6, shade(s, 1.1));
+    for (let x = 0.15; x < 5.4; x += 0.6) out += r(x, 19.2, x + 0.15, 19.55, shade(s, 0.82));
+    return out;
+  } },
+  // SAT Plaza's balustrades: stone balusters under a top rail (rows from the floor up, one tile per storey)
+  satbal: { w: 0.5, h: 3.3, svg: (px) => {
+    const s = [240, 230, 206];
+    return `<rect width="256" height="256" fill="${rgb([92, 96, 100])}"/><rect x="${px.x(0.14)}" width="${px.x(0.22)}" height="${px.y(0.9)}" fill="${rgb(s)}"/>
+      <rect y="0" width="256" height="${px.y(0.12)}" fill="${rgb(s)}"/><rect y="${px.y(0.88)}" width="256" height="${px.y(0.2)}" fill="${rgb(s)}"/>
+      <rect y="${px.y(1.08)}" width="256" height="${256 - px.y(1.08)}" fill="${rgb(s)}"/>`;
+  } },
+  // the SAT PLAZA letters on the corner tower (dark bronze, the rest transparent)
+  satsign: { w: 8, h: 1.8, px: [1024, 230], svg: () =>
+    `<text x="512" y="205" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="240" text-anchor="middle" textLength="1000" lengthAdjust="spacingAndGlyphs" fill="rgb(16,20,36)">SAT PLAZA</text>` },
   // a band of restaurant glazing
   band: { w: 3, h: 3, svg: (px) => {
     const g = [70, 96, 118];
@@ -470,10 +556,12 @@ const TEXTURES = {
   } },
 };
 async function texture(kind) {
-  const { w, h, svg } = TEXTURES[kind];
+  const { w, h, svg, px: size = [256, 256] } = TEXTURES[kind];
   const px = { x: (m) => Math.round((m / w) * 256), y: (m) => Math.round((m / h) * 256) };
-  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">${svg(px)}</svg>`)).png().toBuffer();
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size[0]}" height="${size[1]}">${svg(px)}</svg>`)).png().toBuffer();
 }
+// textures whose transparent parts are cut out
+const CUTOUT = new Set(["satsign"]);
 // untextured materials
 const PLAIN = {
   white: [246, 246, 243], // Heydar Aliyev Center's shell
@@ -487,6 +575,9 @@ const PLAIN = {
   seats: [118, 128, 142],
   pitch: [86, 140, 82],
   fire: [236, 132, 44],
+  satcream: [236, 222, 190], // SAT Plaza's balustrades, cornices and gables
+  zinc: [86, 92, 100], // SAT Plaza's mansard zinc
+  satshade: [150, 138, 118], // the undersides of SAT Plaza's balconies
 };
 
 // ---------------------------------------------------------------------------------------------------- the forms
@@ -733,6 +824,120 @@ const KINDS = {
     if (t2) { walls(part("stalin"), [t2], y2 - 0.5, () => l.height, T.w, T.h); cap(part("roof"), [t2], l.height); }
     return l.height;
   },
+  satplaza({ part, rings, others, l, skirt }) {
+    const S = TEXTURES.satstone, st = S.h, base = 2 * st, cornice = base + (l.floors - 3) * st, roofY = cornice + 3.6;
+    const outer = rings[0];
+    // rusticated two-storey base, the stone body, a projecting cornice, the zinc mansard storey and a flat roof
+    walls(part("satbase"), rings, -skirt, () => base, S.w, S.h);
+    walls(part("satstone"), rings, base, () => cornice, S.w, S.h);
+    for (const [y0, y1, d] of [[base - 0.5, base, 0.35], [cornice - 0.7, cornice, 0.7]]) {
+      const o = outset(outer, d);
+      walls(part("satcream"), [o], y0, () => y1, 2, 2);
+      cap(part("satcream"), [o, [...outer].reverse()], y1);
+      cap(part("satcream"), [o, [...outer].reverse()], y0, false);
+    }
+    const top = inset(outer, 1.8) ?? outer;
+    slope(part("mansard"), outer, top, cornice, roofY, TEXTURES.mansard.w, TEXTURES.mansard.h);
+    cap(part("roof"), [top], roofY);
+    // balconies with stone balustrades: two of every three bays on every edge, on every floor above the base
+    outer.forEach((a, i) => {
+      const b = outer[(i + 1) % outer.length], L = len(sub(b, a));
+      if (L < 9) return;
+      const t = mul(sub(b, a), 1 / L);
+      let n = [t[1], -t[0]];
+      const m = lerp(a, b, 0.5);
+      if (inRing(outer, m[0] + n[0] * 0.05, m[1] + n[1] * 0.05)) n = mul(n, -1);
+      const bays = Math.floor((L - 2) / S.w), s0 = (L - bays * S.w) / 2;
+      for (let k = 0; k < bays; k++) {
+        if (k % 4 === 2) continue;
+        const c0 = add(add(a, mul(t, s0 + (k + 0.5) * S.w)), mul(n, 0.75));
+        for (let f = 0; f < l.floors - 3; f++) {
+          const y = base + f * st;
+          const slab = box(c0, t, S.w - 0.3, 1.5);
+          walls(part("satcream"), [slab], y - 0.28, () => y, 2, 2);
+          cap(part("satcream"), [slab], y);
+          cap(part("satshade"), [slab], y - 0.28, false);
+          for (const r of [box(add(c0, mul(n, 0.68)), t, S.w - 0.3, 0.16), ...[-1, 1].map((e) => box(add(c0, mul(t, (e * (S.w - 0.46)) / 2)), t, 0.16, 1.5))]) {
+            walls(part("satbal"), [r], y, () => y + 1.05, TEXTURES.satbal.w, TEXTURES.satbal.h);
+            cap(part("satcream"), [r], y + 1.05);
+          }
+        }
+      }
+      // a broad, low round-headed stone gable over the middle of the longer edges, with a cartouche at the crown
+      if (L > 30) {
+        const c = add(m, mul(n, 0.15)), gw = 5.6, y0 = cornice - 0.2, ys = cornice + 4.3, rise = 2.8;
+        const outline = [[-gw / 2, y0], [gw / 2, y0], [gw / 2, ys]];
+        for (let k = 0; k <= 14; k++) { const u = gw / 2 - (k / 14) * gw; outline.push([u, ys + rise * Math.sqrt(Math.max(0, 1 - (u / (gw / 2)) ** 2))]); }
+        const g = part("satcream");
+        flat3(g, outline.map(([s, y]) => [c[0] + t[0] * s, y, c[1] + t[1] * s]), [n[0], 0, n[1]]);
+        flat3(g, outline.map(([s, y]) => [c[0] - n[0] * 0.6 + t[0] * s, y, c[1] - n[1] * 0.6 + t[1] * s]), [-n[0], 0, -n[1]]);
+        // the cartouche at the crown and the segmental-headed window under it
+        flat3(part("satshade"), circle([0, 0], 0.75, 0, 16).map(([x, , z]) => [c[0] + n[0] * 0.04 + t[0] * x, ys + 0.1 + z * 1.15, c[1] + n[1] * 0.04 + t[1] * x]), [n[0], 0, n[1]]);
+        const aw = 2.6, ah = 1.4, arch2 = [[-aw / 2, cornice + 0.2], [aw / 2, cornice + 0.2]];
+        for (let k = 0; k <= 10; k++) { const ang = (k / 10) * Math.PI; arch2.push([Math.cos(ang) * aw / 2, cornice + 0.2 + ah + Math.sin(ang) * 1.0]); }
+        flat3(part("darkglass"), arch2.map(([s, y]) => [c[0] + n[0] * 0.03 + t[0] * s, y, c[1] + n[1] * 0.03 + t[1] * s]), [n[0], 0, n[1]]);
+      }
+    });
+    // the round corner tower at the street corner, two storeys higher, a zinc dome and the SAT PLAZA letters
+    // (the photos show no dome: a drum over a ring cornice, a top cornice and a solid parapet carrying the letters)
+    const tc = corner(outer, l.turret ?? "southeast", 2.1), R = 4.0, shaftTop = cornice + 3.7;
+    const body = disc(tc, R, 28);
+    walls(part("satbase"), [body], -skirt, () => base, S.w, S.h);
+    walls(part("satstone"), [body], base, () => shaftTop, S.w, S.h);
+    const ringC = disc(tc, R + 0.3, 28);
+    walls(part("satcream"), [ringC], shaftTop, () => shaftTop + 0.9, 2, 2);
+    cap(part("satcream"), [ringC], shaftTop + 0.9);
+    const drum = disc(tc, 3.75, 28), topC = disc(tc, R, 28);
+    walls(part("satstone"), [drum], shaftTop + 0.9, () => shaftTop + 2.8, S.w, S.h);
+    walls(part("satcream"), [topC], shaftTop + 2.8, () => shaftTop + 3.65, 2, 2);
+    cap(part("satcream"), [topC], shaftTop + 3.65, false);
+    walls(part("satcream"), [drum], shaftTop + 3.65, () => shaftTop + 4.55, 2, 2);
+    cap(part("roof"), [drum], shaftTop + 4.4);
+    let peak = shaftTop + 4.55;
+    {
+      // the letters: one straight 8 m row standing on the parapet, facing the corner
+      const dir = norm2(sub(tc, centroid(outer))), along = [dir[1], -dir[0]], w = 8, h = 1.8, y0 = peak - 0.3;
+      const p = part("satsign"), c = add(tc, mul(dir, 0.3));
+      const q = [[-w / 2, y0, 0, 1], [w / 2, y0, 1, 1], [w / 2, y0 + h, 1, 0], [-w / 2, y0 + h, 0, 0]]
+        .map(([s, y, u, v]) => p.vertex([c[0] + along[0] * s, y, c[1] + along[1] * s], [dir[0], 0, dir[1]], [u, v]));
+      p.tri(q[0], q[1], q[2], [dir[0], 0, dir[1]]);
+      p.tri(q[0], q[2], q[3], [dir[0], 0, dir[1]]);
+      peak = y0 + h;
+    }
+    // the five-storey classical blocks (the other footprints): cornice, attic balustrade, the tall arched glass bay
+    // (l.entrance = { on: index in others, side: "north", at: metres from the west end }; default: the longest side of each)
+    others.forEach((w, wi) => {
+      const H = TEXTURES.satpodium.h, wo = w[0];
+      walls(part("satpodium"), w, -skirt, () => H, TEXTURES.satpodium.w, TEXTURES.satpodium.h);
+      const o = outset(wo, 0.8);
+      walls(part("satcream"), [o], H, () => H + 1.0, 2, 2);
+      cap(part("satcream"), [o], H + 1.0);
+      cap(part("satcream"), [o, [...wo].reverse()], H, false);
+      const at2 = inset(wo, 0.5) ?? wo;
+      walls(part("satcream"), [at2], H + 1.0, () => H + 2.2, 2, 2);
+      cap(part("roof"), [at2], H + 1.9);
+      const E = l.entrance;
+      if (E && E.on !== wi) return;
+      // the entrance bay: on the named side (outward normal closest to it) or at the west end of the longest side
+      const edges = wo.map((a, i) => {
+        const b = wo[(i + 1) % wo.length], L = len(sub(b, a)), t = mul(sub(b, a), 1 / L);
+        let n = [t[1], -t[0]];
+        const mid = lerp(a, b, 0.5);
+        if (inRing(wo, mid[0] + n[0] * 0.05, mid[1] + n[1] * 0.05)) n = mul(n, -1);
+        return { a, b, L, t, n };
+      });
+      const sideDir = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] }[E?.side];
+      const { a, b, t, n } = sideDir ? edges.reduce((p, q) => (dot(q.n, sideDir) > dot(p.n, sideDir) ? q : p)) : edges.reduce((p, q) => (q.L > p.L ? q : p));
+      const west = a[0] < b[0] ? a : b, tw = a[0] < b[0] ? t : mul(t, -1);
+      const ec = add(add(west, mul(tw, E?.at ?? 4.5)), mul(n, 0.06)), ew = 4.2, eh = 11;
+      const g = part("darkglass"), arch = [];
+      for (let k = 0; k <= 12; k++) { const ang = Math.PI * (1 - k / 12); arch.push([Math.cos(ang) * ew / 2, eh + Math.sin(ang) * ew / 2]); }
+      const outline = [[-ew / 2, 0], [ew / 2, 0], ...arch.slice().reverse()];
+      flat3(g, outline.map(([s, y]) => [ec[0] + tw[0] * s, y, ec[1] + tw[1] * s]), [n[0], 0, n[1]]);
+      block(part("satcream"), add(ec, mul(n, 0.15)), tw, ew + 1.4, 0.3, eh + ew / 2, eh + ew / 2 + 0.6);
+    });
+    return peak;
+  },
   stadium({ part, rings, l, skirt }) {
     const ring = resample(chaikin(rings[0], 2), 96), H = l.height;
     walls(part("crystal"), [ring], -skirt, () => H, TEXTURES.crystal.w, TEXTURES.crystal.h);
@@ -877,6 +1082,7 @@ for (const l of landmarks) {
       material = doc.createMaterial(mat).setBaseColorFactor([...c, 1]).setEmissiveFactor(c.map((v) => v * GLOW));
     }
     material.setRoughnessFactor(["flame", "glass", "band", "darkglass", "dome"].includes(mat) ? 0.3 : 0.8).setMetallicFactor(0).setDoubleSided(true);
+    if (CUTOUT.has(mat)) material.setAlphaMode("MASK").setAlphaCutoff(0.5);
     const prim = doc.createPrimitive()
       .setAttribute("POSITION", doc.createAccessor().setType("VEC3").setArray(new Float32Array(p.pos)).setBuffer(buffer))
       .setAttribute("NORMAL", doc.createAccessor().setType("VEC3").setArray(new Float32Array(p.nor)).setBuffer(buffer))
