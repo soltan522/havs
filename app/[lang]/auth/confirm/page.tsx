@@ -5,7 +5,11 @@ import { ACCOUNT } from "@/lib/account";
 import { isLocale } from "@/lib/i18n";
 
 // same-origin: the token in the address never goes to another site, while our own form still sends its Origin
-export const metadata: Metadata = { robots: { index: false, follow: false }, referrer: "same-origin" };
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  return { title: ACCOUNT[lang].confirmTitle, robots: { index: false, follow: false }, referrer: "same-origin" };
+}
 
 /** Landing page of an e-mailed sign-in link (token_hash templates): one click signs in (POST /api/auth/verify). */
 export default async function AuthConfirm({ params, searchParams }: { params: Promise<{ lang: string }>; searchParams: Promise<{ token_hash?: string; type?: string }> }) {

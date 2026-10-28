@@ -64,7 +64,7 @@ const TEXT: Record<Locale, { title: string; lead: string; steps: string[]; back:
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLocale(lang)) return {};
+  if (!isLocale(lang)) notFound();
   return { title: TEXT[lang].title, robots: { index: false } };
 }
 

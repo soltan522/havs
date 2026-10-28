@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,10 +7,24 @@ import PackagePanel from "@/components/PackagePanel";
 import { PaymentIcon } from "@/components/PaymentIcon";
 import { COPY } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
+import { languageAlternates } from "@/lib/meta";
 import { visitorCurrency } from "@/lib/geo";
 import { areaText, coverOf, deliverables, findPlan, formatPrice, isCommercial, isCustomDrawn, planLabel, priceBasis } from "@/lib/plans";
 import { providersFor } from "@/lib/providers";
 import { objectsExist } from "@/lib/store";
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
+  const { lang, slug } = await params;
+  if (!isLocale(lang)) notFound();
+  const plan = findPlan(slug);
+  if (!plan) notFound();
+  const c = COPY[lang];
+  // "Package & payment: <villa>", or "Order request: <project>" for a custom-drawn set (no payment form on its page)
+  return {
+    title: `${isCustomDrawn(plan) ? c.custom.title : c.toCheckout}: ${plan.title[lang]}`,
+    alternates: languageAlternates(`/plans/${slug}/checkout`),
+  };
+}
 
 /**
  * Payment step: what the buyer gets, the price, their email and the payment methods that are switched on.

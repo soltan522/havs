@@ -9,7 +9,11 @@ import { isLocale } from "@/lib/i18n";
 import { findPlan, formatPrice } from "@/lib/plans";
 import { ordersByEmail, type Order } from "@/lib/store";
 
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  return { title: ACCOUNT[lang].title, robots: { index: false, follow: false } };
+}
 
 const DATE_LOCALE = { az: "az-AZ", en: "en-GB", ru: "ru-RU" } as const;
 
