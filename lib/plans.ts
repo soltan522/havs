@@ -86,7 +86,10 @@ export type Plan = {
   project?: { kind: ProjectKind; units: number };
   /** Commercial buildings: parking bays on the masterplan (bedrooms is 0, bathrooms counts the WCs). */
   parking?: number;
-  /** Commercial buildings: the drawn plan variant and the cladding (scripts/drawings.mjs). */
+  /**
+   * The drawn plan variant (scripts/drawings.mjs): a commercial building's layout, or "b" for the split plan of a villa
+   * with one storey above ground (left out: the standard plan). Not shown on the site; facade is the commercial cladding.
+   */
   layout?: string;
   facade?: string;
   /** Hotel guest rooms, restaurant / hall seats and apartment flats, as the drawings count them. */
