@@ -3892,5 +3892,335 @@
     ],
     "sheets": 7,
     "builtAt": "2026-10-26"
+  },
+  "sulutepe-179": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sulutepe-179-drawings.pdf",
+        "bytes": 489040,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "sulutepe-179.dwg",
+        "bytes": 57193
+      },
+      {
+        "kind": "cad",
+        "name": "sulutepe-179.dxf",
+        "bytes": 141203
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "shubany-180": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shubany-180-drawings.pdf",
+        "bytes": 641074,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shubany-180.dwg",
+        "bytes": 50777
+      },
+      {
+        "kind": "cad",
+        "name": "shubany-180.dxf",
+        "bytes": 122933
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "gizildash-181": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gizildash-181-drawings.pdf",
+        "bytes": 619220,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gizildash-181.dwg",
+        "bytes": 50268
+      },
+      {
+        "kind": "cad",
+        "name": "gizildash-181.dxf",
+        "bytes": 120565
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "givrag-182": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "givrag-182-drawings.pdf",
+        "bytes": 677396,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "givrag-182.dwg",
+        "bytes": 51399
+      },
+      {
+        "kind": "cad",
+        "name": "givrag-182.dxf",
+        "bytes": 123764
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "babek-183": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "babek-183-drawings.pdf",
+        "bytes": 733450,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "babek-183.dwg",
+        "bytes": 63658
+      },
+      {
+        "kind": "cad",
+        "name": "babek-183.dxf",
+        "bytes": 158358
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "madrasa-184": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "madrasa-184-drawings.pdf",
+        "bytes": 641908,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "madrasa-184.dwg",
+        "bytes": 64360
+      },
+      {
+        "kind": "cad",
+        "name": "madrasa-184.dxf",
+        "bytes": 159572
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "pirakashkul-185": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "pirakashkul-185-drawings.pdf",
+        "bytes": 565564,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "pirakashkul-185.dwg",
+        "bytes": 65253
+      },
+      {
+        "kind": "cad",
+        "name": "pirakashkul-185.dxf",
+        "bytes": 161898
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "talistan-186": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "talistan-186-drawings.pdf",
+        "bytes": 672068,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "talistan-186.dwg",
+        "bytes": 69158
+      },
+      {
+        "kind": "cad",
+        "name": "talistan-186.dxf",
+        "bytes": 168069
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
+  },
+  "shuraabad-187": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shuraabad-187-drawings.pdf",
+        "bytes": 604946,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shuraabad-187.dwg",
+        "bytes": 45397
+      },
+      {
+        "kind": "cad",
+        "name": "shuraabad-187.dxf",
+        "bytes": 107280
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-10-28"
+  },
+  "sarsang-188": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sarsang-188-drawings.pdf",
+        "bytes": 665093,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sarsang-188.dwg",
+        "bytes": 84198
+      },
+      {
+        "kind": "cad",
+        "name": "sarsang-188.dxf",
+        "bytes": 213573
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
+  },
+  "boyukshor-189": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "boyukshor-189-drawings.pdf",
+        "bytes": 591886,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "boyukshor-189.dwg",
+        "bytes": 70927
+      },
+      {
+        "kind": "cad",
+        "name": "boyukshor-189.dxf",
+        "bytes": 173870
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
+  },
+  "batabat-190": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "batabat-190-drawings.pdf",
+        "bytes": 668890,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "batabat-190.dwg",
+        "bytes": 86111
+      },
+      {
+        "kind": "cad",
+        "name": "batabat-190.dxf",
+        "bytes": 216054
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
+  },
+  "haftoni-191": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "haftoni-191-drawings.pdf",
+        "bytes": 686843,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "haftoni-191.dwg",
+        "bytes": 63422
+      },
+      {
+        "kind": "cad",
+        "name": "haftoni-191.dxf",
+        "bytes": 154291
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
+  },
+  "pensar-192": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "pensar-192-drawings.pdf",
+        "bytes": 669853,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "pensar-192.dwg",
+        "bytes": 89232
+      },
+      {
+        "kind": "cad",
+        "name": "pensar-192.dxf",
+        "bytes": 227004
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
+  },
+  "khojaly-193": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "khojaly-193-drawings.pdf",
+        "bytes": 606677,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "khojaly-193.dwg",
+        "bytes": 90711
+      },
+      {
+        "kind": "cad",
+        "name": "khojaly-193.dxf",
+        "bytes": 238172
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-10-28"
   }
 }
