@@ -4,25 +4,29 @@
 //                                             shown whole on a paper background; strip private details first)
 //   private-assets/<slug>/*.jpg|png|webp  ->  public/plans/<slug>/image-NN.jpg   (real drawings/renders, watermarked)
 // Plans without private originals also get generated concept sheets (see scripts/drawings.mjs):
-//   site.jpg, plan-0.jpg, plan-1.jpg…, elevation.jpg, axonometric.jpg, schedules.jpg
+//   site.jpg, lower.jpg (a luxury villa's lower ground floor), plan-0.jpg, plan-1.jpg…, elevation.jpg, section.jpg (a
+//   luxury villa's section through its sunken court), axonometric.jpg, schedules.jpg
 // and every plan gets card images cover.jpg (main visual) and cover-2.jpg (rendered elevation, shown on hover).
 //
 //   npm run previews                    rebuild every plan
 //   npm run previews -- --missing       only plans that have no public/plans/<slug> folder yet
 //   npm run previews -- --only a,b      only the listed slugs
+//   npm run previews -- --only a --out /tmp/x   write into /tmp/x/<slug>/ and /tmp/x/previews.generated.ts instead of
+//                                               public/plans and lib/ (to look at the sheets without touching the site)
 //
 // lib/previews.generated.ts is always rewritten from the files on disk, so partial runs keep the other plans.
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, interiorSheets, isCustomDrawn, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, floorPlanSheet, interiorSheets, isCustomDrawn, planSheets, scheduleSheet, sectionSheet, sitePlanSheet, SHEET_H, SHEET_W } from "./drawings.mjs";
 
 const root = process.cwd();
 const SOURCE = path.join(root, "private-assets");
 const RENDERS = path.join(root, "renders");
-const OUT = path.join(root, "public", "plans");
-const GENERATED = path.join(root, "lib", "previews.generated.ts");
+const outArg = process.argv.includes("--out") ? process.argv[process.argv.indexOf("--out") + 1] : null;
+const OUT = outArg ? path.resolve(outArg) : path.join(root, "public", "plans");
+const GENERATED = outArg ? path.join(OUT, "previews.generated.ts") : path.join(root, "lib", "previews.generated.ts");
 const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
 const CARD = { width: 1200, height: 800 };
 const PAPER = "#f5f2ec"; // sheet paper colour (scripts/drawings.mjs)
@@ -121,6 +125,7 @@ for (const plan of selected) {
     // one sheet per level; a run of identical typical floors is drawn once (typical.jpg)
     for (const [k, p] of planSheets(model).entries()) await render(floorPlanSheet(model, p.index, `A-10${k + 1}`, { ...preview, title: p.title }), path.join(outDir, `${p.kind}.jpg`));
     await render(elevationSheet(model, "A-201", false, preview), path.join(outDir, "elevation.jpg"));
+    if (model.lower) await render(sectionSheet(model, "A-202", preview), path.join(outDir, "section.jpg"));
     await render(axonometricSheet(model, "A-301", preview), path.join(outDir, "axonometric.jpg"));
     // schedules are shown locked: a small, blurred teaser only
     await sharp(scheduleSheet(model, "A-401"), { density: 36 }).blur(6).jpeg({ quality: 60 }).toFile(path.join(outDir, "schedules.jpg"));
@@ -132,18 +137,19 @@ for (const plan of selected) {
   const coverSrc = renders.length ? path.join(RENDERS, slug, renders[0]) : sources.length ? path.join(SOURCE, slug, sources[0]) : hover;
   await card(coverSrc, path.join(outDir, "cover.jpg"));
   await card(hover, path.join(outDir, "cover-2.jpg"));
-  console.log(`${slug}: ${renders.length} render(s), ${owner.length ? `${owner.length} owner image(s), ` : ""}${sources.length ? `${sources.length} watermarked image(s)` : `${model.interior ? interiorSheets(model).length : planSheets(model).length + 4} concept sheets`}`);
+  console.log(`${slug}: ${renders.length} render(s), ${owner.length ? `${owner.length} owner image(s), ` : ""}${sources.length ? `${sources.length} watermarked image(s)` : `${model.interior ? interiorSheets(model).length : planSheets(model).length + 4 + (model.lower ? 1 : 0)} concept sheets`}`);
 }
 if (!selected.length) console.log("nothing to build");
 
-// Gallery order: renders, owner's material, real images, site plan, floor plans, elevation, axonometric.
-const KIND_ORDER = [/^render-/, /^owner-/, /^image-/, /^site\./, /^plan-/, /^typical\./, /^finish-/, /^ceiling-/, /^elevation\./, /^interior\./, /^axonometric\./, /^cutaway\./, /^materials\./, /^schedules\./];
+// Gallery order: renders, owner's material, real images, site plan, floor plans (from the lower ground floor up),
+// elevation, axonometric.
+const KIND_ORDER = [/^render-/, /^owner-/, /^image-/, /^site\./, /^lower\./, /^plan-/, /^typical\./, /^finish-/, /^ceiling-/, /^elevation\./, /^section\./, /^interior\./, /^axonometric\./, /^cutaway\./, /^materials\./, /^schedules\./];
 const kindOf = (file) => file.replace(/\.jpg$/, "").replace(/^(render|owner|image)-\d+$/, "$1");
 const generated = {};
 for (const { slug } of plans) {
   const dir = path.join(OUT, slug);
   if (!existsSync(dir)) {
-    console.warn(`warning: public/plans/${slug} is missing — run npm run previews -- --only ${slug}`);
+    if (!outArg) console.warn(`warning: public/plans/${slug} is missing — run npm run previews -- --only ${slug}`);
     continue;
   }
   const files = (await readdir(dir)).filter((f) => f.endsWith(".jpg") && !f.startsWith("cover"));
@@ -154,7 +160,7 @@ for (const { slug } of plans) {
 }
 
 // Folders with no plan entry are probably typos.
-for (const dir of [SOURCE, RENDERS, OUT]) {
+for (const dir of outArg ? [] : [SOURCE, RENDERS, OUT]) {
   if (!existsSync(dir)) continue;
   for (const name of await readdir(dir)) {
     if (!plans.some((p) => p.slug === name) && !name.includes(".")) console.warn(`warning: ${path.relative(root, dir)}/${name} has no matching plan in data/plans.json`);
@@ -163,6 +169,6 @@ for (const dir of [SOURCE, RENDERS, OUT]) {
 
 await writeFile(
   GENERATED,
-  `// Generated by scripts/build-previews.mjs — do not edit by hand.\nexport type SheetKind = "render" | "owner" | "image" | "site" | "elevation" | "axonometric" | "schedules" | "interior" | "cutaway" | "materials" | "typical" | \`plan-\${number}\` | \`finish-\${number}\` | \`ceiling-\${number}\`;\nexport const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { src: string; kind: SheetKind }[] }> = ${JSON.stringify(generated, null, 2)};\n`,
+  `// Generated by scripts/build-previews.mjs — do not edit by hand.\nexport type SheetKind = "render" | "owner" | "image" | "site" | "elevation" | "axonometric" | "schedules" | "interior" | "cutaway" | "materials" | "typical" | "lower" | "section" | \`plan-\${number}\` | \`finish-\${number}\` | \`ceiling-\${number}\`;\nexport const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { src: string; kind: SheetKind }[] }> = ${JSON.stringify(generated, null, 2)};\n`,
 );
 console.log("wrote", path.relative(root, GENERATED));
