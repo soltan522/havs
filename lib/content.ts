@@ -141,3 +141,10 @@ export const PAGES: Record<InfoPageKey, Record<Locale, Page>> = {
     },
   },
 };
+
+/** The 404 page: app/[lang]/not-found (inside a locale) and app/global-not-found (any other unknown address). */
+export const NOT_FOUND: Record<Locale, { title: string; text: string; home: string }> = {
+  az: { title: "Səhifə tapılmadı", text: "Axtardığınız səhifə yoxdur və ya başqa ünvana köçürülüb.", home: "Ana səhifə" },
+  en: { title: "Page not found", text: "The page you are looking for does not exist or has moved.", home: "Home page" },
+  ru: { title: "Страница не найдена", text: "Такой страницы нет, или она переехала по другому адресу.", home: "На главную" },
+};

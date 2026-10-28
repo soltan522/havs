@@ -7,7 +7,11 @@ import { ACCOUNT, type AccountError } from "@/lib/account";
 import { ACCESS_COOKIE, getUser } from "@/lib/auth";
 import { isLocale } from "@/lib/i18n";
 
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  return { title: ACCOUNT[lang].loginTitle, robots: { index: false, follow: false } };
+}
 
 /** Sign-in with an e-mailed link; already signed-in visitors go straight to their account. */
 export default async function LoginPage({ params, searchParams }: { params: Promise<{ lang: string }>; searchParams: Promise<{ error?: string }> }) {
