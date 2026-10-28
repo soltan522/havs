@@ -42,21 +42,56 @@ npm ci
      (single-storey plans have two or three bedrooms; when no free single-storey or three-level design key is left,
      take fewer and say so in the report);
    - at most three villas of one style and at most two of one design family in the same day.
-   Before writing, list the free design keys (style + floors + bedrooms + garage + pool not used yet) and pick from
-   them; `npm run validate` prints the exact bedroom and bathroom counts the generator produces.
+   Before writing, list the free design keys (style + floors + bedrooms + garage + pool, + `"layout"` for
+   single-storey villas — see below — not used yet) and pick from them; `npm run validate` prints the exact bedroom
+   and bathroom counts the generator produces.
    **Nothing may repeat an existing design** — `npm run validate` enforces it and fails on:
    a place name, title or summary already used; the same combination of style + floors + bedrooms + garage + pool
-   as an existing villa (mirroring does not count as different); the same style and floors with an area less than
-   25 m² apart; a render prompt that is 75 % the same as another; an unknown `inspiration`; and (in the Action) a
-   render that looks like a copy of an existing one. It warns when
-   more than two villas share one floor-plan layout — then change bedrooms, garage, pool or set `"mirror": true`
-   (the mirrored variant flips the plan left-to-right, with the living rooms next to the garage).
+   (+ layout) as an existing villa (mirroring does not count as different); the same style, floors and layout with an
+   area less than 25 m² apart; a render prompt that is 75 % the same as another; an unknown `inspiration`; and (in
+   the Action) a render that looks like a copy of an existing one. It warns when
+   more than two villas share one floor-plan layout — then change bedrooms, garage, pool, set `"mirror": true`
+   (the mirrored variant flips the plan left-to-right: with the standard plan the living rooms come next to the
+   garage, with the split plan the master suite does) or, for a single-storey villa, use the other plan
+   (`"layout": "b"`).
    Read the titles and summaries of the last twenty villas and write something different: other materials, other
    setting, other outdoor features. Allowed values per style are in `STYLE_RULES` in `scripts/drawings.mjs`
    (roofs, floors; styles marked `projectOnly` are not single villas); area per floor must be 80–320 m².
    Optional `ratio` (footprint width / depth, 1.0–2.2) varies the massing between villas of the same style, and
    optional `tree` (`olive`, `cypress`, `palm`, `pine`, `round`) sets the planting drawn on the elevation and site
    plan — match it to the setting you describe in the render prompt.
+
+   **Single-storey villas have two plans.** A villa with one storey above ground — `floors: 1`, or `luxury` with
+   `floors: 2` (one storey over its lower level) — is drawn with the standard plan, or with the split plan when the
+   entry sets `"layout": "b"`:
+   - standard (no `"layout"`): living wing at one end, entrance hall in the middle, bedrooms off a corridor (three
+     bedrooms: 2 bathrooms) or off a compact hall (two bedrooms: 1 bathroom);
+   - `"layout": "b"`, the split plan: living, dining and kitchen run through the middle of the house from the rear
+     garden to the terrace and pool, glazed at both ends; the master suite takes one end (bedroom on the rear garden, a
+     lobby, the en-suite and on wider plans a dressing room, plus a study on the terrace when the plan is deep); the
+     entrance hall on the street front and the other bedrooms take the other end — two bedrooms and their bathroom
+     (three bedrooms: 2 bathrooms), or one bedroom with its own shower room or bathroom off the hall (two bedrooms:
+     **2** bathrooms). It works with every single-storey style, garage, pool, `mirror`, `ratio` and `tree`.
+
+   The layout is part of the design key and of the 25 m² rule, so `"layout": "b"` opens a second set of single-storey
+   design keys (style|floors|bedrooms|garage|pool|b) and its own area range: a layout-b villa is only compared with
+   other layout-b villas of the same style and floors. Use it like this: list the free keys of both plans; for each
+   single-storey villa take the plan whose floor-plan layout (the key `npm run validate` prints in its "villas share
+   the floor-plan layout" warning: storeys|bedrooms|garage|pool|mirror, with `|b` for the split plan) has fewer than
+   two villas, so that every floor plan serves at most two villas; while layout b has fewer villas than the standard
+   plan, prefer it, and spread its areas over the whole 100–320 m² per floor (luxury on two floors: 200–640 m² in
+   all) instead of squeezing into the gaps left by the standard plan.
+   The split plan has four columns across the house and needs a footprint at least **11.2 m wide** (11.5 m for three
+   bedrooms on a plan less than 9.6 m deep; 12.1 m for `modern` and `absheron`, whose entrance has the clad fin) and,
+   with three bedrooms, at least **7.2 m deep** (two bedrooms: 6.3 m). The footprint is about
+   √(`areaM2` / `floors` × `ratio`) wide and √(`areaM2` / `floors` / `ratio`) deep — for `luxury` on two floors use
+   half the area. So a small split-plan villa needs a moderate ratio: 100 m² with three bedrooms takes a ratio of
+   about 1.35–1.9, with two about 1.25–2.2 (`modern`/`absheron` 100 m²: 1.5 or more); from about 130 m² per floor
+   (`modern`/`absheron`: 150 m²) every ratio fits. `npm run validate` fails a footprint that is too small and prints the ratios that fit; it warns when a
+   bedroom still comes out under 9 m². A villa takes no other `"layout"` value; two-storey villas, projects and
+   interiors cannot use it (interiors have their own `"interior": { "layout" }`).
+   In the render prompt describe what the elevation shows: a long single-storey house with its glazed living room in
+   the middle between two solid wings, the entrance door beside it on the street front.
 
 2. **Name them.** Use Azerbaijani places and landscapes (Nabran, Quba, Qəbələ, Şəki, Lənkəran, Mərdəkan,
    Göygöl, Xınalıq, Zaqatala, Şuşa, Qusar, Astara, Buzovna, Novxanı, İsmayıllı, Laza, Talış, Pirqulu…), not yet used
@@ -65,7 +100,8 @@ npm ci
 
 3. **Write the entries** in `data/plans.json` (append at the end), same shape as the existing ones:
    `slug, style, roof, title{az,en,ru}, summary{az,en,ru}, areaM2, floors, bedrooms, bathrooms, garage, pool,
-   priceCents, published: true, demo: true, location` (+ optional `ratio`, `tree`).
+   priceCents, published: true, demo: true, location` (+ optional `ratio`, `tree`, `mirror`, and `"layout": "b"` for a
+   single-storey villa).
    - Location: `"location": [longitude, latitude]` with 4 decimals — the centre of the town or village the villa is
      named after (not a plot: the villa is a concept). It places the villa on the projects map (`/<lang>/map`);
      `npm run validate` warns when it is missing and fails when it lies outside Azerbaijan.

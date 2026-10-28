@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, isCustomDrawn, PALETTES, planSheets, PROJECT_RULES, scheduleSheet, SHEET_H, SHEET_W, sitePlanSheet, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, isCustomDrawn, PALETTES, planSheets, PROJECT_RULES, schedules, scheduleSheet, SHEET_H, SHEET_W, sitePlanSheet, splitPlanLimits, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -35,7 +35,9 @@ const stem = (slug) => slug.replace(/-\d+$/, "");
 const projectTag = (p) => (p.interior ? `interior:${p.interior.type}` : p.project ? `${p.project.kind}×${p.project.units}` : "villa");
 // an interior repeats a design when the same kind of space has the same palette and bedrooms
 const designKey = (p) => (p.interior ? [projectTag(p), p.interior.palette, p.bedrooms].join("|") : [projectTag(p), p.style, p.floors, p.bedrooms, p.garage ? "garage" : "-", p.pool ? "pool" : "-", ...(p.layout ? [p.layout] : [])].join("|"));
-const layoutKey = (p) => (p.project || p.interior ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror].join("|"));
+// the floor plan a villa is drawn with: storeys above ground, rooms, garage, pool, mirroring and the plan variant
+// ("layout": "b", the split plan of a single-storey villa)
+const layoutKey = (p) => (p.project || p.interior ? `project:${p.slug}` : [p.style === "duplex" ? "duplex" : p.style === "luxury" ? p.floors - 1 : p.floors, p.bedrooms, p.garage, p.pool, !!p.mirror, ...(p.layout ? [p.layout] : [])].join("|"));
 // custom-drawn plans have no generated design to compare: the design rules below look at generated plans only
 const generated = plans.filter((p) => !isCustomDrawn(p));
 const firstBy = (keyFn, list = plans) => {
@@ -49,7 +51,7 @@ const firstBy = (keyFn, list = plans) => {
 };
 for (const [k, slugs] of firstBy((p) => stem(p.slug ?? ""))) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: the same place name "${k}" is used more than once`);
 for (const l of LANGS) for (const [k, slugs] of firstBy((p) => norm(p.title?.[l] ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical ${l} title "${k}"`);
-for (const [k, slugs] of firstBy(designKey, generated)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool = ${k}) — change at least one of these`);
+for (const [k, slugs] of firstBy(designKey, generated)) if (slugs.length > 1) errors.push(`${slugs.join(", ")}: same design (style|floors|bedrooms|garage|pool[|layout] = ${k}) — change at least one of these`);
 // same style and storeys with almost the same area reads as the same house
 for (let i = 0; i < generated.length; i++) {
   for (let j = i + 1; j < generated.length; j++) {
@@ -69,7 +71,7 @@ for (let i = 0; i < briefs.length; i++) {
     else if (jaccard >= 0.6) warnings.push(`${briefs[i].slug}, ${briefs[j].slug}: render prompts are ${Math.round(jaccard * 100)}% alike`);
   }
 }
-for (const [k, slugs] of firstBy(layoutKey, generated)) if (slugs.length > 2) warnings.push(`${slugs.join(", ")}: ${slugs.length} villas share the floor-plan layout ${k} — vary bedrooms, garage, pool or mirror`);
+for (const [k, slugs] of firstBy(layoutKey, generated)) if (slugs.length > 2) warnings.push(`${slugs.join(", ")}: ${slugs.length} villas share the floor-plan layout ${k} — vary bedrooms, garage, pool${k.startsWith("1|") && !k.endsWith("|b") ? ", mirror or \"layout\": \"b\"" : " or mirror"}`);
 for (const [k, slugs] of firstBy((p) => norm(p.summary?.en ?? ""))) if (k && slugs.length > 1) errors.push(`${slugs.join(", ")}: identical English summary`);
 
 // concept renders must not be near-copies of each other (perceptual difference hash, 256 bits)
@@ -141,6 +143,11 @@ for (const plan of plans) {
     if (plan.garage) err("projects park cars on the masterplan: set garage to false");
     if (plan.sign !== undefined && (typeof plan.sign !== "string" || !/^[A-Z0-9 .&-]{2,24}$/.test(plan.sign))) err("sign must be 2–24 capital letters (the owner's own name only — never a third-party brand)");
   } else if (rules.projectOnly) err(`style ${plan.style} is only drawn as part of a project (set "project")`);
+  // a single villa with one storey above ground (floors 1, or luxury over its lower level) has a second plan:
+  // "layout": "b", the split plan (scripts/drawings.mjs splitPlan)
+  const villa = !plan.project && !rules.projectOnly && !rules.interior && !rules.custom && !rules.layouts && plan.style !== "duplex";
+  const aboveGround = plan.style === "luxury" ? plan.floors - 1 : plan.floors;
+  const splitPlan = villa && aboveGround === 1 && plan.layout === "b";
   const maxRatio = rules.layouts ? 4.0 : 2.2;
   if (plan.ratio !== undefined && !(plan.ratio >= 1 && plan.ratio <= maxRatio)) err(`ratio must be between 1.0 and ${maxRatio}`);
   if (rules.layouts) {
@@ -153,7 +160,16 @@ for (const plan of plans) {
     if (plan.style === "restaurant" && lay === "d" && plan.facade !== "lodge") err('the mountain lodge (layout d) takes facade "lodge"');
     if (plan.style === "restaurant" && lay !== "d" && plan.facade === "lodge") err('facade "lodge" is for the mountain lodge (layout d)');
     if (plan.garage || plan.pool) err("commercial buildings park cars on the masterplan and have no private pool: set garage and pool to false");
-  } else if (plan.layout !== undefined || plan.facade !== undefined) err(`"layout" and "facade" are for the commercial building styles`);
+  } else if (plan.layout !== undefined || plan.facade !== undefined) {
+    if (plan.facade !== undefined) err(`"facade" is for the commercial building styles`);
+    if (plan.layout !== undefined) {
+      // the houses of a terrace, farm estate or village cluster; the commercial and custom-drawn buildings
+      const houses = plan.project && !rules.commercial && !rules.residential && !rules.custom;
+      if (!villa) err(rules.interior ? `an interior sets its plan variant as "interior": { "layout" }, not "layout"` : houses ? `"layout" is not used for the houses of a project (${plan.project.kind}): they use the standard plan` : rules.projectOnly || rules.custom ? `"layout" is not used for the ${plan.style} style` : `"layout" is for the commercial building styles and single-storey villas, not ${plan.style}`);
+      else if (aboveGround !== 1) err(`"layout": "b" (the split plan) is drawn for villas with one storey above ground (floors 1, or luxury with floors 2), not a ${plan.style} with ${plan.floors} floors`);
+      else if (plan.layout !== "b") err(`"layout" of a single-storey villa can only be "b" (the split plan) — leave it out for the standard plan`);
+    }
+  }
   if (plan.footprint !== undefined && !rules.custom) {
     // existing buildings keep their measured footprint instead of one derived from the area
     const [fw, fd] = Array.isArray(plan.footprint) ? plan.footprint : [];
@@ -254,6 +270,29 @@ for (const plan of plans) {
   if (wet !== plan.bathrooms) err(`bathrooms is ${plan.bathrooms} but the generated plans have ${wet} bathrooms/WCs — set bathrooms to ${wet}`);
   const bedrooms = model.levels.reduce((n, lv) => n + lv.spaces.filter((s) => s.kind === "bedroom" || s.kind === "master").length, 0);
   if (bedrooms !== plan.bedrooms) err(`bedrooms is ${plan.bedrooms} but the generated plans have ${bedrooms}`);
+  if (splitPlan) {
+    // the split plan's four columns need a footprint this wide (and, three bedrooms, this deep); within that, a small
+    // footprint still makes it tight
+    const fits = (m) => {
+      const l = splitPlanLimits(m);
+      return m.W >= l.W - 0.01 && m.D >= l.D - 0.01;
+    };
+    const lim = splitPlanLimits(model);
+    let fix = "";
+    if (!fits(model)) {
+      // the ratios (1.0–2.2, in steps of 0.05) that give this area a footprint the split plan fits
+      const ok = Array.from({ length: 25 }, (_, i) => +(1 + i * 0.05).toFixed(2)).filter((r) => fits(buildModel({ ...plan, ratio: r })));
+      const runs = ok.reduce((a, r) => (a.length && Math.abs(r - a.at(-1)[1] - 0.05) < 1e-6 ? (a.at(-1)[1] = r, a) : [...a, [r, r]]), []);
+      fix = runs.length ? `set ratio to ${runs.map(([a, b]) => (a === b ? a.toFixed(2) : `${a.toFixed(2)}–${b.toFixed(2)}`)).join(" or ")}` : "use more area";
+    }
+    if (model.W < lim.W - 0.01) err(`the split plan ("layout": "b") needs a footprint at least ${lim.W} m wide; this one is ${model.W} × ${model.D} m — ${fix}, or leave out "layout"`);
+    else if (model.D < lim.D - 0.01) err(`the split plan ("layout": "b") with ${plan.bedrooms} bedrooms needs a footprint at least ${lim.D} m deep; this one is ${model.W} × ${model.D} m — ${fix}, or leave out "layout"`);
+    else {
+      const small = schedules(model).rooms.filter((r) => /BEDROOM/.test(r.name) && r.area < 9);
+      const living = model.levels[0].spaces.find((sp) => sp.kind === "open" || sp.kind === "living");
+      if (small.length || living.w < 3.39) warnings.push(`${id}: the split plan is tight on a ${model.W} × ${model.D} m footprint (${small.length ? `a bedroom of ${small[0].area.toFixed(1)} m²` : `a living space ${living.w.toFixed(1)} m wide`}) — use more area or a larger ratio`);
+    }
+  }
 
   if (plan.demo) {
     const dir = path.join(root, "renders", plan.slug);

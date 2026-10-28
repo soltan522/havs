@@ -306,7 +306,7 @@ export function buildModel(plan) {
   else if (plan.style === "showroom") levels = showroomLevels(spec);
   else if (COMMERCIAL_LEVELS[plan.style]) levels = COMMERCIAL_LEVELS[plan.style](plan, W, D, spec);
   else if (itype) levels = interiorLevels(plan, W, D, spec);
-  else if (above === 1) levels = [singleStorey(plan, W, D, spec)];
+  else if (above === 1) levels = [singleStorey(plan, W, D, spec, layoutOf(plan))];
   else levels = twoStorey(plan, W, D, spec);
 
   // mirrored variant: the same rooms, flipped left-to-right (garage stays on the right)
@@ -524,7 +524,9 @@ function twoStorey(plan, W, D, spec) {
   return [ground, first];
 }
 
-function singleStorey(plan, W, D, spec) {
+/** One-storey house: layout "a" (the default, below) or the split plan "b" (plan.layout, villas only). */
+function singleStorey(plan, W, D, spec, layout = "a") {
+  if (layout === "b") return splitPlan(plan, W, D, spec);
   const glassy = !!spec.glassy;
   if (plan.bedrooms >= 3) {
     // Corridor plan: living wing on the left, bedroom wing on the right served by one corridor.
@@ -589,6 +591,377 @@ function singleStorey(plan, W, D, spec) {
       { space: "bedA", side: "bottom", at: 0.5, w: 1.8 },
     ],
   };
+}
+
+/** The narrowest columns of the split plan (layout b), in metres: master wing, entrance hall, bedroom wing, living space. */
+function splitColumns(spec, three, D) {
+  return { L: 3.4, H: spec.fin ? 2.2 : three && D < 9.6 ? 1.7 : 1.3, R: 3.1, C: 3.4 };
+}
+
+/**
+ * The smallest footprint the split plan (layout b) is drawn for: its four columns at their narrowest across the width,
+ * and (three bedrooms) two bedrooms one behind the other in the depth. The validator rejects a smaller footprint.
+ */
+export function splitPlanLimits(model) {
+  const three = model.plan.bedrooms >= 3;
+  const m = splitColumns(model.spec, three, model.D);
+  return { W: r1(m.L + m.H + m.R + m.C), D: three ? 7.2 : 6.3 };
+}
+
+/**
+ * Layout b of a one-storey villa: a split plan. Living, dining and kitchen run through the depth in the middle, glazed
+ * to the terrace and pool in front (plan bottom: the street, entrance and terrace side the elevation shows) and to the
+ * rear garden. The master suite takes one end: the bedroom on the rear garden, a lobby off the living space, en-suite
+ * and dressing room, and a study on the terrace when the plan is deep. The other end has the entrance hall and either
+ * two bedrooms with their bathroom (three bedrooms) or a second bedroom with its own shower room or bathroom (two).
+ * Sizes are worked out in metres from the footprint and stored as fractions like the other templates; doors are kept
+ * clear of the furniture as it is drawn after mirroring and of each other's leaves, and no window is put where the
+ * garage stands against the wall.
+ */
+function splitPlan(plan, W, D, spec) {
+  const glassy = !!spec.glassy;
+  const three = plan.bedrooms >= 3;
+  const mirror = !!plan.mirror;
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const r05 = (v) => Math.round(v * 20) / 20;
+  const level = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [], veranda: spec.pergola, canopy: spec.canopy };
+  // the mirrored variant flips the template afterwards: positions along the top and bottom walls are written as drawn
+  const A = (a) => (mirror ? 1 - a : a);
+  const drawn = (side) => (!mirror ? side : side === "left" ? "right" : side === "right" ? "left" : side);
+  const away = (side) => (drawn(side) === "left" ? "right" : "left");
+  const box = {};
+  // every room fits its name to the room on the plan sheet (floorPlanSheet: the full name, a short one, the first word)
+  const room = (id, label, kind, x0, y0, x1, y1, extra = {}) => {
+    box[id] = { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
+    level.spaces.push({ id, label, kind, x: x0 / W, y: y0 / D, w: (x1 - x0) / W, h: (y1 - y0) / D, fit: true, ...extra });
+  };
+  const door = (space, side, at, w, extra = {}) => level.doors.push({ space, side, at, w, ...extra });
+  const win = (space, side, at, w) => level.windows.push({ space, side, at, w });
+  // floor area of a room inside its walls
+  const inside = (id) => {
+    const b = box[id];
+    const t = (edge, outer) => (Math.abs(edge - outer) < 0.01 ? EXT : INT / 2);
+    return (b.w - t(b.x0, 0) - t(b.x1, W)) * (b.h - t(b.y0, 0) - t(b.y1, D));
+  };
+  // the attached garage stands against the right wall (left when mirrored), 6.4 m deep from the front: no windows there
+  const garageSide = mirror ? "left" : "right";
+  const garageFrom = plan.garage ? D - 6.4 - 0.2 : Infinity;
+  const sideWin = (id, side, w) => {
+    const b = box[id];
+    if (b.h < 1.6 || (side === garageSide && b.y0 + b.h / 2 + Math.min(w, b.h - 0.6) / 2 > garageFrom)) return false;
+    win(id, side, 0.5, w);
+    return true;
+  };
+  // a door in the hall-side wall of a bedroom of depth h: below the bed (2.05 m long against the top wall) and clear of
+  // the wall at the room's foot (the front wall when `front`)
+  const bedDoor = (h, front) => Math.min(2.9, h - (front ? EXT : INT / 2) - 0.1 - 0.45);
+  // a door in a side wall of a bathroom: as drawn, the bath or shower is in the top left corner, the basin bottom left
+  // and the WC bottom right
+  const wetDoor = (id, side, w = 0.8) => {
+    const b = box[id];
+    const top = b.y0 < 0.01 ? EXT : INT / 2;
+    const h = b.h - top - (Math.abs(b.y1 - D) < 0.01 ? EXT : INT / 2);
+    const wide = b.w - (b.x0 < 0.01 || Math.abs(b.x1 - W) < 0.01 ? EXT + INT / 2 : INT) > 2.7;
+    const [lo, hi] = drawn(side) === "left" ? [1.0, h - 0.5] : [wide ? 0.15 : 0.95, h - 0.8];
+    door(id, side, (top + Math.max(lo + w / 2, (lo + hi) / 2)) / b.h, w);
+  };
+  // a bedroom with a door in its left-hand side wall (centre `dc` below its top): the wardrobe along the bottom wall
+  // stands at the far end and stops short of the door when they are level
+  const sideRobe = (y0, y1, w, dc) => {
+    const robeTop = y1 - y0 - (Math.abs(y1 - D) < 0.01 ? EXT : INT / 2) - 0.62;
+    return { side: away("left"), ...(dc + 0.5 > robeTop ? { max: w - EXT - INT / 2 - 1.3 } : {}) };
+  };
+  // a door at the right-hand end (as drawn) of the top or bottom wall of a room spanning the master wing
+  const endAt = (w, dw) => A((w - (mirror ? EXT : INT / 2) - 0.2 - dw / 2) / w);
+  // a door at the outer end (the outside wall: drawn left unless mirrored) of a room of width w in the master wing
+  const outerAt = (w, dw) => (EXT + 0.15 + dw / 2) / w;
+
+  // ---- columns: master wing | living | entrance hall | bedrooms
+  const shallow = three && D < 9.6;
+  const least = splitColumns(spec, three, D);
+  let L = clamp(0.26 * W, 3.4, 6.4);
+  // the clad fin of some styles stands beside the entrance door, inside the hall
+  let H = spec.fin ? clamp(0.15 * W, 2.2, 2.7) : clamp(0.085 * W, shallow ? 1.8 : 1.4, 2.2);
+  let R = clamp(Math.max(0.22 * W, 0.25 * D), 3.4, 4.4);
+  // a narrow footprint: the columns give way in proportion to what they can spare, down to their narrowest (and below
+  // that only on a footprint the validator rejects)
+  const give = (want, floor) => {
+    const gap = want - (W - L - H - R);
+    if (gap <= 0) return;
+    const spare = [L - floor.L, H - floor.H, R - floor.R].map((v) => Math.max(0, v));
+    const k = Math.min(1, gap / (spare[0] + spare[1] + spare[2] || 1));
+    [L, H, R] = [L - spare[0] * k, H - spare[1] * k, R - spare[2] * k];
+  };
+  give(3.6, least);
+  give(least.C, { L: 2.9, H: 1.2, R: 2.8 });
+  [L, H, R] = [r1(L), r1(H), r1(R)];
+  const C = W - L - H - R;
+  const xc = L, xh = L + C, xr = L + C + H;
+
+  // ---- living space through the depth
+  const frontGlass = glassy ? [{ at: 0.5, w: 99 }] : C >= 6.4 ? [{ at: 0.27, w: 2.2 }, { at: 0.73, w: 2.2 }] : [{ at: 0.5, w: r05(Math.min(2.6, C - 1.4)) }];
+  let yLiving, rowLines = [];
+  if (D < 9 || C < 5 || (C < 6.5 && D < 10.4)) {
+    // one open room: kitchen on the rear wall, table, sitting group by the terrace windows (its name below the kitchen)
+    room("open", "LIVING / DINING / KITCHEN", "open", xc, 0, xh, D, { ldk: true, labelY: 1.1 / (D - 2 * EXT), short: "LIVING / KITCHEN" });
+    frontGlass.forEach((f) => win("open", "bottom", f.at, f.w));
+    if (glassy) win("open", "top", 0.5, r05(Math.min(4.0, C - 1.2)));
+    else if (C >= 5.6) win("open", "top", 0.3, 2.0), win("open", "top", 0.75, 1.6);
+    else win("open", "top", 0.5, r05(Math.min(2.0, C - 1.2)));
+    yLiving = 0;
+  } else if (C >= 6.5 && (D < 13 || C >= 9)) {
+    // kitchen (left as drawn) and dining side by side on the rear garden, the living room across the front
+    const k = r1(clamp(0.36 * D, 3.4, 4.8)), kw = r1(C / 2);
+    const [kx0, kx1, dx0, dx1] = mirror ? [xh - kw, xh, xc, xh - kw] : [xc, xc + kw, xc + kw, xh];
+    room("kitchen", "KITCHEN", "kitchen", kx0, 0, kx1, k);
+    room("dining", "DINING", "dining", dx0, 0, dx1, k);
+    room("living", "LIVING ROOM", "living", xc, k, xh, D, { noSideboard: true });
+    door("kitchen", mirror ? "left" : "right", 0.5, 99, { open: true });
+    door("kitchen", "bottom", 0.5, 99, { open: true });
+    door("dining", "bottom", 0.5, 99, { open: true });
+    win("kitchen", "top", 0.5, 2.0);
+    win("dining", "top", 0.5, glassy ? 3.2 : 2.0);
+    frontGlass.forEach((f) => win("living", "bottom", f.at, f.w));
+    yLiving = k;
+    rowLines = [k];
+  } else {
+    // kitchen, dining and living room one behind the other, open from the rear garden to the terrace
+    const k = r1(clamp(0.3 * D, 3.0, 4.4)), kd = r1(k + clamp(0.27 * D, 3.3, 4.4));
+    room("kitchen", "KITCHEN", "kitchen", xc, 0, xh, k);
+    room("dining", "DINING", "dining", xc, k, xh, kd);
+    room("living", "LIVING ROOM", "living", xc, kd, xh, D, { noSideboard: true, compact: C < 5.75 });
+    door("kitchen", "bottom", 0.5, 99, { open: true });
+    door("dining", "bottom", 0.5, 99, { open: true });
+    win("kitchen", "top", 0.5, r05(Math.min(glassy ? 3.2 : 2.0, C - 1.2)));
+    frontGlass.forEach((f) => win("living", "bottom", f.at, f.w));
+    yLiving = kd;
+    rowLines = [k, kd];
+  }
+
+  // ---- master suite: the bedroom on the rear garden; en-suite and dressing room (wide wings) towards the front
+  const dress = L >= 4.6;
+  // the bathroom across the bedroom wing is at least 2.3 m deep inside: the en-suite's depth that keeps it about as large
+  const Rin = R - EXT - INT / 2;
+  const ensNeed = (w) => (Rin * 2.3) / 1.25 / (w - EXT - INT / 2) + EXT + INT / 2;
+  const ensW = dress ? clamp(r1(L - 2.1), 2.5, 3.6) : L; // the dressing room 2.1–2.8 m wide
+  const noTub = ensW - EXT - INT / 2 < 2.85; // a tub needs the length of the top wall beside the door
+  let masterDepth, ensFront;
+  if (D < 8.4) {
+    // shallow plan: the bedroom opens off the living space, the en-suite and dressing room off the bedroom (their doors
+    // at the right-hand end as drawn, the wardrobe at the other end)
+    const tm = r1(clamp(D - Math.max(2.8, ensNeed(ensW)), 3.6, 0.6 * D));
+    room("master", "MASTER BEDROOM", "master", 0, 0, L, tm, { robe: dress ? false : { side: "left", max: L - EXT - INT / 2 - 1.35 } });
+    room("ensuite", "EN-SUITE", "bath", 0, tm, ensW, D, { noTub });
+    if (dress) room("dress", "DRESSING", "dressing", ensW, tm, L, D, { rails: ["bottom", "left", "right"] });
+    door("master", "right", bedDoor(tm, false) / tm, 0.9);
+    door("ensuite", "top", endAt(ensW, 0.8), 0.8);
+    if (dress) door("dress", "top", 0.5, 0.8);
+    masterDepth = tm;
+    ensFront = true;
+  } else {
+    // a lobby off the living space. The bedroom, en-suite and dressing room open off its far end, clear of the leaf of
+    // the lobby door; the wardrobe and the en-suite's fittings go to the other end, as drawn
+    const lob = 1.4;
+    let tm = clamp(0.42 * D, 3.6, 6.4);
+    const rest = D - tm - lob, teT = clamp(Math.max(0.26 * D, ensNeed(ensW)), 2.4, 3.6);
+    let te = rest, ts = 0;
+    if (rest >= teT + 2.8) {
+      te = teT;
+      ts = rest - te;
+    } else {
+      // no study: the bedroom takes what the en-suite does not need
+      te = Math.min(rest, clamp(Math.max(0.34 * D, ensNeed(ensW)), 2.8, 3.6));
+      tm = D - lob - te;
+    }
+    let y1 = r1(tm);
+    // the lobby door must open into one room of the living space, not onto the wall end between two of them
+    for (const yb of rowLines) {
+      if (yb <= y1 - 0.05 || yb >= y1 + lob + 0.05) continue;
+      const below = yb, above = yb - lob, room0 = ts ? teT + 2.8 : 2.4;
+      y1 = D - below - lob >= room0 ? below : above >= 3.6 ? above : y1;
+    }
+    const y2 = r1(y1 + lob);
+    if (ts) ts = D - y2 - te;
+    else te = D - y2;
+    const y3 = ts ? r1(y2 + te) : D;
+    room("lobby", "LOBBY", "hall", 0, y1, L, y2, { labelY: 0.42 });
+    room("master", "MASTER BEDROOM", "master", 0, 0, L, y1, { robe: dress ? false : { side: away("left"), max: L - EXT - INT / 2 - 1.35 } });
+    room("ensuite", "EN-SUITE", "bath", 0, y2, ensW, y3, { noTub, flipX: !mirror });
+    if (dress) room("dress", "DRESSING", "dressing", ensW, y2, L, y3, { rails: ["bottom", "left", "right"] });
+    door("lobby", "right", 0.5, 0.9);
+    door("master", "bottom", outerAt(L, 0.9), 0.9);
+    door("ensuite", "top", outerAt(ensW, 0.8), 0.8);
+    if (dress) door("dress", "top", (INT / 2 + 0.15 + 0.4) / (L - ensW), 0.8);
+    if (ts) {
+      // a study on the terrace, opening off the living room (its shelves move off the wall with the door)
+      room("study", "STUDY", "study", 0, y3, L, D, { noShelf: !mirror });
+      const slo = Math.max(y3 + (mirror ? 2.2 : 0.75), yLiving + 0.75), shi = D - 0.75;
+      door("study", "right", ((slo <= shi ? (slo + shi) / 2 : shi) - y3) / (D - y3), 0.9);
+      win("study", "bottom", 0.5, glassy ? 99 : r05(Math.min(2.2, L - 1.2)));
+      sideWin("study", "left", 1.2);
+    }
+    masterDepth = y1;
+    ensFront = !ts;
+  }
+  win("master", "top", 0.5, r05(Math.min(glassy ? 3.0 : 2.0, L - 1.2)));
+  sideWin("master", "left", 1.4);
+  // the en-suite's window is in the side wall; on the front only where the garage stands against that wall, and never
+  // as floor-to-ceiling glazing (glassy styles: an inner bathroom with extract ventilation)
+  if (!sideWin("ensuite", "left", 0.6) && ensFront && !glassy) win("ensuite", "bottom", 0.5, 0.8);
+  // the other bedrooms stay smaller than the master bedroom: the depth that gives a room of width w that much floor
+  const masterArea = (L - EXT - INT / 2) * (masterDepth - EXT - INT / 2);
+  const depthFor = (w) => EXT + INT / 2 + (0.95 * masterArea) / (w - EXT - INT / 2);
+  // the other bathroom across the bedroom wing stays about the size of the en-suite (2.3–3.0 m inside, front to back)
+  const bathArea = Math.max(6.0, 0.95 * inside("ensuite"));
+  const wetDepth = INT + clamp(bathArea / Rin, 2.3, 3.0);
+
+  // ---- bedroom end: rows from the rear garden to the front, and where the entrance hall starts. The bedroom on the
+  // front is at least 3.6 m deep, so its door from the hall comes below the bed and clear of the front wall
+  let rows;
+  if (three && !shallow) {
+    // second bedroom across the back; bathroom, laundry (deep plans) and third bedroom beside the hall
+    let t2 = clamp(Math.min(0.32 * D, depthFor(H + R)), 3.1, 4.6), tb = wetDepth; // 3.1: the bed still fits
+    let t3 = clamp(Math.min(0.36 * D, depthFor(R)), 3.6, 5.0);
+    let extra = D - t2 - tb - t3, laundry = 0;
+    if (extra < 0) {
+      // not deep enough for these: the bathroom, then the back bedroom give way
+      const cut = Math.min(-extra, tb - INT - 2.3);
+      tb -= cut;
+      t2 += extra + cut;
+      extra = 0;
+    }
+    if (extra >= 1.4) {
+      laundry = Math.min(extra, 3.0);
+      extra -= laundry;
+    }
+    // what is left: the third, then the second bedroom (each up to the master's size), then the laundry or bathroom
+    const m3 = Math.min(extra, Math.max(0, depthFor(R) - t3));
+    const m2 = Math.min(extra - m3, Math.max(0, depthFor(H + R) - t2));
+    t3 += m3;
+    t2 += m2;
+    if (laundry) laundry += extra - m3 - m2;
+    else tb += extra - m3 - m2;
+    const a = r1(t2), b = r1(t2 + tb), c = laundry ? r1(t2 + tb + laundry) : b;
+    rows = { kind: "deep", a, b, c, hall: a };
+  } else if (three) {
+    // shallow plan: the bathroom at the back of the hall, the two bedrooms one behind the other
+    const half = r1(Math.min(D / 2, D - 3.6));
+    rows = { kind: "shallow", half, tb: r1(Math.min(clamp(0.33 * D, 2.3, 2.8), half - 1.0)) };
+    rows.hall = rows.tb;
+  } else {
+    // two bedrooms: family room and laundry (deep plans), bathroom and the second bedroom beside a full-depth hall
+    let t3 = clamp(Math.min(0.45 * D, depthFor(R)), 3.6, 6.0);
+    let ts = wetDepth;
+    const rest = D - t3 - ts;
+    let study = 0, laundry = 0;
+    if (rest >= 2.8 && Rin * (rest - EXT - INT / 2) >= 9) {
+      study = Math.min(rest, clamp(0.3 * D, 2.8, 5.4));
+      laundry = rest - study;
+      if (laundry < 2.1) {
+        study += laundry;
+        laundry = 0;
+      }
+    } else if (rest >= 1.6) laundry = rest;
+    else {
+      // nothing at the back: the bathroom reaches the rear wall (deeper by that wall); what is left goes to the
+      // bedroom (up to the master's size), then the bathroom
+      ts += EXT - INT / 2;
+      let left = D - t3 - ts;
+      if (left < 0) t3 = Math.max(3.6, t3 + left);
+      left = D - t3 - ts;
+      const more = Math.min(Math.max(0, left), Math.max(0, depthFor(R) - t3));
+      t3 += more;
+      ts += left - more;
+    }
+    const s1 = r1(study), s2 = r1(study + laundry), s3 = r1(study + laundry + ts);
+    rows = { kind: "two", s1, s2, s3, hall: 0 };
+  }
+
+  // ---- entrance hall (it carries the level tag; the clad fin of some styles stands beside its door)
+  room("hall", "ENTRANCE HALL", "hall", xh, rows.hall, xr, D, { short: "HALL" });
+  let ec = H / 2;
+  if (glassy) ec = Math.max(ec, 1.15); // the glazed side light left of the door (as drawn) stays inside the hall
+  if (spec.fin) ec = Math.min(ec, H - 1.55);
+  ec = clamp(ec, 0.65, H - 0.65);
+  // the leaf hangs on the living-room side of the hall, so it opens against that wall and never across a bedroom
+  // door; a glassy style's side light is left out where it would not stay inside the hall
+  door("hall", "bottom", A(ec / H), 1.0, { entry: true, ...(mirror ? { hinge: "right" } : {}), ...(glassy && ec < 1.15 - 1e-6 ? { sideLight: false } : {}) });
+  if (rows.hall === 0) win("hall", "top", 0.5, r05(Math.min(1.2, H - 0.6)));
+  // the hall opens into the living room, above the open entrance leaf
+  const hy = rows.hall, lo = Math.max(hy, yLiving) + 0.3;
+  let hi = D - EXT - 1.0 - 0.15;
+  if (hi - lo < 1.0) hi = D - 0.45;
+  door("hall", "left", ((lo + hi) / 2 - hy) / (D - hy), r05(Math.min(1.8, hi - lo)), { open: true });
+
+  // ---- bedroom end
+  const bedFront = glassy ? r05(Math.min(2.6, R - 1.0)) : 1.8;
+  if (rows.kind === "deep") {
+    const { a, b, c } = rows;
+    room("bedB", "BEDROOM", "bedroom", xh, 0, W, a, { robe: { side: drawn("right"), max: R - 0.7 } });
+    room("bath", "BATH", "bath", xr, a, W, b);
+    if (c > b) room("laundry", "LAUNDRY", "store", xr, b, W, c, { flipX: !mirror }); // the counter clear of the door
+    room("bedC", "BEDROOM", "bedroom", xr, c, W, D, { robe: sideRobe(c, D, R, bedDoor(D - c, true)) });
+    door("bedB", "bottom", H / 2 / (H + R), 0.9);
+    wetDoor("bath", "left");
+    if (c > b) door("laundry", "left", 1 - 0.65 / (c - b), 0.8);
+    door("bedC", "left", bedDoor(D - c, true) / (D - c), 0.9);
+    win("bedB", "top", 0.5, r05(Math.min(1.8, H + R - 1.2)));
+    sideWin("bedB", "right", 1.2);
+    sideWin("bath", "right", 0.6);
+    if (c > b) sideWin("laundry", "right", 0.6);
+    win("bedC", "bottom", 0.5, bedFront);
+    sideWin("bedC", "right", 1.2);
+  } else if (rows.kind === "shallow") {
+    const { half, tb } = rows;
+    const yB = Math.min(Math.max(tb + 0.6, 2.85), half - 0.6);
+    room("bath", "BATH", "bath", xh, 0, xr, tb, { fixTop: true, noTub: true });
+    room("bedB", "BEDROOM", "bedroom", xr, 0, W, half, { robe: sideRobe(0, half, R, yB) });
+    room("bedC", "BEDROOM", "bedroom", xr, half, W, D, { robe: sideRobe(half, D, R, bedDoor(D - half, true)) });
+    door("bath", "bottom", 0.5, 0.8);
+    door("bedB", "left", yB / half, 0.9);
+    door("bedC", "left", bedDoor(D - half, true) / (D - half), 0.9);
+    win("bath", "top", 0.5, 0.6);
+    win("bedB", "top", 0.5, r05(Math.min(1.6, R - 1.2)));
+    sideWin("bedB", "right", 1.2);
+    win("bedC", "bottom", 0.5, bedFront);
+    sideWin("bedC", "right", 1.2);
+  } else {
+    const { s1, s2, s3 } = rows;
+    if (s1 > 0) {
+      room("family", "FAMILY ROOM", "living", xr, 0, W, s1, { noSideboard: true, compact: true });
+      door("family", "left", 0.5, 1.2, { open: true });
+      win("family", "top", 0.5, r05(Math.min(1.8, R - 1.2)));
+      sideWin("family", "right", 1.2);
+    }
+    if (s2 > s1) {
+      room("laundry", "LAUNDRY", "store", xr, s1, W, s2, { flipX: !mirror }); // the counter clear of the door
+      door("laundry", "left", 1 - 0.65 / (s2 - s1), 0.8);
+      if (s1 > 0) sideWin("laundry", "right", 0.6);
+      else win("laundry", "top", 0.5, 0.6);
+    }
+    // the second bedroom's own bathroom, off the hall (a shower room, or a bathroom where the wing is wide)
+    const big = Rin >= 3.0;
+    room("wet", big ? "BATH" : "SHOWER", big ? "bath" : "shower", xr, s2, W, s3);
+    room("bedB", "BEDROOM", "bedroom", xr, s3, W, D, { robe: sideRobe(s3, D, R, bedDoor(D - s3, true)) });
+    wetDoor("wet", "left");
+    door("bedB", "left", bedDoor(D - s3, true) / (D - s3), 0.9);
+    if (s2 > 0) sideWin("wet", "right", 0.6);
+    else win("wet", "top", 0.5, 0.6);
+    win("bedB", "bottom", 0.5, bedFront);
+    sideWin("bedB", "right", 1.2);
+  }
+
+  // the hall leads the room list (room 0.01, the level tag). Only the entrance door swings into it: the tag stands
+  // just above that swing and the hall's name in the length above the tag, run up the hall where it is narrow
+  // (labelUp: the length it has there, which floorPlanSheet fits the name to)
+  const hall = level.spaces.find((sp) => sp.id === "hall");
+  level.spaces = [hall, ...level.spaces.filter((sp) => sp !== hall)];
+  const top = rows.hall + (rows.hall < 0.01 ? EXT : INT / 2), hin = D - EXT - top;
+  const tagAt = D - EXT - 1.0 - 0.7, z0 = top + 0.15, z1 = tagAt - 0.3;
+  hall.tagY = (tagAt - top) / hin;
+  hall.labelY = ((z0 + z1) / 2 - top) / hin;
+  hall.labelUp = z1 - z0;
+  return level;
 }
 
 /** One three-bedroom unit over two floors (fractions of the unit): living across the plot, stair + services on the right. */
@@ -1504,7 +1877,8 @@ function entryDoors(level) {
     .map((d) => {
       const sp = level.spaces.find((x) => x.id === d.space);
       const w = Math.min(d.w, sp.w - 0.4);
-      return { x: sp.x + d.at * sp.w - w / 2, w };
+      // a plan may hang the leaf on the right-hand jamb (d.hinge) or leave out a glassy style's side light (d.sideLight)
+      return { x: sp.x + d.at * sp.w - w / 2, w, hinge: d.hinge, sideLight: d.sideLight };
     });
 }
 
@@ -1703,6 +2077,17 @@ function cadPen(out, layer) {
 
 function furniture(d, kind, inn, sp = {}) {
   const { x, y, w, h } = inn;
+  if (sp.flipX) {
+    // a plan may want the fittings the other way round (its door at the left-hand end): mirror the pen in the room
+    const p = d, m = (v) => 2 * x + w - v;
+    d = {
+      rect: (rx, ry, rw, rh, o) => p.rect(m(rx + rw), ry, rw, rh, o),
+      circle: (cx, cy, r) => p.circle(m(cx), cy, r),
+      ellipse: (cx, cy, rx, ry) => p.ellipse(m(cx), cy, rx, ry),
+      line: (x1, y1, x2, y2, o) => p.line(m(x1), y1, m(x2), y2, o),
+      poly: (pts, o) => p.poly(pts.map(([px, py]) => [m(px), py]), o),
+    };
+  }
   let g = "";
   const bed = (bw) => {
     const bl = 2.05;
@@ -1712,12 +2097,13 @@ function furniture(d, kind, inn, sp = {}) {
     let b = d.rect(bx, by, bw, bl) + d.rect(bx + 0.12, by + 0.12, bw / 2 - 0.18, 0.42, { round: 3 }) + d.rect(bx + bw / 2 + 0.06, by + 0.12, bw / 2 - 0.18, 0.42, { round: 3 });
     b += d.line(bx, by + 0.7, bx + bw, by + 0.7);
     if (w > bw + 1.4) b += d.rect(bx - 0.55, by + 0.05, 0.45, 0.4) + d.rect(bx + bw + 0.1, by + 0.05, 0.45, 0.4);
-    if (h > bl + 1.8) {
-      // wardrobe along the opposite wall
-      const ww = Math.min(w - 0.4, 2.4);
+    if (h > bl + 1.8 && sp.robe !== false) {
+      // wardrobe along the opposite wall; a plan may keep it to one end, clear of a door (sp.robe = { side, max })
+      const ww = Math.min(w - 0.4, 2.4, sp.robe?.max ?? Infinity);
+      const wx = sp.robe?.side === "right" ? x + w - 0.2 - ww : x + 0.2;
       const wy = y + h - 0.62;
-      b += d.rect(x + 0.2, wy, ww, 0.6);
-      for (let i = 1; i < 4; i++) b += d.line(x + 0.2 + (ww * i) / 4, wy, x + 0.2 + (ww * i) / 4, wy + 0.6);
+      b += d.rect(wx, wy, ww, 0.6);
+      for (let i = 1; i < 4; i++) b += d.line(wx + (ww * i) / 4, wy, wx + (ww * i) / 4, wy + 0.6);
     }
     return b;
   };
@@ -1770,12 +2156,35 @@ function furniture(d, kind, inn, sp = {}) {
     }
     case "living": {
       const sw = Math.min(3.4, w - 2.2);
-      if (sw > 2 && h * 0.42 >= 2.0) g += sofa(x + w * 0.45, y + h * 0.42, sw);
+      if (sw > 2 && h * 0.42 >= 2.0 && !sp.compact) g += sofa(x + w * 0.45, y + h * 0.42, sw);
       else if (sw > 2 && h > 2.4) g += seating(x + (w - 0.6) / 2, Math.min(2.6, sw));
-      g += d.rect(x + w - 0.5, y + h * 0.15, 0.4, Math.min(2.4, h * 0.4));
+      if (!sp.noSideboard) g += d.rect(x + w - 0.5, y + h * 0.15, 0.4, Math.min(2.4, h * 0.4));
       break;
     }
     case "open": {
+      if (sp.ldk) {
+        // a smaller open plan (layout b): kitchen run on the back wall with the room's name below it, then the table
+        // and a sitting group by the terrace windows, one behind the other or side by side when the room is wide
+        const kl = Math.min(w - 0.4, 4.2);
+        g += d.rect(x + 0.1, y + 0.05, kl, 0.62);
+        g += d.circle(x + 0.1 + kl * 0.72, y + 0.24, 0.09) + d.circle(x + 0.1 + kl * 0.72 + 0.28, y + 0.24, 0.09) + d.circle(x + 0.1 + kl * 0.72, y + 0.48, 0.09) + d.circle(x + 0.1 + kl * 0.72 + 0.28, y + 0.48, 0.09);
+        g += d.rect(x + 0.1 + kl * 0.25, y + 0.14, 0.7, 0.42, { round: 4 });
+        const side = w >= 5.6;
+        const lounge = (cx, sw) => {
+          const by = y + h - 2.35;
+          return d.rect(cx - sw / 2, by, sw, 0.95, { round: 4 }) + d.rect(cx - sw / 2 + 0.1, by + 0.12, sw - 0.2, 0.7, { round: 3 }) + d.rect(cx - 0.6, by + 1.3, 1.2, 0.6, { round: 2 }) + d.rect(cx - sw / 2 - 0.15, by + 0.5, sw + 0.3, 1.6, { dash: "5 4", faint: true });
+        };
+        if (side) {
+          const tw = Math.min(2.4, w * 0.36 - 0.6);
+          if (h >= 4.6) g += table(x + w * 0.27, y + 2.65, tw, tw >= 2.0 ? 3 : 2);
+          g += lounge(x + w * 0.71, Math.min(2.8, w * 0.42 - 0.4));
+        } else {
+          const tw = Math.min(2.0, w - 1.6);
+          if (h >= 6.3 && tw >= 1.2) g += table(x + w / 2, y + 2.65, tw, tw >= 1.8 ? 3 : 2);
+          g += lounge(x + w / 2, Math.min(2.8, w - 1.0));
+        }
+        break;
+      }
       // kitchen run along the back wall, dining in the middle, sofa group toward the front windows
       const kl = Math.min(w - 0.4, 4.2);
       g += d.rect(x + 0.1, y + 0.05, kl, 0.62);
@@ -1790,9 +2199,12 @@ function furniture(d, kind, inn, sp = {}) {
       break;
     }
     case "bath": {
-      if (w > 1.9 && h > 2.2) g += d.rect(x + 0.05, y + 0.05, 1.7, 0.75, { round: 8 }) + d.ellipse(x + 0.9, y + 0.42, 0.7, 0.26);
+      if (!sp.noTub && w > 1.9 && h > 2.2) g += d.rect(x + 0.05, y + 0.05, 1.7, 0.75, { round: 8 }) + d.ellipse(x + 0.9, y + 0.42, 0.7, 0.26);
       else g += shower();
-      g += d.rect(x + w - 0.55, y + h - 0.75, 0.45, 0.2) + d.ellipse(x + w - 0.33, y + h - 0.38, 0.19, 0.26) + d.ellipse(x + 0.45, y + h - 0.3, 0.28, 0.2);
+      // sp.fixTop: WC against the back wall beside the shower and the basin on the side wall, so a door can open in
+      // the middle of the front wall
+      if (sp.fixTop) g += d.rect(x + w - 0.55, y + 0.05, 0.45, 0.2) + d.ellipse(x + w - 0.33, y + 0.6, 0.19, 0.26) + d.ellipse(x + w - 0.27, y + 1.3, 0.2, 0.28);
+      else g += d.rect(x + w - 0.55, y + h - 0.75, 0.45, 0.2) + d.ellipse(x + w - 0.33, y + h - 0.38, 0.19, 0.26) + d.ellipse(x + 0.45, y + h - 0.3, 0.28, 0.2);
       break;
     }
     case "shower":
@@ -1806,7 +2218,18 @@ function furniture(d, kind, inn, sp = {}) {
       } else g += wc();
       break;
     case "study":
-      if (w > 2 && h > 2) g += d.rect(x + 0.1, y + 0.1, Math.min(1.8, w - 0.4), 0.7) + d.rect(x + 0.6, y + 0.95, 0.5, 0.5, { round: 3 }) + d.rect(x + w - 0.5, y + 0.1, 0.4, Math.min(2.4, h - 0.6));
+      if (w > 2 && h > 2) g += d.rect(x + 0.1, y + 0.1, Math.min(1.8, w - 0.4), 0.7) + d.rect(x + 0.6, y + 0.95, 0.5, 0.5, { round: 3 }) + (sp.noShelf ? "" : d.rect(x + w - 0.5, y + 0.1, 0.4, Math.min(2.4, h - 0.6)));
+      break;
+    case "dressing":
+      // walk-in wardrobe: hanging rails and shelves along the walls the plan names (sp.rails, sides as drawn)
+      for (const side of sp.rails ?? ["left", "right"]) {
+        if (side === "bottom") g += d.rect(x + 0.05, y + h - 0.6, w - 0.1, 0.55) + d.line(x + 0.05, y + h - 0.33, x + w - 0.05, y + h - 0.33, { dash: "4 3" });
+        if (side === "left" || side === "right") {
+          const rx = side === "left" ? x + 0.05 : x + w - 0.6;
+          const y0 = y + 0.95, y1 = y + h - ((sp.rails ?? []).includes("bottom") ? 0.6 : 0.05);
+          if (y1 - y0 > 0.6) g += d.rect(rx, y0, 0.55, y1 - y0) + d.line(rx + 0.275, y0, rx + 0.275, y1, { dash: "4 3" });
+        }
+      }
       break;
     case "stair": {
       const vertical = h > w;
@@ -2274,8 +2697,11 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
       if (!d.open && mode !== "ceiling") {
         const into = d.side === "top" ? 1 : -1; // swing into the space
         const hy = d.side === "top" ? wy + t : wy;
-        g += `<line x1="${f1(px.X(x0))}" y1="${f1(px.Y(hy))}" x2="${f1(px.X(x0))}" y2="${f1(px.Y(hy + into * w))}" stroke="${INK}" stroke-width="1.6"/>`;
-        g += `<path d="M${f1(px.X(x0))} ${f1(px.Y(hy + into * w))} A${f1(w * s)} ${f1(w * s)} 0 0 ${into > 0 ? 0 : 1} ${f1(px.X(x0 + w))} ${f1(px.Y(hy))}" fill="none" stroke="${MID}" stroke-width="0.7"/>`;
+        // the leaf hangs on the left-hand jamb as drawn, or on the right-hand one (d.hinge)
+        const [hx, fx] = d.hinge === "right" ? [x0 + w, x0] : [x0, x0 + w];
+        const sweep = (into > 0 ? 0 : 1) ^ (d.hinge === "right" ? 1 : 0);
+        g += `<line x1="${f1(px.X(hx))}" y1="${f1(px.Y(hy))}" x2="${f1(px.X(hx))}" y2="${f1(px.Y(hy + into * w))}" stroke="${INK}" stroke-width="1.6"/>`;
+        g += `<path d="M${f1(px.X(hx))} ${f1(px.Y(hy + into * w))} A${f1(w * s)} ${f1(w * s)} 0 0 ${sweep} ${f1(px.X(fx))} ${f1(px.Y(hy))}" fill="none" stroke="${MID}" stroke-width="0.7"/>`;
       }
       if (d.entry && d.side === "bottom") {
         const ay = D + (site.T > 0 ? site.T : 0) + 1.1;
@@ -2327,23 +2753,48 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     if (sp.kind === "kitchen") cy = px.Y(inn.y + inn.h * 0.36);
     if (sp.kind === "dining") cy = px.Y(inn.y + 0.75);
     if (sp.labelY) cy = px.Y(inn.y + inn.h * sp.labelY); // clear of the columns of a surveyed open floor
-    const fs = inn.w * s < 90 ? 9 : 11;
-    const label = inn.w * s < 70 && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label;
-    const tw = label.length * fs * 0.68 + 16;
+    let fs = inn.w * s < 90 ? 9 : 11;
+    let label = inn.w * s < 70 && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label;
+    let tw = label.length * fs * 0.68 + 16;
     const second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? (preview ? "" : `CH ${roomFinish(model, sp).ch.toFixed(2)}`) : `${roomNo[sp.id]} · ${area} m²`;
-    g += `<rect x="${f1(cx - tw / 2)}" y="${f1(cy - fs - 4)}" width="${f1(tw)}" height="${second ? fs * 2 + 14 : fs + 10}" fill="${PAPER}" fill-opacity=".92"/>`;
-    g += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
-    if (sp.kind !== "void" && second) g += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
+    let up = false, pad = 3;
+    if (sp.fit) {
+      // a plan may ask for names that fit inside their rooms, both lines: the full name across, the full name run up
+      // the room (sp.labelUp: the length it has there, m), a short name (sp.short) across or up, the first word
+      const across = inn.w * s - 6, first = sp.label.split(/[ -]/)[0];
+      const need = (l, f) => Math.max(l.length * f * 0.68 + 16, sp.kind !== "void" && second ? second.length * (f - 1) * 0.58 + 10 : 0);
+      const fits = ([l, f, u]) => !!l && (u ? !!sp.labelUp && need(l, f) <= sp.labelUp * s && f * 2 + 8 <= inn.w * s - 2 : need(l, f) <= across);
+      // and, in a small room taller than it is wide, the name run up the room
+      const upAny = ([l, f]) => !!l && need(l, f) <= inn.h * s - 10 && f * 2 + 8 <= inn.w * s - 2;
+      [label, fs, up] = [[sp.label, 11], [sp.label, 9], [sp.label, 9, true], [sp.short, 9], [sp.short, 9, true], [first, 9]].find(fits) ?? [[sp.label, 9, true], [sp.short, 9, true], [first, 9, true]].find(upAny) ?? [first, 9];
+      tw = need(label, fs);
+      // and keep the name's box inside the room (in a low or narrow room with less padding round the two lines)
+      const [y0, y1] = [px.Y(inn.y), px.Y(inn.y + inn.h)];
+      if (second) pad = Math.min(3, Math.max(0, ((up ? inn.w * s : y1 - y0) - 4 - (fs * 2 + 8)) / 2));
+      cy = up ? Math.min(Math.max(cy, y0 + tw / 2 + 2), y1 - tw / 2 - 5) : Math.min(Math.max(cy, y0 + fs + 2 + pad), y1 - (second ? fs + 8 + pad : 8));
+    }
+    const boxY = sp.fit ? cy - fs - 1 - pad : cy - fs - 4, boxH = second ? (sp.fit ? fs * 2 + 8 + 2 * pad : fs * 2 + 14) : fs + 10;
+    let tag = `<rect x="${f1(cx - tw / 2)}" y="${f1(boxY)}" width="${f1(tw)}" height="${boxH}" fill="${PAPER}" fill-opacity=".92"/>`;
+    tag += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
+    if (sp.kind !== "void" && second) tag += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
+    g += up ? `<g transform="rotate(-90 ${f1(cx)} ${f1(boxY + boxH / 2)})">${tag}</g>` : tag; // turned about the box's centre
   }
   // finished floor level tag
   const ffl = levelIndex === 0 ? "±0.000" : `+${(levelIndex * ST).toFixed(3)}`;
   const hall = level.spaces.find((sp) => sp.kind === "hall") ?? (model.interior && level.spaces.find((sp) => ["reception", "living", "open", "teahall", "boutique", "lounge"].includes(sp.kind))) ?? level.spaces[0];
   const hin = inner(model, hall);
   // a long corridor keeps its room label in the middle, so the tag moves towards its end
-  const [tagX, tagY] = (spec.survey || COMMERCIAL_LEVELS[plan.style]) && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
-  if (mode !== "ceiling" && !preview) g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
-    <circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
-    <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>
+  let [tagX, tagY] = (spec.survey || COMMERCIAL_LEVELS[plan.style]) && hin.w > hin.h * 4 ? [hin.x + hin.w * 0.16, hin.y + hin.h / 2] : [hin.x + hin.w / 2, hin.y + hin.h * 0.82];
+  // a plan may set the tag's height in its hall (hall.tagY): at the left of a hall wide enough for it, otherwise the
+  // symbol and "FFL" over the level, inside a narrow hall
+  const stacked = hall.tagY !== undefined && hin.w * s < 84;
+  if (hall.tagY !== undefined) [tagX, tagY] = [stacked ? hin.x + hin.w / 2 : hin.x + 14 / s, hin.y + hin.h * hall.tagY];
+  const symbol = `<circle r="6" fill="${PAPER}" stroke="${INK}" stroke-width="0.8"/><path d="M-6 0H6M0 -6V6" stroke="${INK}" stroke-width="0.8"/>
+    <path d="M0 -6A6 6 0 0 1 6 0H0Z M0 6A6 6 0 0 1 -6 0H0Z" fill="${INK}"/>`;
+  if (mode !== "ceiling" && !preview && stacked) g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
+    <g transform="translate(-10 0)">${symbol}</g><text x="-1" y="3">FFL</text><text y="16" text-anchor="middle">${ffl}</text></g>`;
+  else if (mode !== "ceiling" && !preview) g += `<g transform="translate(${f1(px.X(tagX))} ${f1(px.Y(tagY))})" font-family="${FONT}" font-size="9" fill="${INK}">
+    ${symbol}
     <text x="10" y="3">FFL ${ffl}</text></g>`;
 
   // ---- dimension chains: detailed at 0.9 m, overall at 1.6 m (left out of public previews)
@@ -3305,8 +3756,8 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
         g += box(d.x - 0.08, 0, d.w + 0.16, dh + 0.08, frame);
         g += box(d.x, 0, d.w, dh, spec.frame === "wood" || spec.timberEntry ? "#7c5a3e" : "#5a4c3f", `stroke="${INK}" stroke-width="1"`);
         for (let z = 0.25; z < dh; z += 0.25) g += `<line x1="${X(d.x + 0.06)}" y1="${Y(z)}" x2="${X(d.x + d.w - 0.06)}" y2="${Y(z)}" stroke="#3a2a1c" stroke-opacity=".35" stroke-width="0.6"/>`;
-        g += box(d.x + d.w * 0.82, 0.95, 0.04, 0.7, "#d7c6a3");
-        if (spec.glassy) g += box(d.x - 0.6, 0, 0.45, dh, "url(#glass)", `stroke="${frame}" stroke-width="1.2"`);
+        g += box(d.x + d.w * (d.hinge === "right" ? 0.14 : 0.82), 0.95, 0.04, 0.7, "#d7c6a3");
+        if (spec.glassy && d.sideLight !== false) g += box(d.x - 0.6, 0, 0.45, dh, "url(#glass)", `stroke="${frame}" stroke-width="1.2"`);
         if (!spec.slab && !spec.canopy && !spec.loggia && !spec.pergola && plan.roof !== "frontgable") {
           g += box(d.x - 0.5, dh + 0.12, d.w + 1.0, 0.16, frame);
           g += box(d.x - 0.5, dh - 0.3, d.w + 1.0, 0.42, INK, `fill-opacity=".14"`);
@@ -4469,8 +4920,9 @@ export function cadLevel(model, levelIndex) {
       if (!d.open) {
         const into = d.side === "top" ? 1 : -1;
         const hy = d.side === "top" ? wy + t : wy;
-        add("A-DOOR", { t: "line", x1: x0, y1: hy, x2: x0, y2: hy + into * w });
-        add("A-DOOR", { t: "arc", cx: x0, cy: hy, r: w, x1: x0, y1: hy + into * w, x2: x0 + w, y2: hy });
+        const [hx, fx] = d.hinge === "right" ? [x0 + w, x0] : [x0, x0 + w]; // the hinged jamb (d.hinge, as drawn)
+        add("A-DOOR", { t: "line", x1: hx, y1: hy, x2: hx, y2: hy + into * w });
+        add("A-DOOR", { t: "arc", cx: hx, cy: hy, r: w, x1: hx, y1: hy + into * w, x2: fx, y2: hy });
       }
     } else {
       const y0 = sp.y + c - w / 2;
@@ -4563,7 +5015,10 @@ export function cadLevel(model, levelIndex) {
     if (sp.kind === "dining") cy = inn.y + 0.75;
     if (sp.labelY) cy = inn.y + inn.h * sp.labelY;
     const small = inn.w < 2.2;
-    add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy, h: small ? 0.17 : 0.25, text: small && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label });
+    let name = small && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label;
+    // names that fit inside their rooms (sp.fit, as on the plan sheet): the full name, a short one, the first word
+    if (sp.fit) name = [sp.label, sp.short, sp.label.split(/[ -]/)[0]].find((n) => n && n.length * (small ? 0.17 : 0.25) * 0.85 <= inn.w - 0.1) ?? sp.label.split(/[ -]/)[0];
+    add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy, h: small ? 0.17 : 0.25, text: name });
     if (sp.kind !== "void") add("A-AREA-IDEN", { t: "text", x: inn.x + inn.w / 2, y: cy + (small ? 0.28 : 0.38), h: small ? 0.14 : 0.19, text: `${(inn.w * inn.h).toFixed(1)} m²` });
   }
 
