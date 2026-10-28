@@ -8,7 +8,7 @@ import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { languageAlternates } from "@/lib/meta";
+import { metaDescription, pageMetadata } from "@/lib/meta";
 import { placeOf } from "@/lib/places";
 import { visitorCurrency } from "@/lib/geo";
 import { coverOf, findPlan, formatNumber, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isCustomDrawn, isResidential, PALETTE_LABELS, planLabel, priceBasis, type GalleryItem } from "@/lib/plans";
@@ -21,13 +21,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const plan = findPlan(slug);
   if (!plan) notFound();
   const title = plan.title[lang];
-  const description = plan.summary[lang];
   const cover = coverOf(plan);
+  const images = cover ? [{ url: cover, alt: title }] : undefined;
+  // the summary is the full description: the meta description is cut from it, Open Graph keeps all of it
+  const meta = pageMetadata(lang, `/plans/${slug}`, { title, description: plan.summary[lang], images });
   return {
-    title,
-    description,
-    alternates: languageAlternates(`/plans/${slug}`),
-    openGraph: { title, description, ...(cover ? { images: [{ url: cover, alt: title }] } : {}) },
+    ...meta,
+    twitter: { card: "summary_large_image", title, description: metaDescription(plan.summary[lang], lang), ...(images ? { images } : {}) },
   };
 }
 

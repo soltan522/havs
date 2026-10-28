@@ -11,10 +11,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * 404 for an address that no route matches. Unknown addresses normally land in app/[lang] (/xyz, /en/xyz and anything
- * deeper, through app/[lang]/[...missing]) and get its localized not-found page; this is the fallback Next needs without
- * a top-level app/layout. There is no locale to pick, so the page speaks all three. It replaces the root layouts
- * (app/[lang], app/(root)), so it brings its own <html>, styles and fonts.
+ * 404 for an address that no route matches. Unknown pages (/xyz, /en/xyz, /en/plans/x.y, an unknown villa) get the
+ * localized 404 page through proxy.ts instead; this one answers what the proxy skips: an unknown /api/... address and
+ * a path with a dot outside the locales that is no file (/favicon.ico, /xyz.html), which next.config.mjs rewrites to
+ * an address no route matches. It is also the fallback Next needs without a top-level app/layout. There is no locale
+ * to pick, so the page speaks all three. It replaces the root layouts (app/[lang], app/(root)), so it brings its own
+ * <html>, styles and fonts.
  */
 export default function GlobalNotFound() {
   return (

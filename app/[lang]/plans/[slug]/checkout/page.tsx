@@ -7,7 +7,7 @@ import PackagePanel from "@/components/PackagePanel";
 import { PaymentIcon } from "@/components/PaymentIcon";
 import { COPY } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
-import { languageAlternates } from "@/lib/meta";
+import { pageMetadata } from "@/lib/meta";
 import { visitorCurrency } from "@/lib/geo";
 import { areaText, coverOf, deliverables, findPlan, formatPrice, isCommercial, isCustomDrawn, planLabel, priceBasis } from "@/lib/plans";
 import { providersFor } from "@/lib/providers";
@@ -19,11 +19,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const plan = findPlan(slug);
   if (!plan) notFound();
   const c = COPY[lang];
-  // "Package & payment: <villa>", or "Order request: <project>" for a custom-drawn set (no payment form on its page)
-  return {
-    title: `${isCustomDrawn(plan) ? c.custom.title : c.toCheckout}: ${plan.title[lang]}`,
-    alternates: languageAlternates(`/plans/${slug}/checkout`),
-  };
+  const custom = isCustomDrawn(plan);
+  // "Package & payment: <villa>", or "Order request: <project>" for a custom-drawn set (no payment form on its page);
+  // the description names the project and what the page delivers, so it is not the site's generic one
+  return pageMetadata(lang, `/plans/${slug}/checkout`, {
+    title: `${custom ? c.custom.title : c.toCheckout}: ${plan.title[lang]}`,
+    description: `${plan.title[lang]} — ${planLabel(plan, lang)}, ${areaText(plan)}. ${(custom ? c.custom.notes : c.checkout.notes)[0]}`,
+  });
 }
 
 /**

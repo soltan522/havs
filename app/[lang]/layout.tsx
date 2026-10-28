@@ -9,7 +9,7 @@ import AuthRelay from "@/components/AuthRelay";
 import Cursor from "@/components/motion/Cursor";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import { DEFAULT_LOCALE, isLocale, LOCALES } from "@/lib/i18n";
-import { SITE_META } from "@/lib/meta";
+import { openGraphDefaults, SITE_META, SITE_URL } from "@/lib/meta";
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -17,19 +17,23 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  const site = SITE_META[isLocale(lang) ? lang : DEFAULT_LOCALE];
+  const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
+  const site = SITE_META[locale];
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://havs.dev"),
+    metadataBase: SITE_URL,
     title: { default: site.title, template: "%s — havs.dev" },
     description: site.description,
+    // a page's own openGraph replaces this object, so pages spread these defaults (lib/meta pageMetadata)
+    openGraph: openGraphDefaults(locale),
   };
 }
 
 /**
  * Root layout of every localized page: <html lang> is rendered on the server from the [lang] segment.
- * An unknown first segment (/xyz) is not rejected here but by the page (every page and its generateMetadata call
- * notFound() for it), so the 404 renders through app/[lang]/not-found inside this layout instead of bypassing every
- * boundary. Unknown deeper addresses (/en/xyz) reach the same 404 through app/[lang]/[...missing].
+ * Unknown addresses (/xyz, /en/xyz, an unknown villa) never get here as themselves: proxy.ts rewrites them, with status
+ * 404, to the localized 404 page (app/[lang]/[...missing]), which renders inside this layout like any other page. The
+ * pages still call notFound() for an unknown locale or record as a fallback (and unknown orders only ever do), which
+ * shows app/[lang]/not-found.
  */
 export default async function LangLayout({
   children,
