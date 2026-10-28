@@ -14,7 +14,8 @@ Never present them as built houses or real client work.
    then push a branch `auto/villas-YYYYMMDD` (today's date, UTC).
 2. The GitHub Action **Publish new villas** (`.github/workflows/publish-villas.yml`) downloads the renders,
    runs `npm run previews -- --missing` and `npm run validate -- --require-renders`, builds each new villa's
-   drawing package — vector A3 PDF set (cover, site plan, floor plans, elevation, isometric, schedules),
+   drawing package — vector A3 PDF set (cover, site plan, floor plans, elevation — a luxury villa's also section A–A —,
+   isometric, schedules),
    layered DXF with A3 layouts, and DWG (AutoCAD 2000, via LibreDWG) — uploads it to the private Supabase bucket
    when the `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` secrets exist (also kept as a 30-day workflow artifact),
    typechecks and builds the site, then pushes the result to `main` and deletes the branch. Vercel deploys `main`
@@ -79,19 +80,77 @@ npm ci
    single-storey villa take the plan whose floor-plan layout (the key `npm run validate` prints in its "villas share
    the floor-plan layout" warning: storeys|bedrooms|garage|pool|mirror, with `|b` for the split plan) has fewer than
    two villas, so that every floor plan serves at most two villas; while layout b has fewer villas than the standard
-   plan, prefer it, and spread its areas over the whole 100–320 m² per floor (luxury on two floors: 200–640 m² in
-   all) instead of squeezing into the gaps left by the standard plan.
+   plan, prefer it, and spread its areas over the whole 100–320 m² per floor (luxury on two floors: 240–640 m² in
+   all, see "Luxury villas" below) instead of squeezing into the gaps left by the standard plan.
    The split plan has four columns across the house and needs a footprint at least **11.2 m wide** (11.5 m for three
    bedrooms on a plan less than 9.6 m deep; 12.1 m for `modern` and `absheron`, whose entrance has the clad fin) and,
-   with three bedrooms, at least **7.2 m deep** (two bedrooms: 6.3 m). The footprint is about
-   √(`areaM2` / `floors` × `ratio`) wide and √(`areaM2` / `floors` / `ratio`) deep — for `luxury` on two floors use
-   half the area. So a small split-plan villa needs a moderate ratio: 100 m² with three bedrooms takes a ratio of
-   about 1.35–1.9, with two about 1.25–2.2 (`modern`/`absheron` 100 m²: 1.5 or more); from about 130 m² per floor
-   (`modern`/`absheron`: 150 m²) every ratio fits. `npm run validate` fails a footprint that is too small and prints the ratios that fit; it warns when a
-   bedroom still comes out under 9 m². A villa takes no other `"layout"` value; two-storey villas, projects and
+   with three bedrooms, at least **7.2 m deep** (two bedrooms: 6.3 m); a `luxury` villa on two floors is 2.4 m wider
+   than that for the stair down to its lower ground floor (13.6 m, 13.9 m with three bedrooms on a shallow plan). The
+   footprint is about √(`areaM2` / `floors` × `ratio`) wide and √(`areaM2` / `floors` / `ratio`) deep — for `luxury`
+   on two floors use half the area. So a small split-plan villa needs a moderate ratio: 100 m² with three bedrooms takes a ratio of
+   about 1.4–1.9, with two about 1.3–2.2 (`modern`/`absheron` 100 m²: 1.5 or more); from about 130 m² per floor
+   (`modern`/`absheron`: 150 m²) every ratio fits. `npm run validate` fails a footprint that is too small and prints the ratios that fit, and
+   one whose rooms still come out below the minimum sizes (below). A villa takes no other `"layout"` value; two-storey villas, projects and
    interiors cannot use it (interiors have their own `"interior": { "layout" }`).
    In the render prompt describe what the elevation shows: a long single-storey house with its glazed living room in
    the middle between two solid wings, the entrance door beside it on the street front.
+
+   **Room sizes.** Every house plan (both single-storey plans, two- and three-level villas, the duplex, a project's
+   houses) is drawn with rooms of at least these clear sizes: bedrooms 2.7 m wide and 9 m², bathrooms and en-suites
+   about 1.5 m wide and 3.5 m², halls, corridors and landings 1.1 m wide, the living space 3.3 m wide, and the master
+   bedroom the largest bedroom (`ROOM_MIN` in `scripts/drawings.mjs`). The generator keeps a plan's own proportions
+   where they give these sizes and otherwise fits its rooms in metres, taking the space from the rooms beside them;
+   doors stay clear of furniture and of each other (a door moves along its wall, or is hung on its other jamb, before a
+   bed is turned off its wall; no bed has its head against the glazed doors to a terrace or balcony), and no window is
+   put in the wall the garage stands against. **Stairs** are drawn from the storey height (3.3 m) in the stair's box:
+   a dog-leg with a half-landing (18 risers of 183 mm, goings of 25–30 cm, flights 0.9–1.2 m wide) where the box is
+   long enough, otherwise a dog-leg with six winders in the turn (19 risers of 174 mm), otherwise a spiral stair (16
+   risers of 206 mm, at least 1.5 m across) — `STAIR` and `fitStairs` in `scripts/drawings.mjs`. Both flights start and
+   end at the stair's opening, so the stair is entered on its first flight on the lower level and left from its second
+   on the upper one, and every level shows the walking line from its own opening (UP to the cut, DN round the turn).
+   `npm run validate` fails a villa whose footprint is too small or too long for its rooms or its stair box and names
+   the ratios or the area that work (only ones that pass every rule). In practice the standard single-storey plan
+   takes, with three bedrooms, 100 m² at a ratio of about 1.3–1.8, 110 m² at 1.2–1.95, 120 m² at 1.1–2.15 and every ratio from 130 m² (less than 100 m² is too small); with
+   two bedrooms 90 m² at 1.15–1.45, 100 m² at 1.0–1.6, 120 m² at 1.0–1.9 and every ratio from 140 m². A two-storey
+   villa with up to five bedrooms takes every ratio from 140 m² per floor (100 m² per floor: up to 1.6); six bedrooms
+   need about 140 m² per floor, seven about 200 m² per floor at a ratio of 1.55 or more (240 m²: 1.2 or more).
+
+   **Luxury villas: the lower ground floor.** A `luxury` villa is sold with a lower ground floor under the whole house:
+   `floors` counts it (2 = one storey over it, 3 = two storeys over it) and `areaM2` is spread over every level, the
+   lower one included. The drawings give it its own sheet, **A-101 LOWER GROUND FLOOR PLAN** (the other plans follow as
+   A-102, A-103), its preview `lower.jpg` ("Lower ground floor plan" / "Aşağı mərtəbə planı" / "План цокольного этажа"
+   on the plan page), its own level in the DXF/DWG and the first rows of the schedules (rooms LG.01…), and a vertical
+   drawing, **A-202 SECTION A–A** through the house, the lower floor and the court (preview `section.jpg`: "Section A–A" /
+   "Kəsik A–A" / "Разрез А–А"; the cut is marked on A-101 and the ground floor plan). It has a lobby at the foot of the
+   stair; under the front of the house a home cinema (a media room with one row of seats on a small or shallow
+   footprint), the wine cellar, the plant room and, on a wide plan, a games room and a store; on the rear garden a gym
+   and a spa with a sauna (and a hammam where the row is deep; a garden lounge beside the spa on a wide plan), glazed to
+   a sunken court 4 m deep across the back of the house, its floor at −3.45 (a step below the floor inside, a linear
+   drain along the glazing) with 20 steps up to the garden and a glass balustrade round its edge. Its only windows are
+   on that court: the other walls are below ground. The ground floor plan shows the near part of the court and puts a
+   glass balustrade (1.10 m) across every ground floor window that opens over it; the window schedule lists them as
+   "glass guard 1.10 m". The stair is the ground floor's: a three-level villa's stair goes on down; a two-floor villa
+   (one storey above ground) gets a stair bay 2.4 m wide and at least 3.5 m deep at the rear wall, beside the entrance
+   hall on the living side, for a dog-leg with a half-landing, so its plan (standard or `"layout": "b"`) is drawn 2.4 m
+   narrower than the footprint. **The lower floor adds no bedroom, bathroom, shower room or WC**, so `bedrooms` and
+   `bathrooms` stay the counts of the storeys above ground (`npm run validate` checks them): the sauna and hammam are
+   their own room kinds and the spa's rain shower is a fitting in the spa, not a shower room — a bathroom down there
+   would change the count of every existing luxury villa. A-101 therefore carries a note that a WC and changing room for
+   the spa and gym are still to be planned on that level and are not in the listed bathroom count. The elevation shows
+   the lower floor dashed below the street front with what it holds, the isometric dashed below the house with the
+   court behind it, the site plan the court in the rear garden. `npm run validate` also fails a luxury villa whose lower
+   floor comes out too small (cinema 2.7 m wide and 14 m², media room 2.3 m and 9 m², gym and spa 2.6 m and 9 m², sauna
+   and hammam 1.5 m and 3 m², wine cellar 1.4 m and 3 m², plant room 1.4 m and 3.5 m², garden lounge 2.4 m and 7 m²,
+   games room 2.7 m and 12 m², lobby 1.1 m; `LG_MIN` in `scripts/drawings.mjs`) or whose living space is less than
+   4.5 m wide and 35 m² (a living room beside a separate kitchen and dining room: 25 m²), and names the ratios or area
+   that work. In practice: on **two floors** (the stair bay takes 2.4 m) two bedrooms need at least 240 m² in all
+   (120 m² per floor) at a ratio of about 1.8–1.9, 260 m² at 1.65–2.1, 280 m² at 1.5–2.2, 320 m² at 1.35–2.2, 360 m² at 1.2–2.2 and every ratio from 420 m²; three bedrooms 260 m²
+   at 1.8–2.2, 280 m² at 1.6–2.2, 300 m² at 1.5–2.2, 320 m² at 1.4–2.2, 360 m² at 1.25–2.2 and every ratio from 460 m².
+   With `"layout": "b"`: 260 m² at 1.8–2.2 (three bedrooms 1.95–2.2), 280 m² at 1.7–2.2 (1.8–2.2), 300 m² at 1.6–2.2,
+   320 m² at 1.5–2.2, 340–400 m² at 1.7–2.2 (the ratios in between give a separate living room that is too small),
+   420 m² at 1.15–2.2 and every ratio from 520 m². On **three floors** the same areas and ratios as a two-storey villa
+   (above). In the render prompt describe the storeys above ground only: from the
+   street the lower floor is below ground.
 
 2. **Name them.** Use Azerbaijani places and landscapes (Nabran, Quba, Qəbələ, Şəki, Lənkəran, Mərdəkan,
    Göygöl, Xınalıq, Zaqatala, Şuşa, Qusar, Astara, Buzovna, Novxanı, İsmayıllı, Laza, Talış, Pirqulu…), not yet used
@@ -253,6 +312,14 @@ counts or packages it; the listing carries its own figures and previews.
 - **Map model (optional).** A site model sets `"model": { …, "replaces": [city building ids], "zoom": 16.8 }`:
   `replaces` hides the city-layer buildings it stands in place of (every building with a real share of its footprint
   inside the site boundary), `zoom` is the close-up that fits the whole site.
+
+## After changing the drawing generator
+
+The Action builds previews and packages only for new villas (`--missing`). When a change to `scripts/drawings.mjs`
+redraws existing plans, rebuild them before or right after merging: `npm run previews` for every plan (commit
+`public/plans/` and `lib/previews.generated.ts`) and the manual workflow **Rebuild drawing packages** (Actions → Rebuild
+drawing packages) with `only` left empty, or the changed slugs — it rebuilds the PDFs, DXFs, DWGs and
+`data/packages.json` (page and sheet counts) and uploads them. Say so in the pull request description.
 
 ## Do not
 

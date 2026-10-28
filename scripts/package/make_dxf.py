@@ -178,7 +178,7 @@ def title_block(layout, cad, level, sheet_no, scale):
         layout.add_text(value, height=3.0, dxfattribs={**lay, "style": "HAVS"}).set_placement((x0 + 3, y + 1.8))
     layout.add_text("havs.dev  ·  ARCHITECTURE · VILLA DESIGN", height=2.6, dxfattribs={**lay, "style": "HAVS"}).set_placement((x0 + 3, y0 + 5.5))
     layout.add_text("CONCEPT DESIGN — NOT FOR CONSTRUCTION. DIMENSIONS IN MILLIMETRES, LEVELS IN METRES.", height=1.8, dxfattribs={**lay, "style": "HAVS"}).set_placement((x0 + 3, y0 + 1.8))
-    layout.add_text(f"FFL +{level['ffl']:.3f}", height=2.4, dxfattribs={**lay, "style": "HAVS"}).set_placement((16, 14))
+    layout.add_text(f"FFL {level['ffl']:+.3f}", height=2.4, dxfattribs={**lay, "style": "HAVS"}).set_placement((16, 14))
 
 
 def main(src, dst):

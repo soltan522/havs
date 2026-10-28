@@ -6,7 +6,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, isCustomDrawn, PALETTES, planSheets, PROJECT_RULES, schedules, scheduleSheet, SHEET_H, SHEET_W, sitePlanSheet, splitPlanLimits, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
+import { axonometricSheet, buildModel, cutawaySheet, elevationSheet, FACADE_OPTIONS, floorPlanSheet, grossFloorArea, INTERIOR_LAYOUTS, INTERIOR_TYPES, interiorSheets, isCustomDrawn, PALETTES, planSheets, PROJECT_RULES, ROOM_MIN, roomShortfalls, schedules, scheduleSheet, sectionSheet, SHEET_H, SHEET_W, sitePlanSheet, splitPlanLimits, STYLE_RULES, TREES, wetRooms } from "./drawings.mjs";
 
 const root = process.cwd();
 const plans = JSON.parse(await readFile(path.join(root, "data", "plans.json"), "utf8"));
@@ -243,6 +243,7 @@ for (const plan of plans) {
       ? [...interiorSheets(model).flatMap((sh) => [sh.svg(), sh.kind === "schedules" ? null : sh.svg({ preview: true })]).filter(Boolean), cutawaySheet(model, "", { bare: true })]
       : [sitePlanSheet(model, "x"), elevationSheet(model, "x"), elevationSheet(model, "", true), axonometricSheet(model, "x"), scheduleSheet(model, "x"), ...planSheets(model).map((p) => floorPlanSheet(model, p.index, "x", { title: p.title }))];
     if (model.project) sheets.push(axonometricSheet(model, "x", { typical: true }));
+    if (model.lower) sheets.push(sectionSheet(model, "x"));
     for (const svg of sheets) {
       const s = svg.toString();
       if (/NaN|undefined|Infinity/.test(s)) err(`a generated sheet contains invalid numbers: …${s.match(/.{40}(NaN|undefined|Infinity).{10}/)?.[0]}…`);
@@ -270,24 +271,61 @@ for (const plan of plans) {
   if (wet !== plan.bathrooms) err(`bathrooms is ${plan.bathrooms} but the generated plans have ${wet} bathrooms/WCs — set bathrooms to ${wet}`);
   const bedrooms = model.levels.reduce((n, lv) => n + lv.spaces.filter((s) => s.kind === "bedroom" || s.kind === "master").length, 0);
   if (bedrooms !== plan.bedrooms) err(`bedrooms is ${plan.bedrooms} but the generated plans have ${bedrooms}`);
+  // the split plan's four columns need a footprint this wide (and, three bedrooms, this deep)
+  const splitFits = (m) => {
+    const l = splitPlanLimits(m);
+    return m.W >= l.W - 0.01 && m.D >= l.D - 0.01;
+  };
+  // whether the plan with these changes would be drawn within the split plan's limits and with rooms of the minimum
+  // sizes (what the two rules below accept); the ratios of 1.0–2.2 (steps of 0.05) and the least area that do
+  const works = (o) => {
+    try {
+      const p = { ...plan, ...o };
+      const m = buildModel(p);
+      return (p.layout !== "b" || splitFits(m)) && !roomShortfalls(m).length;
+    } catch {
+      return false;
+    }
+  };
+  const ratiosThatWork = () => {
+    if (plan.footprint || plan.style === "townhouse") return "";
+    const ok = Array.from({ length: 25 }, (_, i) => +(1 + i * 0.05).toFixed(2)).filter((r) => works({ ratio: r }));
+    const runs = ok.reduce((a, r) => (a.length && Math.abs(r - a.at(-1)[1] - 0.05) < 1e-6 ? (a.at(-1)[1] = r, a) : [...a, [r, r]]), []);
+    return runs.length ? `set ratio to ${runs.map(([a, b]) => (a === b ? a.toFixed(2) : `${a.toFixed(2)}–${b.toFixed(2)}`)).join(" or ")}` : "";
+  };
+  const areaThatWorks = () => {
+    // the smallest area (in steps of 5 m² per floor) that works with this ratio
+    for (let a = plan.areaM2 + 5 * plan.floors; a / plan.floors <= maxFloor; a += 5 * plan.floors) if (works({ areaM2: a })) return `use at least ${a} m²${plan.ratio !== undefined ? ` at ratio ${plan.ratio}` : ""}`;
+    return "";
+  };
+  // the other ways out, each only where it works as it stands
+  const otherFixes = () => [
+    plan.bedrooms > 2 && !plan.project && plan.style !== "duplex" && works({ bedrooms: plan.bedrooms - 1 }) ? "draw fewer bedrooms" : "",
+    splitPlan && works({ layout: undefined }) ? 'leave out "layout"' : "",
+  ];
+  if (!rules.custom && !(splitPlan && !splitFits(model))) {
+    // houses (villas on one, two or three levels, the duplex, a project's houses): rooms of at least the minimum size
+    // (ROOM_MIN: bedrooms 2.7 m wide and 9 m², bathrooms about 1.5 m and 3.5 m², halls and landings 1.1 m, living 3.3 m,
+    // a luxury villa's 4.5 m and 35 m², 25 m² beside a kitchen and dining room; the master bedroom the largest; a stair
+    // box that holds a stair). The generator
+    // fits its plans to them wherever the footprint allows, so a plan that still falls short has a footprint too small
+    // or too long for its rooms: name the ratios, or the area, that work
+    const short = roomShortfalls(model);
+    if (short.length) {
+      const fixes = [ratiosThatWork(), areaThatWorks(), ...otherFixes()].filter(Boolean);
+      err(`the ${model.W} × ${model.D} m footprint is too small or too long for these rooms: the plans would have ${short.slice(0, 2).join("; ")}${short.length > 2 ? ` and ${short.length - 2} more` : ""} (minimums: bedroom ${ROOM_MIN.bedW} m and ${ROOM_MIN.bedA} m², bathroom about ${ROOM_MIN.wetW} m and ${ROOM_MIN.wetA} m², hall ${ROOM_MIN.hallW} m${plan.style === "luxury" ? `, living ${ROOM_MIN.luxLivingW} m and ${ROOM_MIN.luxLivingA} m² (a separate living room ${ROOM_MIN.luxLoungeA} m²)` : ""}) — ${fixes.join(", or ") || "use more area"}`);
+    }
+  }
   if (splitPlan) {
-    // the split plan's four columns need a footprint this wide (and, three bedrooms, this deep); within that, a small
-    // footprint still makes it tight
-    const fits = (m) => {
-      const l = splitPlanLimits(m);
-      return m.W >= l.W - 0.01 && m.D >= l.D - 0.01;
-    };
+    // the split plan's limits; within them, the room minimums above, and a small footprint that is still tight
+    const fits = splitFits;
     const lim = splitPlanLimits(model);
     let fix = "";
-    if (!fits(model)) {
-      // the ratios (1.0–2.2, in steps of 0.05) that give this area a footprint the split plan fits
-      const ok = Array.from({ length: 25 }, (_, i) => +(1 + i * 0.05).toFixed(2)).filter((r) => fits(buildModel({ ...plan, ratio: r })));
-      const runs = ok.reduce((a, r) => (a.length && Math.abs(r - a.at(-1)[1] - 0.05) < 1e-6 ? (a.at(-1)[1] = r, a) : [...a, [r, r]]), []);
-      fix = runs.length ? `set ratio to ${runs.map(([a, b]) => (a === b ? a.toFixed(2) : `${a.toFixed(2)}–${b.toFixed(2)}`)).join(" or ")}` : "use more area";
-    }
-    if (model.W < lim.W - 0.01) err(`the split plan ("layout": "b") needs a footprint at least ${lim.W} m wide; this one is ${model.W} × ${model.D} m — ${fix}, or leave out "layout"`);
-    else if (model.D < lim.D - 0.01) err(`the split plan ("layout": "b") with ${plan.bedrooms} bedrooms needs a footprint at least ${lim.D} m deep; this one is ${model.W} × ${model.D} m — ${fix}, or leave out "layout"`);
-    else {
+    // (the ratios and the area that give the split plan its footprint and rooms of the minimum sizes)
+    if (!fits(model)) fix = [ratiosThatWork() || areaThatWorks(), ...otherFixes()].filter(Boolean).join(", or ") || "use more area";
+    if (model.W < lim.W - 0.01) err(`the split plan ("layout": "b") needs a footprint at least ${lim.W} m wide; this one is ${model.W} × ${model.D} m — ${fix}`);
+    else if (model.D < lim.D - 0.01) err(`the split plan ("layout": "b") with ${plan.bedrooms} bedrooms needs a footprint at least ${lim.D} m deep; this one is ${model.W} × ${model.D} m — ${fix}`);
+    else if (!roomShortfalls(model).length) {
       const small = schedules(model).rooms.filter((r) => /BEDROOM/.test(r.name) && r.area < 9);
       const living = model.levels[0].spaces.find((sp) => sp.kind === "open" || sp.kind === "living");
       if (small.length || living.w < 3.39) warnings.push(`${id}: the split plan is tight on a ${model.W} × ${model.D} m footprint (${small.length ? `a bedroom of ${small[0].area.toFixed(1)} m²` : `a living space ${living.w.toFixed(1)} m wide`}) — use more area or a larger ratio`);

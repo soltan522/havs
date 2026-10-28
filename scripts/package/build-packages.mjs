@@ -1,5 +1,6 @@
 // Builds the downloadable drawing package of each sample villa into deliverables/<slug>/ (git-ignored):
-//   <slug>-drawings.pdf  vector A3 drawing set: cover, site plan, floor plans, elevation, isometric, schedules
+//   <slug>-drawings.pdf  vector A3 drawing set: cover, site plan, floor plans, elevation (a luxury villa: and section
+//                        A–A), isometric, schedules
 //                        (a multi-unit project: masterplan, typical house plans, street elevation, two isometrics)
 //   <slug>.dxf           layered CAD model (metres) with A3 paper-space layouts per floor   (python3 + ezdxf)
 //   <slug>.dwg           the same drawing as AutoCAD 2000 DWG                               (LibreDWG dxf2dwg)
@@ -14,7 +15,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import SVGtoPDF from "svg-to-pdfkit";
-import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, isCustomDrawn, planSheets, scheduleSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
+import { axonometricSheet, buildModel, cadModel, coverSheet, elevationSheet, floorPlanSheet, interiorSheets, isCustomDrawn, planSheets, scheduleSheet, sectionSheet, sitePlanSheet, SHEET_H, SHEET_W } from "../drawings.mjs";
 
 const require = createRequire(import.meta.url);
 const root = process.cwd();
@@ -59,6 +60,8 @@ function sheetsFor(model, renderUri) {
   // one sheet per level; a run of identical typical floors is drawn once
   planSheets(model).forEach((p, k) => list.push({ no: `A-10${k + 1}`, title: typical + (several ? p.title.toLowerCase() : p.title.charAt(0) + p.title.slice(1).toLowerCase()), scale: "Graphic", svg: () => floorPlanSheet(model, p.index, `A-10${k + 1}`, { title: p.title }) }));
   list.push({ no: "A-201", title: project?.kind === "row" ? "Street elevation" : `${typical}${several ? "south" : "South"} elevation`, scale: "Graphic", svg: () => elevationSheet(model, "A-201") });
+  // a luxury villa: section A–A through its lower ground floor and the sunken court
+  if (model.lower) list.push({ no: "A-202", title: "Section A–A through the sunken court", scale: "Graphic", svg: () => sectionSheet(model, "A-202") });
   list.push({ no: "A-301", title: several ? "Isometric view — whole project" : project ? "Isometric view — whole site" : "Isometric view", scale: "NTS", svg: () => axonometricSheet(model, "A-301") });
   if (several) list.push({ no: "A-302", title: "Isometric view — typical house", scale: "NTS", svg: () => axonometricSheet(model, "A-302", { typical: true }) });
   list.push({ no: "A-401", title: "Area, room, door and window schedules", scale: "NTS", svg: () => scheduleSheet(model, "A-401") });

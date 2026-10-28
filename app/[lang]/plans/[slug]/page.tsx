@@ -124,7 +124,7 @@ export default async function PlanPage({ params }: { params: Promise<{ lang: str
                       </span>
                     </Link>
                   ) : (
-                  <div className={`sheet sheet-${item.kind.startsWith("plan") ? "plan" : item.kind}`} data-sheet={open.indexOf(item)} data-cursor={c.zoom}>
+                  <div className={`sheet sheet-${item.kind.startsWith("plan") || item.kind === "lower" ? "plan" : item.kind}`} data-sheet={open.indexOf(item)} data-cursor={c.zoom}>
                     <Image
                       src={item.src}
                       alt={`${plan.title[lang]} — ${name(item)}`}

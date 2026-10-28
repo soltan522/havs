@@ -299,31 +299,35 @@ export function buildModel(plan) {
   const D = plan.footprint ? plan.footprint[1] : r1(footprintArea / W);
 
   let levels;
-  if (plan.style === "duplex") levels = duplexLevels(spec);
-  else if (plan.style === "townhouse") levels = townhouseLevels(spec);
+  if (plan.style === "duplex") levels = duplexLevels(spec, W, D);
+  else if (plan.style === "townhouse") levels = townhouseLevels(spec, W, D);
   else if (plan.style === "market") levels = [marketLevel(spec)];
   else if (plan.style === "office") levels = officeLevels(spec);
   else if (plan.style === "showroom") levels = showroomLevels(spec);
   else if (COMMERCIAL_LEVELS[plan.style]) levels = COMMERCIAL_LEVELS[plan.style](plan, W, D, spec);
   else if (itype) levels = interiorLevels(plan, W, D, spec);
-  else if (above === 1) levels = [singleStorey(plan, W, D, spec, layoutOf(plan))];
+  else if (above === 1) levels = [plan.style === "luxury" ? luxuryGround(plan, W, D, spec) : singleStorey(plan, W, D, spec, layoutOf(plan))];
   else levels = twoStorey(plan, W, D, spec);
+  // a luxury villa's lower ground floor under the whole house, its stair below the ground floor's (LG_* below)
+  const lower = plan.style === "luxury" ? lowerGround(plan, W, D, levels[0]) : null;
+  const all = lower ? [...levels, lower] : levels;
 
   // mirrored variant: the same rooms, flipped left-to-right (garage stays on the right)
   if (plan.mirror) {
     const flip = (side) => (side === "left" ? "right" : side === "right" ? "left" : side);
-    for (const lv of levels) {
+    for (const lv of all) {
       for (const s of lv.spaces) s.x = 1 - s.x - s.w;
       for (const o of [...lv.doors, ...lv.windows]) {
         if (o.side === "top" || o.side === "bottom") o.at = 1 - o.at;
         o.side = flip(o.side);
       }
       if (lv.terrace) [lv.terrace.x0, lv.terrace.x1] = [1 - lv.terrace.x1, 1 - lv.terrace.x0];
+      if (lv.court) Object.assign(lv.court, { x0: 1 - lv.court.x1, x1: 1 - lv.court.x0, steps: flip(lv.court.steps) });
     }
   }
 
   // fractions -> metres
-  for (const lv of levels) {
+  for (const lv of all) {
     for (const s of lv.spaces) {
       s.x *= W; s.y *= D; s.w *= W; s.h *= D;
     }
@@ -331,10 +335,15 @@ export function buildModel(plan) {
       lv.terrace.x0 *= W;
       lv.terrace.x1 *= W;
     }
+    if (lv.court) {
+      lv.court.x0 *= W;
+      lv.court.x1 *= W;
+    }
   }
 
   const garage = plan.garage ? { w: plan.areaM2 >= 370 ? 6.6 : 3.9, d: 6.4 } : null;
   const model = { plan, spec, W, D, above, levels, garage, basement: plan.style === "luxury", storey: spec.storey ?? STOREY };
+  if (lower) model.lower = lower;
   model.wallTop = above * model.storey;
   if (itype) model.interior = { type: plan.interior.type, palette: PALETTES[plan.interior.palette], ch: itype.ch };
   if (spec.survey) {
@@ -356,6 +365,12 @@ export function buildModel(plan) {
     model.columns = Array.from({ length: n + 1 }, (_, i) => r1(0.45 + ((W - 0.9) * i) / n)).flatMap((x) => [[x, 0.4], [x, D - 0.4]]);
   }
   if (COMMERCIAL_LEVELS[plan.style]) model.metrics = commercialMetrics(model);
+  if (isHouse(model)) {
+    // houses: stairs drawn from the storey height, no window against the garage, furniture clear of the doors
+    fitStairs(model);
+    clearGarageWall(model);
+    clearFurniture(model);
+  }
   Object.assign(model, roofGeometry(model));
   model.site = siteLayout(model);
   if (plan.project) {
@@ -416,11 +431,14 @@ function siteLayout(model) {
 /** Kitchen + dining at the back and a living room across the front, or one open space when small. */
 function livingZone(level, x0, x1, W, D, spec) {
   const glassy = !!spec.glassy;
-  const front = glassy ? [{ at: 0.5, w: 99 }] : [{ at: 0.27, w: 2.2 }, { at: 0.73, w: 2.2 }];
+  // a living wing too narrow for two windows side by side (a fitted plan) has one, centred
+  const lw = (x1 - x0) * W, one = (w) => [{ at: 0.5, w: Math.floor(Math.min(w, lw - 1.2) * 20) / 20 }];
+  const front = glassy ? [{ at: 0.5, w: 99 }] : lw < 5.2 ? one(2.6) : [{ at: 0.27, w: 2.2 }, { at: 0.73, w: 2.2 }];
   if ((x1 - x0) * W < 8 || D < 9.5) {
     level.spaces.push({ id: "open", label: "LIVING / DINING / KITCHEN", kind: "open", x: x0, y: 0, w: x1 - x0, h: 1 });
     front.forEach((f) => level.windows.push({ space: "open", side: "bottom", ...f }));
-    level.windows.push({ space: "open", side: "top", at: 0.3, w: 2.0 }, { space: "open", side: "top", at: 0.75, w: 1.6 });
+    if (lw < 4.4) one(2.0).forEach((f) => level.windows.push({ space: "open", side: "top", ...f }));
+    else level.windows.push({ space: "open", side: "top", at: 0.3, w: 2.0 }, { space: "open", side: "top", at: 0.75, w: 1.6 });
     if (x0 === 0) level.windows.push({ space: "open", side: "left", at: 0.55, w: glassy ? 3.0 : 2.0 });
     return;
   }
@@ -443,7 +461,201 @@ function livingZone(level, x0, x1, W, D, spec) {
   }
 }
 
+/** A house on two storeys: the template's proportions where they give rooms of the minimum size, else fitted in metres. */
 function twoStorey(plan, W, D, spec) {
+  const levels = twoStoreyTemplate(plan, W, D, spec);
+  if (plan.style === "interior") return levels; // an interior's residence keeps its own proportions
+  const m = levels.map((lv) => levelInMetres(lv, W, D));
+  if (!m.some((lv) => levelIssues(W, D, lv).length) && !masterIssues(W, D, m).length) return levels;
+  return twoStoreyFitted(plan, W, D, spec);
+}
+
+/**
+ * The bedrooms across the back of the first floor (rear garden), in metres: each with its en-suite beside it, and a
+ * study or family room where the template has one. The rooms are at least their minimum sizes (the en-suites wide
+ * enough, the bedrooms wide enough beside them) and every door opens onto the landing between the front en-suite
+ * (cx0 wide, which may give way down to lowE) and the stair column (from cx1). Where four bedrooms and their en-suites
+ * cannot stand side by side, the en-suites of each pair share a column between the two bedrooms, one behind the other.
+ */
+function backRowFitted(W, yR, names, cx0, lowE, cx1) {
+  const F = ROOM_FIT, n = names.length, dB = yR - EXT - INT / 2;
+  const wet = Math.max(F.wetW, F.wetA / dB), bed = Math.max(F.bedW, F.bedA / dB) + INT;
+  const isBed = names.map(([, kind]) => kind === "bedroom");
+  const eNeed = names.map((_, i) => wet + (i === 0 || (i === n - 1 && i > 0) ? EXT + INT / 2 : INT));
+  const need = names.map((_, i) => (isBed[i] ? eNeed[i] + bed : 2.4));
+  const ewOf = (i, cell) => (isBed[i] ? Math.min(Math.max(Math.min(0.32 * cell, 2.6), eNeed[i]), cell - bed) : 0);
+  // where the door of a room x0..x1 can stand on the landing (cx0..cx1), clear of the wall ends by 5 cm
+  const doorRoom = (x0, x1, c0) => [Math.max(x0, c0) + INT / 2 + 0.05, Math.min(x1, cx1) - INT / 2 - 0.05];
+  const sideBySide = (c0, force = false) => {
+    const total = need.reduce((a, b) => a + b, 0);
+    // (too narrow for these rooms: shared out in proportion, so that the validator reports the rooms too small)
+    if (force && total > W) return names.map(([label, kind], i) => {
+      const x0 = (W * need.slice(0, i).reduce((a, b) => a + b, 0)) / total, x1 = x0 + (W * need[i]) / total, ew = isBed[i] ? (W * eNeed[i]) / total : 0;
+      return { label, kind, cell: [x0, x1], e: ew ? (i === 0 ? [x0, x0 + ew] : [x1 - ew, x1]) : null, room: ew ? (i === 0 ? [x0 + ew, x1] : [x0, x1 - ew]) : [x0, x1] };
+    });
+    let wn = shareOut(W, names.map(() => 1), need);
+    for (let k = 0; k < 3; k++) {
+      // the first and last rooms reach far enough along the landing for their doors
+      const first = isBed[0] ? ewOf(0, wn[0]) : 0;
+      const n0 = Math.max(need[0], Math.max(first, c0) + 1.12);
+      const nl = n > 1 ? Math.max(need[n - 1], W - cx1 + 1.12) : need[0];
+      const want = need.map((v, i) => (i === 0 ? n0 : i === n - 1 && n > 1 ? nl : v));
+      wn = shareOut(W, names.map(() => 1), want);
+    }
+    let x = 0;
+    const rooms = names.map(([label, kind], i) => {
+      const x0 = x, x1 = (x += wn[i]), ew = ewOf(i, wn[i]);
+      const left = i === 0;
+      return { label, kind, cell: [x0, x1], e: ew ? (left ? [x0, x0 + ew] : [x1 - ew, x1]) : null, room: ew ? (left ? [x0 + ew, x1] : [x0, x1 - ew]) : [x0, x1] };
+    });
+    const ok = x <= W + 1e-6 && rooms.every((r, i) => r.cell[1] - r.cell[0] >= need[i] - 1e-6 && (!r.e || r.e[1] - r.e[0] >= eNeed[i] - 1e-6) && (() => { const [lo, hi] = doorRoom(...r.room, c0); return hi - lo >= 0.9 - 1e-6; })());
+    return ok || force ? rooms : null;
+  };
+  // the front en-suite keeps its template width while the doors allow, then gives way
+  for (const c0 of [cx0, Math.max(lowE, Math.min(cx0, W / n - 1.12 + 0.36)), lowE]) {
+    const rooms = sideBySide(c0);
+    if (rooms) return { cx0: c0, rooms, stacked: false };
+  }
+  // pairs of bedrooms with their en-suites one behind the other in a column between them
+  const half = (yR + EXT - INT / 2) / 2; // both en-suites as deep inside
+  const col = Math.max(F.wetW, F.wetA / (half - EXT - INT / 2)) + INT;
+  const bedIn = Math.max(F.bedW, F.bedA / dB);
+  const pairs = [];
+  for (let i = 0; i < n; i += 2) pairs.push(isBed[i] && isBed[i + 1] ? [i, i + 1] : [i]);
+  const cols = pairs.filter((p) => p.length === 2).length;
+  // (the front en-suite as wide as the first room can still reach past it along the landing for its door: up to its
+  // template width, at least its fitted minimum)
+  const fit = (c0) => {
+    const widths = names.map((_, i) => (i === 0 || i === n - 1 ? bedIn + EXT + INT / 2 : bedIn + INT));
+    widths[0] = Math.max(widths[0], c0 + 1.12);
+    widths[n - 1] = Math.max(widths[n - 1], W - cx1 + 1.12);
+    return { c0, widths, spare: W - cols * col - widths.reduce((a, b) => a + b, 0) };
+  };
+  const { c0, widths, spare } = fit(Math.max(lowE, Math.min(cx0, r05dn(lowE + Math.max(0, fit(lowE).spare)))));
+  const share = shareOut(W - cols * col, names.map(() => 1), widths);
+  // too narrow (or too shallow for two en-suites one behind the other): the validator rejects the footprint
+  if (spare < -1e-6 || half - EXT - INT / 2 < F.wetW) return { cx0: c0, rooms: sideBySide(c0, true), stacked: false };
+  let x = 0;
+  const rooms = [];
+  for (const p of pairs) {
+    if (p.length === 1) {
+      const i = p[0], cell = share[i];
+      rooms.push({ label: names[i][0], kind: names[i][1], cell: [x, x + cell], e: null, room: [x, x + cell] });
+      x += cell;
+      continue;
+    }
+    const [i, j] = p;
+    const a = share[i], b = share[j];
+    rooms.push({ label: names[i][0], kind: names[i][1], cell: [x, x + a + col], room: [x, x + a], e: [x + a, x + a + col], stack: "top" });
+    rooms.push({ label: names[j][0], kind: names[j][1], cell: [x + a, x + a + col + b], room: [x + a + col, x + a + col + b], e: [x + a, x + a + col], stack: "bottom" });
+    x += a + col + b;
+  }
+  return { cx0: c0, rooms, stacked: true, half };
+}
+
+/**
+ * The two-storey house fitted in metres where the template's proportions would draw a room below the minimums or a
+ * door onto a wall end: the bathroom column (stair, bathroom, ground-floor WC or shower room) and the front en-suite and
+ * landing row at least their minimum sizes, the back row of bedrooms and en-suites shared out as backRowFitted does,
+ * and every first-floor door on the landing. Same rooms, doors and windows as the template.
+ */
+function twoStoreyFitted(plan, W, D, spec) {
+  const glassy = !!spec.glassy, F = ROOM_FIT;
+  const guestDown = plan.bedrooms >= 4;
+  const up = plan.bedrooms - (guestDown ? 1 : 0);
+  const yS = 0.64 * D;
+  // rows: bedrooms on the rear garden, the landing (with the front en-suite), the master and second bedroom in front
+  const bedD = F.bedW + EXT + INT / 2, landD = Math.max(F.hallW, F.wetW) + INT;
+  // (the template's own lines wherever they give the rooms their minimum sizes, ROOM_OK)
+  const O = ROOM_OK, rows = shareOut(D, [0.4, 0.18, 0.42], [bedD, landD, bedD]);
+  const asDrawn = 0.4 * D - EXT - INT / 2 >= O.bedW && 0.18 * D - INT >= Math.max(O.hallW, O.wetW) && 0.42 * D - EXT - INT / 2 >= O.bedW;
+  const yR = asDrawn ? 0.4 * D : snap05(rows[0], bedD, D - landD - bedD);
+  const yF = asDrawn ? 0.58 * D : snap05(yR + rows[1], yR + landD, D - bedD);
+  const wetIn = 0.2 * W - EXT - INT / 2, wetD = D - yS - EXT - INT / 2;
+  const colX = wetIn >= O.wetW && wetIn * wetD >= O.wetA ? 0.8 * W : r05dn(W - Math.max(F.wetW, F.wetA / wetD) - EXT - INT / 2);
+  // the front en-suite: its template width where that is large enough; it may give way to the back row's doors down to
+  // its fitted minimum (lowE)
+  const eIn = 0.22 * W - EXT - INT / 2, eFit = r05up(Math.max(F.wetW, F.wetA / (yF - yR - INT)) + EXT + INT / 2);
+  const cx0Init = eIn >= O.wetW && eIn * (yF - yR - INT) >= O.wetA ? 0.22 * W : Math.max(0.22 * W, eFit);
+  const lowE = Math.min(cx0Init, eFit);
+  const m = INT / 2 + 0.05;
+  const room = (lv, id, label, kind, x0, y0, x1, y1) => lv.spaces.push({ id, label, kind, x: x0 / W, y: y0 / D, w: (x1 - x0) / W, h: (y1 - y0) / D });
+  const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [], veranda: spec.pergola, canopy: spec.canopy };
+  livingZone(ground, 0, 0.6, W, D, spec);
+  room(ground, "back", guestDown ? "GUEST BEDROOM" : "STUDY", guestDown ? "bedroom" : "study", 0.6 * W, 0, W, yR);
+  room(ground, "hall", "ENTRANCE HALL", "hall", 0.6 * W, yR, colX, D);
+  room(ground, "stair", "STAIR", "stair", colX, yR, W, yS);
+  room(ground, "wc", guestDown ? "SHOWER" : "WC", guestDown ? "shower" : "wc", colX, yS, W, D);
+  ground.doors.push(
+    { space: "hall", side: "bottom", at: 0.5, w: 1.2, entry: true },
+    { space: "hall", side: "left", at: 0.45, w: 1.8, open: true },
+    { space: "back", side: "bottom", at: (doorWithin(0.7 * W, 0.9, 0.6 * W + m, colX - m) - 0.6 * W) / (0.4 * W), w: 0.9 },
+    { space: "wc", side: "left", at: 0.3, w: 0.8 },
+    { space: "stair", side: "left", at: 0.5, w: 1.0, open: true },
+  );
+  ground.windows.push({ space: "back", side: "top", at: 0.5, w: 1.6 }, { space: "back", side: "right", at: 0.5, w: 1.2 }, { space: "wc", side: "bottom", at: 0.5, w: 0.6 });
+
+  // back row: remaining bedrooms (each with an en-suite) + a study / family room when space is left over
+  const backRooms = Math.max(0, up - 2);
+  const names = [];
+  for (let i = 0; i < backRooms; i++) names.push(["BEDROOM", "bedroom"]);
+  if (backRooms === 0) names.push(["FAMILY ROOM", "study"]);
+  if (backRooms === 1) names.push(["STUDY", "study"]);
+  const row = backRowFitted(W, yR, names, cx0Init, lowE, colX);
+  const cx0 = row.cx0;
+  // the front: master bedroom and second bedroom, at least its minimum width
+  const dF = D - yF - EXT - INT / 2;
+  const xm = Math.min(0.48 * W, r05dn(colX - Math.max(F.bedW, F.bedA / dF) - INT));
+  const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
+  room(first, "master", "MASTER BEDROOM", "master", 0, yF, xm, D);
+  room(first, "bed2", "BEDROOM", "bedroom", xm, yF, colX, D);
+  room(first, "bath2", "BATH", "bath", colX, yS, W, D);
+  room(first, "ensuite", "EN-SUITE", "bath", 0, yR, cx0, yF);
+  room(first, "corr", "LANDING", "hall", cx0, yR, colX, yF);
+  room(first, "stair", "STAIR", "stair", colX, yR, W, yS);
+  const sw = Math.min(1.0, Math.min(yF, yS) - yR - 2 * m);
+  first.doors.push(
+    { space: "master", side: "top", at: doorWithin(0.7 * xm, 0.9, cx0 + m, xm - m) / xm, w: 0.9 },
+    { space: "bed2", side: "top", at: (doorWithin(xm + 0.5 * (colX - xm), 0.9, Math.max(xm, cx0) + m, colX - m) - xm) / (colX - xm), w: 0.9 },
+    { space: "bath2", side: "left", at: (doorWithin(yS + 0.25 * (D - yS), 0.8, Math.max(yS, yF) + m, D - EXT - 0.05) - yS) / (D - yS), w: 0.8 },
+    { space: "ensuite", side: "bottom", at: 0.5, w: 0.8 },
+    { space: "stair", side: "left", at: (doorWithin(yR + 0.5 * (yS - yR), sw, yR + m, Math.min(yF, yS) - m) - yR) / (yS - yR), w: sw, open: true },
+  );
+  first.windows.push(
+    { space: "master", side: "bottom", at: 0.5, w: glassy ? 99 : 2.0 },
+    { space: "master", side: "left", at: 0.5, w: 1.4 },
+    { space: "bed2", side: "bottom", at: 0.5, w: glassy ? 99 : 1.6 },
+    { space: "bath2", side: "bottom", at: 0.5, w: 0.6 },
+    { space: "ensuite", side: "left", at: 0.5, w: 0.6 },
+  );
+  if (spec.terrace) first.terrace = { x0: 0, x1: 0.8, depth: 1.8, label: "TERRACE" };
+  if (spec.balcony) first.terrace = { x0: 0.08, x1: 0.92, depth: 1.4, label: "BALCONY" };
+  const cells = names.length;
+  row.rooms.forEach((r, i) => {
+    const id = `b${i}`;
+    if (r.e && !r.stack) {
+      const left = r.e[0] < r.room[0];
+      room(first, `e${i}`, "EN-SUITE", "bath", r.e[0], 0, r.e[1], yR);
+      first.doors.push({ space: `e${i}`, side: left ? "right" : "left", at: 0.7, w: 0.8 });
+      first.windows.push({ space: `e${i}`, side: "top", at: 0.5, w: 0.6 });
+    } else if (r.e) {
+      // the en-suite of the first bedroom of a pair behind the other one's, each opening off its own bedroom
+      const top = r.stack === "top";
+      room(first, `e${i}`, "EN-SUITE", "bath", r.e[0], top ? 0 : row.half, r.e[1], top ? row.half : yR);
+      first.doors.push({ space: `e${i}`, side: top ? "left" : "right", at: 0.5, w: 0.8 });
+      if (top) first.windows.push({ space: `e${i}`, side: "top", at: 0.5, w: 0.6 });
+    }
+    const [x0, x1] = r.room;
+    room(first, id, r.label, r.kind, x0, 0, x1, yR);
+    const pref = x0 + (i === 0 ? 0.8 : i === cells - 1 ? 0.25 : 0.5) * (x1 - x0);
+    first.doors.push({ space: id, side: "bottom", at: (doorWithin(pref, 0.9, Math.max(x0, cx0) + m, Math.min(x1, colX) - m) - x0) / (x1 - x0), w: 0.9 });
+    first.windows.push({ space: id, side: "top", at: 0.5, w: Math.min(2.2, 1.4 + 0.2 * cells) });
+  });
+  return [ground, first];
+}
+
+/** The two-storey template, in fractions of the footprint. */
+function twoStoreyTemplate(plan, W, D, spec) {
   const glassy = !!spec.glassy;
   const guestDown = plan.bedrooms >= 4;
   const up = plan.bedrooms - (guestDown ? 1 : 0);
@@ -524,9 +736,485 @@ function twoStorey(plan, W, D, spec) {
   return [ground, first];
 }
 
+// ------------------------------------------------------------------ room minimums
+
+/** The smallest rooms the house plans are drawn with, clear inside the walls (m, m²); bathrooms are "about" this. */
+export const ROOM_MIN = { bedW: 2.7, bedA: 9, wetW: 1.5, wetA: 3.5, hallW: 1.1, stairW: 0.9, livingW: 3.3, luxLivingW: 4.5, luxLivingA: 35, luxLoungeA: 25 };
+// what a template's own proportions must give to be kept as drawn (and what the validator accepts) ...
+const ROOM_OK = { bedW: 2.695, bedA: 8.95, wetW: 1.45, wetA: 3.4, hallW: 1.095, stairW: 0.895, livingW: 3.295 };
+// ... and the sizes a plan is fitted to where they do not
+const ROOM_FIT = { bedW: 2.75, bedA: 9.2, wetW: 1.55, wetA: 3.6, hallW: 1.15 };
+const r05up = (v) => Math.ceil(v * 20 - 1e-9) / 20;
+// v to the nearest 5 cm that stays within lo..hi (v itself where none does)
+const snap05 = (v, lo, hi) => [Math.round(v * 20) / 20, r05up(v), Math.floor(v * 20 + 1e-9) / 20].find((x) => x >= lo - 1e-9 && x <= hi + 1e-9) ?? v;
+const r05dn = (v) => Math.floor(v * 20 + 1e-9) / 20;
+
+/** A level whose spaces are fractions of the footprint, in metres (a copy). */
+function levelInMetres(level, W, D) {
+  return { ...level, spaces: level.spaces.map((s) => ({ ...s, x: s.x * W, y: s.y * D, w: s.w * W, h: s.h * D })) };
+}
+
+/**
+ * Rooms of a level (in metres) below the minimums and doors that do not open cleanly from one room into one other:
+ * bedrooms at least `lim.bedW` wide and `lim.bedA` m², bathrooms and shower rooms `wetW` and `wetA`, halls, corridors,
+ * landings and lobbies `hallW` wide; every inside door within the walls of its room and of the one room across.
+ */
+function levelIssues(W, D, level, lim = ROOM_OK, tol = 0.03) {
+  const box = { W, D }, out = [];
+  const a = (label) => `${/^[AEIOU]/.test(label) ? "an" : "a"} ${label}`;
+  for (const s of level.spaces) {
+    const c = inner(box, s), short = Math.min(c.w, c.h), ar = c.w * c.h, size = `${c.w.toFixed(2)} × ${c.h.toFixed(2)} m`;
+    if ((s.kind === "bedroom" || s.kind === "master") && (short < lim.bedW || ar < lim.bedA)) out.push(`${a(s.label)} of ${size} (${ar.toFixed(1)} m²; at least ${ROOM_MIN.bedW} m wide and ${ROOM_MIN.bedA} m²)`);
+    if ((s.kind === "bath" || s.kind === "shower") && (short < lim.wetW || ar < lim.wetA)) out.push(`${a(s.label)} of ${size} (${ar.toFixed(1)} m²; about ${ROOM_MIN.wetW} m wide and ${ROOM_MIN.wetA} m²)`);
+    if (s.kind === "hall" && short < lim.hallW) out.push(`${a(s.label)} ${short.toFixed(2)} m wide (at least ${ROOM_MIN.hallW} m)`);
+    if (s.kind === "stair" && short < lim.stairW) out.push(`a stair ${short.toFixed(2)} m wide (at least ${ROOM_MIN.stairW} m)`);
+  }
+  // the rooms fill the footprint, inside it, without overlapping
+  const sum = level.spaces.reduce((n, s) => n + s.w * s.h, 0);
+  if (Math.abs(sum - W * D) > 0.05 || level.spaces.some((s) => s.x < -0.01 || s.y < -0.01 || s.x + s.w > W + 0.01 || s.y + s.h > D + 0.01 || s.w < 0.3 || s.h < 0.3)) out.push("rooms that do not fit the footprint");
+  // the main living space (the open plan, or the largest living room)
+  const living = level.spaces.filter((s) => s.kind === "open" || s.kind === "living").sort((a, b) => b.w * b.h - a.w * a.h)[0];
+  if (living) {
+    const c = inner(box, living);
+    if (Math.min(c.w, c.h) < lim.livingW) out.push(`${a(living.label)} ${Math.min(c.w, c.h).toFixed(2)} m wide (at least ${ROOM_MIN.livingW} m)`);
+  }
+  for (const d of level.doors) {
+    const sp = level.spaces.find((s) => s.id === d.space);
+    if (!sp || d.w > 50 || isExterior(box, sp, d.side)) continue;
+    const o = openingSpan(sp, d);
+    const across = level.spaces.filter((t) => {
+      if (t === sp) return false;
+      const tl = d.side === "top" ? t.y + t.h : d.side === "bottom" ? t.y : d.side === "left" ? t.x + t.w : t.x;
+      return Math.abs(tl - o.line) < 0.01 && Math.min(o.a1, o.horizontal ? t.x + t.w : t.y + t.h) - Math.max(o.a0, o.horizontal ? t.x : t.y) > 0.001;
+    });
+    if (across.length !== 1) out.push(`the door of the ${sp.label} opens onto ${across.length ? "the wall between two rooms" : "no room"}`);
+    else for (const r of [sp, across[0]]) {
+      const c = inner(box, r), [lo, hi] = o.horizontal ? [c.x, c.x + c.w] : [c.y, c.y + c.h];
+      if (o.a0 < lo - tol || o.a1 > hi + tol) {
+        out.push(`the door of the ${sp.label} runs into a wall of the ${r.label}`);
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+/** The master bedroom is the largest bedroom of the house: the bedrooms (all levels, metres) larger than it. */
+function masterIssues(W, D, levels) {
+  const box = { W, D }, beds = levels.flatMap((lv) => lv.spaces.filter((s) => s.kind === "bedroom" || s.kind === "master"));
+  const area = (s) => inner(box, s).w * inner(box, s).h;
+  const masters = beds.filter((s) => s.kind === "master");
+  if (!masters.length) return [];
+  const ma = Math.max(...masters.map(area));
+  return beds.filter((s) => s.kind !== "master" && area(s) > ma + 0.05).map((s) => `a ${s.label} of ${area(s).toFixed(1)} m², larger than the master bedroom (${ma.toFixed(1)} m²)`);
+}
+
+/**
+ * What keeps a generated house from the room minimums (ROOM_MIN): rooms too small, doors that run into walls, a
+ * bedroom larger than the master, a missing stair. Empty for a plan the generator draws properly; the validator
+ * rejects any other.
+ */
+export function roomShortfalls(model) {
+  if (!isHouse(model)) return [];
+  const out = model.levels.flatMap((lv, li) => levelIssues(model.W, model.D, lv).map((x) => (model.levels.length > 1 ? `${lv.name.replace(" PLAN", "").toLowerCase()}: ${x}` : x)));
+  out.push(...masterIssues(model.W, model.D, model.levels));
+  if (model.levels.length > 1) model.levels.forEach((lv) => lv.spaces.some((s) => s.kind === "stair") || out.push(`no stair on the ${lv.name.replace(" PLAN", "").toLowerCase()}`));
+  // a luxury villa's living space (the open plan, or the largest living room) at least luxLivingW wide and luxLivingA
+  // (a living room beside a separate kitchen and dining room: luxLoungeA)
+  if (model.plan.style === "luxury") {
+    const lv = model.levels[0].spaces.filter((s) => s.kind === "open" || s.kind === "living").sort((a, b) => b.w * b.h - a.w * a.h)[0];
+    const c = lv && inner(model, lv), least = lv?.kind === "open" ? ROOM_MIN.luxLivingA : ROOM_MIN.luxLoungeA;
+    if (c && (Math.min(c.w, c.h) < ROOM_MIN.luxLivingW - 0.005 || c.w * c.h < least - 0.05)) out.push(`a ${lv.label} of ${c.w.toFixed(2)} × ${c.h.toFixed(2)} m (${(c.w * c.h).toFixed(1)} m²; a luxury villa's at least ${ROOM_MIN.luxLivingW} m wide and ${least} m²)`);
+  }
+  // a stair box that holds a stair of risers and goings people can use (fitStairs)
+  const tight = [...(model.lower ? [model.lower] : []), ...model.levels].flatMap((lv) => lv.spaces).find((s) => s.kind === "stair" && s.flight && !s.flight.form);
+  if (tight) out.push(`a stair box of ${tight.flight.across.toFixed(2)} × ${tight.flight.along.toFixed(2)} m, too small for a stair of ${Math.ceil(model.storey / STAIR.R)} risers (a dog-leg needs about ${(2 * STAIR.fw + STAIR.well).toFixed(1)} × 2.35 m, a spiral stair ${STAIR.spiral} m across)`);
+  if (model.lower) out.push(...lowerIssues(model).map((x) => `lower ground floor: ${x}`));
+  return out;
+}
+
+/**
+ * A luxury villa's lower ground floor (model.lower): rooms below LG_MIN, halls, doors and the footprint as levelIssues
+ * checks them, and a stair that does not stand exactly under the ground floor's.
+ */
+function lowerIssues(model) {
+  const lv = model.lower, out = levelIssues(model.W, model.D, lv);
+  for (const s of lv.spaces) {
+    const m = LG_MIN[s.media ? "media" : s.kind];
+    if (!m) continue;
+    const c = inner(model, s), ar = c.w * c.h;
+    if (Math.min(c.w, c.h) < m[0] - 0.005 || ar < m[1] - 0.05) out.push(`${/^[AEIOU]/.test(s.label) ? "an" : "a"} ${s.label} of ${c.w.toFixed(2)} × ${c.h.toFixed(2)} m (${ar.toFixed(1)} m²; at least ${m[0]} m wide and ${m[1]} m²)`);
+  }
+  const a = model.levels[0].spaces.find((s) => s.kind === "stair"), b = lv.spaces.find((s) => s.kind === "stair");
+  if (!a || !b || ["x", "y", "w", "h"].some((k) => Math.abs(a[k] - b[k]) > 0.01)) out.push(`a stair that is not under the ground floor's${a ? "" : " (the ground floor has none)"}`);
+  return out;
+}
+
+// ------------------------------------------------------------------ house stairs
+
+/**
+ * The stair of a house on two or more levels, drawn from the storey height: risers of at most STAIR.R, a dog-leg (two
+ * flights side by side, at least STAIR.fw wide) with a half-landing where its box is long enough for goings of STAIR.G,
+ * otherwise with six winders in the turn (goings of STAIR.Gw), otherwise a spiral stair (risers of at most STAIR.Rs) in a
+ * box at least STAIR.spiral across. Both flights of a dog-leg end at the stair's opening (side A): it is entered on its
+ * first flight (P) on the lower level and left from its second (Q) on the upper one, so the openings of all the levels
+ * are in the same wall. A box too small for any of them gets no design (null) and the validator rejects the footprint.
+ */
+const STAIR = { R: 0.185, G: 0.25, Gw: 0.24, Gmax: 0.3, fw: 0.9, fwMax: 1.2, well: 0.1, Rs: 0.21, spiral: 1.5, spiralMax: 2.2 };
+
+/** The stair for a storey height H in a clear box `along` (away from the opening) by `across` (along it), or null. */
+function stairDesign(H, along, across) {
+  const n0 = Math.ceil(H / STAIR.R - 1e-9);
+  // a half-landing: two flights of n/2 risers (n even); six winders: two straight flights of (n - 7)/2 treads (n odd).
+  // The widest flights each form allows: a half-landing with flights of a metre or more, else winders, else a
+  // half-landing with narrower flights
+  const hi = Math.min(STAIR.fwMax, (across - STAIR.well) / 2);
+  for (const [form, least] of [["landing", 1.0], ["winders", STAIR.fw], ["landing", STAIR.fw]]) {
+    const n = form === "landing" ? n0 + (n0 % 2) : n0 + 1 - (n0 % 2);
+    const t = form === "landing" ? n / 2 - 1 : (n - 7) / 2, g = form === "landing" ? STAIR.G : STAIR.Gw;
+    const widths = [...Array.from({ length: Math.max(0, Math.floor((hi - least) / 0.05 + 1e-9) + 1) }, (_, i) => +(hi - i * 0.05).toFixed(3)), least].filter((fw) => fw <= hi + 1e-9);
+    for (const fw of widths) {
+      if (along + 1e-9 < t * g + fw) continue;
+      const G = Math.min(STAIR.Gmax, (along - fw) / t);
+      return { form, n, R: H / n, G, t, fw, turn: along - t * G, along, across };
+    }
+  }
+  const dia = Math.min(across, along, STAIR.spiralMax);
+  if (dia < STAIR.spiral - 1e-9) return null;
+  const n = Math.ceil(H / STAIR.Rs - 1e-9);
+  return { form: "spiral", n, R: H / n, dia, along, across };
+}
+
+/**
+ * Gives every stair of a house on several levels its design (sp.flight: the form, its first flight P at the "lo" or
+ * "hi" end of the opening wall, and its role on that level: "bottom" going up, "top" coming down, "middle" both) and
+ * puts its opening where the flights start and end: at P on the lowest level, at Q on the top one, across both between
+ * them. P is the end that opens into a hall or living space on the levels where the stair is entered.
+ */
+function fitStairs(model) {
+  const stack = [...(model.lower ? [model.lower] : []), ...model.levels];
+  if (stack.length < 2) return;
+  const key = (s) => [s.x, s.y, s.w, s.h].map((v) => v.toFixed(2)).join(",");
+  const groups = new Map();
+  for (const lv of stack) for (const sp of lv.spaces) if (sp.kind === "stair") groups.set(key(sp), [...(groups.get(key(sp)) ?? []), { lv, sp }]);
+  const OPEN = ["hall", "open", "living", "dining"];
+  for (const list of groups.values()) {
+    if (list.length < 2) continue;
+    const doorOf = ({ lv, sp }) => lv.doors.find((d) => d.space === sp.id);
+    const side = doorOf(list[0])?.side;
+    if (!side || list.some((e) => doorOf(e)?.side !== side)) continue;
+    const sp0 = list[0].sp, inn = inner(model, sp0), hz = side === "top" || side === "bottom";
+    const [along, across] = hz ? [inn.h, inn.w] : [inn.w, inn.h];
+    const f = stairDesign(model.storey, along, across);
+    // the wall of the opening: its line, the inner face's start along it (a0) and the room across it on a level
+    const line = side === "top" ? sp0.y : side === "bottom" ? sp0.y + sp0.h : side === "left" ? sp0.x : sp0.x + sp0.w;
+    const a0 = hz ? inn.x : inn.y, start = hz ? sp0.x : sp0.y, len = hz ? sp0.w : sp0.h;
+    const across0 = (lv, lo, hi) => lv.spaces.find((t) => {
+      if (t.kind === "stair") return false;
+      const tl = side === "top" ? t.y + t.h : side === "bottom" ? t.y : side === "left" ? t.x + t.w : t.x;
+      if (Math.abs(tl - line) > 0.01) return false;
+      const c = inner(model, t), [t0, t1] = hz ? [c.x, c.x + c.w] : [c.y, c.y + c.h];
+      return t0 <= lo + 0.03 && t1 >= hi - 0.03;
+    });
+    const roles = list.map((_, i) => (i === 0 ? "bottom" : i === list.length - 1 ? "top" : "middle"));
+    // the flight ends along the opening wall (absolute, metres): P at the low end of it, or at the high end
+    const ends = (P) => {
+      if (!f || f.form === "spiral") return null;
+      const lo = [a0, a0 + f.fw], hi = [a0 + across - f.fw, a0 + across];
+      return P === "lo" ? { P: lo, Q: hi } : { P: hi, Q: lo };
+    };
+    const score = (P) => {
+      const e = ends(P);
+      if (!e) return 0;
+      return list.reduce((n, { lv }, i) => n + (roles[i] !== "top" && across0(lv, ...e.P) && OPEN.includes(across0(lv, ...e.P).kind) ? 1 : 0) + (roles[i] !== "bottom" && across0(lv, ...e.Q) && OPEN.includes(across0(lv, ...e.Q).kind) ? 1 : 0), 0);
+    };
+    const c0 = start + doorOf(list[0]).at * len;
+    const P = score("hi") > score("lo") || (score("hi") === score("lo") && c0 > a0 + across / 2 + 0.2) ? "hi" : "lo";
+    const e = ends(P);
+    list.forEach((entry, i) => {
+      entry.sp.flight = f ? { ...f, side, P, role: roles[i] } : { form: null, side, role: roles[i], along, across };
+      if (!f) return;
+      const d = doorOf(entry);
+      // the opening: where the flight that starts or ends on this level meets the wall (both flights between levels),
+      // within the room across, 5 cm in from the corners
+      let [lo, hi] = f.form === "spiral" ? [a0 + across / 2 - Math.min(0.5, f.dia * 0.3), a0 + across / 2 + Math.min(0.5, f.dia * 0.3)] : roles[i] === "bottom" ? e.P : roles[i] === "top" ? e.Q : [a0, a0 + across];
+      const room = across0(entry.lv, lo, hi) ?? entry.lv.spaces.find((t) => t !== entry.sp && Math.abs((side === "top" ? t.y + t.h : side === "bottom" ? t.y : side === "left" ? t.x + t.w : t.x) - line) < 0.01 && (hz ? t.x < hi && t.x + t.w > lo : t.y < hi && t.y + t.h > lo));
+      if (room) {
+        const c = inner(model, room);
+        [lo, hi] = [Math.max(lo, hz ? c.x : c.y), Math.min(hi, hz ? c.x + c.w : c.y + c.h)];
+      }
+      [lo, hi] = [Math.max(lo, a0) + 0.05, Math.min(hi, a0 + across) - 0.05];
+      d.w = +(hi - lo).toFixed(3);
+      d.at = ((lo + hi) / 2 - start) / len;
+    });
+  }
+}
+
+/** Where a stair's walking lines and their labels go (plan metres), for the sheet and the CAD text: [{ text, x, y }]. */
+function stairLabels(inn, f) {
+  if (!f?.form) return [];
+  const pt = stairPoint(inn, f.side);
+  const at = ([x, y], text) => ({ text, x, y });
+  if (f.form === "spiral") {
+    // inside each walking line, half way along it (spiralGeometry)
+    const k = spiralGeometry(f), r = k.R0 * 0.42;
+    const up = k.psi + (k.cut / 2 + 0.35) * k.step, dn = k.psi - (f.role === "top" ? 3 : 2) * k.step;
+    const lab = (a, text) => at(pt(k.uc + r * Math.cos(a), k.vc + r * Math.sin(a)), text);
+    return f.role === "bottom" ? [lab(up, "UP")] : f.role === "top" ? [lab(dn, "DN")] : [lab(up, "UP"), lab(dn, "DN")];
+  }
+  // beside the walking line's start, towards the flight's outer wall
+  const { P, Q } = stairFlights(f);
+  const side = (F) => (F[0] < 0.01 ? F[0] + f.fw * 0.24 : F[1] - f.fw * 0.24);
+  return f.role === "bottom" ? [at(pt(side(P), 0.5), "UP")] : f.role === "top" ? [at(pt(side(Q), 0.5), "DN")] : [at(pt(side(P), 0.5), "UP"), at(pt(side(Q), 0.5), "DN")];
+}
+
+/** A spiral stair's circle in its box (u, v as stairPoint), the opening's direction psi, the step angle and the cut. */
+function spiralGeometry(f) {
+  const R0 = f.dia / 2;
+  return { R0, uc: f.across / 2, vc: Math.min(f.along / 2, R0 + Math.max(0, (f.along - f.dia) / 2)), psi: -Math.PI / 2, step: (2 * Math.PI) / f.n, cut: Math.max(3, Math.round(1.1 / f.R)) };
+}
+
+/** A stair's clear box as plan metres from (u along its opening wall, v away from it). */
+const stairPoint = (inn, side) => (u, v) =>
+  side === "top" ? [inn.x + u, inn.y + v] : side === "bottom" ? [inn.x + u, inn.y + inn.h - v] : side === "left" ? [inn.x + v, inn.y + u] : [inn.x + inn.w - v, inn.y + u];
+
+/** The two flights of a dog-leg across its box (u): P and Q from their outer wall to the well, and their middles. */
+function stairFlights(f) {
+  const P = f.P === "lo" ? [0, f.fw] : [f.across - f.fw, f.across];
+  const Q = f.P === "lo" ? [f.across - f.fw, f.across] : [0, f.fw];
+  return { P, Q, Pc: (P[0] + P[1]) / 2, Qc: (Q[0] + Q[1]) / 2 };
+}
+
+/**
+ * A house stair in plan (fitStairs' design): treads, the landing or winders, the well, the cut line where the plan cuts
+ * the flight going up (seen above it dashed on the lowest level) and the walking lines from this level's opening, with
+ * an arrow at their end: up the first flight to the cut, down the second flight (and, on the top level, round the turn
+ * and down the first).
+ */
+function stairSymbol(d, inn, f) {
+  const pt = stairPoint(inn, f.side);
+  let g = "";
+  const L = (u1, v1, u2, v2, dash = false) => {
+    const [a, b] = pt(u1, v1), [c, e] = pt(u2, v2);
+    return d.line(a, b, c, e, dash ? { dash: "4 3" } : {});
+  };
+  const walk = (pts) => {
+    // the walking line (u, v points), a dot at its start and an arrowhead at its end
+    const [p0, [u1, v1], [u2, v2]] = [pts[0], pts.at(-2), pts.at(-1)];
+    const k = Math.hypot(u2 - u1, v2 - v1) || 1, [du, dv] = [(u2 - u1) / k, (v2 - v1) / k], a = 0.16;
+    const dot = Array.from({ length: 9 }, (_, i) => [p0[0] + 0.05 * Math.cos((i * Math.PI) / 4), p0[1] + 0.05 * Math.sin((i * Math.PI) / 4)]);
+    return d.poly(pts.map(([u, v]) => pt(u, v)), { ink: true }) + d.poly(dot.map(([u, v]) => pt(u, v)), { ink: true })
+      + d.poly([[u2 - a * du + a * 0.55 * dv, v2 - a * dv - a * 0.55 * du], [u2, v2], [u2 - a * du - a * 0.55 * dv, v2 - a * dv + a * 0.55 * du]].map(([u, v]) => pt(u, v)), { ink: true });
+  };
+  const below = f.role === "bottom"; // the parts above the plan's cut, dashed on the lowest level
+  if (f.form === "spiral") {
+    const { R0, uc, vc, psi, step, cut } = spiralGeometry(f);
+    const c = (r, a) => [uc + r * Math.cos(a), vc + r * Math.sin(a)];
+    const arc = (r, a0, a1, k = 24) => Array.from({ length: k + 1 }, (_, i) => c(r, a0 + ((a1 - a0) * i) / k));
+    g += d.poly(arc(R0, 0, 2 * Math.PI, 48).map(([u, v]) => pt(u, v))) + d.poly(arc(0.1, 0, 2 * Math.PI, 12).map(([u, v]) => pt(u, v)));
+    for (let k = 0; k < f.n; k++) {
+      const a = psi + k * step, [u1, v1] = c(0.1, a), [u2, v2] = c(R0, a);
+      g += L(u1, v1, u2, v2, below && k > cut);
+    }
+    const rw = 0.1 + (R0 - 0.1) * 0.62;
+    if (f.role !== "top") {
+      const [u1, v1] = c(R0, psi + (cut + 0.4) * step), [u2, v2] = c(0.1, psi + (cut + 0.6) * step);
+      g += d.line(...pt(u1, v1), ...pt(u2, v2));
+      g += walk(arc(rw, psi + step / 2, psi + (cut + 0.2) * step, 12));
+    }
+    if (f.role !== "bottom") g += walk(arc(rw, psi - step / 2, psi - step / 2 - (f.role === "top" ? f.n - 2.2 : f.n / 2) * step, 36));
+    return g;
+  }
+  const { P, Q, Pc, Qc } = stairFlights(f);
+  const t = f.t, G = f.G, vEnd = t * G; // the straight flights end where the landing or the winders start
+  const cut = Math.max(2, Math.min(t - 1, Math.round(1.1 / f.R) - 1)), vCut = (cut + 0.5) * G;
+  // treads of the first flight (dashed past the cut on the lowest level) and of the second
+  for (let i = 1; i <= t; i++) g += L(P[0], i * G, P[1], i * G, below && i > cut);
+  for (let i = 1; i <= t; i++) g += L(Q[0], i * G, Q[1], i * G, below);
+  // the well between the flights (a line each side of it, or one where it is narrow)
+  const [ua, ub] = [Math.min(P[1], Q[1]), Math.max(P[0], Q[0])], pEdge = f.P === "lo" ? ua : ub;
+  for (const u of ub - ua > 0.04 ? [ua, ub] : [(ua + ub) / 2]) {
+    if (below && (u === pEdge || ub - ua <= 0.04)) g += L(u, 0, u, vCut) + L(u, vCut, u, vEnd, true);
+    else g += L(u, 0, u, vEnd, below);
+  }
+  if (f.form === "winders") {
+    // six winders round the end of the well: lines from it to the walls of the turn every 30°
+    const uc = (ua + ub) / 2, r0 = Math.max(0.03, (ub - ua) / 2);
+    const toP = P[0] < Q[0] ? -1 : 1;
+    for (let k = 1; k < 6; k++) {
+      const a = (k * Math.PI) / 6, du = toP * Math.cos(a), dv = Math.sin(a);
+      // to the far wall (v = along) or the side wall (u = 0 or across)
+      const sU = du > 1e-9 ? (f.across - uc) / du : du < -1e-9 ? -uc / du : Infinity, sV = (f.along - vEnd) / dv;
+      const s = Math.min(sU, sV);
+      g += L(uc + r0 * du, vEnd + r0 * dv, uc + s * du, vEnd + s * dv, below);
+    }
+  }
+  // the cut through the first flight, going up
+  if (f.role !== "top") {
+    const [uo, ui] = P[0] < Q[0] ? [P[0], P[1]] : [P[1], P[0]];
+    g += d.poly([pt(uo, vCut - 0.18), pt(ui, vCut + 0.18)], { ink: true });
+    g += walk([[Pc, 0.18], [Pc, vCut - 0.12]]);
+  }
+  const vTurn = vEnd + f.turn / 2;
+  if (f.role === "middle") g += walk([[Qc, 0.18], [Qc, vEnd + Math.min(0.25, f.turn / 3)]]);
+  if (f.role === "top") g += walk([[Qc, 0.18], [Qc, vTurn], [Pc, vTurn], [Pc, 0.3]]);
+  return g;
+}
+
+/** Widths (metres) of rooms side by side in `total`: their template proportions `base`, each at least `need`. */
+function shareOut(total, base, need) {
+  const sum = base.reduce((a, b) => a + b, 0);
+  let w = base.map((b) => (b * total) / sum);
+  const fixed = new Set();
+  for (let k = 0; k < base.length; k++) {
+    const short = w.findIndex((v, i) => !fixed.has(i) && v < need[i] - 1e-9);
+    if (short < 0) break;
+    fixed.add(short);
+    const left = total - [...fixed].reduce((a, i) => a + need[i], 0);
+    const rest = base.reduce((a, b, i) => a + (fixed.has(i) ? 0 : b), 0);
+    w = base.map((b, i) => (fixed.has(i) ? need[i] : (b * left) / (rest || 1)));
+  }
+  return w;
+}
+
+/** A door at centre `c` (metres along its wall) of width `w`, kept between lo and hi; returns its centre. */
+const doorWithin = (c, w, lo, hi) => (hi - lo < w ? (lo + hi) / 2 : Math.min(Math.max(c, lo + w / 2), hi - w / 2));
+
+/**
+ * The corridor plan (layout a, three bedrooms) fitted in metres where its template proportions would draw rooms below
+ * the minimums: the corridor and the rooms off it at least their minimum sizes, the space they need taken from the
+ * rooms beside them and, where the bedroom wing is still too narrow, from the living wing; the doors kept on the
+ * corridor. Same rooms, doors and windows as the template.
+ */
+function corridorPlanFitted(plan, W, D, spec) {
+  const glassy = !!spec.glassy, F = ROOM_FIT;
+  // rows: bedrooms on the rear garden, the corridor, the master suite on the front
+  const bedD = F.bedW + EXT + INT / 2, rows = shareOut(D, [0.43, 0.12, 0.45], [bedD, F.hallW + INT, bedD]);
+  const yB = snap05(rows[0], bedD, D - bedD - F.hallW - INT);
+  const yC = snap05(yB + rows[1], yB + F.hallW + INT, D - bedD);
+  const dB = yB - EXT - INT / 2, dF = D - yC - EXT - INT / 2;
+  // the bedroom wing: bedroom | bath | bedroom across the back, hall | master | en-suite across the front
+  const backNeed = [Math.max(F.bedW, F.bedA / dB) + INT, Math.max(F.wetW, F.wetA / dB) + INT, Math.max(F.bedW, F.bedA / dB) + EXT + INT / 2];
+  const frontNeed = [F.hallW + INT, Math.max(F.bedW, F.bedA / dF) + INT, Math.max(F.wetW, F.wetA / dF) + EXT + INT / 2];
+  const wing = Math.max(0.55 * W, ...[backNeed, frontNeed].map((n) => r05up(n.reduce((a, b) => a + b, 0))));
+  const xL = W - wing;
+  const [wB, wBa] = shareOut(wing, [0.25, 0.13, 0.17], backNeed).map(r05up);
+  const xB = xL + wB, xBa = Math.min(xB + wBa, W - backNeed[2]);
+  // the hall stays narrow enough for the back bedroom's door to open onto the corridor beside it
+  const hallW = r05dn(Math.max(frontNeed[0], Math.min(0.13 * W, wB - 1.12)));
+  const xH = xL + hallW;
+  const [wM] = shareOut(W - xH, [0.27, 0.15], frontNeed.slice(1)).map(r05up);
+  const xM = Math.min(xH + wM, W - frontNeed[2]);
+  const level = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [], veranda: spec.pergola, canopy: spec.canopy };
+  livingZone(level, 0, xL / W, W, D, spec);
+  const room = (id, label, kind, x0, y0, x1, y1) => level.spaces.push({ id, label, kind, x: x0 / W, y: y0 / D, w: (x1 - x0) / W, h: (y1 - y0) / D });
+  room("hall", "ENTRANCE HALL", "hall", xL, yB, xH, D);
+  room("corr", "CORRIDOR", "hall", xH, yB, W, yC);
+  room("master", "MASTER BEDROOM", "master", xH, yC, xM, D);
+  room("ensuite", "EN-SUITE", "bath", xM, yC, W, D);
+  room("bedB", "BEDROOM", "bedroom", xL, 0, xB, yB);
+  room("bath", "BATH", "bath", xB, 0, xBa, yB);
+  room("bedC", "BEDROOM", "bedroom", xBa, 0, W, yB);
+  // doors where the template has them, moved only as far as needed to open onto the corridor clear of its walls
+  const at = (c, x0, x1) => (c - x0) / (x1 - x0);
+  const m = 0.05 + INT / 2;
+  level.doors.push(
+    { space: "hall", side: "bottom", at: 0.5, w: 1.2, entry: true },
+    { space: "hall", side: "left", at: 0.5, w: 1.8, open: true },
+    { space: "corr", side: "left", at: 0.5, w: 1.2, open: true },
+    { space: "master", side: "top", at: at(doorWithin(xH + 0.15 * (xM - xH), 0.9, xH + m, xM - m), xH, xM), w: 0.9 },
+    { space: "ensuite", side: "left", at: 0.3, w: 0.8 },
+    { space: "bedB", side: "bottom", at: at(doorWithin(xL + 0.8 * (xB - xL), 0.9, xH + m, xB - m), xL, xB), w: 0.9 },
+    { space: "bath", side: "bottom", at: 0.5, w: 0.8 },
+    { space: "bedC", side: "bottom", at: at(doorWithin(xBa + 0.3 * (W - xBa), 0.9, xBa + m, W - EXT - 0.05), xBa, W), w: 0.9 },
+  );
+  level.windows.push(
+    { space: "master", side: "bottom", at: 0.5, w: glassy ? 99 : 2.2 },
+    { space: "ensuite", side: "right", at: 0.5, w: 0.8 },
+    { space: "bedB", side: "top", at: 0.5, w: 1.6 },
+    { space: "bath", side: "top", at: 0.5, w: 0.6 },
+    { space: "bedC", side: "top", at: 0.5, w: 1.4 },
+    { space: "bedC", side: "right", at: 0.5, w: 1.2 },
+  );
+  return level;
+}
+
+/**
+ * The compact two-bedroom plan (layout a) fitted in metres where its template would draw the bathroom, a bedroom or
+ * the laundry too small: the bathroom between the bedrooms at least its minimum depth, the bedrooms sharing the rest,
+ * the laundry deep enough for its counter clear of its door, the hall at least its minimum width.
+ */
+function compactPlanFitted(plan, W, D, spec) {
+  const glassy = !!spec.glassy, F = ROOM_FIT;
+  // (the template's own lines wherever they give the rooms their minimum sizes)
+  const xSMax = W - (Math.max(F.bedW, 3.0) + EXT + INT / 2);
+  const xS = 0.56 * W <= xSMax ? 0.56 * W : r05dn(xSMax);
+  const xO = Math.min(0.42 * W, xS - Math.max(F.hallW + INT, 1.9));
+  const bw = W - xS - EXT - INT / 2, tbIn = 0.2 * D - INT;
+  const tb = tbIn >= ROOM_OK.wetW && tbIn * bw >= ROOM_OK.wetA ? 0.2 * D : r05up(Math.max(F.wetW, F.wetA / bw) + INT);
+  const y1 = tb === 0.2 * D ? 0.4 * D : r05dn((D - tb) / 2), y2 = tb === 0.2 * D ? 0.6 * D : y1 + tb;
+  // the laundry: its counter (0.6 m) and the swing of its door (0.7 m) one behind the other, and long enough for its
+  // name run up it; the second bedroom's door still opens onto the hall below it
+  const ys = r05dn(Math.min(Math.max(0.2 * D, 2.8, (7 * 9 * 0.68 + 16 + 12) / planScale(plan, W, D, spec) + EXT + INT / 2), y1 - 1.17));
+  const room = (id, label, kind, x0, y0, x1, yy1) => ({ id, label, kind, x: x0 / W, y: y0 / D, w: (x1 - x0) / W, h: (yy1 - y0) / D });
+  const doorAt = (c, y0, yy1) => (doorWithin(c, 0.9, Math.max(y0, ys) + 0.05 + INT / 2, yy1 - 0.05 - INT / 2) - y0) / (yy1 - y0);
+  return {
+    name: "GROUND FLOOR PLAN",
+    veranda: spec.pergola,
+    canopy: spec.canopy,
+    spaces: [
+      room("open", "LIVING / DINING / KITCHEN", "open", 0, 0, xO, D),
+      room("store", "LAUNDRY", "store", xO, 0, xS, ys),
+      room("hall", "HALL", "hall", xO, ys, xS, D),
+      room("bedB", "BEDROOM", "bedroom", xS, 0, W, y1),
+      room("bath", "BATH", "bath", xS, y1, W, y2),
+      room("bedA", "BEDROOM", "bedroom", xS, y2, W, D),
+    ],
+    doors: [
+      { space: "hall", side: "bottom", at: 0.5, w: 1.0, entry: true },
+      { space: "hall", side: "left", at: 0.5, w: 1.6, open: true },
+      { space: "store", side: "bottom", at: 0.5, w: 0.7 },
+      { space: "bedB", side: "left", at: doorAt(0.75 * y1, 0, y1), w: 0.9 },
+      { space: "bath", side: "left", at: 0.5, w: 0.8 },
+      { space: "bedA", side: "left", at: doorAt(y2 + 0.25 * (D - y2), y2, D), w: 0.9 },
+    ],
+    windows: [
+      { space: "open", side: "bottom", at: 0.5, w: glassy ? 99 : 2.6 },
+      { space: "open", side: "left", at: 0.5, w: 1.6 },
+      { space: "open", side: "top", at: 0.5, w: 1.4 },
+      { space: "bedB", side: "top", at: 0.5, w: 1.6 },
+      { space: "bath", side: "right", at: 0.5, w: 0.6 },
+      { space: "bedA", side: "bottom", at: 0.5, w: 1.8 },
+    ],
+  };
+}
+
+/** About the scale (px per metre) floorPlanSheet draws a one-storey villa's plan at, from its footprint and site. */
+function planScale(plan, W, D, spec) {
+  const T = spec.pergola || spec.canopy ? 2.8 : plan.pool ? 2.4 : 0;
+  const front = Math.max(T, plan.pool ? T + (spec.lap ? 3.0 : 4.2) + 1.6 : 0, plan.garage ? 3 : 0);
+  const gw = plan.garage ? (plan.areaM2 >= 370 ? 6.6 : 3.9) + 0.5 : 0;
+  // (a luxury villa's plan is drawn LG_STAIR narrower than its footprint, luxuryGround)
+  return Math.min((SHEET_W - 330 - 36 - 90) / (W + gw + 3 + (plan.style === "luxury" ? LG_STAIR : 0)), (SHEET_H - 72 - 180) / (D + front + 1.4 + 3), 58);
+}
+
 /** One-storey house: layout "a" (the default, below) or the split plan "b" (plan.layout, villas only). */
 function singleStorey(plan, W, D, spec, layout = "a") {
   if (layout === "b") return splitPlan(plan, W, D, spec);
+  const level = standardPlan(plan, W, D, spec);
+  if (plan.style === "interior") return level; // an interior's flat keeps its own proportions
+  // the template's proportions where they give rooms of the minimum size; fitted in metres where they do not
+  const m = levelInMetres(level, W, D);
+  const store = m.spaces.find((s) => s.kind === "store");
+  // the laundry: its counter clear of its door's swing, and large enough for its name on the plan sheet
+  const tag = 7 * 9 * 0.68 + 16, s = planScale(plan, W, D, spec), si = store && inner({ W, D }, store);
+  const tight = store && (si.h < 0.1 + 0.6 + 0.7 - 0.06 + 0.03 || si.w < 1.65 || (si.w * s - 6 < tag && si.h * s - 10 < tag));
+  if (!levelIssues(W, D, m).length && !masterIssues(W, D, [m]).length && !tight) return level;
+  return plan.bedrooms >= 3 ? corridorPlanFitted(plan, W, D, spec) : compactPlanFitted(plan, W, D, spec);
+}
+
+/** Layout a as its template draws it (fractions of the footprint). */
+function standardPlan(plan, W, D, spec) {
   const glassy = !!spec.glassy;
   if (plan.bedrooms >= 3) {
     // Corridor plan: living wing on the left, bedroom wing on the right served by one corridor.
@@ -599,13 +1287,15 @@ function splitColumns(spec, three, D) {
 }
 
 /**
- * The smallest footprint the split plan (layout b) is drawn for: its four columns at their narrowest across the width,
- * and (three bedrooms) two bedrooms one behind the other in the depth. The validator rejects a smaller footprint.
+ * The smallest footprint the split plan (layout b) is drawn for: its four columns at their narrowest across the width
+ * (and a luxury villa's stair bay), and (three bedrooms) two bedrooms one behind the other in the depth. The validator
+ * rejects a smaller footprint.
  */
 export function splitPlanLimits(model) {
   const three = model.plan.bedrooms >= 3;
   const m = splitColumns(model.spec, three, model.D);
-  return { W: r1(m.L + m.H + m.R + m.C), D: three ? 7.2 : 6.3 };
+  // (a one-storey luxury villa also has the stair bay down to its lower ground floor, luxuryGround)
+  return { W: r1(m.L + m.H + m.R + m.C + (model.lower ? LG_STAIR : 0)), D: three ? 7.2 : 6.3 };
 }
 
 /**
@@ -618,7 +1308,7 @@ export function splitPlanLimits(model) {
  * clear of the furniture as it is drawn after mirroring and of each other's leaves, and no window is put where the
  * garage stands against the wall.
  */
-function splitPlan(plan, W, D, spec) {
+function splitPlan(plan, W, D, spec, minMaster = 0) {
   const glassy = !!spec.glassy;
   const three = plan.bedrooms >= 3;
   const mirror = !!plan.mirror;
@@ -749,7 +1439,8 @@ function splitPlan(plan, W, D, spec) {
   if (D < 8.4) {
     // shallow plan: the bedroom opens off the living space, the en-suite and dressing room off the bedroom (their doors
     // at the right-hand end as drawn, the wardrobe at the other end)
-    const tm = r1(clamp(D - Math.max(2.8, ensNeed(ensW)), 3.6, 0.6 * D));
+    let tm = r1(clamp(D - Math.max(2.8, ensNeed(ensW)), 3.6, 0.6 * D));
+    if (minMaster) tm = Math.min(Math.max(tm, r05up(minMaster / (L - EXT - INT / 2) + EXT + INT / 2)), D - 2.4); // the master the largest bedroom
     room("master", "MASTER BEDROOM", "master", 0, 0, L, tm, { robe: dress ? false : { side: "left", max: L - EXT - INT / 2 - 1.35 } });
     room("ensuite", "EN-SUITE", "bath", 0, tm, ensW, D, { noTub });
     if (dress) room("dress", "DRESSING", "dressing", ensW, tm, L, D, { rails: ["bottom", "left", "right"] });
@@ -779,6 +1470,13 @@ function splitPlan(plan, W, D, spec) {
       if (yb <= y1 - 0.05 || yb >= y1 + lob + 0.05) continue;
       const below = yb, above = yb - lob, room0 = ts ? teT + 2.8 : 2.4;
       y1 = D - below - lob >= room0 ? below : above >= 3.6 ? above : y1;
+    }
+    if (minMaster) {
+      // the master bedroom the largest bedroom: deeper, the study (then the en-suite) giving way
+      y1 = Math.max(y1, r05up(minMaster / (L - EXT - INT / 2) + EXT + INT / 2));
+      if (ts && D - y1 - lob < te + 2.8) ts = 0;
+      if (!ts) te = Math.max(2.4, D - y1 - lob);
+      y1 = Math.min(y1, D - lob - (ts ? te + 2.8 : te));
     }
     const y2 = r1(y1 + lob);
     if (ts) ts = D - y2 - te;
@@ -961,7 +1659,229 @@ function splitPlan(plan, W, D, spec) {
   hall.tagY = (tagAt - top) / hin;
   hall.labelY = ((z0 + z1) / 2 - top) / hin;
   hall.labelUp = z1 - z0;
+  // a bedroom at the other end may come out larger than the master bedroom (a wide hall and bedroom wing beside a
+  // narrow master wing): then the master bedroom is made at least that large
+  const m = levelInMetres(level, W, D), fp = { W, D };
+  const area = (sp) => inner(fp, sp).w * inner(fp, sp).h;
+  const ma = area(m.spaces.find((sp) => sp.kind === "master"));
+  const other = Math.max(...m.spaces.filter((sp) => sp.kind === "bedroom").map(area));
+  if (other > ma + 0.05 && minMaster < other + 0.1 && minMaster < 60) return splitPlan(plan, W, D, spec, Math.max(other + 0.15, minMaster + 0.5));
   return level;
+}
+
+// ------------------------------------------------------------------ luxury villas: the lower ground floor
+
+/*
+ * A luxury villa (style "luxury") is sold with a lower ground floor under the whole house: plan.floors counts it and
+ * plan.areaM2 is spread over every level. Its stair is the ground floor's: the two-storey plan's stair column goes on
+ * down, and the one-storey plans (layout a or b) get a stair bay LG_STAIR wide beside the entrance hall
+ * (luxuryGround). The lower floor (lowerGround) has a lobby at the foot of the stair; under the front of the house a
+ * home cinema, the wine cellar and the plant room; on the rear garden a gym and a spa with a sauna (and a hammam where
+ * the row is deep), glazed to a sunken court LG_COURT deep across the back of the house with steps up to the garden.
+ * Windows only on that court: the other walls are below ground. No bathroom, shower room or WC and no bedroom down
+ * there, so the listing's bedroom and bathroom counts (wetRooms) stay those of the storeys above; the spa's rain shower
+ * is a fitting in the spa, not a shower room.
+ */
+const LG_STAIR = 2.4; // width of the stair bay of a one-storey luxury villa (two flights round a well, with its walls)
+const LG_BAY = 3.5; // and its least depth (from the rear wall), for a dog-leg with a half-landing
+const LG_COURT = 4.0; // depth of the sunken court behind the house
+const LG_COURT_FL = 0.15; // its floor this far below the lower ground floor (−3.45), a linear drain along the glazing
+const LG_STEPS = 20; // risers of its steps up to the garden
+const LG_STRIP = 1.3; // the part of the court the ground floor plan shows, beyond it a break line
+/** Smallest clear sizes of the lower floor's rooms: [narrow side m, area m²]. */
+const LG_MIN = { cinema: [2.7, 14], media: [2.3, 9], fitness: [2.6, 9], spa: [2.6, 9], sauna: [1.5, 3], hammam: [1.5, 3], wine: [1.4, 3], plant: [1.4, 3.5], garden: [2.4, 7], games: [2.7, 12] };
+const lgClamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const lgR05 = (v) => Math.round(v * 20) / 20;
+
+/**
+ * The ground floor of a one-storey luxury villa: its plan (layout a or b) drawn LG_STAIR narrower, then the stair bay
+ * put in on the living side of the entrance hall, the rooms from the hall on moved over. The stair is at the back of the
+ * bay: where the hall starts LG_BAY–5.6 m from the rear wall the hall widens over the bay in front of it; otherwise a stair
+ * hall in front of the stair joins the entrance hall and the living space. Fractions of W, as drawn before mirroring.
+ */
+function luxuryGround(plan, W, D, spec) {
+  const g = LG_STAIR, Wp = W - g;
+  const level = singleStorey(plan, Wp, D, spec, layoutOf(plan));
+  const hall = level.spaces.find((sp) => level.doors.some((d) => d.entry && d.space === sp.id));
+  const xi = hall.x * Wp, hw = hall.w * Wp, hy = hall.y * D;
+  for (const sp of level.spaces) {
+    // (a room across that line only on a footprint too narrow for the plan, which the validator rejects: it widens)
+    const x0 = sp.x * Wp, x1 = x0 + sp.w * Wp, across = x0 < xi - 0.01 && x1 > xi + 0.01;
+    sp.x = (x0 >= xi - 0.01 ? x0 + g : x0) / W;
+    sp.w = (x1 - x0 + (across ? g : 0)) / W;
+  }
+  // (the stair bay at least LG_BAY deep, for a dog-leg with a half-landing and goings of 25 cm or more: fitStairs)
+  const merge = hy >= LG_BAY - 1e-9 && hy <= 5.6 + 1e-9;
+  const Ls = merge ? hy : Math.min(lgR05(lgClamp(0.36 * D, LG_BAY, 3.9)), D - 2.6);
+  level.spaces.push({ id: "stair", label: "STAIR", kind: "stair", x: xi / W, y: 0, w: g / W, h: Ls / D, travel: "DN" });
+  level.doors.push({ space: "stair", side: "bottom", at: 0.5, w: 1.2, open: true });
+  level.windows.push({ space: "stair", side: "top", at: 0.5, w: 1.2 });
+  if (merge) {
+    // the hall widens over the bay; its openings in the front and rear walls stay where they were
+    for (const o of [...level.doors, ...level.windows]) if (o.space === hall.id && (o.side === "top" || o.side === "bottom")) o.at = (g + o.at * hw) / (hw + g);
+    hall.x = xi / W;
+    hall.w = (hw + g) / W;
+    return level;
+  }
+  // a stair hall in front of the stair, open to the entrance hall beside it; the entrance hall's opening into the
+  // living space moves to the stair hall's other side, into one living room
+  level.spaces.push({ id: "sthall", label: "STAIR HALL", kind: "hall", x: xi / W, y: Ls / D, w: g / W, h: (D - Ls) / D, short: "HALL" });
+  // (open from the stair to 1.35 m short of the front wall, so the entrance door's leaf opens against a wall)
+  const y0 = Math.max(Ls, hy) + INT / 2 + 0.15, y1 = D - EXT - 1.35, ow0 = r05dn(y1 - y0);
+  level.doors.push(ow0 >= 1.0 ? { space: "sthall", side: "right", at: ((y0 + y1) / 2 - Ls) / (D - Ls), w: ow0, open: true } : { space: "sthall", side: "right", at: 0.5, w: 99, open: true });
+  const old = level.doors.filter((d) => d.space === hall.id && d.side === "left");
+  level.doors = level.doors.filter((d) => !old.includes(d));
+  const ow = old.length ? Math.min(old[0].w, 1.8) : 1.6;
+  const oc = old.length ? hy + old[0].at * (D - hy) : (Ls + D) / 2;
+  const t = (y, outer) => (Math.abs(y - outer) < 0.01 ? EXT : INT / 2);
+  const span = (sp) => {
+    const a = sp.y * D, b = (sp.y + sp.h) * D;
+    return [Math.max(Ls + INT / 2, a + t(a, 0)) + 0.1, Math.min(D - EXT, b - t(b, D)) - 0.1];
+  };
+  const side = level.spaces
+    .filter((sp) => Math.abs((sp.x + sp.w) * W - xi) < 0.01)
+    .map((sp) => ({ sp, s: span(sp) }))
+    .filter(({ s }) => s[1] - s[0] > 0.5)
+    .sort((a, b) => (b.s[0] <= oc && oc <= b.s[1]) - (a.s[0] <= oc && oc <= a.s[1]) || b.s[1] - b.s[0] - (a.s[1] - a.s[0]));
+  if (side.length) {
+    const [lo, hi] = side[0].s, w = r05dn(Math.min(ow, hi - lo));
+    const c = lgClamp(oc, lo + w / 2, hi - w / 2);
+    level.doors.push({ space: "sthall", side: "left", at: (c - Ls) / (D - Ls), w, open: true });
+  }
+  return level;
+}
+
+/**
+ * The lower ground floor of a luxury villa, from its ground floor (fractions of W, as drawn before mirroring): the
+ * stair where the ground floor's is, a lobby at its foot, the rooms on the rear garden (gym, spa with sauna and hammam,
+ * glazed to the sunken court) and under the front (home cinema, wine cellar, plant room, a store on a wide plan).
+ */
+function lowerGround(plan, W, D, ground) {
+  const mirror = !!plan.mirror;
+  const st = ground.spaces.find((sp) => sp.kind === "stair");
+  const sd = ground.doors.find((d) => d.space === st.id);
+  const S = { x0: st.x * W, x1: (st.x + st.w) * W, y0: st.y * D, y1: (st.y + st.h) * D };
+  const lv = { name: "LOWER GROUND FLOOR PLAN", spaces: [], doors: [], windows: [], court: { x0: 0, x1: 1, depth: LG_COURT, steps: "right" } };
+  const box = {};
+  const room = (id, label, kind, x0, y0, x1, y1, extra = {}) => {
+    box[id] = { x0, x1, y0, y1 };
+    lv.spaces.push({ id, label, kind, x: x0 / W, y: y0 / D, w: (x1 - x0) / W, h: (y1 - y0) / D, ...extra });
+  };
+  // a door in the top or bottom wall of a room, its centre near c and within lo..hi (metres along x)
+  const door = (id, side, c, w, lo = box[id].x0, hi = box[id].x1, extra = {}) => {
+    const b = box[id], m = INT / 2 + 0.06;
+    const at = (doorWithin(c, w, Math.max(lo, b.x0) + (Math.max(lo, b.x0) < 0.01 ? EXT : m), Math.min(hi, b.x1) - (Math.min(hi, b.x1) > W - 0.01 ? EXT : m)) - b.x0) / (b.x1 - b.x0);
+    lv.doors.push({ space: id, side, at, w, ...extra });
+  };
+  const glaze = (id) => lv.windows.push({ space: id, side: "top", at: 0.5, w: 99 });
+  room("stair", "STAIR", "stair", S.x0, S.y0, S.x1, S.y1, { travel: "UP" });
+  Object.assign(lv.spaces[0], { x: st.x, y: st.y, w: st.w, h: st.h }); // exactly the ground floor's
+  lv.doors.push({ space: "stair", side: sd.side, at: sd.at, w: sd.w, open: true });
+  if (st.travel === undefined) st.travel = "UP · DN"; // the two-storey plan's stair goes both ways from the ground floor
+  const atRear = S.y0 < 0.01;
+  if (!atRear && S.x1 < W - 0.01) throw new Error("lower ground floor: the stair column is expected on the right as drawn");
+  // the lobby: a band across the house below a stair on the rear wall, else beside the stair column in its depth
+  const lb = atRear ? lgR05(lgClamp(D - S.y1 - 3.6, 1.4, 1.8)) : 0;
+  const [l0, l1] = atRear ? [S.y1, S.y1 + lb] : [S.y0, S.y1];
+  const [lx0, lx1] = atRear ? [0, W] : [0, S.x0];
+  room("lobby", "LOBBY", "hall", lx0, l0, lx1, l1, { tagY: 0.5 });
+
+  // ---- the rear row (gym, spa and its sauna strip), glazed to the court
+  const ws = lgClamp(lgR05(0.15 * W), 2.2, 2.8);
+  let saunaInFront = false;
+  const spaRoom = (a, b, strip) => {
+    // the spa a..b, its sauna strip at the `strip` end (or none); the strip's rooms open into the spa. A spa that would
+    // be 9.6 m wide or more leaves 7 m to the spa and the rest, at the far end, to a garden lounge glazed to the court
+    const lw = b - a - (strip ? ws : 0) >= 9.6 ? r05dn(b - a - (strip ? ws : 0) - 7.0) : 0;
+    if (lw) {
+      const [g0, g1] = strip === "left" ? [b - lw, b] : [a, a + lw];
+      room("lounge", "GARDEN LOUNGE", "garden", g0, 0, g1, l0, { tagClear: true });
+      // (open to the lobby across its width where the lobby runs the whole way along it)
+      if (g0 >= lx0 - 0.01 && g1 <= lx1 + 0.01) lv.doors.push({ space: "lounge", side: "bottom", at: 0.5, w: 99, open: true });
+      else door("lounge", "bottom", (Math.max(g0, lx0) + Math.min(g1, lx1)) / 2, 1.2, lx0, lx1, { open: true });
+      glaze("lounge");
+      [a, b] = strip === "left" ? [a, g0] : [g1, b];
+    }
+    const [s0, s1] = strip === "left" ? [a, a + ws] : strip === "right" ? [b - ws, b] : [b, b];
+    const [p0, p1] = strip === "left" ? [s1, b] : [a, s0];
+    // (furniture as drawn with the strip on the right; the sauna's and hammam's glass doors open out into the spa)
+    const flip = (strip === "left") !== mirror;
+    room("spa", "SPA", "spa", p0, 0, p1, l0, { flipX: flip, tagClear: true });
+    door("spa", "bottom", (p0 + Math.min(p1, lx1)) / 2, 0.9, lx0, lx1);
+    glaze("spa");
+    if (!strip) return;
+    const two = l0 >= 4.4 - 1e-9, yh = two ? lgR05(l0 / 2) : l0;
+    room("sauna", "SAUNA", "sauna", s0, 0, s1, yh, { flipX: flip, tagClear: true });
+    // (the sauna's door below its upper bench)
+    lv.doors.push({ space: "spa", side: strip, at: Math.min(Math.max(yh / 2, 1.35), yh - 0.55) / l0, w: 0.7, glass: true, to: "SAUNA" });
+    if (two) {
+      room("hammam", "HAMMAM", "hammam", s0, yh, s1, l0, { flipX: flip, tagClear: true });
+      lv.doors.push({ space: "spa", side: strip, at: (yh + l0) / 2 / l0, w: 0.7, glass: true, to: "HAMMAM" });
+    }
+  };
+  const gymRoom = (a, b) => {
+    room("gym", "GYM", "fitness", a, 0, b, l0, { flipX: mirror, tagClear: true });
+    door("gym", "bottom", (Math.max(a, lx0) + Math.min(b, lx1)) / 2, 0.9, lx0, lx1);
+    glaze("gym");
+  };
+  if (atRear) {
+    // either side of the stair: the wider takes the spa (the sauna strip at its outer end), the other the gym
+    const A = [0, S.x0], B = [S.x1, W];
+    const [spaSeg, gymSeg, outer] = A[1] - A[0] >= B[1] - B[0] ? [A, B, "left"] : [B, A, "right"];
+    saunaInFront = spaSeg[1] - spaSeg[0] - ws < 3.0;
+    spaRoom(spaSeg[0], spaSeg[1], saunaInFront ? null : outer);
+    gymRoom(gymSeg[0], gymSeg[1]);
+    // (no window in the stair here: its half-landing is against the rear wall; the ground floor's lights the stair)
+  } else {
+    // across the whole width above the lobby and the stair: gym, spa, and the sauna strip above the stair column
+    let xg = lgR05(lgClamp(0.38 * W, 3.4, 6.6));
+    xg = Math.min(xg, W - ws - 3.0, S.x0 - 1.4);
+    gymRoom(0, xg);
+    spaRoom(xg, W, "right");
+  }
+
+  // ---- the front row under the house: home cinema (its screen on the outer wall), wine cellar, plant room, a store
+  const f0 = l1;
+  const wp = atRear ? lgClamp(lgR05(0.17 * W), 2.4, 3.4) : Math.max(lgClamp(lgR05(0.17 * W), 2.4, 3.4), r05up(W - S.x0 + 1.4));
+  const xp = W - wp;
+  const ww = lgClamp(lgR05(0.16 * W), 2.2, 3.0);
+  let x = xp - ww;
+  if (saunaInFront) {
+    // (a spa too narrow for its sauna strip: the sauna off the lobby, its benches away from the door)
+    room("sauna", "SAUNA", "sauna", x - 2.2, f0, x, D, { flipY: true, tagClear: true });
+    door("sauna", "top", x - 1.1, 0.7, lx0, lx1, { glass: true });
+    x -= 2.2;
+  }
+  const cin = x - 9.0 >= 1.8 ? 9.0 : x; // a very wide plan: a store beside a cinema of 9 m
+  // (a front row too shallow or short for a home cinema of LG_MIN has a media room with one row of seats)
+  const [ci, cd] = [cin - EXT - INT / 2, D - f0 - EXT - INT / 2];
+  const media = Math.min(ci, cd) < LG_MIN.cinema[0] - 0.005 || ci * cd < LG_MIN.cinema[1] - 0.05;
+  room("cinema", media ? "MEDIA ROOM" : "HOME CINEMA", "cinema", 0, f0, cin, D, { flipX: mirror, tagClear: true, ...(media ? { media: true } : {}) });
+  door("cinema", "top", cin - 0.8, 0.9, lx0, lx1);
+  // (what a very wide plan leaves beside the cinema: a games room, and a store beside a wide one)
+  const lo = x - cin, gw = lo >= 7.4 ? lo - 2.4 : lo >= 5.0 ? lo : 0;
+  if (gw) {
+    room("games", "GAMES ROOM", "games", cin, f0, cin + gw, D, { tagClear: true });
+    door("games", "top", cin + 1.0, 0.9, lx0, lx1);
+  }
+  if (lo - gw > 1e-6) {
+    room("store", "STORE", "store", cin + gw, f0, x, D, { flipX: !mirror });
+    door("store", "top", (cin + gw + x) / 2, 0.8, lx0, lx1);
+  }
+  room("wine", "WINE CELLAR", "wine", xp - ww, f0, xp, D, { flipX: mirror, tagClear: true });
+  door("wine", "top", xp - ww / 2, 0.8, lx0, lx1);
+  room("plant", "PLANT ROOM", "plant", xp, f0, W, D, { flipX: mirror, tagClear: true });
+  door("plant", "top", xp + 0.8, 0.9, lx0, lx1);
+  // where each room's own door is in its top or bottom wall, as its furniture is drawn (sp.door: the centre u from the
+  // left-hand inner face, metres, and the width), so the furniture keeps out of the leaf
+  for (const d of lv.doors) {
+    const sp = lv.spaces.find((x) => x.id === d.space), b = box[d.space];
+    if (!b || (d.side !== "top" && d.side !== "bottom")) continue;
+    const len = b.x1 - b.x0, w = Math.min(d.w, len - 0.3), c = Math.min(Math.max(d.at * len, w / 2 + 0.15), len - w / 2 - 0.15);
+    const l = b.x0 < 0.01 ? EXT : INT / 2, inW = len - l - (b.x1 > W - 0.01 ? EXT : INT / 2);
+    sp.door = { side: d.side, u: !!sp.flipX === mirror ? c - l : inW - (c - l), w };
+  }
+  return lv;
 }
 
 /** One three-bedroom unit over two floors (fractions of the unit): living across the plot, stair + services on the right. */
@@ -1029,34 +1949,120 @@ function placeUnit(tpl, target, offset, width, mirror, tag) {
   }
 }
 
-/** Mid-terrace townhouse: party walls left and right, so every window faces the street or the garden. */
-function townhouseLevels(spec) {
-  const { G, F } = attachedUnit(spec);
-  G.spaces.find((sp) => sp.id === "store").label = "UTILITY";
-  G.windows.push({ space: "store", side: "bottom", at: 0.5, w: 0.6 });
-  G.windows.find((w) => w.space === "open" && w.side === "top").w = 3.2;
-  F.windows.push({ space: "bath", side: "bottom", at: 0.5, w: 0.6 });
-  const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
-  const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
-  placeUnit(G, ground, 0, 1, false, "");
-  placeUnit(F, first, 0, 1, false, "");
-  return [ground, first];
+/**
+ * The attached unit fitted in metres (unit width U) where the template would draw a room below the minimums: the
+ * bedroom and stair row deep enough for that bedroom, the landing at least its minimum width, and the front row shared
+ * out between the master bedroom, the bathroom and the second bedroom; where a narrow unit cannot take all three across
+ * its front, the bathroom moves to the rear beside the stair. `party`: the unit's far side is a party wall (duplex).
+ */
+function attachedUnitFitted(spec, U, D, party) {
+  const glassy = !!spec.glassy, F = ROOM_FIT;
+  const far = party ? INT / 2 : EXT;
+  const sx = 0.62 * U;
+  // the rows: back bedroom and stair, landing, front rooms; whether the bathroom fits across the front
+  let yS = r05up(Math.max(0.3 * D, F.bedW + EXT + INT / 2)), yL, dF, bedN, wetN, front, bathFront, xc = sx;
+  for (let k = 0; k < 3; k++) {
+    yL = r05up(yS + Math.max(0.16 * D, F.hallW + INT));
+    dF = D - yL - EXT - INT / 2;
+    [bedN, wetN] = [Math.max(F.bedW, F.bedA / dF), Math.max(F.wetW, F.wetA / dF)];
+    front = [bedN + EXT + INT / 2, wetN + INT, bedN + INT / 2 + far];
+    bathFront = front.reduce((a, b) => a + b, 0) <= U + 1e-9;
+    xc = bathFront ? sx : r05dn(sx - Math.max(F.wetW, F.wetA / (yS - EXT - INT / 2)) - INT);
+    yS = Math.max(yS, r05up(F.bedA / (xc - EXT - INT / 2) + EXT + INT / 2));
+  }
+  const yW = Math.max(0.52 * D, r05up(yS + 1.6));
+  const fx = (v) => v / U, fy = (v) => v / D;
+  const R = (id, label, kind, x0, y0, x1, y1) => ({ id, label, kind, x: fx(x0), y: fy(y0), w: fx(x1 - x0), h: fy(y1 - y0) });
+  const G = {
+    spaces: [
+      R("open", "LIVING / KITCHEN", "open", 0, 0, sx, D),
+      R("stair", "STAIR", "stair", sx, 0, U, yS),
+      R("hall", "HALL", "hall", sx, yS, 0.8 * U, D),
+      R("wc", "WC", "wc", 0.8 * U, yS, U, yW),
+      R("store", "STORE", "store", 0.8 * U, yW, U, D),
+    ],
+    doors: [
+      { space: "hall", side: "bottom", at: 0.5, w: 1.0, entry: true },
+      { space: "hall", side: "left", at: 0.5, w: 1.4, open: true },
+      { space: "stair", side: "bottom", at: 0.22, w: 1.0, open: true },
+      { space: "wc", side: "left", at: 0.5, w: 0.7 },
+      { space: "store", side: "left", at: 0.3, w: 0.8 },
+    ],
+    windows: [
+      { space: "open", side: "bottom", at: 0.5, w: glassy ? 99 : 2.4 },
+      { space: "open", side: "top", at: 0.5, w: 2.4 },
+    ],
+  };
+  let back, frontRow;
+  if (bathFront) {
+    const [wm, wb] = shareOut(U, [0.48, 0.2, 0.32], front).map(r05up);
+    back = [R("c", "BEDROOM", "bedroom", 0, 0, sx, yS)];
+    frontRow = [R("m", "MASTER BEDROOM", "master", 0, yL, wm, D), R("bath", "BATH", "bath", wm, yL, Math.min(wm + wb, U - front[2]), D), R("b", "BEDROOM", "bedroom", Math.min(wm + wb, U - front[2]), yL, U, D)];
+  } else {
+    // the bathroom at the rear, between the back bedroom and the stair
+    const [wm] = shareOut(U, [0.6, 0.4], [front[0], front[2]]).map(r05up);
+    back = [R("c", "BEDROOM", "bedroom", 0, 0, xc, yS), R("bath", "BATH", "bath", xc, 0, sx, yS)];
+    frontRow = [R("m", "MASTER BEDROOM", "master", 0, yL, wm, D), R("b", "BEDROOM", "bedroom", wm, yL, U, D)];
+  }
+  const F2 = {
+    bathSide: bathFront ? "bottom" : "top",
+    spaces: [...back, R("stair", "STAIR", "stair", sx, 0, U, yS), R("land", "LANDING", "hall", 0, yS, U, yL), ...frontRow],
+    doors: [
+      { space: "c", side: "bottom", at: 0.7, w: 0.9 },
+      { space: "stair", side: "bottom", at: 0.5, w: 1.0, open: true },
+      { space: "m", side: "top", at: 0.8, w: 0.9 },
+      { space: "bath", side: bathFront ? "top" : "bottom", at: 0.5, w: 0.8 },
+      { space: "b", side: "top", at: 0.3, w: 0.9 },
+    ],
+    windows: [
+      { space: "c", side: "top", at: 0.5, w: 1.8 },
+      { space: "m", side: "bottom", at: 0.5, w: glassy ? 3.0 : 2.0 },
+      { space: "b", side: "bottom", at: 0.5, w: 1.6 },
+    ],
+  };
+  return { G, F: F2 };
 }
 
-function duplexLevels(spec) {
+/** Whether levels (fractions of W × D) give rooms of the minimum sizes and doors that open cleanly. */
+const levelsFit = (levels, W, D) => {
+  const m = levels.map((lv) => levelInMetres(lv, W, D));
+  return !m.some((lv) => levelIssues(W, D, lv).length) && !masterIssues(W, D, m).length;
+};
+
+/** Mid-terrace townhouse: party walls left and right, so every window faces the street or the garden. */
+function townhouseLevels(spec, W, D) {
+  const build = ({ G, F }) => {
+    G.spaces.find((sp) => sp.id === "store").label = "UTILITY";
+    G.windows.push({ space: "store", side: "bottom", at: 0.5, w: 0.6 });
+    G.windows.find((w) => w.space === "open" && w.side === "top").w = 3.2;
+    F.windows.push({ space: "bath", side: F.bathSide ?? "bottom", at: 0.5, w: 0.6 });
+    const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
+    const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
+    placeUnit(G, ground, 0, 1, false, "");
+    placeUnit(F, first, 0, 1, false, "");
+    return [ground, first];
+  };
+  const levels = build(attachedUnit(spec));
+  return levelsFit(levels, W, D) ? levels : build(attachedUnitFitted(spec, W, D, false));
+}
+
+function duplexLevels(spec, W, D) {
   // Two mirrored units. Templates are written in unit fractions (0..1) and mapped onto each half.
-  const { G, F } = attachedUnit(spec);
-  const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
-  const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
-  const place = (tpl, target, offset, mirror, tag) => placeUnit(tpl, target, offset, 0.5, mirror, tag);
-  place(G, ground, 0, false, "L");
-  place(G, ground, 0.5, true, "R");
-  place(F, first, 0, false, "L");
-  place(F, first, 0.5, true, "R");
-  // end-wall windows on the outer walls
-  ground.windows.push({ space: "openL", side: "left", at: 0.5, w: 2.4 }, { space: "openR", side: "right", at: 0.5, w: 2.4 });
-  first.windows.push({ space: "mL", side: "left", at: 0.5, w: 1.4 }, { space: "mR", side: "right", at: 0.5, w: 1.4 });
-  return [ground, first];
+  const build = ({ G, F }) => {
+    const ground = { name: "GROUND FLOOR PLAN", spaces: [], doors: [], windows: [] };
+    const first = { name: "FIRST FLOOR PLAN", spaces: [], doors: [], windows: [] };
+    const place = (tpl, target, offset, mirror, tag) => placeUnit(tpl, target, offset, 0.5, mirror, tag);
+    place(G, ground, 0, false, "L");
+    place(G, ground, 0.5, true, "R");
+    place(F, first, 0, false, "L");
+    place(F, first, 0.5, true, "R");
+    // end-wall windows on the outer walls
+    ground.windows.push({ space: "openL", side: "left", at: 0.5, w: 2.4 }, { space: "openR", side: "right", at: 0.5, w: 2.4 });
+    first.windows.push({ space: "mL", side: "left", at: 0.5, w: 1.4 }, { space: "mR", side: "right", at: 0.5, w: 1.4 });
+    return [ground, first];
+  };
+  const levels = build(attachedUnit(spec));
+  return levelsFit(levels, W, D) ? levels : build(attachedUnitFitted(spec, W / 2, D, true));
 }
 
 /**
@@ -1826,11 +2832,13 @@ export function planSheets(model) {
     if (lv.typical && last && model.levels[last.index].typical === lv.typical) last.last = i;
     else runs.push({ index: i, last: i });
   });
-  return runs.map((r) =>
+  const sheets = runs.map((r) =>
     r.last > r.index
       ? { ...r, kind: "typical", title: `TYPICAL PLAN · FLOORS ${r.index}–${r.last}` }
       : { ...r, kind: `plan-${r.index}`, title: model.levels[r.index].name },
   );
+  // a luxury villa's lower ground floor (level index -1) comes first, as the floors go up
+  return model.lower ? [{ index: -1, last: -1, kind: "lower", title: model.lower.name }, ...sheets] : sheets;
 }
 
 // ------------------------------------------------------------------ geometry helpers
@@ -1856,6 +2864,371 @@ function isExterior(model, s, side) {
 function inner(model, s) {
   const t = (side) => (isExterior(model, s, side) ? EXT : INT / 2);
   return { x: s.x + t("left"), y: s.y + t("top"), w: s.w - t("left") - t("right"), h: s.h - t("top") - t("bottom") };
+}
+
+/** Shorter names for a room fitted to its tag on the plan sheet (floorPlanSheet). */
+const SHORT_NAMES = { "LIVING / DINING / KITCHEN": "LIVING / KITCHEN", "ENTRANCE HALL": "HALL" };
+
+/** A house (villa, duplex, a project's house): not an interior, a commercial building or a surveyed one. */
+const isHouse = (model) => !model.interior && !model.plan.interior && !COMMERCIAL_LEVELS[model.plan.style] && !["market", "office", "showroom", "interior"].includes(model.plan.style);
+
+/** A door opening as floorPlanSheet draws it: its wall line and its span along the wall (metres). */
+function openingSpan(sp, d) {
+  const horizontal = d.side === "top" || d.side === "bottom";
+  const len = horizontal ? sp.w : sp.h;
+  const w = d.w > 50 ? len - 0.9 : Math.min(d.w, len - 0.3);
+  const c = Math.min(Math.max(d.at * len, w / 2 + 0.15), len - w / 2 - 0.15);
+  const a0 = (horizontal ? sp.x : sp.y) + c - w / 2;
+  const line = d.side === "top" ? sp.y : d.side === "bottom" ? sp.y + sp.h : d.side === "left" ? sp.x : sp.x + sp.w;
+  return { horizontal, line, a0, a1: a0 + w, w };
+}
+
+/**
+ * The quarter disc a hinged leaf sweeps, as floorPlanSheet draws it: the hinge (hx, hy), the radius and the signs of
+ * the two directions it spans, along the wall towards the far jamb (su) and into the room (sv).
+ */
+function leafOf(model, sp, d) {
+  const o = openingSpan(sp, d), t = isExterior(model, sp, d.side) ? EXT : INT / 2;
+  if (o.horizontal) {
+    const into = d.side === "top" ? 1 : -1, right = d.hinge === "right";
+    return { horizontal: true, hx: right ? o.a1 : o.a0, hy: o.line + into * t, r: o.w, su: right ? -1 : 1, sv: into };
+  }
+  const into = d.side === "left" ? 1 : -1;
+  return { horizontal: false, hx: o.line + into * t, hy: o.a0, r: o.w, su: 1, sv: into };
+}
+
+/** Whether a box [x0, y0, x1, y1] (less `tol` all round) reaches into the quarter disc of a leaf. */
+function boxInLeaf(q, b, tol = 0.03) {
+  const [x0, y0, x1, y1] = [b[0] + tol, b[1] + tol, b[2] - tol, b[3] - tol];
+  if (x1 <= x0 || y1 <= y0) return false;
+  const span = (a0, a1, c, sgn) => [Math.min((a0 - c) * sgn, (a1 - c) * sgn), Math.max((a0 - c) * sgn, (a1 - c) * sgn)];
+  const [u0, u1] = q.horizontal ? span(x0, x1, q.hx, q.su) : span(y0, y1, q.hy, q.su);
+  const [v0, v1] = q.horizontal ? span(y0, y1, q.hy, q.sv) : span(x0, x1, q.hx, q.sv);
+  const u = Math.max(u0, 0), v = Math.max(v0, 0);
+  return u <= u1 && v <= v1 && Math.hypot(u, v) < q.r;
+}
+
+/**
+ * What the furniture of a room must keep clear of: the leaves that swing into it, and 0.5 m in front of every other
+ * doorway in its walls (a door hung in the next room, or an opening without a leaf; not a wall left open between two
+ * parts of an open plan).
+ */
+function keepClear(model, level, sp) {
+  const leaves = [], zones = [];
+  const strip = (o, below) => {
+    // the 0.5 m in front of an opening on the side of its wall line where `below` (y or x grows into the room)
+    const face = o.line + (below ? INT / 2 : -INT / 2), far = face + (below ? 0.5 : -0.5);
+    const [p0, p1] = [Math.min(face, far), Math.max(face, far)];
+    return o.horizontal ? [o.a0 + 0.05, p0, o.a1 - 0.05, p1] : [p0, o.a0 + 0.05, p1, o.a1 - 0.05];
+  };
+  for (const d of level.doors) {
+    const ds = level.spaces.find((s) => s.id === d.space);
+    if (!ds || d.w > 50) continue;
+    const ext = isExterior(model, ds, d.side);
+    if (d.space === sp.id) {
+      if (!d.open) leaves.push(leafOf(model, ds, d));
+      else if (!ext) zones.push(strip(openingSpan(ds, d), d.side === "top" || d.side === "left"));
+      continue;
+    }
+    if (ext) continue;
+    const o = openingSpan(ds, d);
+    const [a0, a1] = o.horizontal ? [sp.x, sp.x + sp.w] : [sp.y, sp.y + sp.h];
+    if (o.a1 <= a0 + 0.01 || o.a0 >= a1 - 0.01) continue;
+    const near = o.horizontal ? sp.y : sp.x, far = o.horizontal ? sp.y + sp.h : sp.x + sp.w;
+    if (Math.abs(o.line - near) < 0.01) zones.push(strip(o, true));
+    else if (Math.abs(o.line - far) < 0.01) zones.push(strip(o, false));
+  }
+  return { leaves, zones };
+}
+
+/** The solid pieces of a room's furniture (boxes, metres) as furniture() draws them with the room's settings `sp`. */
+function furnitureBoxes(kind, inn, sp) {
+  const out = [];
+  furniture(cadPen(out, "A-FURN"), kind, inn, sp);
+  return out
+    .filter((e) => !e.dashed && (e.t === "rect" || e.t === "circle" || e.t === "ellipse"))
+    .map((e) => (e.t === "rect" ? [e.x, e.y, e.x + e.w, e.y + e.h] : e.t === "circle" ? [e.cx - e.r, e.cy - e.r, e.cx + e.r, e.cy + e.r] : [e.cx - e.rx, e.cy - e.ry, e.cx + e.rx, e.cy + e.ry]));
+}
+
+/**
+ * Furniture clear of the doors: a room whose furniture, as the template draws it, stands in the swing of a leaf or in
+ * front of a doorway gets the arrangement that keeps them clear and changes least — the bed moved along its wall or a
+ * bedside table left out, the wardrobe at the other end of its wall or shorter, the bed against another wall; the
+ * fittings of a bathroom, shower room, WC or laundry, a desk or the living room's sideboard the other way round or
+ * left out. Rooms already clear keep their furniture exactly as drawn (nothing is added to them).
+ */
+function clearFurniture(model) {
+  const BEDS = ["master", "bedroom"], FLIP = ["bath", "shower", "wc", "store", "study", "living"];
+  // first the doors whose leaf swings across another doorway of their room: moved along their wall, or hung the other way
+  model.levels.forEach((level) => {
+    for (const sp of level.spaces) for (const d of ownLeaves(model, level, sp)) {
+      if (!leafClashes(model, level, sp, d)) continue;
+      const before = roomFouls(model, level, sp);
+      slideDoor(model, level, sp, d, () => !leafClashes(model, level, sp, d) && roomFouls(model, level, sp) <= before);
+    }
+  });
+  for (const level of model.lower ? [...model.levels, model.lower] : model.levels) {
+    const li = model.levels.indexOf(level);
+    for (const sp of level.spaces) {
+      // an open plan too shallow for its island, table and sofa one behind the other
+      if (sp.kind === "open" && !sp.ldk) {
+        const inn = inner(model, sp);
+        if (openPlanDining(inn, true).ty !== openPlanDining(inn).ty) sp.dineUp = true;
+      }
+      if (!BEDS.includes(sp.kind) && !FLIP.includes(sp.kind)) continue;
+      const inn = inner(model, sp);
+      const { leaves, zones } = keepClear(model, level, sp);
+      if (!leaves.length && !zones.length) continue;
+      const fouls = (o) => roomFouls(model, level, sp, o);
+      if (!fouls({})) continue;
+      const bed = BEDS.includes(sp.kind);
+      // the arrangement that keeps clear of the doors and changes least; a bed's head kept off a window wall
+      const search = (orients) => {
+        let best = null;
+        const consider = (o, cost, oi = 0) => {
+          const n = fouls(o);
+          if (!best || n < best.n || (n === best.n && cost < best.cost)) best = { o, n, cost, oi };
+        };
+        if (bed) {
+          // the bed (and its bedside tables) against each wall in turn, moved along it; then the wardrobe
+          const bedOf = (o) => furnitureBoxes(sp.kind, inn, { ...sp, robe: false, ...o }).find((b) => Math.abs(b[2] - b[0] - 2.05) < 0.01 || Math.abs(b[3] - b[1] - 2.05) < 0.01);
+          const bw0 = bedOf({});
+          const width0 = bw0 ? Math.min(bw0[2] - bw0[0], bw0[3] - bw0[1]) : 0;
+          orients.forEach((oi) => {
+            const orient = [{}, { flipY: true }, { turn: true }, { turn: true, flipX: true }][oi];
+            let bestBed = null;
+            for (const stands of [undefined, "left", "right", "none"]) {
+              for (let k = 0; k <= 80; k++) {
+                const at = k === 0 ? 0 : (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 0.05;
+                const o = { ...orient, stands, bedAt: at ? +at.toFixed(2) : undefined, robe: false };
+                const b = bedOf(o);
+                if (!b) continue;
+                const cost = oi * 100 + (stands ? (stands === "none" ? 16 : 8) : 0) + Math.abs(at) * 10 + (Math.abs(Math.min(b[2] - b[0], b[3] - b[1]) - width0) > 0.01 ? 30 : 0) + bedHeadPenalty(model, level, li, sp, inn, { ...sp, ...o }, b);
+                const n = fouls(o);
+                if (!bestBed || n < bestBed.n || (n === bestBed.n && cost < bestBed.cost)) bestBed = { o, n, cost };
+              }
+            }
+            if (!bestBed) return;
+            const { robe: _, ...bedPart } = bestBed.o;
+            const robes = [[sp.robe, 0], [{ side: "left" }, 1], [{ side: "right" }, 1]];
+            for (let mx = 2.3; mx >= 0.95; mx -= 0.1) for (const side of ["left", "right"]) robes.push([{ side, max: +mx.toFixed(1) }, 1 + (2.4 - mx) * 3]);
+            robes.push([false, 12]);
+            for (const [robe, rc] of robes) consider({ ...bedPart, robe }, bestBed.cost + rc, oi);
+          });
+        } else {
+          const fx = !!sp.flipX;
+          for (const turn of [false, true]) for (const flipX of [fx, !fx]) for (const flipY of [false, true]) {
+            const base = { turn: turn || undefined, flipX: flipX || undefined, flipY: flipY || undefined };
+            const cost = (turn ? 20 : 0) + (flipX !== fx ? 1 : 0) + (flipY ? 2 : 0);
+            consider(base, cost);
+            if (sp.kind === "bath") {
+              if (!sp.noTub) consider({ ...base, noTub: true }, cost + 6);
+              if (!sp.fixTop) consider({ ...base, fixTop: true }, cost + 3);
+              if (!sp.noTub && !sp.fixTop) consider({ ...base, noTub: true, fixTop: true }, cost + 9);
+            }
+            if (sp.kind === "study" && !sp.noShelf) consider({ ...base, noShelf: true }, cost + 4);
+            if (sp.kind === "living" && !turn && !flipY) {
+              if (!sp.noSideboard) consider({ ...base, noSideboard: true }, cost - 0.5);
+              if (!sp.compact) consider({ ...base, noSideboard: true, compact: true }, cost + 5);
+            }
+          }
+        }
+        return best;
+      };
+      let best = search([0, 1, 2, 3]);
+      // where that still fouls a door, or turns the bed off its wall: the room's door moved along its wall (or hung
+      // the other way) if that lets the furniture stay as drawn, the bed on its own wall
+      if (level !== model.lower && best && (best.n > 0 || best.oi > 0)) {
+        for (const d of ownLeaves(model, level, sp)) {
+          let found = null;
+          const keep = best;
+          slideDoor(model, level, sp, d, (move) => {
+            if (leafClashes(model, level, sp, d)) return false;
+            const b = search(bed ? [0] : []);
+            if (!b || b.n > 0 || (keep.n === 0 && b.cost + move + 5 >= keep.cost)) return false;
+            found = b;
+            return true;
+          });
+          if (found) {
+            best = found;
+            break;
+          }
+        }
+      }
+      if (!best || best.n >= fouls({})) continue;
+      for (const [k, v] of Object.entries(best.o)) {
+        if (v === undefined && sp[k] === undefined) continue;
+        sp[k] = v;
+      }
+    }
+  }
+}
+
+/** The number of a room's furniture pieces (as drawn with its settings and `o`) in a leaf or doorway, out of the room or on each other. */
+function roomFouls(model, level, sp, o = {}) {
+  const inn = inner(model, sp), { leaves, zones } = keepClear(model, level, sp);
+  let n = 0;
+  const boxes = furnitureBoxes(sp.kind, inn, { ...sp, ...o });
+  for (const b of boxes) {
+    if (leaves.some((q) => boxInLeaf(q, b))) n++;
+    else if (zones.some((z) => Math.min(z[2], b[2] - 0.03) > Math.max(z[0], b[0] + 0.03) && Math.min(z[3], b[3] - 0.03) > Math.max(z[1], b[1] + 0.03))) n++;
+    else if (b[0] < inn.x - 0.02 || b[1] < inn.y - 0.02 || b[2] > inn.x + inn.w + 0.02 || b[3] > inn.y + inn.h + 0.02) n++;
+  }
+  // and no two fittings on top of each other (a part inside its piece, a pillow on its bed, is not that)
+  const within = (a, b) => a[0] >= b[0] - 0.01 && a[1] >= b[1] - 0.01 && a[2] <= b[2] + 0.01 && a[3] <= b[3] + 0.01;
+  for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+    const a = boxes[i], b = boxes[j];
+    if (Math.min(a[2], b[2]) - Math.max(a[0], b[0]) > 0.1 && Math.min(a[3], b[3]) - Math.max(a[1], b[1]) > 0.1 && !within(a, b) && !within(b, a)) n++;
+  }
+  return n;
+}
+
+/**
+ * What it costs to put a bed's head (bed box b, its settings e) against a wall with glazing across the bed and its
+ * bedside tables that people walk through: the glazed doors to a terrace or balcony, a sliding glass wall. (A window
+ * over the bedhead, as the templates draw many, costs nothing.)
+ */
+function bedHeadPenalty(model, level, li, sp, inn, e, b) {
+  const side = e.turn ? (e.flipX ? "right" : "left") : e.flipY ? "bottom" : "top";
+  if (!isExterior(model, sp, side)) return 0;
+  const hz = side === "top" || side === "bottom", [b0, b1] = hz ? [b[0] - 0.55, b[2] + 0.55] : [b[1] - 0.55, b[3] + 0.55];
+  let pen = 0;
+  for (const w of level.windows) {
+    if (w.space !== sp.id || w.side !== side) continue;
+    const len = hz ? sp.w : sp.h, ww = Math.min(w.w, len - 0.6), c = (hz ? sp.x : sp.y) + w.at * len;
+    if (Math.min(b1, c + ww / 2) - Math.max(b0, c - ww / 2) <= 0.2) continue;
+    const t = level.terrace, toTerrace = li > 0 && side === "bottom" && t && sp.x < t.x1 - 0.5 && sp.x + sp.w > t.x0 + 0.5;
+    pen = Math.max(pen, toTerrace ? 300 : w.w > 50 ? 150 : 0);
+  }
+  return pen;
+}
+
+/** A room's own hinged inside doors (their leaves swing into it). */
+const ownLeaves = (model, level, sp) => level.doors.filter((d) => d.space === sp.id && !d.open && d.w < 50 && !d.entry && !isExterior(model, sp, d.side));
+
+/** The distance (m) from a point to the quarter disc a leaf sweeps (leafOf). */
+function leafDist(q, px, py) {
+  const dx = px - q.hx, dy = py - q.hy;
+  const [u, v] = q.horizontal ? [dx * q.su, dy * q.sv] : [dy * q.su, dx * q.sv];
+  if (u >= 0 && v >= 0) return Math.max(0, Math.hypot(u, v) - q.r);
+  if (u < 0 && v < 0) return Math.hypot(u, v);
+  if (u < 0) return Math.hypot(u, Math.max(0, v - q.r));
+  return Math.hypot(v, Math.max(0, u - q.r));
+}
+
+/** How many doorways (not in its own wall) a door's leaf passes within 0.2 m of along 0.3 m or more of their width. */
+function leafClashes(model, level, sp, d) {
+  const q = leafOf(model, sp, d), mine = openingSpan(sp, d);
+  let n = 0;
+  for (const e of level.doors) {
+    const es = e !== d && level.spaces.find((x) => x.id === e.space);
+    if (!es) continue;
+    const o = openingSpan(es, e);
+    if (o.horizontal === mine.horizontal && Math.abs(o.line - mine.line) < 0.02) continue;
+    let close = 0;
+    for (let k = 0; k <= 20; k++) {
+      const u = o.a0 + ((o.a1 - o.a0) * k) / 20;
+      if (leafDist(q, ...(o.horizontal ? [u, o.line] : [o.line, u])) < 0.2) close += (o.a1 - o.a0) / 20;
+    }
+    if (close >= 0.3 - 1e-9) n++;
+  }
+  return n;
+}
+
+/**
+ * Tries a door at other places along its wall (5 cm steps, nearest first, within its room and the one across, clear of
+ * the other openings in that wall) and hung on either jamb, keeping the first for which ok(cost of the move) holds and
+ * the furniture of the room across fouls it no more than before; otherwise puts it back. Whether it moved.
+ */
+function slideDoor(model, level, sp, d, ok) {
+  const o = openingSpan(sp, d), hz = o.horizontal, start = hz ? sp.x : sp.y, len = hz ? sp.w : sp.h;
+  const lineOf = (t) => (d.side === "top" ? t.y + t.h : d.side === "bottom" ? t.y : d.side === "left" ? t.x + t.w : t.x);
+  const across = level.spaces.find((t) => t !== sp && Math.abs(lineOf(t) - o.line) < 0.01 && (hz ? t.x < o.a1 - 0.01 && t.x + t.w > o.a0 + 0.01 : t.y < o.a1 - 0.01 && t.y + t.h > o.a0 + 0.01));
+  if (!across) return false;
+  const ci = inner(model, sp), ti = inner(model, across), w = o.w;
+  const lo = Math.max(hz ? ci.x : ci.y, hz ? ti.x : ti.y) + 0.01, hi = Math.min(hz ? ci.x + ci.w : ci.y + ci.h, hz ? ti.x + ti.w : ti.y + ti.h) - 0.01;
+  const taken = level.doors
+    .filter((e) => e !== d)
+    .map((e) => {
+      const es = level.spaces.find((x) => x.id === e.space);
+      return es && openingSpan(es, e);
+    })
+    .filter((e) => e && e.horizontal === hz && Math.abs(e.line - o.line) < 0.01)
+    .map((e) => [e.a0 - 0.1, e.a1 + 0.1]);
+  const c0 = (o.a0 + o.a1) / 2, cands = [];
+  const places = [c0, ...Array.from({ length: Math.max(0, Math.floor((hi - lo - w) / 0.05 + 1e-9) + 1) }, (_, i) => lo + w / 2 + i * 0.05)];
+  for (const c of places) {
+    const rel = c - start;
+    if (c !== c0 && (taken.some(([a, b]) => c + w / 2 > a && c - w / 2 < b) || rel < w / 2 + 0.15 - 1e-9 || rel > len - w / 2 - 0.15 + 1e-9)) continue;
+    for (const hinge of hz ? [d.hinge, d.hinge === "right" ? undefined : "right"] : [d.hinge]) cands.push({ at: rel / len, hinge, cost: Math.abs(c - c0) * 10 + (hinge !== d.hinge ? 3 : 0) });
+  }
+  cands.sort((a, b) => a.cost - b.cost);
+  const was = { at: d.at, hinge: d.hinge }, before = across.kind === "stair" ? 0 : roomFouls(model, level, across);
+  for (const c of cands.slice(0, 48)) {
+    if (c.cost < 1e-9) continue;
+    d.at = c.at;
+    if (c.hinge === undefined) delete d.hinge;
+    else d.hinge = c.hinge;
+    if ((across.kind === "stair" || roomFouls(model, level, across) <= before) && ok(c.cost)) return true;
+  }
+  d.at = was.at;
+  if (was.hinge === undefined) delete d.hinge;
+  else d.hinge = was.hinge;
+  return false;
+}
+
+/**
+ * Where floorPlanSheet puts the tag of a room whose furniture clearFurniture turned round (sp.flipY, sp.turn): on the
+ * floor the furniture leaves free (a bed against the other wall leaves it at the other end), clear of the furniture and
+ * then of the door leaves, nearest the usual place turned with the furniture. Sheet px: (cx, cy) the first line's
+ * centre and baseline, the box tw wide and h high from cy - fs - 4.
+ */
+function clearTag(model, level, sp, inn, s, px, cx, cy, tw, h, fs) {
+  const [X0, X1, Y0, Y1] = [px.X(inn.x), px.X(inn.x + inn.w), px.Y(inn.y), px.Y(inn.y + inn.h)];
+  const [xLo, xHi, yLo, yHi] = [X0 + tw / 2 + 2, X1 - tw / 2 - 2, Y0 + fs + 6, Y1 - h + fs + 2];
+  if (xHi < xLo || yHi < yLo) return [cx, cy];
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+  const want = [clamp(cx, xLo, xHi), clamp(sp.flipY ? Y0 + Y1 - cy + 2 * fs + 8 - h : cy, yLo, yHi)];
+  const furn = furnitureBoxes(sp.kind, inn, sp).map(([a, b, c, d]) => [px.X(a), px.Y(b), px.X(c), px.Y(d)]);
+  const { leaves } = keepClear(model, level, sp);
+  const grid = (lo, hi, at) => [at, ...Array.from({ length: Math.floor((hi - lo) / 2) + 1 }, (_, i) => lo + 2 * i)];
+  let best = null;
+  for (const x of grid(xLo, xHi, want[0])) {
+    for (const y of grid(yLo, yHi, want[1])) {
+      const b = [x - tw / 2, y - fs - 4, x + tw / 2, y - fs - 4 + h];
+      const over = Math.round(furn.reduce((t, f) => t + Math.max(0, Math.min(b[2], f[2]) - Math.max(b[0], f[0])) * Math.max(0, Math.min(b[3], f[3]) - Math.max(b[1], f[1])), 0));
+      const m = [(b[0] - px.X(0)) / s, (b[1] - px.Y(0)) / s, (b[2] - px.X(0)) / s, (b[3] - px.Y(0)) / s];
+      const swept = leaves.filter((q) => boxInLeaf(q, m, 0)).length;
+      const far = Math.hypot(x - want[0], y - want[1]);
+      // (a room that asks for a tag clear of its furniture, sp.tagClear, keeps it out of the door leaves first)
+      const better = !best || (sp.tagClear ? swept < best.swept || (swept === best.swept && (over < best.over || (over === best.over && far < best.far - 1e-9))) : over < best.over || (over === best.over && (swept < best.swept || (swept === best.swept && far < best.far - 1e-9))));
+      if (better) best = { x, y, over, swept, far };
+    }
+  }
+  return [best.x, best.y];
+}
+
+/**
+ * No window where the attached garage stands against the house (the right-hand wall as drawn, its last garage.d
+ * metres; the garage stays on the right of a mirrored plan): the window moves along its wall clear of the garage, or is
+ * left out where the room has too little wall beside it.
+ */
+function clearGarageWall(model) {
+  const { garage, D } = model;
+  if (!garage) return;
+  const level = model.levels[0], g0 = D - garage.d;
+  level.windows = level.windows.filter((o) => {
+    const sp = level.spaces.find((s) => s.id === o.space);
+    if (o.side !== "right" || !sp || !isExterior(model, sp, "right")) return true;
+    const w = Math.min(o.w, sp.h - 0.6), c = sp.y + o.at * sp.h;
+    if (c + w / 2 <= g0 + 0.01) return true;
+    const lo = sp.y + 0.3, hi = Math.min(sp.y + sp.h - 0.3, g0 - 0.2);
+    const ww = Math.floor(Math.min(w, hi - lo) * 20 + 1e-9) / 20;
+    if (ww < (["bath", "shower", "wc", "store"].includes(sp.kind) ? 0.6 : 0.9)) return false;
+    o.w = ww;
+    o.at = (Math.min(Math.max(c, lo + ww / 2), hi - ww / 2) - sp.y) / sp.h;
+    return true;
+  });
 }
 
 /** Window openings on the front facade (plan bottom edge) of a level, in metres along x. */
@@ -2075,6 +3448,39 @@ function cadPen(out, layer) {
   };
 }
 
+/**
+ * The dining table of an open plan (its centre ty, m) and whether the kitchen island stands behind it. A house's room
+ * too shallow for the island, the table and the sofa one behind the other (sp.dineUp, set by clearFurniture) has the
+ * table moved up clear of the sofa, and the island left out where the table then needs its place.
+ */
+function openPlanDining({ y, w, h }, up = false) {
+  const sy = y + h - 2.6;
+  let ty = y + h * 0.45 + 0.5, island = h > 5.5 && w > 2.6;
+  if (up && h > 6 && ty + 1.0 > sy) {
+    ty = sy - 1.1;
+    if (ty - 1.0 < y + 2.55) island = false;
+  }
+  return { ty, island };
+}
+
+/** The middle of the floor left free between the kitchen run and the island or the table of an open plan (sp.dineUp). */
+function openPlanTagY(inn) {
+  const { ty, island } = openPlanDining(inn, true);
+  return (inn.y + 0.67 + (island ? inn.y + 1.55 : ty - 1.0)) / 2;
+}
+
+/**
+ * The box (metres, as a room's furniture is drawn) a leaf of the room's own door sweeps, with a margin: a lower ground
+ * floor room's door in its top or bottom wall (sp.door, lowerGround). Null without one.
+ */
+function leafZone(sp, x, y, w, h) {
+  const o = sp.door;
+  if (!o) return null;
+  const a = x + o.u - o.w / 2 - 0.1, b = x + o.u + o.w / 2 + 0.1;
+  return o.side === "top" ? [a, y, b, y + o.w + 0.1] : [a, y + h - o.w - 0.1, b, y + h];
+}
+const boxesMeet = (p, q) => Math.min(p[2], q[2]) - Math.max(p[0], q[0]) > 0.02 && Math.min(p[3], q[3]) - Math.max(p[1], q[1]) > 0.02;
+
 function furniture(d, kind, inn, sp = {}) {
   const { x, y, w, h } = inn;
   if (sp.flipX) {
@@ -2088,15 +3494,40 @@ function furniture(d, kind, inn, sp = {}) {
       poly: (pts, o) => p.poly(pts.map(([px, py]) => [m(px), py]), o),
     };
   }
+  if (sp.flipY) {
+    // the fittings upside down (buildModel's clearFurniture: a leaf or a doorway at the other end)
+    const p = d, m = (v) => 2 * y + h - v;
+    d = {
+      rect: (rx, ry, rw, rh, o) => p.rect(rx, m(ry + rh), rw, rh, o),
+      circle: (cx, cy, r) => p.circle(cx, m(cy), r),
+      ellipse: (cx, cy, rx, ry) => p.ellipse(cx, m(cy), rx, ry),
+      line: (x1, y1, x2, y2, o) => p.line(x1, m(y1), x2, m(y2), o),
+      poly: (pts, o) => p.poly(pts.map(([px, py]) => [px, m(py)]), o),
+    };
+  }
+  if (sp.turn) {
+    // turned a quarter: drawn as if the room's left wall were its top one (x and y swap about its corner), then flipped
+    const p = d, T = (px, py) => [x + (py - y), y + (px - x)];
+    const t = {
+      rect: (rx, ry, rw, rh, o) => p.rect(...T(rx, ry), rh, rw, o),
+      circle: (cx, cy, r) => p.circle(...T(cx, cy), r),
+      ellipse: (cx, cy, rx, ry) => p.ellipse(...T(cx, cy), ry, rx),
+      line: (x1, y1, x2, y2, o) => p.line(...T(x1, y1), ...T(x2, y2), o),
+      poly: (pts, o) => p.poly(pts.map(([px, py]) => T(px, py)), o),
+    };
+    return furniture(t, kind, { x, y, w: h, h: w }, { ...sp, flipX: false, flipY: false, turn: false });
+  }
   let g = "";
   const bed = (bw) => {
     const bl = 2.05;
     if (w < bw + 0.4 || h < bl + 0.6) return "";
-    const bx = x + (w - bw) / 2;
+    // clearFurniture may move the bed along its wall (sp.bedAt, m) and leave out a bedside table (sp.stands: the one kept)
+    const bx = sp.bedAt ? x + (w - bw) / 2 + sp.bedAt : x + (w - bw) / 2;
     const by = y + 0.05;
     let b = d.rect(bx, by, bw, bl) + d.rect(bx + 0.12, by + 0.12, bw / 2 - 0.18, 0.42, { round: 3 }) + d.rect(bx + bw / 2 + 0.06, by + 0.12, bw / 2 - 0.18, 0.42, { round: 3 });
     b += d.line(bx, by + 0.7, bx + bw, by + 0.7);
-    if (w > bw + 1.4) b += d.rect(bx - 0.55, by + 0.05, 0.45, 0.4) + d.rect(bx + bw + 0.1, by + 0.05, 0.45, 0.4);
+    if (w > bw + 1.4 && !sp.stands) b += d.rect(bx - 0.55, by + 0.05, 0.45, 0.4) + d.rect(bx + bw + 0.1, by + 0.05, 0.45, 0.4);
+    else if (w > bw + 1.4 && sp.stands !== "none") b += sp.stands === "left" ? d.rect(bx - 0.55, by + 0.05, 0.45, 0.4) : d.rect(bx + bw + 0.1, by + 0.05, 0.45, 0.4);
     if (h > bl + 1.8 && sp.robe !== false) {
       // wardrobe along the opposite wall; a plan may keep it to one end, clear of a door (sp.robe = { side, max })
       const ww = Math.min(w - 0.4, 2.4, sp.robe?.max ?? Infinity);
@@ -2190,10 +3621,11 @@ function furniture(d, kind, inn, sp = {}) {
       g += d.rect(x + 0.1, y + 0.05, kl, 0.62);
       g += d.circle(x + 0.1 + kl * 0.72, y + 0.24, 0.09) + d.circle(x + 0.1 + kl * 0.72 + 0.28, y + 0.24, 0.09) + d.circle(x + 0.1 + kl * 0.72, y + 0.48, 0.09) + d.circle(x + 0.1 + kl * 0.72 + 0.28, y + 0.48, 0.09);
       g += d.rect(x + 0.1 + kl * 0.25, y + 0.14, 0.7, 0.42, { round: 4 });
-      if (h > 5.5 && w > 2.6) g += d.rect(x + 0.1 + (kl - 2.2) / 2, y + 1.55, 2.2, 0.9);
-      if (h > 6) g += table(x + w / 2, y + h * 0.45 + 0.5, Math.min(2.0, w - 1.6), 3);
       const sw = Math.min(2.8, w - 1);
       const sy = y + h - 2.6;
+      const { ty, island } = openPlanDining(inn, sp.dineUp);
+      if (island) g += d.rect(x + 0.1 + (kl - 2.2) / 2, y + 1.55, 2.2, 0.9);
+      if (h > 6) g += table(x + w / 2, ty, Math.min(2.0, w - 1.6), 3);
       g += d.rect(x + (w - sw) / 2, sy, sw, 0.95, { round: 4 }) + d.rect(x + (w - sw) / 2 + 0.1, sy + 0.12, sw - 0.2, 0.7, { round: 3 });
       g += d.rect(x + (w - 1.2) / 2, sy + 1.35, 1.2, 0.6, { round: 2 });
       break;
@@ -2232,6 +3664,11 @@ function furniture(d, kind, inn, sp = {}) {
       }
       break;
     case "stair": {
+      // a house's stair as fitStairs designed it; other buildings' stairs as a symbol
+      if (sp.flight?.form) {
+        g += stairSymbol(d, inn, sp.flight);
+        break;
+      }
       const vertical = h > w;
       const n = 12;
       for (let i = 1; i < n; i++) g += vertical ? d.line(x, y + (h * i) / n, x + w, y + (h * i) / n) : d.line(x + (w * i) / n, y, x + (w * i) / n, y + h);
@@ -2467,6 +3904,138 @@ function furniture(d, kind, inn, sp = {}) {
       if (w > 4) g += d.rect(x + w - 1.6, y + 1.0, 1.4, 1.4) + d.rect(x + 0.1, y + 1.0, 0.75, Math.min(3, h - 1.4));
       break;
     }
+    // ---- a luxury villa's lower ground floor (lowerGround; as drawn: the court glazing on the top wall of the rear
+    // rooms, the doors of the front rooms in their top wall)
+    case "cinema": {
+      // the screen on the left-hand wall, rows of recliners facing it (the rows behind the first on risers), an aisle
+      // clear of the door at the far end
+      const sm = Math.max(h * 0.12, 0.45); // the screen between the two front speakers
+      g += d.rect(x + 0.05, y + sm, 0.12, h - 2 * sm) + d.rect(x + 0.05, y + 0.1, 0.3, 0.3) + d.rect(x + 0.05, y + h - 0.4, 0.3, 0.3);
+      const n = Math.max(2, Math.min(5, Math.floor((h - 0.7) / 0.85)));
+      const first = x + Math.max(2.4, Math.min(3.4, w * 0.36)), last = x + w - 1.3 - 0.95;
+      const rows = last < first ? (first + 0.95 <= x + w - 0.3 ? 1 : 0) : Math.min(3, Math.floor((last - first) / 1.3) + 1);
+      const sy = y + (h - n * 0.85) / 2;
+      for (let r = 0; r < rows; r++) {
+        const rx = first + r * 1.3;
+        if (r) g += d.rect(rx - 0.2, y + 0.15, 1.3, h - 0.3, { dash: "5 4", faint: true });
+        for (let i = 0; i < n; i++) {
+          // (a seat in the leaf of the door, sp.door, is left out: the aisle)
+          const z = leafZone(sp, x, y, w, h);
+          if (z && boxesMeet([rx, sy + i * 0.85 + 0.04, rx + 0.95, sy + i * 0.85 + 0.81], z)) continue;
+          g += d.rect(rx, sy + i * 0.85 + 0.04, 0.95, 0.77, { round: 4 }) + d.rect(rx + 0.7, sy + i * 0.85 + 0.1, 0.2, 0.65, { round: 2 });
+        }
+      }
+      break;
+    }
+    case "fitness": {
+      // treadmills facing the court glazing from the right-hand end, the dumbbell rack and a bench at the other end,
+      // a mat in front where the room is deep
+      // (each piece kept out of the leaf of the door in the bottom wall, sp.door)
+      const n = Math.max(1, Math.min(3, Math.floor((w - 1.8) / 1.2)));
+      const free = (a, b, c, e) => !leafZone(sp, x, y, w, h) || !boxesMeet([a, b, c, e], leafZone(sp, x, y, w, h));
+      let placed = 0, left = x + w;
+      for (let i = 0; placed < n && x + w - 0.3 - (i + 1) * 1.2 + 0.2 >= x + 0.1; i++) {
+        const tx = x + w - 0.3 - (i + 1) * 1.2 + 0.2;
+        if (!free(tx, y + 0.35, tx + 0.8, y + 2.25)) continue;
+        g += d.rect(tx, y + 0.35, 0.8, 1.9, { round: 3 }) + d.rect(tx + 0.1, y + 0.45, 0.6, 0.3);
+        placed++;
+        left = tx;
+      }
+      // the rack and bench at the other end, where the treadmills leave room
+      if (left - x >= 1.55 && h > 2.9) {
+        if (free(x + 0.1, y + 0.4, x + 0.55, y + 0.4 + Math.min(1.6, h - 2.0))) g += d.rect(x + 0.1, y + 0.4, 0.45, Math.min(1.6, h - 2.0));
+        if (free(x + 0.85, y + 0.6, x + 1.35, y + 1.9)) g += d.rect(x + 0.85, y + 0.6, 0.5, 1.3, { round: 2 });
+      }
+      if (h >= 4.6) g += d.rect(x + w - 0.3 - Math.min(2.4, w - 0.6), y + 2.6, Math.min(2.4, w - 0.6), 0.9, { dash: "5 4" });
+      break;
+    }
+    case "spa": {
+      // a hydromassage pool by the court glazing at the left-hand end, loungers beside it, the rain shower in the
+      // corner below the pool; the sauna strip is behind the right-hand wall
+      // (each piece kept out of the leaf of the door in the bottom wall, sp.door, and of the sauna doors' on the right)
+      const zone = leafZone(sp, x, y, w, h);
+      const free = (bx) => !zone || !boxesMeet(bx, zone);
+      const pw = Math.min(3.4, Math.max(1.8, w * 0.42));
+      let ph = Math.min(2.4, Math.max(1.4, h - 2.1));
+      if (!free([x + 0.3, y + 0.35, x + 0.3 + pw, y + 0.35 + ph])) ph = Math.max(1.0, zone[1] - 0.05 - y - 0.35);
+      g += d.rect(x + 0.3, y + 0.35, pw, ph, { round: 6 }) + d.rect(x + 0.45, y + 0.5, pw - 0.3, ph - 0.3, { round: 4 });
+      for (const f of [0.4, 0.62]) g += d.line(x + 0.7, y + 0.35 + ph * f, x + 0.3 + pw - 0.4, y + 0.35 + ph * f, { dash: "6 4", faint: true });
+      const lx = x + 0.3 + pw + 0.5, nl = Math.max(0, Math.min(3, Math.floor((x + w - 1.0 - lx) / 0.95)));
+      for (let i = 0; i < nl; i++) if (free([lx + i * 0.95, y + 0.35, lx + i * 0.95 + 0.7, y + 2.25])) g += d.rect(lx + i * 0.95, y + 0.35, 0.7, 1.9, { round: 3 }) + d.line(lx + i * 0.95, y + 0.95, lx + i * 0.95 + 0.7, y + 0.95);
+      // the rain shower in a bottom corner clear of the door, away from the sauna doors
+      const sx = [x + 0.1, x + w - 2.05].find((v) => v >= x + 0.1 && free([v, y + h - 1.05, v + 0.95, y + h - 0.1]));
+      if (sx !== undefined && y + 0.35 + ph + 0.15 <= y + h - 1.05) g += d.rect(sx, y + h - 1.05, 0.95, 0.95) + d.line(sx, y + h - 1.05, sx + 0.95, y + h - 0.1) + d.line(sx + 0.95, y + h - 1.05, sx, y + h - 0.1) + d.circle(sx + 0.475, y + h - 0.575, 0.15);
+      break;
+    }
+    case "sauna": {
+      // the upper bench along the right-hand wall and a bench along the top wall, a lower step in front of the upper one,
+      // the stove on the bottom wall just past the door (in the left-hand wall)
+      g += d.rect(x + 0.05, y + 0.05, w - 0.65, 0.5) + d.rect(x + w - 0.6, y + 0.05, 0.55, h - 0.1) + d.rect(x + w - 1.0, y + 0.6, 0.4, Math.max(0.3, h - 1.25));
+      g += d.rect(x + 0.55, y + h - 0.5, 0.42, 0.42) + d.line(x + 0.55, y + h - 0.29, x + 0.97, y + h - 0.29) + d.line(x + 0.76, y + h - 0.5, x + 0.76, y + h - 0.08);
+      break;
+    }
+    case "hammam": {
+      // marble benches along the top and right-hand walls, the heated stone platform (göbek taşı) in the middle and
+      // a basin (kurna) by the door wall
+      g += d.rect(x + 0.05, y + 0.05, w - 0.1, 0.5) + d.rect(x + w - 0.55, y + 0.55, 0.5, h - 0.6);
+      const k = Math.min(1.3, w - 1.5, h - 1.5);
+      if (k >= 0.8) g += d.rect(x + 0.25 + (w - 0.8 - k) / 2, y + 0.55 + (h - 0.6 - k) / 2, k, k, { round: 3 }) + d.rect(x + 0.4 + (w - 0.8 - k) / 2, y + 0.7 + (h - 0.6 - k) / 2, k - 0.3, k - 0.3, { round: 3, faint: true });
+      g += d.ellipse(x + 0.3, y + h - 0.3, 0.2, 0.16);
+      break;
+    }
+    case "garden": {
+      // a sitting group facing the court glazing; a table for two beside it in a wide lounge
+      const wide = w >= 6.5;
+      if (w > 3.2 && h > 2.4) g += seating(x + (wide ? w * 0.35 : w / 2), Math.min(2.6, (wide ? w * 0.5 : w) - 1.2));
+      if (wide && h > 3) g += table(x + w * 0.8, y + h / 2, 1.2, 2);
+      break;
+    }
+    case "games": {
+      // a billiard table along the room (clear of the door in the top wall, sp.door), the cue rack on the far wall
+      const [tw, th] = w >= h ? [2.54, 1.42] : [1.42, 2.54];
+      if (w >= tw + 2.2 && h >= th + 1.6) {
+        let ty = y + (h - th) / 2;
+        const z = leafZone(sp, x, y, w, h);
+        if (z && boxesMeet([x + (w - tw) / 2, ty, x + (w + tw) / 2, ty + th], z)) ty = Math.min(y + h - th - 0.6, z[3] + 0.8);
+        g += d.rect(x + (w - tw) / 2, ty, tw, th, { round: 3 }) + d.rect(x + (w - tw) / 2 + 0.12, ty + 0.12, tw - 0.24, th - 0.24, { round: 2 });
+      } else if (w >= 2.6 && h >= 2.6) g += d.circle(x + w / 2, y + h / 2 + 0.3, 0.55) + d.circle(x + w / 2 - 0.85, y + h / 2 + 0.3, 0.2) + d.circle(x + w / 2 + 0.85, y + h / 2 + 0.3, 0.2);
+      g += d.rect(x + w - 0.3, y + h * 0.3, 0.2, Math.min(1.4, h * 0.45));
+      break;
+    }
+    case "wine": {
+      // bottle racks along the bottom and right-hand walls (and the left-hand one in a wider cellar), clear of the door
+      // in the top wall; a tasting table where it fits
+      const rack = (rx, ry, rw, rh) => {
+        let o = d.rect(rx, ry, rw, rh);
+        const along = rw >= rh, len = along ? rw : rh, cells = Math.max(1, Math.round(len / 0.6));
+        for (let i = 0; i < cells; i++) {
+          const a = (len * i) / cells, b = (len * (i + 1)) / cells;
+          o += along ? d.line(rx + a, ry, rx + b, ry + rh, { faint: true }) + d.line(rx + b, ry, rx + a, ry + rh, { faint: true }) : d.line(rx, ry + a, rx + rw, ry + b, { faint: true }) + d.line(rx + rw, ry + a, rx, ry + b, { faint: true });
+        }
+        return o;
+      };
+      g += rack(x + 0.05, y + h - 0.45, w - 0.1, 0.4);
+      if (h - 1.4 > 0.6) g += rack(x + w - 0.45, y + 0.95, 0.4, h - 1.4) + (w >= 2.9 ? rack(x + 0.05, y + 0.95, 0.4, h - 1.4) : "");
+      if (w >= 2.6 && h >= 2.9) g += d.circle(x + w / 2, y + (h - 0.45) / 2 + 0.35, 0.4) + d.circle(x + w / 2 - 0.62, y + (h - 0.45) / 2 + 0.35, 0.17) + d.circle(x + w / 2 + 0.62, y + (h - 0.45) / 2 + 0.35, 0.17);
+      break;
+    }
+    case "plant": {
+      // along the bottom wall: heat pump and boiler, hot-water cylinder, the pool and spa filtration, the ventilation
+      // unit with heat recovery where there is room; the electrical board on the right-hand wall
+      const by = y + h - 0.75;
+      let px = x + 0.15;
+      g += d.rect(px, by, 0.6, 0.6) + d.circle(px + 0.3, by + 0.3, 0.18);
+      px += 0.8;
+      g += d.circle(px + 0.32, by + 0.32, 0.3);
+      px += 0.8;
+      if (px + 1.0 <= x + w - 0.4) {
+        g += d.circle(px + 0.22, by + 0.35, 0.2) + d.circle(px + 0.72, by + 0.35, 0.2);
+        px += 1.1;
+      }
+      if (px + 1.3 <= x + w - 0.4) g += d.rect(px, by - 0.05, 1.3, 0.65) + d.line(px, by - 0.05, px + 1.3, by + 0.6) + d.line(px + 1.3, by - 0.05, px, by + 0.6);
+      g += d.rect(x + w - 0.3, y + 1.0, 0.22, Math.max(0.4, Math.min(1.2, h - 2.0)));
+      break;
+    }
     case "gym":
       // a row of treadmills along the back, the free-weights floor in front
       for (let cx = x + 0.6; cx + 0.8 < x + w - 0.4; cx += 1.4) g += d.rect(cx, y + 0.4, 0.8, 1.9, { round: 3 });
@@ -2528,10 +4097,100 @@ function surveyPlanFeatures(model, level, px, s, rect) {
   return g;
 }
 
+/**
+ * The sunken court behind a luxury villa (model.lower.court) in plan metres: its retaining walls (T thick) in line with
+ * the house's side walls, the flight of steps up to the garden along the far wall (its foot at the `steps` end,
+ * LG_STEPS risers), the landing at its head where the far wall opens to the garden, and a planting bed along the rest.
+ */
+function courtGeometry(model) {
+  const c = model.lower.court, T = 0.3, right = c.steps === "right";
+  const L = Math.min(5.4, c.x1 - c.x0 - 2 * T - 1.2 - 2.0);
+  const fy0 = -c.depth + T, fy1 = fy0 + 1.2;
+  const foot = right ? c.x1 - T : c.x0 + T, head = right ? foot - L : foot + L;
+  const land = right ? [head - 1.2, head] : [head, head + 1.2];
+  const bed = right ? [c.x0 + T, land[0] - 0.3] : [land[1] + 0.3, c.x1 - T];
+  return { ...c, T, L, fy0, fy1, foot, head, land, bed, right };
+}
+
+/**
+ * The sunken court on a luxury villa's lower ground floor plan (lower: cut walls, earth round the walls below ground)
+ * or ground floor plan (the court below, glass balustrade round its edge). px/s/rect/text: the plan sheet's mappers.
+ */
+function courtPlan(model, lower, px, s, rect, text, preview, site = false) {
+  const { D, spec, plan } = model;
+  const k = courtGeometry(model), { x0, x1, depth: cd, T } = k;
+  const ln = (ax, ay, bx, by, extra = `stroke="${MID}" stroke-width="0.8"`) => `<line x1="${f1(px.X(ax))}" y1="${f1(px.Y(ay))}" x2="${f1(px.X(bx))}" y2="${f1(px.Y(by))}" ${extra}/>`;
+  let g = "";
+  if (lower) g += rect(x0 - 0.8, -cd - 0.8, x1 - x0 + 1.6, D + cd + 1.6, `fill="url(#p-earth)"`);
+  g += rect(x0, -cd, x1 - x0, cd, `fill="${lower ? "#ebe4d6" : "#dcd4c4"}"`) + rect(x0, -cd, x1 - x0, cd, `fill="url(#p-paving)"`);
+  if (k.bed[1] - k.bed[0] > 1.6) {
+    g += rect(k.bed[0], k.fy0 + 0.05, k.bed[1] - k.bed[0], 0.9, `fill="#dfe2cf" stroke="#7f8a62" stroke-width="0.7" rx="6"`);
+    for (let i = 0, n = Math.max(1, Math.floor((k.bed[1] - k.bed[0]) / 3.5)); i < n; i++) g += planTree(spec.tree === "palm" ? "palm" : "olive", f1(px.X(k.bed[0] + ((k.bed[1] - k.bed[0]) * (i + 0.5)) / n)), f1(px.Y(k.fy0 + 0.5)), 0.6 * s, hash(plan.slug) + 40 + i);
+  }
+  // the steps: treads, the landing at the head, the line of travel
+  const dir = k.right ? -1 : 1;
+  g += rect(Math.min(k.foot, k.head), k.fy0, k.L, k.fy1 - k.fy0, `fill="${PAPER}" stroke="${INK}" stroke-width="0.9"`) + rect(k.land[0], k.fy0, 1.2, k.fy1 - k.fy0, `fill="${PAPER}" stroke="${INK}" stroke-width="0.9"`);
+  for (let i = 1; i < LG_STEPS - 1; i++) g += ln(k.foot + (dir * k.L * i) / (LG_STEPS - 1), k.fy0, k.foot + (dir * k.L * i) / (LG_STEPS - 1), k.fy1);
+  // the line of travel up the steps, from the court to the garden, on every sheet ("UP" at its foot on the site plan)
+  const my = (k.fy0 + k.fy1) / 2, [ax, bx] = [k.foot + dir * 0.3, k.head - dir * 0.3];
+  g += ln(ax, my, bx, my, `stroke="${INK}" stroke-width="1"`) + `<path d="M${f1(px.X(bx) - dir * 7)} ${f1(px.Y(my) - 4)} L${f1(px.X(bx))} ${f1(px.Y(my))} L${f1(px.X(bx) - dir * 7)} ${f1(px.Y(my) + 4)}" fill="none" stroke="${INK}" stroke-width="1"/>`;
+  if (!site) g += `<text x="${f1(px.X((k.foot + k.head) / 2))}" y="${f1(px.Y(k.fy1) + 12)}" text-anchor="middle" font-family="${FONT}" font-size="9" letter-spacing="1.5" fill="${MID}">${lower ? `${LG_STEPS} STEPS UP TO GARDEN` : "STEPS DOWN"}</text>`;
+  else g += `<text x="${f1(px.X(ax) + dir * 3)}" y="${f1(px.Y(k.fy1) + 9)}" text-anchor="${dir > 0 ? "start" : "end"}" font-family="${FONT}" font-size="7.5" font-weight="600" letter-spacing="1" fill="${INK}">UP</text>`;
+  if (lower) {
+    // a linear drain along the glazing, the court a step below the floor inside
+    g += rect(x0 + T + 0.15, -0.38, x1 - x0 - 2 * T - 0.3, 0.12, `fill="none" stroke="${MID}" stroke-width="0.8"`) + ln(x0 + T + 0.15, -0.32, x1 - T - 0.15, -0.32, `stroke="${MID}" stroke-width="0.6" stroke-dasharray="2 2"`);
+    if (!preview) g += `<text x="${f1(px.X(x0 + T + 0.3))}" y="${f1(px.Y(-0.38) - 3)}" font-family="${FONT}" font-size="7.5" letter-spacing="1" fill="${MID}">LINEAR DRAIN</text>`;
+  }
+  // retaining walls in line with the house's side walls; the far wall opens at the head of the steps
+  const walls = [[x0, -cd, T, cd], [x1 - T, -cd, T, cd], [x0, -cd, k.land[0] - x0, T], [k.land[1], -cd, x1 - k.land[1], T]];
+  for (const [wx, wy, ww, wh] of walls) if (ww > 0.01) g += rect(wx, wy, ww, wh, lower ? `fill="${INK}"` : `fill="#cfc8bb" stroke="${INK}" stroke-width="0.8"`);
+  if (!lower) {
+    // frameless glass balustrade along the court's edge at garden level, open at the head of the steps
+    const path = `M${f1(px.X(x0 + T / 2))} ${f1(px.Y(0))} V${f1(px.Y(-cd + T / 2))} H${f1(px.X(k.land[0]))} M${f1(px.X(k.land[1]))} ${f1(px.Y(-cd + T / 2))} H${f1(px.X(x1 - T / 2))} V${f1(px.Y(0))}`;
+    g += `<path d="${path}" fill="none" stroke="#7fa3ad" stroke-width="3.2"/><path d="${path}" fill="none" stroke="${INK}" stroke-width="0.6"/>`;
+  }
+  g += text((x0 + x1) / 2, (k.fy1 + 0) / 2 + 0.15, lower ? `SUNKEN COURT${preview ? "" : ` −${(model.storey + LG_COURT_FL).toFixed(2)}`}` : site ? "SUNKEN COURT" : "SUNKEN COURT BELOW", site ? 9 : 10);
+  return g;
+}
+
+/**
+ * The ground floor plan of a luxury villa: the near part of the sunken court below its rear wall (LG_STRIP, its side
+ * walls with the glass balustrade at garden level, a break line), the glass balustrade (1.10 m) across every window
+ * that opens over it, and a note. The whole court is on the lower ground floor plan, A-101.
+ */
+function courtStrip(model, level, px, s, rect, preview) {
+  const { W } = model, k = courtGeometry(model), { x0, x1, T } = k, d = LG_STRIP;
+  const ln = (ax, ay, bx, by, extra) => `<line x1="${f1(px.X(ax))}" y1="${f1(px.Y(ay))}" x2="${f1(px.X(bx))}" y2="${f1(px.Y(by))}" ${extra}/>`;
+  let g = rect(x0, -d, x1 - x0, d, `fill="#dcd4c4"`) + rect(x0, -d, x1 - x0, d, `fill="url(#p-paving)"`);
+  for (const [wx, ww] of [[x0, T], [x1 - T, T]]) g += rect(wx, -d, ww, d, `fill="#cfc8bb" stroke="${INK}" stroke-width="0.8"`);
+  // the balustrade along the court's sides, at garden level
+  for (const bx of [x0 + T / 2, x1 - T / 2]) g += ln(bx, 0, bx, -d, `stroke="#7fa3ad" stroke-width="3.2"`) + ln(bx, 0, bx, -d, `stroke="${INK}" stroke-width="0.6"`);
+  // the break line
+  const zig = [[x0 - 0.3, -d], [W / 2 - 0.25, -d], [W / 2 - 0.1, -d - 0.25], [W / 2 + 0.1, -d + 0.25], [W / 2 + 0.25, -d], [x1 + 0.3, -d]];
+  g += `<polyline points="${zig.map(([x, y]) => `${f1(px.X(x))},${f1(px.Y(y))}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="0.9"/>`;
+  // the guard across every window opening over the court
+  for (const w of level.windows) {
+    const sp = level.spaces.find((x) => x.id === w.space);
+    if (!sp || w.side !== "top" || !isExterior(model, sp, "top") || !courtGuard(model, 0, sp, w)) continue;
+    const ww = Math.min(w.w, sp.w - 0.6), c = sp.x + w.at * sp.w;
+    g += ln(c - ww / 2, -0.12, c + ww / 2, -0.12, `stroke="#7fa3ad" stroke-width="3.2"`) + ln(c - ww / 2, -0.12, c + ww / 2, -0.12, `stroke="${INK}" stroke-width="0.6"`);
+  }
+  const lines = preview ? ["SUNKEN COURT BELOW", "GLASS BALUSTRADE TO THE WINDOWS OVER IT"] : [`SUNKEN COURT BELOW −${(model.storey + LG_COURT_FL).toFixed(2)} · SEE A-101`, "GLASS BALUSTRADE h=1.10 TO THE WINDOWS OVER IT"];
+  lines.forEach((t, i) => (g += `<text x="${f1(px.X(W / 2))}" y="${f1(px.Y(-d / 2) + (i ? 12 : -2))}" text-anchor="middle" font-family="${FONT}" font-size="8.5" letter-spacing="1.2" fill="${MID}" stroke="#dcd4c4" stroke-width="3" paint-order="stroke">${t}</text>`));
+  return g;
+}
+
+/** Whether a window of a luxury villa's ground floor opens over its sunken court, low enough to need a guard (1.10 m). */
+function courtGuard(model, li, sp, w) {
+  if (!model.lower || li !== 0 || w.side !== "top" || !isExterior(model, sp, "top")) return false;
+  const living = ["open", "living", "kitchen", "dining"].includes(sp.kind);
+  return (model.levels[0].sill ?? (model.spec.glassy || living ? 0.05 : 0.9)) < 0.9;
+}
+
 export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mode = "layout", title = null } = {}) {
   const ST = model.storey;
   const { W, D, plan, spec } = model;
-  const level = model.levels[levelIndex];
+  const level = levelIndex < 0 ? model.lower : model.levels[levelIndex];
   // interior sets draw the same plan three ways: furniture layout, floor finishes, reflected ceiling and lighting
   const drawingName = title ?? (!model.interior || mode === "layout" ? level.name : `${level.floorName ? `${level.floorName} ` : ""}${mode === "finish" ? "FINISHES PLAN" : "CEILING PLAN"}`);
   const isGround = levelIndex === 0;
@@ -2540,7 +4199,11 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   const extraW = garage ? garage.w + 0.5 : 0;
   const outside = (side) => Math.max(0, ...[...(level.balconies ?? []), ...(level.bays ?? [])].filter((b) => b.side === side).map((b) => b.depth));
   const frontExtent = isGround ? Math.max(site.T, site.deck ? site.T + site.deck.h : 0, garage ? 3 : 0) : level.terrace ? level.terrace.depth : outside("bottom");
-  const backOut = outside("top");
+  // a luxury villa's lower ground floor shows the sunken court behind the house (the ground floor only names it, so
+  // that its plan keeps the scale its rooms' names are fitted to)
+  const court = model.lower && levelIndex < 0 ? model.lower.court : null;
+  const strip = model.lower && levelIndex === 0 && mode === "layout";
+  const backOut = Math.max(outside("top"), court ? court.depth + 0.5 : strip ? LG_STRIP + 0.5 : 0);
   const extraD = Math.max(frontExtent, model.towerArc ? model.towerArc.r + 0.3 : 0) + 1.4 + backOut;
   const margin = 3.0; // axes, bubbles and dimension chains (m)
   const areaW = SHEET_W - 330 - 36 - 90;
@@ -2621,6 +4284,15 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     g += text((t.x0 + t.x1) / 2, D + t.depth / 2 + 0.15, t.label);
     g += `<text x="${f1(px.X(t.x1) + 6)}" y="${f1(px.Y(D + t.depth) + 12)}" font-family="${FONT}" font-size="9" letter-spacing="1.5" fill="${MID}">GLASS BALUSTRADE${preview ? "" : " h=1.10"}</text>`;
   }
+
+  if (court) {
+    g += courtPlan(model, true, px, s, rect, text, preview);
+    // the listing counts the bathrooms and WCs of the storeys above ground only (wetRooms), so this level has none
+    g += `<text x="${f1(px.X(W / 2))}" y="${f1(px.Y(D + 1.2))}" text-anchor="middle" font-family="${FONT}" font-size="8.5" letter-spacing="1.2" fill="${MID}">NOTE: A WC AND CHANGING ROOM FOR THE SPA AND GYM ARE STILL TO BE PLANNED ON THIS LEVEL — NOT IN THE LISTED BATHROOM COUNT</text>`;
+  }
+  if (strip) g += courtStrip(model, level, px, s, rect, preview);
+  // section A–A (A-202) on a luxury villa's lower ground and ground floor plans
+  if (court || strip) g += sectionMark(model, px, court ? -court.depth - 0.4 : -LG_STRIP - 0.35);
 
   // ---- walls: poché footprint, then cut out clear room areas
   g += rect(0, 0, W, D, `fill="${INK}"`);
@@ -2727,6 +4399,15 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
   const pen = svgPen(s, px);
   if (mode === "layout") for (const sp of level.spaces) g += furniture(pen, sp.kind, inner(model, sp), sp);
   else if (mode === "ceiling") for (const sp of level.spaces) if (sp.kind === "stair") g += furniture(pen, sp.kind, inner(model, sp), sp);
+  // the way a luxury villa's stair goes from this floor (sp.travel), beside its arrow
+  for (const sp of level.spaces.filter((x) => x.kind === "stair" && x.flight?.form)) {
+    for (const l of stairLabels(inner(model, sp), sp.flight)) g += `<text x="${f1(px.X(l.x))}" y="${f1(px.Y(l.y) + 3)}" text-anchor="middle" font-family="${FONT}" font-size="9" font-weight="600" letter-spacing="1" fill="${INK}" stroke="${PAPER}" stroke-width="3" paint-order="stroke">${l.text}</text>`;
+  }
+  for (const sp of level.spaces.filter((x) => x.kind === "stair" && x.travel && !x.flight?.form)) {
+    const inn = inner(model, sp), vertical = inn.h > inn.w;
+    const [tx, ty] = vertical ? [inn.x + inn.w / 2, inn.y + inn.h - 0.45] : [inn.x + inn.w / 2, inn.y + inn.h / 2 - 0.15];
+    g += `<text x="${f1(px.X(tx))}" y="${f1(px.Y(ty))}" text-anchor="middle" font-family="${FONT}" font-size="9" font-weight="600" letter-spacing="1" fill="${INK}" stroke="${PAPER}" stroke-width="3" paint-order="stroke">${sp.travel}</text>`;
+  }
   if (mode === "ceiling") {
     const c = ceilingLayout(model, level);
     for (const r of c.cove) g += rect(r.x, r.y, r.w, r.h, `fill="none" stroke="${ACCENT}" stroke-width="1.1" stroke-dasharray="7 4"`);
@@ -2741,14 +4422,18 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     for (const [x, y] of c.mirror) g += SYM.mirror(px.X(x), px.Y(y));
   }
   const roomNo = Object.fromEntries(schedules(model).rooms.filter((r) => r.level === levelIndex).map((r) => [r.id, r.no]));
+  const house = isHouse(model);
   for (const sp of level.spaces) {
     if (sp.kind === "stair") continue;
     const inn = inner(model, sp);
     const area = (inn.w * inn.h).toFixed(1);
-    const cx = px.X(inn.x + inn.w / 2);
+    let cx = px.X(inn.x + inn.w / 2);
     let cy = px.Y(inn.y + inn.h / 2);
     if (sp.kind === "master" || sp.kind === "bedroom") cy = px.Y(inn.y + Math.min(inn.h - 0.5, 2.6 + (inn.h - 2.6) / 2));
     if (sp.kind === "open") cy = px.Y(inn.y + inn.h * 0.3);
+    // an open plan whose table moved up for its sofa (sp.dineUp): the name below the kitchen run, above the island or
+    // the chairs
+    if (sp.kind === "open" && sp.dineUp) cy = px.Y(openPlanTagY(inn)) - 3;
     if (sp.kind === "living") cy = px.Y(inn.y + inn.h * 0.8);
     if (sp.kind === "kitchen") cy = px.Y(inn.y + inn.h * 0.36);
     if (sp.kind === "dining") cy = px.Y(inn.y + 0.75);
@@ -2756,9 +4441,18 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
     let fs = inn.w * s < 90 ? 9 : 11;
     let label = inn.w * s < 70 && sp.label.length > 8 ? sp.label.split(/[ -]/)[0] : sp.label;
     let tw = label.length * fs * 0.68 + 16;
-    const second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? (preview ? "" : `CH ${roomFinish(model, sp).ch.toFixed(2)}`) : `${roomNo[sp.id]} · ${area} m²`;
+    let second = mode === "finish" ? `${roomFinish(model, sp).floor} · ${area} m²` : mode === "ceiling" ? (preview ? "" : `CH ${roomFinish(model, sp).ch.toFixed(2)}`) : `${roomNo[sp.id]} · ${area} m²`;
     let up = false, pad = 3;
-    if (sp.fit) {
+    // a name whose box would not stay inside its room is fitted to it like the names of a plan that asks for that (the
+    // box as wide as the longer of its two lines)
+    const nonFitH = second ? fs * 2 + 14 : fs + 10;
+    const line2 = (pad) => (second && sp.kind !== "void" ? Math.max(tw, second.length * (fs - 1) * 0.58 + pad) : tw);
+    const twBoth = sp.tagClear ? line2(10) : line2(4);
+    // (a room that asks for its tag clear of its furniture, sp.tagClear, has it placed by both lines)
+    if (house && (sp.flipY || sp.turn || sp.tagClear) && !sp.labelY) [cx, cy] = clearTag(model, level, sp, inn, s, px, cx, cy, sp.tagClear ? twBoth : tw, nonFitH, fs);
+    const fit = sp.fit || (house && (cx - twBoth / 2 < px.X(inn.x) - 1 || cx + twBoth / 2 > px.X(inn.x + inn.w) + 1 || cy - fs - 4 < px.Y(inn.y) - 1 || cy - fs - 4 + nonFitH > px.Y(inn.y + inn.h) + 1));
+    if (sp.tagClear && !fit) tw = twBoth;
+    if (fit) {
       // a plan may ask for names that fit inside their rooms, both lines: the full name across, the full name run up
       // the room (sp.labelUp: the length it has there, m), a short name (sp.short) across or up, the first word
       const across = inn.w * s - 6, first = sp.label.split(/[ -]/)[0];
@@ -2766,21 +4460,46 @@ export function floorPlanSheet(model, levelIndex, sheetNo, { preview = false, mo
       const fits = ([l, f, u]) => !!l && (u ? !!sp.labelUp && need(l, f) <= sp.labelUp * s && f * 2 + 8 <= inn.w * s - 2 : need(l, f) <= across);
       // and, in a small room taller than it is wide, the name run up the room
       const upAny = ([l, f]) => !!l && need(l, f) <= inn.h * s - 10 && f * 2 + 8 <= inn.w * s - 2;
-      [label, fs, up] = [[sp.label, 11], [sp.label, 9], [sp.label, 9, true], [sp.short, 9], [sp.short, 9, true], [first, 9]].find(fits) ?? [[sp.label, 9, true], [sp.short, 9, true], [first, 9, true]].find(upAny) ?? [first, 9];
+      // (a template's room fitted here: the short names of the split plan's rooms, and its area left out where even
+      // the name run up the room would not fit with it)
+      const short = sp.short ?? (sp.fit ? undefined : SHORT_NAMES[sp.label]);
+      const pick = () => [[sp.label, 11], [sp.label, 9], [sp.label, 9, true], [short, 9], [short, 9, true], [first, 9]].find(fits) ?? [[sp.label, 9, true], [short, 9, true], [first, 9, true]].find(upAny);
+      let got = pick();
+      if (!got && !sp.fit && second) {
+        const keep = second;
+        second = "";
+        if (!(got = pick())) second = keep;
+      }
+      // (a house's room too small for its name at 9 px even without its area: smaller type, across or run up the room,
+      // with its area where that still fits)
+      for (const f of house && !got ? [8, 7] : []) {
+        const tries = [[sp.label, f], [short, f], [first, f]], small = () => tries.find(fits) ?? tries.map(([l]) => [l, f, true]).find(upAny);
+        if ((got = small())) break;
+        if (second && !sp.fit) {
+          const keep = second;
+          second = "";
+          if ((got = small())) break;
+          second = keep;
+        }
+      }
+      [label, fs, up] = got ?? [first, 9];
       tw = need(label, fs);
       // and keep the name's box inside the room (in a low or narrow room with less padding round the two lines)
       const [y0, y1] = [px.Y(inn.y), px.Y(inn.y + inn.h)];
       if (second) pad = Math.min(3, Math.max(0, ((up ? inn.w * s : y1 - y0) - 4 - (fs * 2 + 8)) / 2));
       cy = up ? Math.min(Math.max(cy, y0 + tw / 2 + 2), y1 - tw / 2 - 5) : Math.min(Math.max(cy, y0 + fs + 2 + pad), y1 - (second ? fs + 8 + pad : 8));
+      // (and across: a name moved off the middle, clear of the furniture, kept within the walls too)
+      const [x0, x1] = [px.X(inn.x), px.X(inn.x + inn.w)], half = up ? (second ? fs * 2 + 8 + 2 * pad : fs + 10) / 2 : tw / 2;
+      if (house && x1 - x0 >= 2 * half + 2) cx = Math.min(Math.max(cx, x0 + half + 1), x1 - half - 1);
     }
-    const boxY = sp.fit ? cy - fs - 1 - pad : cy - fs - 4, boxH = second ? (sp.fit ? fs * 2 + 8 + 2 * pad : fs * 2 + 14) : fs + 10;
+    const boxY = fit ? cy - fs - 1 - pad : cy - fs - 4, boxH = second ? (fit ? fs * 2 + 8 + 2 * pad : fs * 2 + 14) : fs + 10;
     let tag = `<rect x="${f1(cx - tw / 2)}" y="${f1(boxY)}" width="${f1(tw)}" height="${boxH}" fill="${PAPER}" fill-opacity=".92"/>`;
     tag += `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" font-weight="600" letter-spacing="1.2" fill="${INK}">${label}</text>`;
     if (sp.kind !== "void" && second) tag += `<text x="${f1(cx)}" y="${f1(cy + fs + 5)}" text-anchor="middle" font-family="${FONT}" font-size="${fs - 1}" fill="${mode === "layout" ? MID : INK}">${second}</text>`;
     g += up ? `<g transform="rotate(-90 ${f1(cx)} ${f1(boxY + boxH / 2)})">${tag}</g>` : tag; // turned about the box's centre
   }
   // finished floor level tag
-  const ffl = levelIndex === 0 ? "±0.000" : `+${(levelIndex * ST).toFixed(3)}`;
+  const ffl = levelIndex === 0 ? "±0.000" : levelIndex < 0 ? `−${(-levelIndex * ST).toFixed(3)}` : `+${(levelIndex * ST).toFixed(3)}`;
   const hall = level.spaces.find((sp) => sp.kind === "hall") ?? (model.interior && level.spaces.find((sp) => ["reception", "living", "open", "teahall", "boutique", "lounge"].includes(sp.kind))) ?? level.spaces[0];
   const hin = inner(model, hall);
   // a long corridor keeps its room label in the middle, so the tag moves towards its end
@@ -2916,7 +4635,8 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
   const gW = model.garage?.w ?? 0;
   const gD = model.garage?.d ?? 0;
   const frontDepth = D + Math.max(site.T, site.deck ? site.T + site.deck.h : 0);
-  const plot = { x0: -6, y0: -8, x1: Math.ceil(W + gW + 6), y1: Math.ceil(frontDepth + 7) };
+  // (a luxury villa's sunken court takes the first metres of the rear garden)
+  const plot = { x0: -6, y0: model.lower ? -(model.lower.court.depth + 6) : -8, x1: Math.ceil(W + gW + 6), y1: Math.ceil(frontDepth + 7) };
   const road = 7;
   const PW = plot.x1 - plot.x0;
   const PD = plot.y1 - plot.y0;
@@ -2964,6 +4684,7 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
     g += label(W + gW / 2, (D + plot.y1) / 2 + 1, "DRIVEWAY", 9);
   }
 
+  if (model.lower) g += courtPlan(model, false, { X, Y }, s, rect, label, preview, true);
   g += roofPlan(model, X, Y, s, { levels: !preview });
 
   // ---- soft landscaping: trees
@@ -2972,6 +4693,7 @@ export function sitePlanSheet(model, sheetNo, { preview = false } = {}) {
     if (x < plot.x0 + r * 0.6 || x > plot.x1 - r * 0.6 || y < plot.y0 + r * 0.6 || y > plot.y1 - r * 0.6) return;
     const clash = (ax, ay, aw, ah) => x + r > ax && x - r < ax + aw && y + r > ay && y - r < ay + ah;
     if (clash(-1, -1, W + gW + 2, D + 1.4)) return;
+    if (model.lower && clash(-1, -model.lower.court.depth - 1, W + 2, model.lower.court.depth + 1)) return;
     if (site.deck && clash(site.deck.x - 0.3, site.deck.y - 0.3, site.deck.w + 0.6, site.deck.h + 0.6)) return;
     if (site.T && clash(0, D, W, site.T)) return;
     if (clash(site.entryX - 1.3, D, 2.6, plot.y1 - D)) return;
@@ -3633,8 +5355,14 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   env += box(-leftPad + 0.3, -below + 1.5, totalW + leftPad + rightPad - 0.6, below - 1.5, "url(#p-earth)");
   env += `<line x1="${X(-leftPad + 0.3)}" y1="${Y(0)}" x2="${X(totalW + rightPad - 0.3)}" y2="${Y(0)}" stroke="${INK}" stroke-width="2.4"/>`;
   if (model.basement) {
+    // the lower ground floor below the street front (sheet A-101): what it holds, and its court on the rear garden
     g += box(0, -3.2, W, 3.2, PAPER, `stroke="${INK}" stroke-width="1.2" stroke-dasharray="10 6"`);
-    g += `<text x="${X(W / 2)}" y="${Y(-1.75)}" text-anchor="middle" font-family="${FONT}" font-size="11" letter-spacing="2" fill="${MID}">LOWER LEVEL${preview || bare ? "" : " −3.30"} · SPA · CINEMA · OPENS TO REAR GARDEN</text>`;
+    const held = ["HOME CINEMA", "MEDIA ROOM", "GAMES ROOM", "GYM", "SPA", "SAUNA", "HAMMAM", "WINE CELLAR"].filter((n) => model.lower?.spaces.some((sp) => sp.label === n));
+    const lines = [[`LOWER GROUND FLOOR${preview || bare ? "" : " −3.30"}`, 11, INK], [held.join(" · "), 10, MID], ["OPENS TO THE REAR GARDEN THROUGH A SUNKEN COURT", 10, MID]];
+    lines.forEach(([str, size, fill], i) => {
+      const fs = +Math.min(size, ((W * s - 24) / str.length - 1.6) / 0.62).toFixed(1);
+      g += `<text x="${X(W / 2)}" y="${f1(Y(-1.6) + (i - 1) * 17 + 4)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" letter-spacing="1.6" fill="${fill}">${str}</text>`;
+    });
   }
 
   // ---- background trees (behind the house; in the rear gardens of a terrace)
@@ -4017,6 +5745,136 @@ export function elevationSheet(model, sheetNo, bare = false, { preview = false }
   return bareSvg(out + overlay, materialDefs(s, seed));
 }
 
+// ------------------------------------------------------------------ luxury villas: section through the sunken court
+
+/**
+ * Where section A–A of a luxury villa runs (x, metres, as drawn): through the middle of a room glazed to the sunken
+ * court (the spa, the gym, the garden lounge), clear of the stair and of the walls running along it on every level.
+ */
+export function courtSectionX(model) {
+  const lv = model.lower, stack = [lv, ...model.levels];
+  const glazed = ["spa", "gym", "lounge"].map((id) => lv.spaces.find((sp) => sp.id === id)).filter(Boolean);
+  const cands = [...glazed.flatMap((sp) => [sp.x + sp.w / 2, sp.x + sp.w * 0.3, sp.x + sp.w * 0.7]), model.W / 2, model.W * 0.35, model.W * 0.65];
+  const clear = (x) => stack.every((l) => l.spaces.every((sp) => (sp.kind === "stair" ? x < sp.x - 0.3 || x > sp.x + sp.w + 0.3 : Math.abs(x - sp.x) > 0.35 && Math.abs(x - sp.x - sp.w) > 0.35)));
+  return r1(cands.find(clear) ?? cands[0]);
+}
+
+/**
+ * A-202 of a luxury villa: section A–A through the house, its lower ground floor and the sunken court — the floors and
+ * walls the section cuts, the glazing to the court, the court a step below the floor inside with its drain, the
+ * retaining wall with the glass balustrade at the garden, the glass guards across the ground floor windows over it,
+ * the steps beyond, the earth; levels and heights (left out of a public preview).
+ */
+export function sectionSheet(model, sheetNo, { preview = false } = {}) {
+  const ST = model.storey;
+  const { W, D, plan, above, wallTop, H } = model;
+  const xs = courtSectionX(model), k = courtGeometry(model), cd = k.depth, T = k.T;
+  const zLG = -ST, zC = -ST - LG_COURT_FL;
+  const hL = 4.0, hR = D + cd + 4.5; // the drawing from the front garden to the rear garden (h: metres from the front face)
+  const zBot = zC - 1.4, zTop = H + 0.8;
+  const areaW = SHEET_W - 330 - 36 - 60, areaH = SHEET_H - 72 - 170;
+  const left = preview ? 0.5 : 3.0; // room for the height chain
+  const spanW = hL + hR + left, spanH = zTop - zBot;
+  const s = Math.min(areaW / spanW, areaH / spanH, 60);
+  const ox = 36 + 40 + (areaW - spanW * s) / 2 + (hL + left) * s;
+  const gy = 36 + 50 + (areaH - spanH * s) / 2 + zTop * s;
+  const X = (h) => f1(ox + h * s), Y = (z) => f1(gy - z * s);
+  const hOf = (y) => D - y;
+  const box = (h0, z0, h1, z1, extra) => `<rect x="${X(Math.min(h0, h1))}" y="${Y(Math.max(z0, z1))}" width="${f1(Math.abs(h1 - h0) * s)}" height="${f1(Math.abs(z1 - z0) * s)}" ${extra}/>`;
+  const ln = (h0, z0, h1, z1, extra = `stroke="${INK}" stroke-width="0.8"`) => `<line x1="${X(h0)}" y1="${Y(z0)}" x2="${X(h1)}" y2="${Y(z1)}" ${extra}/>`;
+  const glass = (h0, z0, h1, z1) => box(h0, z0, h1, z1, `fill="#cfe0e4" stroke="${INK}" stroke-width="0.9"`) + ln((h0 + h1) / 2, z0, (h0 + h1) / 2, z1, `stroke="${INK}" stroke-width="1.2"`);
+  const guard = (h, z0) => ln(h, z0 + 0.05, h, z0 + 1.1, `stroke="#7fa3ad" stroke-width="3.2"`) + ln(h, z0 + 0.05, h, z0 + 1.1, `stroke="${INK}" stroke-width="0.6"`);
+  const POCHE = `fill="${INK}"`;
+  let g = "";
+
+  // ---- the earth, the house and the court cut out of it
+  g += box(-hL, zBot, hR, 0, `fill="url(#p-earth)"`);
+  g += box(0, zLG - 0.3, D, 0, `fill="${PAPER}"`) + box(D, zC, D + cd - T, 0.01, `fill="${PAPER}"`);
+  g += ln(-hL, 0, 0, 0, `stroke="${INK}" stroke-width="2.4"`) + ln(D + cd, 0, hR, 0, `stroke="${INK}" stroke-width="2.4"`);
+
+  // ---- the levels: slabs, the front and rear walls (their glazing where the section meets a window), the walls inside
+  const stack = [[model.lower, -1], ...model.levels.map((lv, li) => [lv, li])];
+  for (const [lv, li] of stack) {
+    const z0 = li * ST, z1 = z0 + ST;
+    const rooms = lv.spaces.filter((sp) => sp.x < xs && sp.x + sp.w > xs).sort((a, b) => b.y - a.y);
+    g += box(0, z0 - 0.3, D, z0, POCHE); // the slab under this floor
+    // the outside walls, front (h 0) and rear (h D)
+    for (const [side, h0, h1] of [["bottom", 0, EXT], ["top", D - EXT, D]]) {
+      const sp = rooms.find((r) => (side === "bottom" ? Math.abs(r.y + r.h - D) < 0.01 : r.y < 0.01));
+      const win = sp && lv.windows.find((w) => w.space === sp.id && w.side === side && (() => { const ww = w.w > 50 ? sp.w - 0.6 : Math.min(w.w, sp.w - 0.6), c = sp.x + w.at * sp.w; return xs > c - ww / 2 && xs < c + ww / 2; })());
+      const top = li === above - 1 ? wallTop : z1 - 0.3;
+      if (!win) {
+        g += box(h0, z0, h1, top, POCHE);
+        continue;
+      }
+      // (sill and head as the window schedule has them)
+      const living = ["open", "living", "kitchen", "dining"].includes(sp.kind);
+      const sill = lv.sill ?? (model.spec.glassy || (living && li === 0) ? 0.05 : 0.9), hd = lv.head ?? model.spec.head ?? (model.spec.glassy ? ST - 0.42 : model.spec.arches ? 2.75 : 2.45);
+      g += box(h0, z0, h1, z0 + sill, POCHE) + box(h0, z0 + hd, h1, top, POCHE) + glass(h0, z0 + sill, h1, z0 + hd);
+      if (li === 0 && side === "top" && courtGuard(model, 0, sp, win)) g += guard(D + 0.1, 0);
+    }
+    // the walls between the rooms the section passes through, with their doors
+    for (let i = 0; i + 1 < rooms.length; i++) {
+      const a = rooms[i], b = rooms[i + 1], y = a.y; // a in front of b
+      if (Math.abs(b.y + b.h - y) > 0.01) continue;
+      const dr = lv.doors.find((d) => ((d.space === a.id && d.side === "top") || (d.space === b.id && d.side === "bottom")) && (() => { const o = openingSpan(d.space === a.id ? a : b, d); return xs > o.a0 && xs < o.a1; })());
+      const h = hOf(y), top = li === above - 1 ? wallTop - 0.3 : z1 - 0.3;
+      g += box(h - INT / 2, dr ? z0 + 2.1 : z0, h + INT / 2, top, POCHE);
+    }
+    // the rooms' names
+    for (const sp of rooms) {
+      const h0 = hOf(sp.y + sp.h), h1 = hOf(sp.y), wpx = (h1 - h0) * s - 10, name = sp.label;
+      const fs = +Math.min(9.5, wpx / (name.length * 0.68 + 1)).toFixed(1);
+      if (fs >= 5.5) g += `<text x="${X((h0 + h1) / 2)}" y="${Y(z0 + 1.15)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" letter-spacing="1" fill="${MID}">${name}</text>`;
+    }
+  }
+  // the roof: its slab and the parapets
+  g += box(0, wallTop - 0.35, D, wallTop, POCHE) + box(0, wallTop, EXT, H, POCHE) + box(D - EXT, wallTop, D, H, POCHE);
+  // the lower ground floor's front wall holds the earth: a membrane line outside it
+  g += ln(-0.06, zLG - 0.3, -0.06, 0, `stroke="${INK}" stroke-width="0.8" stroke-dasharray="5 3"`);
+
+  // ---- the court: its floor a step down, the drain, the retaining wall with its balustrade, the steps beyond
+  g += box(D, zC - 0.3, D + cd, zC, POCHE);
+  g += box(D + 0.22, zC - 0.12, D + 0.38, zC, `fill="${PAPER}" stroke="${INK}" stroke-width="0.7"`);
+  g += box(D + cd - T, zC, D + cd, 0.05, POCHE);
+  g += guard(D + cd - T / 2, 0.05);
+  const st0 = D + cd - T - 1.2, st1 = D + cd - T;
+  g += box(st0, zC, st1, 0, `fill="none" stroke="${MID}" stroke-width="0.7"`);
+  for (let i = 1; i < LG_STEPS; i++) g += ln(st0, zC + ((0 - zC) * i) / LG_STEPS, st1, zC + ((0 - zC) * i) / LG_STEPS, `stroke="${MID}" stroke-width="0.5"`);
+  const label = (h, z, str, size = 9, fill = MID, anchor = "middle") => `<text x="${X(h)}" y="${Y(z)}" text-anchor="${anchor}" font-family="${FONT}" font-size="${size}" letter-spacing="1.4" fill="${fill}" stroke="${PAPER}" stroke-width="3" paint-order="stroke">${str}</text>`;
+  g += label(D + (cd - T - 1.2) / 2, zC + 1.2, "SUNKEN COURT") + label(st0 + 0.6, zC - 0.75, `${LG_STEPS} STEPS UP (BEYOND)`, 7.5);
+  if (!preview) g += label(D + (cd - T - 1.2) / 2, zC + 0.75, `−${(ST + LG_COURT_FL).toFixed(3)}`, 8.5, INK) + label(D + 0.45, zC + 0.25, "LINEAR DRAIN", 7, MID, "start");
+  g += label(-hL * 0.72, 0.35, "FRONT GARDEN", 8.5) + label(D + cd + (hR - D - cd) / 2, 0.35, "REAR GARDEN", 8.5) + label(D + cd - T / 2, 1.45, "GLASS BALUSTRADE", 7.5);
+
+  // ---- levels (right) and heights (left), not in a public preview
+  if (!preview) {
+    const marks = [[H, "TOP OF PARAPET"], ...Array.from({ length: above }, (_, i) => [i * ST, i ? `${FLOOR_NAMES[i] ?? `LEVEL ${i}`} FLOOR` : "GROUND FLOOR"]), [zLG, "LOWER GROUND FLOOR"]];
+    for (const [z, what] of marks) {
+      const hx = D + cd + 0.6;
+      g += `<path d="M${X(hx)} ${Y(z)} l-5 -7 h10 Z" fill="${INK}"/>` + ln(hx - 0.4, z, hx + 2.6, z, `stroke="${INK}" stroke-width="0.6"`);
+      g += `<text x="${f1(+X(hx) + 8)}" y="${f1(+Y(z) - 4)}" font-family="${FONT}" font-size="9" fill="${INK}">${z === 0 ? "±0.000" : `${z > 0 ? "+" : "−"}${Math.abs(z).toFixed(3)}`} ${what}</text>`;
+    }
+    const zs = [...new Set([zLG, ...Array.from({ length: above + 1 }, (_, i) => i * ST), H].map((v) => +v.toFixed(3)))].sort((a, b) => b - a);
+    g += dimChain(zs.map((z) => -z), -1.6, s, ox, gy, false);
+  }
+  // ---- the cut's position, as the plans show it
+  g += `<text x="${X(-hL + 0.2)}" y="${Y(zTop - 0.5)}" font-family="${FONT}" font-size="9" letter-spacing="1.4" fill="${MID}">CUT ${preview ? "" : `AT ${xs.toFixed(1)} m FROM THE WEST WALL `}· LOOKING WEST</text>`;
+  g += sheetTitle("SECTION A–A", `${plan.title.en.toUpperCase()} · THROUGH THE SUNKEN COURT${preview ? "" : " · LEVELS IN METRES"}`);
+  if (!preview) g += scaleBar(SHEET_W - 330 - 60 - 5 * s, SHEET_H - 72, s);
+  return sheet({ plan, drawing: "SECTION A–A", sheetNo, scaleNote: "GRAPHIC SCALE", body: g, defs: materialDefs(s, hash(plan.slug)), north: false, preview });
+}
+
+/** Section A–A's line on a luxury villa's lower ground and ground floor plans (px mappers; to `y1` behind the house). */
+function sectionMark(model, px, y1) {
+  const xs = courtSectionX(model), y0 = model.D + 0.4;
+  let g = `<line x1="${f1(px.X(xs))}" y1="${f1(px.Y(y0))}" x2="${f1(px.X(xs))}" y2="${f1(px.Y(y1))}" stroke="${ACCENT}" stroke-width="1" stroke-dasharray="14 4 2 4"/>`;
+  for (const y of [y0, y1]) {
+    const [cx, cy] = [px.X(xs), px.Y(y)];
+    g += `<path d="M${f1(cx)} ${f1(cy)} h-14 m5 -4 l-5 4 l5 4" fill="none" stroke="${ACCENT}" stroke-width="1.4"/><text x="${f1(cx + 4)}" y="${f1(cy + (y === y0 ? 10 : -3))}" font-family="${FONT}" font-size="10" font-weight="600" fill="${ACCENT}" stroke="${PAPER}" stroke-width="2.5" paint-order="stroke">A</text>`;
+  }
+  return g;
+}
+
 // ------------------------------------------------------------------ axonometric (coloured massing)
 
 // isometric projection; b = depth measured from the front facade toward the back
@@ -4038,8 +5896,10 @@ export function axonometricSheet(model, sheetNo, { preview = false, typical = fa
 
   const gW = model.garage ? model.garage.w : 0;
   const frontB = -(Math.max(site.T, site.deck ? site.T + site.deck.h : 0) + 0.6);
+  // (a luxury villa's sunken court lies behind the house; its lower ground floor is drawn dashed below it)
+  const cb = model.lower ? model.lower.court.depth : 0;
   const pts = [];
-  for (const [x, b, z] of [[-2.5, frontB - 1, 0], [W + gW + 2.5, frontB - 1, 0], [-2.5, D + 2.5, 0], [W + gW + 2.5, D + 2.5, 0], [-1.6, 0, H + 1], [W + gW, D, H + 1], [-1.6, D, H + 1], [W + gW, 0, H + 1]]) pts.push(proj(x, b, z));
+  for (const [x, b, z] of [[-2.5, frontB - 1, 0], [W + gW + 2.5, frontB - 1, 0], [-2.5, D + cb + 2.5, 0], [W + gW + 2.5, D + cb + 2.5, 0], [-1.6, 0, H + 1], [W + gW, D, H + 1], [-1.6, D, H + 1], [W + gW, 0, H + 1], ...(cb ? [[0, 0, -model.storey]] : [])]) pts.push(proj(x, b, z));
   const minX = Math.min(...pts.map((p) => p[0])), maxX = Math.max(...pts.map((p) => p[0]));
   const minY = Math.min(...pts.map((p) => p[1])), maxY = Math.max(...pts.map((p) => p[1]));
   const areaW = SHEET_W - 330 - 36 - 140;
@@ -4054,13 +5914,13 @@ export function axonometricSheet(model, sheetNo, { preview = false, typical = fa
 
   let g = "";
   // ground plate
-  g += `<polygon points="${[P(-2.5, frontB - 1, 0), P(W + gW + 2.5, frontB - 1, 0), P(W + gW + 2.5, D + 2.5, 0), P(-2.5, D + 2.5, 0)].join(" ")}" fill="#e6e7d8" fill-opacity=".8"/>`;
-  if (!preview) for (let x = -2; x <= W + gW + 2; x += 1) g += `<polyline points="${P(x, frontB - 1, 0)} ${P(x, D + 2.5, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
-  if (!preview) for (let b = Math.ceil(frontB - 1); b <= D + 2; b += 1) g += `<polyline points="${P(-2.5, b, 0)} ${P(W + gW + 2.5, b, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
+  g += `<polygon points="${[P(-2.5, frontB - 1, 0), P(W + gW + 2.5, frontB - 1, 0), P(W + gW + 2.5, D + cb + 2.5, 0), P(-2.5, D + cb + 2.5, 0)].join(" ")}" fill="#e6e7d8" fill-opacity=".8"/>`;
+  if (!preview) for (let x = -2; x <= W + gW + 2; x += 1) g += `<polyline points="${P(x, frontB - 1, 0)} ${P(x, D + cb + 2.5, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
+  if (!preview) for (let b = Math.ceil(frontB - 1); b <= D + cb + 2; b += 1) g += `<polyline points="${P(-2.5, b, 0)} ${P(W + gW + 2.5, b, 0)}" fill="none" stroke="${LIGHT}" stroke-width="0.4" stroke-opacity=".6"/>`;
   g += isoGround(model, P) + isoHouse(model, P);
 
   const what = multi(model) ? `TYPICAL ${STYLE_EN[plan.style]}, ${model.project.units} NO.` : STYLE_EN[plan.style];
-  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${what} · VIEW FROM SOUTH-WEST`);
+  g += sheetTitle("AXONOMETRIC VIEW", `${plan.title.en.toUpperCase()} · ${what} · VIEW FROM SOUTH-WEST${model.lower ? " · LOWER GROUND FLOOR DASHED" : ""}`);
   return sheet({ plan, drawing: "AXONOMETRIC VIEW", sheetNo, scaleNote: "NTS", body: g, north: false, preview });
 }
 
@@ -4080,6 +5940,19 @@ function isoGround(model, P, { shadow = true } = {}) {
     const { deck, pool } = site;
     g += poly([P(deck.x, B(deck.y), 0), P(deck.x + deck.w, B(deck.y), 0), P(deck.x + deck.w, B(deck.y + deck.h), 0), P(deck.x, B(deck.y + deck.h), 0)], "#e8dfcf", 'stroke-width="0.6"');
     g += poly([P(pool.x, B(pool.y), 0), P(pool.x + pool.w, B(pool.y), 0), P(pool.x + pool.w, B(pool.y + pool.d), 0), P(pool.x, B(pool.y + pool.d), 0)], "#8fbcc2", 'stroke-width="0.9"');
+  }
+  if (model.lower) {
+    // a luxury villa: the sunken court behind the house (its floor at the lower ground floor, the faces of its retaining
+    // walls turned to the viewer, the steps up along the far wall) and the lower ground floor's outline, dashed
+    const k = courtGeometry(model), z0 = -model.storey, zc = z0 - LG_COURT_FL, b0 = B(0), b1 = B(-k.depth);
+    g += poly([P(k.x0, b0, zc), P(k.x1, b0, zc), P(k.x1, b1, zc), P(k.x0, b1, zc)], "#d9d0bf", 'stroke-width="0.6"');
+    g += poly([P(k.x0, b1, zc), P(k.x1, b1, zc), P(k.x1, b1, 0), P(k.x0, b1, 0)], "#bdb3a2", 'stroke-width="0.7"');
+    g += poly([P(k.x1, b0, zc), P(k.x1, b1, zc), P(k.x1, b1, 0), P(k.x1, b0, 0)], "#a99f8f", 'stroke-width="0.7"');
+    const [fa, fb] = [B(k.fy0), B(k.fy1)];
+    g += poly([P(k.foot, fa, zc), P(k.head, fa, 0), P(k.head, fb, 0), P(k.foot, fb, zc)], "#e8dfcf", 'stroke-width="0.6"');
+    g += `<polyline points="${P(k.x0, b0, 0)} ${P(k.x0, b1, 0)} ${P(k.x1, b1, 0)} ${P(k.x1, b0, 0)}" fill="none" stroke="#7fa3ad" stroke-width="1.6"/>`;
+    const dash = `fill="none" stroke="${MID}" stroke-width="0.9" stroke-dasharray="6 4"`;
+    g += `<polyline points="${P(0, 0, 0)} ${P(0, 0, z0)} ${P(model.W, 0, z0)} ${P(model.W, 0, 0)}" ${dash}/><polyline points="${P(0, 0, z0)} ${P(0, D, z0)} ${P(0, D, 0)}" ${dash}/>`;
   }
   return g;
 }
@@ -4532,6 +6405,25 @@ function finishFor(style, kind) {
       return "Oak treads, glass balustrade";
     case "store":
       return "Sealed screed";
+    // a luxury villa's lower ground floor
+    case "cinema":
+      return "Acoustic carpet, fabric wall panels";
+    case "fitness":
+      return "Rubber sports flooring";
+    case "spa":
+      return "Honed travertine, anti-slip, heated";
+    case "sauna":
+      return "Aspen benches, duckboard floor";
+    case "hammam":
+      return "Marble, heated benches and floor";
+    case "wine":
+      return "Terracotta tiles, cooled to 13 °C";
+    case "plant":
+      return "Sealed screed, floor drain";
+    case "games":
+      return "Engineered oak, acoustic ceiling";
+    case "garden":
+      return "Honed travertine 60×120";
     case "hall":
       return terracotta ? "Handmade terracotta tiles" : stone ? "Honed travertine 60×120" : "Engineered oak";
     case "living":
@@ -4547,7 +6439,7 @@ function finishFor(style, kind) {
 /** Gross area of one level: the footprint less any double-height void. */
 const levelGrossArea = (model, lv) => model.W * model.D - lv.spaces.filter((sp) => sp.kind === "void").reduce((n, sp) => n + sp.w * sp.h, 0);
 /** Gross floor area of the building as drawn (checked against plan.areaM2 for buildings with a known footprint). */
-export const grossFloorArea = (model) => model.levels.reduce((n, lv) => n + levelGrossArea(model, lv), 0);
+export const grossFloorArea = (model) => model.levels.reduce((n, lv) => n + levelGrossArea(model, lv), 0) + (model.lower ? levelGrossArea(model, model.lower) : 0);
 
 export function schedules(model) {
   const ST = model.storey;
@@ -4555,13 +6447,15 @@ export function schedules(model) {
   const rooms = [];
   const doors = [];
   const windows = [];
-  model.levels.forEach((lv, li) => {
+  // every level from the bottom: a luxury villa's lower ground floor (level -1, rooms LG.01…) first
+  const levels = model.lower ? [[model.lower, -1], ...model.levels.map((lv, li) => [lv, li])] : model.levels.map((lv, li) => [lv, li]);
+  levels.forEach(([lv, li]) => {
     const byId = Object.fromEntries(lv.spaces.map((sp) => [sp.id, sp]));
     let k = 0;
     for (const sp of lv.spaces) {
       if (sp.kind === "stair" || sp.kind === "void") continue;
       const inn = inner(model, sp);
-      rooms.push({ no: `${li}.${String(++k).padStart(2, "0")}`, id: sp.id, level: li, name: sp.label, area: inn.w * inn.h, finish: finishFor(plan.style, sp.kind) });
+      rooms.push({ no: `${li < 0 ? "LG" : li}.${String(++k).padStart(2, "0")}`, id: sp.id, level: li, name: sp.label, area: inn.w * inn.h, finish: finishFor(plan.style, sp.kind) });
     }
     for (const d of lv.doors) {
       const sp = byId[d.space];
@@ -4570,11 +6464,13 @@ export function schedules(model) {
       const w = Math.min(d.w, len - 0.3);
       doors.push({
         level: li,
-        room: sp.label,
+        room: d.to ?? sp.label, // (a door hung in one room that is the way into another, d.to: named after that one)
         w,
         h: d.sliding || (d.entry && spec.slidingEntry) ? 2.7 : d.entry ? (spec.glassy ? 2.88 : 2.6) : 2.1,
         type: d.sliding || (d.entry && spec.slidingEntry)
           ? "Automatic sliding glass doors"
+          : d.glass
+          ? "Toughened glass, opening out, sauna seal"
           : d.entry
           ? "Entrance door, insulated oak"
           : sp.kind === "bath" || sp.kind === "wc" || sp.kind === "shower" ? "Internal, single leaf, privacy lock"
@@ -4593,14 +6489,16 @@ export function schedules(model) {
       const living = ["open", "living", "kitchen", "dining"].includes(sp.kind);
       const sill = lv.sill ?? (spec.glassy || (living && li === 0) ? 0.05 : 0.9);
       const head = lv.head ?? spec.head ?? (spec.glassy ? ST - 0.42 : spec.arches ? 2.75 : 2.45);
-      const type = win.w > 50 ? (STYLE_RULES[plan.style].commercial ? "Shopfront curtain wall, aluminium" : "Lift-and-slide glazing, aluminium") : spec.glassy ? "Tilt-and-turn, aluminium, low-E" : spec.arches && w <= 2.6 ? "Arched casement, oak, low-E" : "Casement, oak, low-E";
+      let type = win.w > 50 ? (STYLE_RULES[plan.style].commercial ? "Shopfront curtain wall, aluminium" : "Lift-and-slide glazing, aluminium") : spec.glassy ? "Tilt-and-turn, aluminium, low-E" : spec.arches && w <= 2.6 ? "Arched casement, oak, low-E" : "Casement, oak, low-E";
+      // (a luxury villa's ground floor window over its sunken court: a glass balustrade across it, courtStrip)
+      if (courtGuard(model, li, sp, win)) type = `${type.split(",")[0].replace(" glazing", "")}, glass guard 1.10 m`;
       windows.push({ level: li, room: sp.kind === "void" ? "SHOWROOM VOID" : sp.label, facade: FACADE[win.side], w, h: head - sill, sill, type });
     }
   });
   if (model.garage) doors.push({ level: 0, room: "GARAGE", w: model.garage.w - 0.9, h: 2.4, type: "Sectional garage door, motorised" });
   doors.forEach((d, i) => (d.no = `D${String(i + 1).padStart(2, "0")}`));
   windows.forEach((w, i) => (w.no = `W${String(i + 1).padStart(2, "0")}`));
-  const areas = model.levels.map((lv, li) => ({
+  const areas = levels.map(([lv, li]) => ({
     level: lv.name.replace(" PLAN", ""),
     nia: rooms.filter((r) => r.level === li).reduce((n, r) => n + r.area, 0),
     gea: levelGrossArea(model, lv),
@@ -4667,7 +6565,7 @@ export function scheduleSheet(model, sheetNo) {
     // repeated typical floors are listed once, numbered by their floor range (e.g. 2–4.01)
     const sig = (li) => sc.rooms.filter((r) => r.level === li).map((r) => [r.name, r.area.toFixed(1), r.finish].join("|")).join(";");
     roomRows = [];
-    for (let li = 0; li < model.levels.length; ) {
+    for (let li = model.lower ? -1 : 0; li < model.levels.length; ) {
       let last = li;
       while (last + 1 < model.levels.length && sig(last + 1) === sig(li)) last++;
       for (const r of sc.rooms.filter((rr) => rr.level === li)) roomRows.push([last > li ? `${li}–${last}${r.no.slice(r.no.indexOf("."))}` : r.no, r.name, r.area.toFixed(1), r.finish]);
@@ -4680,7 +6578,7 @@ export function scheduleSheet(model, sheetNo) {
   const dense = sc.doors.length + sc.windows.length > 34;
   const rowH = dense ? 14.5 : 17;
   const size = dense ? 9.2 : 10.5;
-  const lv = (l) => (l ? `${l}F` : "GF");
+  const lv = (l) => (l < 0 ? "LG" : l ? `${l}F` : "GF");
   const floorsOf = (items) => {
     const levels = [...new Set(items.map((w) => w.level))].sort((a, b) => a - b);
     return levels.length > 1 && levels[levels.length - 1] - levels[0] === levels.length - 1 ? `${lv(levels[0])}–${lv(levels[levels.length - 1])}` : levels.map(lv).join(", ");
@@ -4767,7 +6665,7 @@ export function coverSheet(model, renderDataUri, sheetList) {
     [multi(model) ? "Gross floor area per house" : "Gross floor area", `${plan.areaM2} m²`],
     ["Net internal area", `${sc.rooms.reduce((n, r) => n + r.area, 0).toFixed(0)} m²`],
     ["Footprint", `${W.toFixed(2)} × ${D.toFixed(2)} m`],
-    ["Levels", `${plan.floors}${model.basement ? " (incl. lower level)" : ""}`],
+    ["Levels", `${plan.floors}${model.basement ? " (incl. lower ground floor)" : ""}`],
     ...(STYLE_RULES[plan.style].residential ? [["Flats", `${model.metrics.flats}`]] : []),
     ...(STYLE_RULES[plan.style].metric === "rooms" ? [["Guest rooms", `${model.metrics.rooms}`]] : STYLE_RULES[plan.style].metric === "seats" ? [["Seats", `${model.metrics.seats}`]] : []),
     ...(STYLE_RULES[plan.style].commercial ? [["WCs", `${plan.bathrooms}`], ["Parking", `${project.layout.parking} bays`]] : [["Bedrooms / bathrooms", `${plan.bedrooms} / ${plan.bathrooms}`], ...(STYLE_RULES[plan.style].residential ? [["Parking", `${project.layout.parking} bays`]] : [])]),
@@ -4860,9 +6758,11 @@ function cadSurvey(model, level) {
 export function cadLevel(model, levelIndex) {
   const ST = model.storey;
   const { W, D, site } = model;
-  const level = model.levels[levelIndex];
+  const level = levelIndex < 0 ? model.lower : model.levels[levelIndex];
   const isGround = levelIndex === 0;
   const garage = isGround ? model.garage : null;
+  // a luxury villa's ground and lower ground floors: the sunken court behind the house, the grid and dimensions beyond it
+  const back = model.lower && levelIndex <= 0 ? model.lower.court.depth + 0.5 : 0;
   const ents = [];
   const add = (layer, e) => ents.push({ layer, ...e });
   const rectOutline = (layer, x, y, w, h, extra = {}) => add(layer, { t: "rect", x, y, w, h, ...extra });
@@ -5010,6 +6910,7 @@ export function cadLevel(model, levelIndex) {
     let cy = inn.y + inn.h / 2;
     if (sp.kind === "master" || sp.kind === "bedroom") cy = inn.y + Math.min(inn.h - 0.5, 2.6 + (inn.h - 2.6) / 2);
     if (sp.kind === "open") cy = inn.y + inn.h * 0.3;
+    if (sp.kind === "open" && sp.dineUp) cy = openPlanTagY(inn) - 0.05;
     if (sp.kind === "living") cy = inn.y + inn.h * 0.8;
     if (sp.kind === "kitchen") cy = inn.y + inn.h * 0.36;
     if (sp.kind === "dining") cy = inn.y + 0.75;
@@ -5027,9 +6928,9 @@ export function cadLevel(model, levelIndex) {
   const gx = dedupe([...new Set(level.spaces.flatMap((sp) => [r1(sp.x), r1(sp.x + sp.w)]))]);
   const gy = dedupe([...new Set(level.spaces.flatMap((sp) => [r1(sp.y), r1(sp.y + sp.h)]))]);
   gx.forEach((x, i) => {
-    add("A-GRID", { t: "line", x1: x, y1: -2.3, x2: x, y2: D + 0.4, dashed: true });
-    add("A-GRID-IDEN", { t: "circle", cx: x, cy: -2.62, r: 0.32 });
-    add("A-GRID-IDEN", { t: "text", x, y: -2.62, h: 0.26, text: String(i + 1), middle: true });
+    add("A-GRID", { t: "line", x1: x, y1: -2.3 - back, x2: x, y2: D + 0.4, dashed: true });
+    add("A-GRID-IDEN", { t: "circle", cx: x, cy: -2.62 - back, r: 0.32 });
+    add("A-GRID-IDEN", { t: "text", x, y: -2.62 - back, h: 0.26, text: String(i + 1), middle: true });
   });
   gy.forEach((y, i) => {
     add("A-GRID", { t: "line", x1: -2.3, y1: y, x2: W + 0.4, y2: y, dashed: true });
@@ -5038,12 +6939,41 @@ export function cadLevel(model, levelIndex) {
   });
 
   // dimension chains (detailed at 0.9 m, overall at 1.6 m)
-  const back = [...new Set([0, W, ...level.spaces.filter((sp) => sp.y < 0.01).flatMap((sp) => [sp.x, sp.x + sp.w])].map(r1))].sort((a, b) => a - b);
+  const rear = [...new Set([0, W, ...level.spaces.filter((sp) => sp.y < 0.01).flatMap((sp) => [sp.x, sp.x + sp.w])].map(r1))].sort((a, b) => a - b);
   const left = [...new Set([0, D, ...level.spaces.filter((sp) => sp.x < 0.01).flatMap((sp) => [sp.y, sp.y + sp.h])].map(r1))].sort((a, b) => a - b);
-  add("A-ANNO-DIMS", { t: "dim", axis: "x", at: -0.9, points: back });
-  add("A-ANNO-DIMS", { t: "dim", axis: "x", at: -1.6, points: [0, W, ...(garage ? [W + garage.w] : [])] });
+  add("A-ANNO-DIMS", { t: "dim", axis: "x", at: -0.9 - back, points: rear });
+  add("A-ANNO-DIMS", { t: "dim", axis: "x", at: -1.6 - back, points: [0, W, ...(garage ? [W + garage.w] : [])] });
   add("A-ANNO-DIMS", { t: "dim", axis: "y", at: -0.9, points: left });
   add("A-ANNO-DIMS", { t: "dim", axis: "y", at: -1.6, points: [0, D] });
+
+  // the sunken court: its floor, retaining walls (cut on the lower ground floor), steps up to the garden and planting
+  if (back) {
+    const k = courtGeometry(model), { x0, x1, depth: cd, T } = k, lower = levelIndex < 0;
+    rectOutline("L-PAVE", x0, -cd, x1 - x0, cd);
+    for (const [wx, wy, ww, wh] of [[x0, -cd, T, cd], [x1 - T, -cd, T, cd], [x0, -cd, k.land[0] - x0, T], [k.land[1], -cd, x1 - k.land[1], T]]) {
+      if (ww <= 0.01) continue;
+      if (lower) add("A-WALL-PATT", { t: "solid", x: wx, y: wy, w: ww, h: wh });
+      rectOutline(lower ? "A-WALL" : "L-PAVE", wx, wy, ww, wh);
+    }
+    rectOutline("L-PAVE", Math.min(k.foot, k.head), k.fy0, k.L, k.fy1 - k.fy0);
+    rectOutline("L-PAVE", k.land[0], k.fy0, 1.2, k.fy1 - k.fy0);
+    for (let i = 1; i < LG_STEPS - 1; i++) add("L-PAVE", { t: "line", x1: k.foot + ((k.right ? -1 : 1) * k.L * i) / (LG_STEPS - 1), y1: k.fy0, x2: k.foot + ((k.right ? -1 : 1) * k.L * i) / (LG_STEPS - 1), y2: k.fy1 });
+    if (k.bed[1] - k.bed[0] > 1.6) rectOutline("L-PLNT", k.bed[0], k.fy0 + 0.05, k.bed[1] - k.bed[0], 0.9);
+    if (!lower) add("A-GLAZ", { t: "poly", pts: [[x0 + T / 2, 0], [x0 + T / 2, -cd + T / 2], [k.land[0], -cd + T / 2]] }), add("A-GLAZ", { t: "poly", pts: [[k.land[1], -cd + T / 2], [x1 - T / 2, -cd + T / 2], [x1 - T / 2, 0]] });
+    // the ground floor: a glass balustrade across each window over the court (courtGuard); the court: its drain
+    if (!lower) for (const w of level.windows) {
+      const sp = spaceById[w.space];
+      if (!sp || !courtGuard(model, levelIndex, sp, w)) continue;
+      const ww = Math.min(w.w, sp.w - 0.6), c = sp.x + w.at * sp.w;
+      add("A-GLAZ", { t: "line", x1: c - ww / 2, y1: -0.12, x2: c + ww / 2, y2: -0.12 });
+    }
+    if (lower) rectOutline("L-PAVE", x0 + T + 0.15, -0.38, x1 - x0 - 2 * T - 0.3, 0.12), add("A-ANNO-TEXT", { t: "text", x: x0 + T + 0.3, y: -0.5, h: 0.12, text: "LINEAR DRAIN" });
+    const fl = (model.storey + LG_COURT_FL).toFixed(2);
+    add("A-ANNO-TEXT", { t: "text", x: (x0 + x1) / 2, y: k.fy1 / 2, h: 0.22, text: lower ? `SUNKEN COURT -${fl}` : `SUNKEN COURT BELOW -${fl}, GLASS BALUSTRADE H=1.10 TO THE WINDOWS OVER IT`, middle: true });
+    add("A-ANNO-TEXT", { t: "text", x: (k.foot + k.head) / 2, y: k.fy1 + 0.35, h: 0.16, text: lower ? `${LG_STEPS} STEPS UP TO GARDEN` : "STEPS DOWN TO COURT", middle: true });
+  }
+  for (const sp of level.spaces) if (sp.kind === "stair" && sp.flight?.form) for (const l of stairLabels(inner(model, sp), sp.flight)) add("A-ANNO-TEXT", { t: "text", x: l.x, y: l.y + 0.06, h: 0.16, text: l.text.replace(" · ", " / "), middle: true });
+  for (const sp of level.spaces) if (sp.kind === "stair" && sp.travel && !sp.flight?.form) add("A-ANNO-TEXT", { t: "text", x: inner(model, sp).x + inner(model, sp).w / 2, y: inner(model, sp).y + inner(model, sp).h - 0.35, h: 0.16, text: sp.travel.replace("·", "/"), middle: true });
 
   // outdoor areas
   if (isGround) {
@@ -5093,7 +7023,7 @@ export function cadLevel(model, levelIndex) {
   return {
     name: level.name,
     ffl: levelIndex * ST,
-    extents: { x0: -3.2, y0: -3.2, x1: Math.max(extW, W + (level.canopy ? 1.6 : 0)) + 1, y1: D + front + 2 },
+    extents: { x0: -3.2, y0: -3.2 - back, x1: Math.max(extW, W + (level.canopy ? 1.6 : 0)) + 1, y1: D + front + 2 },
     entities: ents,
   };
 }
@@ -5149,6 +7079,8 @@ export function cadModel(model) {
   const { plan } = model;
   const levels = model.levels.map((_, i) => cadLevel(model, i));
   if (model.project) levels.forEach((lv, i) => Object.assign(lv, { name: multi(model) ? `TYPICAL HOUSE - ${lv.name}` : lv.name, sheet: `A-10${i + 1}` }));
+  // a luxury villa's lower ground floor first, numbered with the plan sheets (planSheets): A-101, A-102…
+  if (model.lower) levels.unshift(cadLevel(model, -1)), levels.forEach((lv, i) => (lv.sheet = `A-10${i + 1}`));
   return {
     slug: plan.slug,
     title: plan.title.en,
@@ -6040,7 +7972,7 @@ const patternFill = (p, prefix = "ip") => (p && p !== "plain" ? `url(#${prefix}-
 // ------------------------------------------------------------------ ceiling and lighting layout
 
 /** Pendants over tables, islands, counters and beside beds (plan metres), matching the furniture drawn on the plans. */
-function pendantsFor(kind, r) {
+function pendantsFor(kind, r, sp = {}) {
   const { x, y, w, h } = r;
   const out = [];
   if (kind === "dining" && w > 3 && h > 3) out.push([x + w / 2 - 0.55, y + h / 2], [x + w / 2 + 0.55, y + h / 2]);
@@ -6048,7 +7980,10 @@ function pendantsFor(kind, r) {
     const iw = Math.min(2.6, w - 2.0), ix = x + (w - iw) / 2 + 0.3;
     out.push([ix + iw * 0.25, y + h * 0.5 + 0.47], [ix + iw * 0.75, y + h * 0.5 + 0.47]);
   }
-  if (kind === "open" && h > 6) out.push([x + w / 2 - 0.5, y + h * 0.45 + 0.5], [x + w / 2 + 0.5, y + h * 0.45 + 0.5]);
+  if (kind === "open" && h > 6) {
+    const { ty } = openPlanDining(r, sp.dineUp);
+    out.push([x + w / 2 - 0.5, ty], [x + w / 2 + 0.5, ty]);
+  }
   if (kind === "master" || kind === "bedroom") {
     const bw = kind === "master" ? 1.8 : w < 2.6 ? 0.9 : 1.6;
     if (w >= bw + 0.4 && h >= 2.65) {
@@ -6089,7 +8024,7 @@ function ceilingLayout(model, level) {
     const wet = WET_KINDS.includes(sp.kind);
     const cove = COVE_KINDS.includes(sp.kind) && r.w > 3 && r.h > 3;
     if (cove) out.cove.push({ x: r.x + 0.45, y: r.y + 0.45, w: r.w - 0.9, h: r.h - 0.9 });
-    const pend = pendantsFor(sp.kind, r);
+    const pend = pendantsFor(sp.kind, r, sp);
     out.pend.push(...pend);
     if (sp.kind === "boutique" || sp.kind === "showroom") {
       for (const f of [0.3, 0.62]) out.track.push({ x1: r.x + 0.8, y1: r.y + r.h * f, x2: r.x + r.w - 0.8, y2: r.y + r.h * f });
@@ -6147,7 +8082,7 @@ const SYM = {
 // ------------------------------------------------------------------ cutaway axonometric
 
 /** Loose furniture and built-ins of a room as boxes: [x, y, w, h, z0, z1, material] in plan metres. */
-function furnitureBlocks(kind, r) {
+function furnitureBlocks(kind, r, sp = {}) {
   const { x, y, w, h } = r;
   const B = [];
   const add = (bx, by, bw, bh, z0, z1, c) => bw > 0.05 && bh > 0.05 && B.push([bx, by, bw, bh, z0, z1, c]);
@@ -6193,8 +8128,9 @@ function furnitureBlocks(kind, r) {
     case "open": {
       const kl = Math.min(w - 0.4, 4.2);
       add(x + 0.1, y + 0.05, kl, 0.62, 0, 0.9, "wood");
-      if (h > 5.5 && w > 2.6) add(x + 0.1 + (kl - 2.2) / 2, y + 1.55, 2.2, 0.9, 0, 0.9, "stone");
-      if (h > 6) table(x + w / 2, y + h * 0.45 + 0.5, Math.min(2.0, w - 1.6), 3);
+      const { ty, island } = openPlanDining(r, sp.dineUp);
+      if (island) add(x + 0.1 + (kl - 2.2) / 2, y + 1.55, 2.2, 0.9, 0, 0.9, "stone");
+      if (h > 6) table(x + w / 2, ty, Math.min(2.0, w - 1.6), 3);
       const sw = Math.min(2.8, w - 1);
       const sy = y + h - 2.6;
       add(x + (w - sw) / 2, sy, sw, 0.95, 0, 0.75, "fabric");
@@ -6360,7 +8296,7 @@ export function cutawaySheet(model, sheetNo, { preview = false, bare = false } =
       const along = e.w >= e.h, len = along ? e.w : e.h, n = Math.max(1, Math.round(len / 1.0));
       for (let k = 0; k < n; k++) boxes.push(along ? [e.x + (e.w * k) / n, e.y, e.w / n, e.h, 0, cut, "wallcut"] : [e.x, e.y + (e.h * k) / n, e.w, e.h / n, 0, cut, "wallcut"]);
     }
-    for (const sp of level.spaces) for (const b of furnitureBlocks(sp.kind, inner(model, sp))) boxes.push(b);
+    for (const sp of level.spaces) for (const b of furnitureBlocks(sp.kind, inner(model, sp), sp)) boxes.push(b);
     boxes.sort((a, b) => a[0] + a[2] / 2 + (D - a[1] - a[3] / 2) - (b[0] + b[2] / 2 + (D - b[1] - b[3] / 2)) || a[4] - b[4]).reverse();
     for (const [bx, by, bw, bh, z0, z1, c] of boxes) {
       const base = c === "wallcut" ? col.wall : col[c] ?? col.white;
