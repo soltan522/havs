@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -7,9 +8,17 @@ import { COPY, specsLine } from "@/lib/copy";
 import { visitorCurrency } from "@/lib/geo";
 import { pricedAreaM2 } from "@/lib/pricing";
 import { isLocale } from "@/lib/i18n";
+import { languageAlternates } from "@/lib/meta";
 import { formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
 
 type Search = { style?: string; floors?: string; sort?: string };
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const c = COPY[lang];
+  return { title: c.catalogTitle, description: c.catalogLead, alternates: languageAlternates("/plans") };
+}
 
 export default async function Catalogue({
   params,

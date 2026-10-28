@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { Footer, Header } from "@/components";
 import AutoRefresh from "@/components/AutoRefresh";
 import { COPY } from "@/lib/copy";
@@ -8,7 +9,15 @@ import { isLocale, UI } from "@/lib/i18n";
 import { deliverables, findPlan, formatPrice } from "@/lib/plans";
 import { getOrder } from "@/lib/store";
 
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+// one order lookup per request, shared by generateMetadata and the page
+const loadOrder = cache(getOrder);
+
+// a fixed "Order" title; an unknown order is a 404 here already, so the 404 page's own title is used
+export async function generateMetadata({ params }: { params: Promise<{ lang: string; id: string }> }): Promise<Metadata> {
+  const { lang, id } = await params;
+  if (!isLocale(lang) || !(await loadOrder(id))) notFound();
+  return { title: COPY[lang].order.number, robots: { index: false, follow: false } };
+}
 
 const size = (bytes: number) => (bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`);
 const EXT = { pdf: "PDF", dwg: "DWG", cad: "DXF" } as const;
@@ -17,7 +26,7 @@ const EXT = { pdf: "PDF", dwg: "DWG", cad: "DXF" } as const;
 export default async function OrderPage({ params }: { params: Promise<{ lang: string; id: string }> }) {
   const { lang, id } = await params;
   if (!isLocale(lang)) notFound();
-  const order = await getOrder(id);
+  const order = await loadOrder(id);
   if (!order) notFound();
   const plan = findPlan(order.plan_slug);
   const c = COPY[lang];

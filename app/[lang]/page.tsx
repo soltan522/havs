@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,7 +12,15 @@ import { COPY, specsLine } from "@/lib/copy";
 import { visitorCurrency } from "@/lib/geo";
 import { isLocale } from "@/lib/i18n";
 import { LANDING } from "@/lib/landing";
+import { languageAlternates } from "@/lib/meta";
 import { areaText, coverOf, formatPrice, planLabel, publishedPlans, STYLE_LABELS, type PlanStyle } from "@/lib/plans";
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  // the title is the layout's default (the site name in this locale)
+  return { description: LANDING[lang].heroText, alternates: languageAlternates("") };
+}
 
 export default async function Landing({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;

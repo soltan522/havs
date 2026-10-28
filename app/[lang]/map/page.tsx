@@ -78,7 +78,7 @@ function areaOf([lng, lat]: [number, number]): MapArea {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLocale(lang)) return {};
+  if (!isLocale(lang)) notFound();
   const t = TEXT[lang];
   return {
     title: t.title,

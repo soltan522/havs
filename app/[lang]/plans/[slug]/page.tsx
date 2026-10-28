@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -7,11 +8,28 @@ import PackagePanel from "@/components/PackagePanel";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { COPY, planSheetName } from "@/lib/copy";
 import { isLocale, UI } from "@/lib/i18n";
+import { languageAlternates } from "@/lib/meta";
 import { placeOf } from "@/lib/places";
 import { visitorCurrency } from "@/lib/geo";
-import { findPlan, formatNumber, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isCustomDrawn, isResidential, PALETTE_LABELS, planLabel, priceBasis, type GalleryItem } from "@/lib/plans";
+import { coverOf, findPlan, formatNumber, formatPrice, INTERIOR_TYPE_LABELS, isCommercial, isCommercialInterior, isCustomDrawn, isResidential, PALETTE_LABELS, planLabel, priceBasis, type GalleryItem } from "@/lib/plans";
 
 const LOCKED = new Set(["schedules"]);
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
+  const { lang, slug } = await params;
+  if (!isLocale(lang)) notFound();
+  const plan = findPlan(slug);
+  if (!plan) notFound();
+  const title = plan.title[lang];
+  const description = plan.summary[lang];
+  const cover = coverOf(plan);
+  return {
+    title,
+    description,
+    alternates: languageAlternates(`/plans/${slug}`),
+    openGraph: { title, description, ...(cover ? { images: [{ url: cover, alt: title }] } : {}) },
+  };
+}
 
 export default async function PlanPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params;
