@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components";
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { isLocale } from "@/lib/i18n";
-import { languageAlternates } from "@/lib/meta";
+import { pageMetadata } from "@/lib/meta";
 import { PARTNERS } from "@/lib/partners";
 import { coverOf, publishedPlans } from "@/lib/plans";
 
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   if (!isLocale(lang)) notFound();
   const t = PARTNERS[lang];
   // the eyebrow is the page's name ("Partners"); the heading is a two-line slogan
-  return { title: t.eyebrow, description: t.lead, alternates: languageAlternates("/partners") };
+  return pageMetadata(lang, "/partners", { title: t.eyebrow, description: t.lead });
 }
 
 export default async function PartnersPage({ params }: { params: Promise<{ lang: string }> }) {
