@@ -5,6 +5,7 @@ import ProjectsMap, { type MapArea, type MapItem, type MapText } from "@/compone
 import Reveal, { MaskLines } from "@/components/Reveal";
 import { specsLine } from "@/lib/copy";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/meta";
 import CITY from "@/public/tiles/buildings/index.json";
 import { districtsIn } from "@/lib/districts";
 import { landmarksIn } from "@/lib/landmarks";
@@ -80,11 +81,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = TEXT[lang];
-  return {
-    title: t.title,
-    description: t.lead,
-    alternates: { languages: { az: "/az/map", en: "/en/map", ru: "/ru/map" } },
-  };
+  return pageMetadata(lang, "/map", { title: t.title, description: t.lead });
 }
 
 export default async function MapPage({ params }: { params: Promise<{ lang: string }> }) {

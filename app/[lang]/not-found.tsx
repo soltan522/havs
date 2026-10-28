@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { lang as rootLang } from "next/root-params";
-import { Footer, Header } from "@/components";
+import NotFoundPage from "@/components/NotFoundPage";
 import { NOT_FOUND } from "@/lib/content";
-import { DEFAULT_LOCALE, isLocale, UI, type Locale } from "@/lib/i18n";
+import { DEFAULT_LOCALE, isLocale, type Locale } from "@/lib/i18n";
 
 async function locale(): Promise<Locale> {
   const value = await rootLang();
@@ -15,23 +14,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * 404 inside a locale (an unknown villa, order, address such as /en/xyz, or locale such as /xyz), rendered in the site's
- * own layout. Its title comes from generateMetadata above: the pages call notFound() in their generateMetadata too.
+ * The 404 page for a notFound() thrown while a page renders: an unknown order, or an address proxy.ts did not see.
+ * Next sends such a 404 as an empty document and this page appears once JavaScript has run; every address known to be
+ * missing gets the same page rendered on the server instead (proxy.ts, app/[lang]/[...missing]).
  */
 export default async function NotFound() {
-  const lang = await locale();
-  const t = NOT_FOUND[lang];
-  return (
-    <>
-      <Header locale={lang} path="" />
-      <main className="wrap info">
-        <h1>{t.title}</h1>
-        <p className="lead muted">{t.text}</p>
-        <p>
-          <Link href={`/${lang}/plans`}>{UI[lang].backToCatalog}</Link>
-        </p>
-      </main>
-      <Footer locale={lang} />
-    </>
-  );
+  return <NotFoundPage locale={await locale()} />;
 }
