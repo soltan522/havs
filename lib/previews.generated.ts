@@ -7422,5 +7422,645 @@ export const PREVIEWS: Record<string, { cover: string; hover: string; sheets: { 
         "kind": "schedules"
       }
     ]
+  },
+  "sadarak-214": {
+    "cover": "/plans/sadarak-214/cover.jpg",
+    "hover": "/plans/sadarak-214/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/sadarak-214/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sadarak-214/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/sadarak-214/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/sadarak-214/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/sadarak-214/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/sadarak-214/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/sadarak-214/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "goytepe-215": {
+    "cover": "/plans/goytepe-215/cover.jpg",
+    "hover": "/plans/goytepe-215/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/goytepe-215/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/goytepe-215/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/goytepe-215/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/goytepe-215/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/goytepe-215/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/goytepe-215/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/goytepe-215/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "qirmizi-qasaba-216": {
+    "cover": "/plans/qirmizi-qasaba-216/cover.jpg",
+    "hover": "/plans/qirmizi-qasaba-216/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/qirmizi-qasaba-216/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/qirmizi-qasaba-216/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/qirmizi-qasaba-216/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/qirmizi-qasaba-216/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/qirmizi-qasaba-216/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/qirmizi-qasaba-216/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/qirmizi-qasaba-216/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "beshbarmag-217": {
+    "cover": "/plans/beshbarmag-217/cover.jpg",
+    "hover": "/plans/beshbarmag-217/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/beshbarmag-217/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/beshbarmag-217/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/beshbarmag-217/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/beshbarmag-217/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/beshbarmag-217/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/beshbarmag-217/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/beshbarmag-217/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "aghali-218": {
+    "cover": "/plans/aghali-218/cover.jpg",
+    "hover": "/plans/aghali-218/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/aghali-218/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/aghali-218/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/aghali-218/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/aghali-218/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/aghali-218/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/aghali-218/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/aghali-218/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "bum-219": {
+    "cover": "/plans/bum-219/cover.jpg",
+    "hover": "/plans/bum-219/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/bum-219/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/bum-219/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/bum-219/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/bum-219/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/bum-219/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/bum-219/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "khojahasan-220": {
+    "cover": "/plans/khojahasan-220/cover.jpg",
+    "hover": "/plans/khojahasan-220/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/khojahasan-220/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/khojahasan-220/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/khojahasan-220/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/khojahasan-220/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/khojahasan-220/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/khojahasan-220/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "malham-221": {
+    "cover": "/plans/malham-221/cover.jpg",
+    "hover": "/plans/malham-221/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/malham-221/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/malham-221/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/malham-221/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/malham-221/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/malham-221/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/malham-221/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "gizmeydan-222": {
+    "cover": "/plans/gizmeydan-222/cover.jpg",
+    "hover": "/plans/gizmeydan-222/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/gizmeydan-222/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/gizmeydan-222/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/gizmeydan-222/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/gizmeydan-222/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/gizmeydan-222/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/gizmeydan-222/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "sarisu-223": {
+    "cover": "/plans/sarisu-223/cover.jpg",
+    "hover": "/plans/sarisu-223/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/sarisu-223/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/sarisu-223/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/sarisu-223/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/sarisu-223/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/sarisu-223/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/sarisu-223/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/sarisu-223/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "jek-224": {
+    "cover": "/plans/jek-224/cover.jpg",
+    "hover": "/plans/jek-224/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/jek-224/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/jek-224/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/jek-224/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/jek-224/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/jek-224/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/jek-224/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/jek-224/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "zeyzid-225": {
+    "cover": "/plans/zeyzid-225/cover.jpg",
+    "hover": "/plans/zeyzid-225/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/zeyzid-225/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/zeyzid-225/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/zeyzid-225/lower.jpg",
+        "kind": "lower"
+      },
+      {
+        "src": "/plans/zeyzid-225/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/zeyzid-225/plan-1.jpg",
+        "kind": "plan-1"
+      },
+      {
+        "src": "/plans/zeyzid-225/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/zeyzid-225/section.jpg",
+        "kind": "section"
+      },
+      {
+        "src": "/plans/zeyzid-225/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/zeyzid-225/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "keshla-226": {
+    "cover": "/plans/keshla-226/cover.jpg",
+    "hover": "/plans/keshla-226/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/keshla-226/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/keshla-226/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/keshla-226/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/keshla-226/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/keshla-226/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/keshla-226/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "muqtadir-227": {
+    "cover": "/plans/muqtadir-227/cover.jpg",
+    "hover": "/plans/muqtadir-227/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/muqtadir-227/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/muqtadir-227/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/muqtadir-227/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/muqtadir-227/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/muqtadir-227/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/muqtadir-227/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "aghchay-228": {
+    "cover": "/plans/aghchay-228/cover.jpg",
+    "hover": "/plans/aghchay-228/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/aghchay-228/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/aghchay-228/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/aghchay-228/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/aghchay-228/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/aghchay-228/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/aghchay-228/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "garadagh-229": {
+    "cover": "/plans/garadagh-229/cover.jpg",
+    "hover": "/plans/garadagh-229/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/garadagh-229/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/garadagh-229/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/garadagh-229/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/garadagh-229/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/garadagh-229/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/garadagh-229/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "darnagul-230": {
+    "cover": "/plans/darnagul-230/cover.jpg",
+    "hover": "/plans/darnagul-230/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/darnagul-230/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/darnagul-230/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/darnagul-230/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/darnagul-230/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/darnagul-230/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/darnagul-230/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "narimanabad-231": {
+    "cover": "/plans/narimanabad-231/cover.jpg",
+    "hover": "/plans/narimanabad-231/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/narimanabad-231/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/narimanabad-231/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/narimanabad-231/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/narimanabad-231/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/narimanabad-231/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/narimanabad-231/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "zurnabad-232": {
+    "cover": "/plans/zurnabad-232/cover.jpg",
+    "hover": "/plans/zurnabad-232/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/zurnabad-232/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/zurnabad-232/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/zurnabad-232/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/zurnabad-232/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/zurnabad-232/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/zurnabad-232/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
+  },
+  "aylis-233": {
+    "cover": "/plans/aylis-233/cover.jpg",
+    "hover": "/plans/aylis-233/cover-2.jpg",
+    "sheets": [
+      {
+        "src": "/plans/aylis-233/render-01.jpg",
+        "kind": "render"
+      },
+      {
+        "src": "/plans/aylis-233/site.jpg",
+        "kind": "site"
+      },
+      {
+        "src": "/plans/aylis-233/plan-0.jpg",
+        "kind": "plan-0"
+      },
+      {
+        "src": "/plans/aylis-233/elevation.jpg",
+        "kind": "elevation"
+      },
+      {
+        "src": "/plans/aylis-233/axonometric.jpg",
+        "kind": "axonometric"
+      },
+      {
+        "src": "/plans/aylis-233/schedules.jpg",
+        "kind": "schedules"
+      }
+    ]
   }
 };

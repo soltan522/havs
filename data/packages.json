@@ -4662,5 +4662,445 @@
     ],
     "sheets": 7,
     "builtAt": "2026-11-01"
+  },
+  "sadarak-214": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sadarak-214-drawings.pdf",
+        "bytes": 686895,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sadarak-214.dwg",
+        "bytes": 68702
+      },
+      {
+        "kind": "cad",
+        "name": "sadarak-214.dxf",
+        "bytes": 167711
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "goytepe-215": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "goytepe-215-drawings.pdf",
+        "bytes": 508087,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "goytepe-215.dwg",
+        "bytes": 96687
+      },
+      {
+        "kind": "cad",
+        "name": "goytepe-215.dxf",
+        "bytes": 262582
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "qirmizi-qasaba-216": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "qirmizi-qasaba-216-drawings.pdf",
+        "bytes": 712994,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "qirmizi-qasaba-216.dwg",
+        "bytes": 83942
+      },
+      {
+        "kind": "cad",
+        "name": "qirmizi-qasaba-216.dxf",
+        "bytes": 211373
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "beshbarmag-217": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "beshbarmag-217-drawings.pdf",
+        "bytes": 621160,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "beshbarmag-217.dwg",
+        "bytes": 86777
+      },
+      {
+        "kind": "cad",
+        "name": "beshbarmag-217.dxf",
+        "bytes": 230831
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "aghali-218": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "aghali-218-drawings.pdf",
+        "bytes": 741691,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "aghali-218.dwg",
+        "bytes": 84848
+      },
+      {
+        "kind": "cad",
+        "name": "aghali-218.dxf",
+        "bytes": 220748
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "bum-219": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bum-219-drawings.pdf",
+        "bytes": 687242,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "bum-219.dwg",
+        "bytes": 65373
+      },
+      {
+        "kind": "cad",
+        "name": "bum-219.dxf",
+        "bytes": 159979
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "khojahasan-220": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "khojahasan-220-drawings.pdf",
+        "bytes": 643633,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "khojahasan-220.dwg",
+        "bytes": 71094
+      },
+      {
+        "kind": "cad",
+        "name": "khojahasan-220.dxf",
+        "bytes": 175843
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "malham-221": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "malham-221-drawings.pdf",
+        "bytes": 756841,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "malham-221.dwg",
+        "bytes": 57145
+      },
+      {
+        "kind": "cad",
+        "name": "malham-221.dxf",
+        "bytes": 137755
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "gizmeydan-222": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gizmeydan-222-drawings.pdf",
+        "bytes": 680988,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gizmeydan-222.dwg",
+        "bytes": 70581
+      },
+      {
+        "kind": "cad",
+        "name": "gizmeydan-222.dxf",
+        "bytes": 174661
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "sarisu-223": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sarisu-223-drawings.pdf",
+        "bytes": 598598,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sarisu-223.dwg",
+        "bytes": 79090
+      },
+      {
+        "kind": "cad",
+        "name": "sarisu-223.dxf",
+        "bytes": 201362
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "jek-224": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "jek-224-drawings.pdf",
+        "bytes": 656414,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "jek-224.dwg",
+        "bytes": 82063
+      },
+      {
+        "kind": "cad",
+        "name": "jek-224.dxf",
+        "bytes": 206103
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-02"
+  },
+  "zeyzid-225": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zeyzid-225-drawings.pdf",
+        "bytes": 708999,
+        "pages": 9
+      },
+      {
+        "kind": "dwg",
+        "name": "zeyzid-225.dwg",
+        "bytes": 97087
+      },
+      {
+        "kind": "cad",
+        "name": "zeyzid-225.dxf",
+        "bytes": 245906
+      }
+    ],
+    "sheets": 9,
+    "builtAt": "2026-11-02"
+  },
+  "keshla-226": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "keshla-226-drawings.pdf",
+        "bytes": 589287,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "keshla-226.dwg",
+        "bytes": 47819
+      },
+      {
+        "kind": "cad",
+        "name": "keshla-226.dxf",
+        "bytes": 114271
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "muqtadir-227": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "muqtadir-227-drawings.pdf",
+        "bytes": 676457,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "muqtadir-227.dwg",
+        "bytes": 66693
+      },
+      {
+        "kind": "cad",
+        "name": "muqtadir-227.dxf",
+        "bytes": 165980
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "aghchay-228": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "aghchay-228-drawings.pdf",
+        "bytes": 668677,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "aghchay-228.dwg",
+        "bytes": 62098
+      },
+      {
+        "kind": "cad",
+        "name": "aghchay-228.dxf",
+        "bytes": 151594
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "garadagh-229": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "garadagh-229-drawings.pdf",
+        "bytes": 588131,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "garadagh-229.dwg",
+        "bytes": 67112
+      },
+      {
+        "kind": "cad",
+        "name": "garadagh-229.dxf",
+        "bytes": 167021
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "darnagul-230": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "darnagul-230-drawings.pdf",
+        "bytes": 605811,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "darnagul-230.dwg",
+        "bytes": 66314
+      },
+      {
+        "kind": "cad",
+        "name": "darnagul-230.dxf",
+        "bytes": 162617
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "narimanabad-231": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "narimanabad-231-drawings.pdf",
+        "bytes": 587303,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "narimanabad-231.dwg",
+        "bytes": 47362
+      },
+      {
+        "kind": "cad",
+        "name": "narimanabad-231.dxf",
+        "bytes": 111527
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "zurnabad-232": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "zurnabad-232-drawings.pdf",
+        "bytes": 774210,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "zurnabad-232.dwg",
+        "bytes": 68006
+      },
+      {
+        "kind": "cad",
+        "name": "zurnabad-232.dxf",
+        "bytes": 168281
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
+  },
+  "aylis-233": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "aylis-233-drawings.pdf",
+        "bytes": 717769,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "aylis-233.dwg",
+        "bytes": 67308
+      },
+      {
+        "kind": "cad",
+        "name": "aylis-233.dxf",
+        "bytes": 167583
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-02"
   }
 }
