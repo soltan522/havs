@@ -7355,5 +7355,672 @@
     "published": true,
     "demo": true,
     "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey stone-and-white minimal villa, crisp white plastered cubes set on walls of rough reddish-brown local stone, a flat roof with a roof terrace behind a low white parapet facing the mountains, deeply recessed glazing in thin anthracite frames, no garage, rectangular swimming pool with warm red stone deck in front of the house, apricot and mulberry orchards on stepped terraces, two slim cypresses and a dry-stone wall, the old stone village of Aylis in Ordubad below the bare ochre and red Zangezur mountains, warm clear afternoon light with sharp shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "bandovan-234",
+    "style": "yali",
+    "roof": "hip",
+    "inspiration": "bosphorus-yali",
+    "mirror": true,
+    "title": {
+      "az": "Bəndovan Villası",
+      "en": "Bandovan Villa",
+      "ru": "Вилла Бяндован"
+    },
+    "summary": {
+      "az": "Xəzər sahilində, Bəndovan burnunda ikimərtəbəli yalı üslubunda taxta villa: oxra rəngə boyanmış taxta üzlük, ağ haşiyəli hündür pəncərələr ritmi, dərin saçaqlı şifer dördyamaclı dam və dənizə baxan uzun eyvan. Altı yataq otağı, qarajsız, daş rıhtım boyunca hovuz; qamışlıq, tamarisk kolları və açıq dəniz üfüqü.",
+      "en": "A two-storey yalı-style timber villa on the Caspian shore at Cape Bandovan: ochre-painted weatherboarding, a rhythm of tall white-trimmed windows, a slate hip roof with deep eaves and a long balcony facing the sea. Six bedrooms, no garage and a pool along a stone quay; reed beds, tamarisk shrubs and an open sea horizon.",
+      "ru": "Двухэтажная деревянная вилла в стиле ялы на каспийском берегу у мыса Бяндован: обшивка, окрашенная в охристый цвет, ритм высоких окон с белыми наличниками, вальмовая сланцевая кровля с глубокими свесами и длинный балкон с видом на море. Шесть спален, без гаража, бассейн вдоль каменной набережной; тростник, кусты тамариска и открытый морской горизонт."
+    },
+    "areaM2": 495,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": false,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.8,
+    "location": [
+      49.36,
+      39.82
+    ],
+    "priceCents": 1485000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey Bosphorus yali-style timber villa, ochre-painted timber weatherboarding with crisp white trim, tall timber sash windows in an even rhythm on both floors, slate hip roof with deep eaves on carved brackets, a long upper balcony with white turned balusters facing the sea, no garage, rectangular swimming pool with pale limestone deck in front of the house along a stone quay, tall reed beds and feathery tamarisk shrubs, a timber jetty reaching into calm water, the open Caspian at Cape Bandovan under a wide sky, soft morning light with a pale gold sea and light haze, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "varvara-235",
+    "style": "yali",
+    "roof": "hip",
+    "inspiration": "bosphorus-yali",
+    "mirror": true,
+    "title": {
+      "az": "Varvara Villası",
+      "en": "Varvara Villa",
+      "ru": "Вилла Варвара"
+    },
+    "summary": {
+      "az": "Mingəçevir su anbarı yaxınlığında, Varvarada Kür sahilində ikimərtəbəli yalı üslubunda villa: açıq yaşımtıl-boz rəngə boyanmış taxta üzlük, sıralanmış hündür taxta pəncərələr, dərin saçaqlı şifer dördyamaclı dam və suya baxan eyvan. Yeddi yataq otağı, sağ tərəfdə bitişik ikiyerlik qaraj, sahil terrasında hovuz; söyüdlər, daş rıhtım və sakit çay.",
+      "en": "A two-storey yalı-style villa on the Kura bank at Varvara near the Mingachevir reservoir: pale sage-grey painted weatherboarding, tall timber windows in rhythm, a slate hip roof with deep eaves and a balcony over the water. Seven bedrooms, an attached double garage on the right and a pool on the riverside terrace; willows, a stone quay and the calm river.",
+      "ru": "Двухэтажная вилла в стиле ялы на берегу Куры в Варваре у Мингечевирского водохранилища: обшивка, окрашенная в светлый серо-шалфейный цвет, ритм высоких деревянных окон, вальмовая сланцевая кровля с глубокими свесами и балкон над водой. Семь спален, пристроенный гараж на две машины справа, бассейн на береговой террасе; ивы, каменная набережная и спокойная река."
+    },
+    "areaM2": 600,
+    "floors": 2,
+    "bedrooms": 7,
+    "bathrooms": 7,
+    "garage": true,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.9,
+    "location": [
+      47.07,
+      40.73
+    ],
+    "priceCents": 1800000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey Bosphorus yali-style timber villa, pale sage-grey painted timber weatherboarding with white trim, tall timber sash windows in an even rhythm, slate hip roof with deep eaves, a long first-floor balcony with slender balusters over the water, attached double garage on the right with painted timber doors, rectangular swimming pool with pale stone deck on a riverside terrace in front of the house, a stone quay with iron mooring rings and a small wooden boat, weeping willows and Judas trees along the bank, the calm wide Kura river at Varvara with low green hills beyond, warm late-afternoon sun with soft reflections on the water, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "suvar-236",
+    "style": "chalet",
+    "roof": "frontgable",
+    "inspiration": "shahdag-chalet",
+    "mirror": true,
+    "title": {
+      "az": "Suvar Villası",
+      "en": "Suvar Villa",
+      "ru": "Вилла Сувар"
+    },
+    "summary": {
+      "az": "Qusar rayonunun Suvar kəndində, Şahdağ ətəyində ikimərtəbəli dağ şalesi: kobud boz daşdan birinci mərtəbə, tünd qəhvəyi şam taxtası ilə üzlənmiş ikinci mərtəbə, vadiyə baxan şüşəli fasadlı dik metal ikiyamaclı dam. Altı yataq otağı, sağ tərəfdə bitişik ikiyerlik qaraj, hovuzsuz; şam meşəsi, odun yığını və qarlı zirvələr.",
+      "en": "A two-storey mountain chalet at the village of Suvar in Gusar, below Shahdag: a ground floor of rough grey stone, an upper floor clad in dark brown pine and a steep standing-seam gable roof with a glazed gable end facing the valley. Six bedrooms, an attached double garage on the right and no pool; pine forest, stacked firewood and snowy peaks.",
+      "ru": "Двухэтажное горное шале в селе Сувар Кусарского района, под Шахдагом: первый этаж из грубого серого камня, второй обшит тёмно-коричневой сосной, крутая двускатная фальцевая кровля с остеклённым фронтоном к долине. Шесть спален, пристроенный гараж на две машины справа, без бассейна; сосновый лес, поленница и снежные вершины."
+    },
+    "areaM2": 630,
+    "floors": 2,
+    "bedrooms": 6,
+    "bathrooms": 6,
+    "garage": true,
+    "pool": false,
+    "tree": "pine",
+    "ratio": 1.7,
+    "location": [
+      48.27,
+      41.37
+    ],
+    "priceCents": 1890000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury two-storey mountain chalet villa, ground floor of rough grey fieldstone, upper floor clad in dark brown vertical pine boards, steep standing-seam gable roof facing the viewer with a fully glazed gable end, a timber balcony with vertical balusters, tall windows in dark frames, attached double garage on the right with vertical timber doors, no pool, landscaped garden in front, a gravel forecourt with firewood stacked under a lean-to roof, tall pines around the plot, a mountain stream with boulders, the snowy Shahdag massif above the village of Suvar in Gusar, crisp clear winter afternoon with a light dusting of snow on the ground, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "istisu-237",
+    "style": "minimal",
+    "roof": "flat",
+    "inspiration": "istanbul-aegean",
+    "layout": "b",
+    "title": {
+      "az": "İstisu Villası",
+      "en": "Istisu Villa",
+      "ru": "Вилла Истису"
+    },
+    "summary": {
+      "az": "Kəlbəcər dağlarında, İstisu kurortu yaxınlığında birmərtəbəli daş və ağ minimal villa: kobud boz bazalt divarlar üzərində ağ suvaqlı kublar, dərin oturdulmuş şüşələr və vadiyə baxan terras. İki yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; alp çəmənliyi, sərvlər və dağ çayı.",
+      "en": "A single-storey stone-and-white minimal villa near the Istisu spa in the Kalbajar mountains: white plastered cubes on walls of rough grey basalt, deeply recessed glazing and a terrace facing the valley. Two bedrooms, an attached single garage on the right and no pool; an alpine meadow, cypresses and a mountain river.",
+      "ru": "Одноэтажная минималистичная вилла из камня и белой штукатурки у курорта Истису в Кельбаджарских горах: белые оштукатуренные кубы на стенах из грубого серого базальта, глубоко посаженное остекление и терраса с видом на долину. Две спальни, пристроенный гараж на одну машину справа, без бассейна; альпийский луг, кипарисы и горная река."
+    },
+    "areaM2": 155,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "cypress",
+    "ratio": 1.6,
+    "location": [
+      46.02,
+      39.95
+    ],
+    "priceCents": 465000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey stone-and-white minimal villa, crisp white plastered cubes set on low walls of rough dark grey basalt, a flat roof with a thin white edge, deeply recessed glazing in thin anthracite frames, a stone-paved terrace facing the valley, attached single garage on the right with a flush white door, no pool, landscaped garden in front, alpine meadow grasses and wildflowers, two slim cypresses and a dry basalt wall, a clear mountain river below, the high green mountains of Kalbajar around Istisu, bright clear morning with sharp shadows and a deep blue sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "duvanni-238",
+    "style": "coastal",
+    "roof": "flat",
+    "inspiration": "bilgah-timber",
+    "mirror": true,
+    "title": {
+      "az": "Duvannı Villası",
+      "en": "Duvanni Villa",
+      "ru": "Вилла Дуванны"
+    },
+    "summary": {
+      "az": "Qobustanın Duvannı kəndində kompakt ikimərtəbəli sahil-modern villa: açıq qum rəngli suvaq, palıd lövhələrlə üzlənmiş yuxarı həcm, nazik dərin düz dam və şüşə məhəccərli terras. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; yovşan və zeytun ağacları olan quraq bağ, arxada Qobustan qayaları və dəniz.",
+      "en": "A compact two-storey coastal-modern villa at Duvanni in Gobustan: light sand-coloured render, an upper volume clad in oak boards, thin deep flat roof slabs and a terrace with glass balustrades. Three bedrooms, an attached single garage on the right and no pool; a dry garden of wormwood and olive trees with the Gobustan rocks and the sea behind.",
+      "ru": "Компактная двухэтажная прибрежно-современная вилла в Дуванны (Гобустан): светлая штукатурка песочного цвета, верхний объём, обшитый дубовой доской, тонкие глубокие плоские плиты кровли и терраса со стеклянным ограждением. Три спальни, пристроенный гараж на одну машину справа, без бассейна; засушливый сад с полынью и оливами, позади скалы Гобустана и море."
+    },
+    "areaM2": 170,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": false,
+    "tree": "olive",
+    "ratio": 1.3,
+    "location": [
+      49.36,
+      40.29
+    ],
+    "priceCents": 510000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury compact two-storey coastal-modern villa, light sand-coloured render on the ground floor, an upper volume clad in vertical oak boards, thin deep flat roof slabs with oak soffits, wide sliding glazing in slim graphite frames, a first-floor terrace behind a frameless glass balustrade, attached single garage on the right with an oak door, no pool, landscaped garden in front, a dry garden of silver wormwood, feather grass and three olive trees in gravel, a low wall of rough ochre limestone, the rocky Gobustan hills and a strip of Caspian sea behind Duvanni, clear golden late-afternoon light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "garachala-239",
+    "style": "modern",
+    "roof": "flat",
+    "inspiration": "bilgah-timber",
+    "title": {
+      "az": "Qaraçala Villası",
+      "en": "Garachala Villa",
+      "ru": "Вилла Карачала"
+    },
+    "summary": {
+      "az": "Salyan rayonunun Qaraçala kəndində kompakt ikimərtəbəli müasir villa: ağ suvaqlı birinci mərtəbə üzərində palıd lövhələrlə üzlənmiş yuxarı həcm, travertin üzlüklü giriş və bürünc çərçivəli geniş şüşələr. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; nar və tut ağacları, Kür düzənliyinin geniş üfüqü.",
+      "en": "A compact two-storey contemporary villa at Garachala in the Salyan district: an oak-clad upper volume over a white-rendered ground floor, a travertine-faced entrance and wide glazing in bronze frames. Three bedrooms, an attached single garage on the right and no pool; pomegranate and mulberry trees and the wide horizon of the Kura plain.",
+      "ru": "Компактная двухэтажная современная вилла в селе Карачала Сальянского района: верхний объём с дубовой обшивкой над белым оштукатуренным первым этажом, вход в облицовке из травертина и широкое остекление в бронзовых рамах. Три спальни, пристроенный гараж на одну машину справа, без бассейна; гранатовые и тутовые деревья, широкий горизонт Куринской равнины."
+    },
+    "areaM2": 165,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.2,
+    "location": [
+      49.4,
+      39.62
+    ],
+    "priceCents": 495000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury compact two-storey contemporary villa, white render ground floor under a timber-framed upper volume clad in vertical oak boards, a travertine-faced entrance recess, flat roof with a thin projecting slab edge, wide glazing in bronze frames, a small balcony with glass balustrade, attached single garage on the right with an oak door, no pool, landscaped garden in front, pomegranate and mulberry trees on a green lawn, clipped myrtle along a pale gravel path, the flat open Kura plain at Garachala with poplar rows on the horizon, soft warm morning light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "samur-240",
+    "style": "modern",
+    "roof": "flat",
+    "inspiration": "mardakan-contemporary",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Samur Villası",
+      "en": "Samur Villa",
+      "ru": "Вилла Самур"
+    },
+    "summary": {
+      "az": "Qusar rayonunun Samur kəndində, çay meşəsinin kənarında birmərtəbəli müasir villa: təbii boz daş və palıd üzlüklü alçaq həcmlər, nazik düz dam plitəsi və panoramik şüşələr. İki yataq otağı, qarajsız, hovuz; palıd və qaraağac ağacları, daş hasar və uzaqda Qafqaz ətəkləri.",
+      "en": "A single-storey contemporary villa at the edge of the river forest at Samur in Gusar: low volumes of natural grey stone and oak cladding, a thin flat roof slab and panoramic glazing. Two bedrooms, no garage and a pool; oak and elm trees, a stone wall and the Caucasus foothills in the distance.",
+      "ru": "Одноэтажная современная вилла на опушке речного леса в селе Самур Кусарского района: низкие объёмы из натурального серого камня с дубовой облицовкой, тонкая плоская плита кровли и панорамное остекление. Две спальни, без гаража, бассейн; дубы и вязы, каменная ограда и вдали предгорья Кавказа."
+    },
+    "areaM2": 190,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.6,
+    "location": [
+      48.47,
+      41.85
+    ],
+    "priceCents": 570000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey contemporary villa, low volumes clad in split-face grey stone and vertical oak boards, a thin flat roof slab with deep overhangs and an oak soffit, panoramic floor-to-ceiling glazing in black frames, no garage, rectangular swimming pool with grey stone deck in front of the house, a lawn edged by old oak and elm trees of a riverside forest, a dry-laid stone wall with a timber gate, ferns and hydrangeas in shade, the forested Samur river valley with blue Caucasus foothills in the distance, soft overcast afternoon light with a fresh green atmosphere, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "bahmanli-241",
+    "style": "modern",
+    "roof": "flat",
+    "inspiration": "mardakan-contemporary",
+    "mirror": true,
+    "title": {
+      "az": "Bəhmənli Villası",
+      "en": "Bahmanli Villa",
+      "ru": "Вилла Бахманлы"
+    },
+    "summary": {
+      "az": "Füzuli rayonunun Bəhmənli kəndində birmərtəbəli müasir villa: travertin və palıd üzlüklü alçaq həcmlər, dərin düz dam plitəsi, bürünc çərçivəli panoramik şüşələr və daş hasar arxasında bağ. İki yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; əncir, tut və zeytun ağacları, uzaqda Qarabağ təpələri.",
+      "en": "A single-storey contemporary villa at Bahmanli in the Fuzuli district: low volumes of travertine and oak cladding, a deep flat roof slab, panoramic glazing in bronze frames and a garden behind a stone wall. Two bedrooms, an attached single garage on the right and no pool; fig, mulberry and olive trees with the Karabakh hills in the distance.",
+      "ru": "Одноэтажная современная вилла в селе Бахманлы Физулинского района: низкие объёмы в облицовке из травертина и дуба, глубокая плоская плита кровли, панорамное остекление в бронзовых рамах и сад за каменной оградой. Две спальни, пристроенный гараж на одну машину справа, без бассейна; инжир, шелковица и оливы, вдали карабахские холмы."
+    },
+    "areaM2": 265,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "garage": true,
+    "pool": false,
+    "tree": "olive",
+    "ratio": 1.7,
+    "location": [
+      47.1,
+      39.55
+    ],
+    "priceCents": 795000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey contemporary villa, long low volumes clad in honed travertine and vertical oak boards, a deep flat roof slab with a smoked-oak soffit, panoramic floor-to-ceiling glazing in slim bronze frames, attached single garage on the right with an oak-clad door, no pool, landscaped garden in front, a garden wall of warm yellow limestone, fig, mulberry and olive trees in gravel beds, lavender along a stone path, the rolling golden hills of Karabakh around Bahmanli in Fuzuli, warm late-afternoon sun with long shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "mahammadli-242",
+    "style": "minimal",
+    "roof": "flat",
+    "inspiration": "seabreeze-white",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Məhəmmədli Villası",
+      "en": "Mahammadli Villa",
+      "ru": "Вилла Магаммедли"
+    },
+    "summary": {
+      "az": "Abşeronda, Məhəmmədlidə qar kimi ağ birmərtəbəli hay-tek villa: ağ divarlar, nazik qara pəncərə çərçivələri, iki qanad arasında dekorativ hovuzlu şəxsi həyət. İki yataq otağı, qarajsız, hovuz; kəsilmiş yaşıl çəpərlər, zeytun ağacları və Abşeron bağları.",
+      "en": "A snow-white single-storey high-tech villa at Mahammadli on the Absheron peninsula: white walls, thin black window frames and a private courtyard with a decorative pool between two wings. Two bedrooms, no garage and a pool; clipped green hedges, olive trees and Absheron gardens.",
+      "ru": "Белоснежная одноэтажная вилла в стиле хай-тек в Магаммедли на Апшероне: белые стены, тонкие чёрные оконные рамы и приватный двор с декоративным бассейном между двумя крыльями. Две спальни, без гаража, бассейн; стриженые зелёные живые изгороди, оливы и апшеронские сады."
+    },
+    "areaM2": 205,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.6,
+    "location": [
+      49.98,
+      40.4
+    ],
+    "priceCents": 615000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey snow-white high-tech villa, crisp white walls and thin white flat roof slabs, two low wings around a private courtyard with a shallow decorative pool, floor-to-ceiling glazing in thin black frames, no garage, rectangular swimming pool with white stone deck in front of the house, clipped green box hedges in long rows, three olive trees in white gravel, a white garden wall with a black steel gate, the flat sunny Absheron landscape at Mahammadli with distant fig gardens, bright clear midday light under a deep blue sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "jeyrankechmaz-243",
+    "style": "absheron",
+    "roof": "flat",
+    "inspiration": "bilgah-stone",
+    "mirror": true,
+    "title": {
+      "az": "Ceyrankeçməz Villası",
+      "en": "Jeyrankechmaz Villa",
+      "ru": "Вилла Джейранкечмаз"
+    },
+    "summary": {
+      "az": "Ceyrankeçməz çayı vadisində kompakt ikimərtəbəli Abşeron daş villası: kəsilmiş əhəngdaşı divarlar, terrasın üzərinə çıxan ağ suvaqlı yuxarı həcm, taxta altlıqlı düz plitələr və bürünc çərçivələr. Üç yataq otağı, qarajsız, əhəngdaşı döşəməli hovuz; zeytun və nar ağacları, quraq təpələr.",
+      "en": "A compact two-storey Absheron stone villa in the Jeyrankechmaz valley: sawn limestone walls, a white-rendered upper volume cantilevering over the terrace, flat slabs with timber soffits and bronze frames. Three bedrooms, no garage and a pool with a limestone deck; olive and pomegranate trees and dry hills.",
+      "ru": "Компактная двухэтажная апшеронская каменная вилла в долине Джейранкечмаз: стены из пилёного известняка, белый оштукатуренный верхний объём, нависающий над террасой, плоские плиты с деревянными софитами и бронзовые рамы. Три спальни, без гаража, бассейн с известняковым настилом; оливы и гранаты, сухие холмы."
+    },
+    "areaM2": 180,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": false,
+    "pool": true,
+    "tree": "olive",
+    "ratio": 1.4,
+    "location": [
+      49.55,
+      40.3
+    ],
+    "priceCents": 540000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury compact two-storey Absheron stone-and-white villa, ground floor of sawn Absheron limestone in long courses, a white render upper volume cantilevering over the terrace, flat roof slabs with warm cedar soffits, bronze-framed sliding glazing, frameless glass balustrade on the upper terrace, no garage, rectangular swimming pool with honed limestone deck in front of the house, olive and pomegranate trees in gravel beds with silver wormwood, a low dry-stone wall, the bare ochre hills of the Jeyrankechmaz valley with a dry riverbed, warm golden hour light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "saribash-244",
+    "style": "noir",
+    "roof": "flat",
+    "inspiration": "istanbul-forest",
+    "mirror": true,
+    "title": {
+      "az": "Sarıbaş Villası",
+      "en": "Saribash Villa",
+      "ru": "Вилла Сарыбаш"
+    },
+    "summary": {
+      "az": "Qax rayonunun Sarıbaş kəndində, meşə kənarında kompakt ikimərtəbəli tünd müasir villa: kömür rəngli suvaq, qaralmış larç lövhələr, bürünc şaquli lamellər, çay daşından baca və tam hündürlükdə şüşələr. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; köhnə şabalıd və fıstıq ağacları, arxada meşəli Böyük Qafqaz.",
+      "en": "A compact two-storey dark contemporary villa at the forest edge in Saribash, Gakh: charcoal render, black-charred larch boards, bronze vertical fins, a river-stone chimney and full-height glazing. Three bedrooms, an attached single garage on the right and no pool; old chestnut and beech trees with the forested Greater Caucasus behind.",
+      "ru": "Компактная двухэтажная тёмная современная вилла на опушке леса в селе Сарыбаш Гахского района: штукатурка угольного цвета, обожжённая лиственничная доска, бронзовые вертикальные ламели, труба из речного камня и остекление в пол. Три спальни, пристроенный гараж на одну машину справа, без бассейна; старые каштаны и буки, позади лесистый Большой Кавказ."
+    },
+    "areaM2": 220,
+    "floors": 2,
+    "bedrooms": 3,
+    "bathrooms": 4,
+    "garage": true,
+    "pool": false,
+    "tree": "pine",
+    "ratio": 1.4,
+    "location": [
+      46.66,
+      41.48
+    ],
+    "priceCents": 660000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury compact two-storey noir contemporary villa, charcoal render walls with a ground-floor band of black-charred larch boards, bronze vertical fins over the upper windows, a tall chimney of rough grey river stone, dark flat roof slabs with pale pine soffits, full-height glazing in black-bronze frames, attached single garage on the right with a dark timber door, no pool, landscaped garden in front, a mossy lawn under old sweet chestnut and beech trees at the forest edge, ferns and a slate path, the steep forested slopes of the Greater Caucasus above Saribash in Gakh, misty early evening with warm light glowing from the windows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "gandov-245",
+    "style": "coastal",
+    "roof": "flat",
+    "inspiration": "seabreeze-coastal",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Gəndov Villası",
+      "en": "Gandov Villa",
+      "ru": "Вилла Гяндов"
+    },
+    "summary": {
+      "az": "Xaçmaz sahilində, Gəndovda birmərtəbəli çimərlik villası: ağ suvaq, tik lamelli ekranlar, dərin saçaqlı nazik düz dam və örtülü taxta terras. İki yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, qumun kənarında hovuz; dəniz otları, sahil meşəsi və açıq Xəzər.",
+      "en": "A single-storey beach villa at Gandov on the Khachmaz coast: white render, teak louvre screens, a thin flat roof with deep overhangs and a covered timber terrace. Two bedrooms, an attached single garage on the right and a pool at the edge of the sand; dune grasses, coastal woodland and the open Caspian.",
+      "ru": "Одноэтажная пляжная вилла в Гяндове на хачмазском побережье: белая штукатурка, тиковые жалюзийные экраны, тонкая плоская кровля с глубокими свесами и крытая деревянная терраса. Две спальни, пристроенный гараж на одну машину справа, бассейн у края песка; дюнные травы, прибрежный лес и открытый Каспий."
+    },
+    "areaM2": 150,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": true,
+    "tree": "palm",
+    "ratio": 1.7,
+    "location": [
+      48.78,
+      41.57
+    ],
+    "priceCents": 450000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey coastal beach villa, white render walls with fixed teak louvre screens, a thin flat roof slab with deep overhangs over a covered teak terrace, wide sliding glazing in slim white frames, attached single garage on the right with a teak-clad door, rectangular swimming pool with pale stone deck in front of the house at the edge of the sand, dune grasses and sea buckthorn, a weathered timber boardwalk to the beach, tall oaks and alders of the coastal woodland behind, the open Caspian at Gandov on the Khachmaz coast, bright breezy morning with scattered white clouds, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "gizilburun-246",
+    "style": "coastal",
+    "roof": "flat",
+    "inspiration": "seabreeze-coastal",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Qızılburun Villası",
+      "en": "Gizilburun Villa",
+      "ru": "Вилла Гызылбурун"
+    },
+    "summary": {
+      "az": "Siyəzən sahilində, Qızılburunda birmərtəbəli sahil villası: ağ suvaq və tünd daş plinth, tik lamel tavanlı dərin terras, nazik düz dam və geniş sürüşən şüşələr. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; qırmızımtıl qum təpələri, tamarisk kolları və dəniz.",
+      "en": "A single-storey coastal villa at Gizilburun on the Siyazan coast: white render on a dark stone plinth, a deep terrace with a teak louvre ceiling, a thin flat roof and wide sliding glazing. Three bedrooms, an attached single garage on the right and no pool; reddish sand dunes, tamarisk shrubs and the sea.",
+      "ru": "Одноэтажная прибрежная вилла в Гызылбуруне на сиязаньском побережье: белая штукатурка на тёмном каменном цоколе, глубокая терраса с потолком из тиковых ламелей, тонкая плоская кровля и широкое раздвижное остекление. Три спальни, пристроенный гараж на одну машину справа, без бассейна; красноватые песчаные дюны, кусты тамариска и море."
+    },
+    "areaM2": 225,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.7,
+    "location": [
+      49.25,
+      41.03
+    ],
+    "priceCents": 675000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey coastal villa, white render walls on a low plinth of dark grey stone, a deep covered terrace with a teak louvre ceiling, a thin flat roof slab with long overhangs, wide sliding glazing in slender bronze frames, low glass balustrades, attached single garage on the right with a teak door, no pool, landscaped garden in front, reddish sand dunes with tufts of marram grass and feathery tamarisk shrubs, a sandy path to the shore, the reddish headland of Gizilburun on the Siyazan coast and the calm Caspian, warm early-evening light with a soft pink sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "sumaghalli-247",
+    "style": "farmhouse",
+    "roof": "gable",
+    "inspiration": "caucasus-farmstead",
+    "layout": "b",
+    "title": {
+      "az": "Sumağallı Villası",
+      "en": "Sumaghalli Villa",
+      "ru": "Вилла Сумагаллы"
+    },
+    "summary": {
+      "az": "İsmayıllı rayonunun Sumağallı kəndində birmərtəbəli daş ferma evi: kobud çay daşından divarlar, terrakota kirəmitli ikiyamaclı dam, palıd talvarlı terras və şabalıd çərçivəli pəncərələr. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; üzüm bağı, qoz ağacları, sərvlər və meşəli dağlar.",
+      "en": "A single-storey stone farmhouse at Sumaghalli in the Ismayilli district: rough river-stone walls, a terracotta gable roof, a terrace under an oak pergola and windows in chestnut frames. Three bedrooms, an attached single garage on the right and no pool; a vineyard, walnut trees, cypresses and forested mountains.",
+      "ru": "Одноэтажный каменный фермерский дом в селе Сумагаллы Исмаиллинского района: стены из грубого речного камня, двускатная кровля из терракотовой черепицы, терраса под дубовой перголой и окна в каштановых рамах. Три спальни, пристроенный гараж на одну машину справа, без бассейна; виноградник, ореховые деревья, кипарисы и лесистые горы."
+    },
+    "areaM2": 250,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "cypress",
+    "ratio": 1.7,
+    "location": [
+      48.24,
+      40.83
+    ],
+    "priceCents": 750000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey rustic stone farmhouse villa, thick walls of rough grey-brown river stone, terracotta gable roof with timber bargeboards, a terrace under an oak pergola covered with grapevines, deep-set windows in chestnut frames, attached single garage on the right with an oak plank door, no pool, landscaped garden in front, vineyard rows on a gentle slope, old walnut trees and a pair of cypresses, a dry-stone wall with rosemary, the forested mountains above Sumaghalli in Ismayilli, soft golden morning light with thin mist in the valley, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "galajiq-248",
+    "style": "farmhouse",
+    "roof": "hip",
+    "inspiration": "caucasus-farmstead",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Qalacıq Villası",
+      "en": "Galajiq Villa",
+      "ru": "Вилла Галаджыг"
+    },
+    "summary": {
+      "az": "İsmayıllı rayonunun Qalacıq kəndində kompakt birmərtəbəli daş ferma villası: oxra rəngli yonulmuş daş divarlar, terrakota kirəmitli dördyamaclı dam və palıd dirəkli eyvan. İki yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; alma bağı, arı pətəkləri və meşəli təpələr.",
+      "en": "A compact single-storey stone farm villa at Galajiq in the Ismayilli district: ochre dressed-stone walls, a terracotta hip roof and a veranda on oak posts. Two bedrooms, an attached single garage on the right and no pool; an apple orchard, beehives and wooded hills.",
+      "ru": "Компактная одноэтажная каменная фермерская вилла в селе Галаджыг Исмаиллинского района: стены из тёсаного охристого камня, вальмовая кровля из терракотовой черепицы и веранда на дубовых столбах. Две спальни, пристроенный гараж на одну машину справа, без бассейна; яблоневый сад, ульи и лесистые холмы."
+    },
+    "areaM2": 125,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "round",
+    "ratio": 1.6,
+    "location": [
+      48.03,
+      40.91
+    ],
+    "priceCents": 375000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury compact one-storey stone farm villa, walls of dressed ochre sandstone, terracotta hip roof with wide eaves, a veranda on square oak posts along the front, timber windows with green shutters, attached single garage on the right with a vertical oak plank door, no pool, landscaped garden in front, an apple orchard on a meadow lawn, a row of wooden beehives, a low dry-stone wall with wild roses, the wooded hills around Galajiq in Ismayilli, clear late-morning sun with a few soft clouds, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "mushfigabad-249",
+    "style": "mediterranean",
+    "roof": "hip",
+    "inspiration": "absheron-classic",
+    "layout": "b",
+    "title": {
+      "az": "Müşfiqabad Villası",
+      "en": "Mushfigabad Villa",
+      "ru": "Вилла Мушфигабад"
+    },
+    "summary": {
+      "az": "Abşeronda, Müşfiqabadda birmərtəbəli Aralıq dənizi üslubunda bağ evi: ağ əhəng suvağı, terrakota dördyamaclı dam, tağlı lociya və mavi-yaşıl taxta pəncərə qapaqları. Üç yataq otağı, qarajsız, hovuz; üzüm talvarı, əncir və zeytun ağacları, sarı əhəngdaşı hasar.",
+      "en": "A single-storey Mediterranean dacha at Mushfigabad on the Absheron peninsula: white lime stucco, a terracotta hip roof, an arched loggia and blue-green timber shutters. Three bedrooms, no garage and a pool; a vine pergola, fig and olive trees and a yellow limestone wall.",
+      "ru": "Одноэтажная средиземноморская дача в Мушфигабаде на Апшероне: белая известковая штукатурка, вальмовая кровля из терракотовой черепицы, арочная лоджия и сине-зелёные деревянные ставни. Три спальни, без гаража, бассейн; виноградная пергола, инжир и оливы, ограда из жёлтого известняка."
+    },
+    "areaM2": 270,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": true,
+    "tree": "cypress",
+    "ratio": 1.7,
+    "location": [
+      49.62,
+      40.36
+    ],
+    "priceCents": 810000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey Mediterranean villa, white lime-stucco walls, terracotta hip roof with a simple cornice, a deep arched loggia of three round arches, timber shutters painted blue-green, no garage, rectangular swimming pool with yellow limestone deck in front of the house, a vine pergola on whitewashed piers over a tiled terrace, fig and olive trees, pots of geraniums, a wall of yellow Absheron shell-limestone, the dry sunny Absheron landscape at Mushfigabad, bright clear afternoon with a deep blue sky, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "korgoz-250",
+    "style": "tuscan",
+    "roof": "gable",
+    "inspiration": "absheron-classic",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Korgöz Villası",
+      "en": "Korgoz Villa",
+      "ru": "Вилла Коргёз"
+    },
+    "summary": {
+      "az": "Qaradağ yaxınlığında, Korgözdə kompakt birmərtəbəli Toskana üslubunda villa: bal rəngli əhəngdaşı divarlar, terrakota ikiyamaclı dam, palıd tirli saçaq və yaşıl pəncərə qapaqları. İki yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; zeytun bağı, lavanda və çılpaq təpələr.",
+      "en": "A compact single-storey Tuscan-style villa at Korgoz near Garadagh: honey limestone walls, a terracotta gable roof with oak-beamed eaves and green shutters. Two bedrooms, an attached single garage on the right and no pool; an olive grove, lavender and bare hills.",
+      "ru": "Компактная одноэтажная вилла в тосканском стиле в Коргёзе близ Карадага: стены из медового известняка, двускатная кровля из терракотовой черепицы со свесами на дубовых балках и зелёные ставни. Две спальни, пристроенный гараж на одну машину справа, без бассейна; оливковая роща, лаванда и голые холмы."
+    },
+    "areaM2": 195,
+    "floors": 1,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "olive",
+    "ratio": 1.6,
+    "location": [
+      49.63,
+      40.27
+    ],
+    "priceCents": 585000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury compact one-storey Tuscan-style villa, walls of honey-coloured limestone in even courses, terracotta gable roof with exposed oak rafters under the eaves, a small arched porch, timber windows with green louvred shutters, attached single garage on the right with a green timber door, no pool, landscaped garden in front, an olive grove on a gentle slope, lavender and rosemary beds along a gravel drive, a low dry-stone wall, the bare ochre hills of Korgoz near Garadagh with a glimpse of the Caspian, warm late-afternoon sun, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "hajizeynalabdin-251",
+    "style": "pavilion",
+    "roof": "flat",
+    "inspiration": "bilgah-garden",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Hacı Zeynalabdin Villası",
+      "en": "Haji Zeynalabdin Villa",
+      "ru": "Вилла Гаджи Зейналабдин"
+    },
+    "summary": {
+      "az": "Abşeronun şimalında, Hacı Zeynalabdin qəsəbəsində birmərtəbəli bağ pavilyonu: əhəngdaşı divarlar, nazik polad sütunlar üzərində uzun düz dam, bağa açılan şüşə fasad və daxili həyət. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuzsuz; əks etdirici su hovuzu, zeytun ağacları və alçaq daş hasar.",
+      "en": "A single-storey garden pavilion at Haji Zeynalabdin in northern Absheron: limestone walls, a long flat roof on slender steel columns, a glazed front opening to the garden and an inner courtyard. Three bedrooms, an attached single garage on the right and no swimming pool; a reflecting pool, olive trees and a low stone wall.",
+      "ru": "Одноэтажный садовый павильон в посёлке Гаджи Зейналабдин на севере Апшерона: стены из известняка, длинная плоская кровля на тонких стальных колоннах, остеклённый фасад в сад и внутренний дворик. Три спальни, пристроенный гараж на одну машину справа, без плавательного бассейна; декоративный водоём, оливы и низкая каменная ограда."
+    },
+    "areaM2": 205,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": false,
+    "tree": "olive",
+    "ratio": 1.7,
+    "location": [
+      49.6,
+      40.62
+    ],
+    "priceCents": 615000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey garden pavilion villa, walls of pale Absheron limestone, a long thin flat roof slab on slender steel columns with deep overhangs, a fully glazed garden front in dark bronze frames, an inner courtyard with a small olive tree, attached single garage on the right with a limestone-clad door, no swimming pool, landscaped garden in front with a long shallow reflecting pool, olive trees and clipped myrtle in gravel, feather grass and lavender, a low limestone wall, the flat Absheron plain at Haji Zeynalabdin with distant hills, soft warm early-evening light, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "gilgilchay-252",
+    "style": "absheron",
+    "roof": "flat",
+    "inspiration": "bilgah-garden",
+    "mirror": true,
+    "layout": "b",
+    "title": {
+      "az": "Gilgilçay Villası",
+      "en": "Gilgilchay Villa",
+      "ru": "Вилла Гильгильчай"
+    },
+    "summary": {
+      "az": "Şabran sahilində, Gilgilçayda uzun, alçaq birmərtəbəli bağ villası: kəsilmiş əhəngdaşı divarlar, dərin düz dam, qonaq otaqları boyunca örtülü terras və zeytun bağı. Üç yataq otağı, qarajsız, hovuz; tarixi səddin daş qalıqları yaxınlığında quraq bağ, arxada dəniz.",
+      "en": "A long, low single-storey garden villa at Gilgilchay on the Shabran coast: sawn limestone walls, a deep flat roof, a covered terrace along the living rooms and an olive grove. Three bedrooms, no garage and a pool; a dry garden near the stone remains of the historic wall, with the sea behind.",
+      "ru": "Длинная невысокая одноэтажная садовая вилла в Гильгильчае на шабранском побережье: стены из пилёного известняка, глубокая плоская кровля, крытая терраса вдоль гостиных и оливковая роща. Три спальни, без гаража, бассейн; засушливый сад рядом с каменными остатками исторической стены, позади море."
+    },
+    "areaM2": 240,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": false,
+    "pool": true,
+    "tree": "olive",
+    "ratio": 1.7,
+    "location": [
+      49.06,
+      41.03
+    ],
+    "priceCents": 720000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury long low one-storey Absheron garden villa, walls of sawn pale limestone in long horizontal courses, a deep flat roof slab with a warm timber soffit over a covered terrace along the living rooms, wide sliding glazing in bronze frames, no garage, rectangular swimming pool with honed limestone deck in front of the house, a grove of olive trees in gravel, wormwood and feather grass, a long low limestone garden wall, the flat coastal plain at Gilgilchay on the Shabran coast with the Caspian beyond, bright clear midday light with a light sea breeze, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
+  },
+  {
+    "slug": "shirvanovka-253",
+    "style": "minimal",
+    "roof": "flat",
+    "inspiration": "seabreeze-white",
+    "layout": "b",
+    "title": {
+      "az": "Şirvanovka Villası",
+      "en": "Shirvanovka Villa",
+      "ru": "Вилла Ширвановка"
+    },
+    "summary": {
+      "az": "Qusar sahilində, Şirvanovkada qar kimi ağ birmərtəbəli hay-tek villa: ağ divarlar, nazik qara çərçivəli şüşələr, uzun konsol dam və dekorativ hovuzlu şəxsi həyət. Üç yataq otağı, sağ tərəfdə bitişik bir yerlik qaraj, hovuz; kəsilmiş çəpərlər, sahil meşəsi və dəniz.",
+      "en": "A snow-white single-storey high-tech villa at Shirvanovka on the Gusar coast: white walls, glazing in thin black frames, a long cantilevered roof and a private courtyard with a decorative pool. Three bedrooms, an attached single garage on the right and a pool; clipped hedges, coastal woodland and the sea.",
+      "ru": "Белоснежная одноэтажная вилла в стиле хай-тек в Ширвановке на кусарском побережье: белые стены, остекление в тонких чёрных рамах, длинная консольная кровля и приватный двор с декоративным бассейном. Три спальни, пристроенный гараж на одну машину справа и бассейн; стриженые изгороди, прибрежный лес и море."
+    },
+    "areaM2": 280,
+    "floors": 1,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "garage": true,
+    "pool": true,
+    "tree": "round",
+    "ratio": 1.7,
+    "location": [
+      48.62,
+      41.77
+    ],
+    "priceCents": 840000,
+    "published": true,
+    "demo": true,
+    "prompt": "Professional architectural visualization, photorealistic exterior render of a luxury one-storey snow-white villa in an L-shaped plan, smooth white walls with a perforated white brick screen around the entrance court, a flat roof with a thick white fascia, tall slot windows and corner glazing in black steel frames, a small courtyard garden with a round stone basin, attached single garage on the right with a white door, rectangular swimming pool with pale travertine deck in front of the house set in a green lawn, a row of silver birches and low lavender hedges, tall dark oaks of the coastal forest at Shirvanovka on the Gusar coast with a thin line of sea beyond, soft overcast morning light with gentle shadows, eye-level three-quarter view, 24mm architectural lens, Corona render quality, crisp realistic materials, no people, no text, no watermark"
   }
 ]
