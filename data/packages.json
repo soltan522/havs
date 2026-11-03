@@ -5102,5 +5102,445 @@
     ],
     "sheets": 6,
     "builtAt": "2026-11-02"
+  },
+  "bandovan-234": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bandovan-234-drawings.pdf",
+        "bytes": 553477,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "bandovan-234.dwg",
+        "bytes": 87533
+      },
+      {
+        "kind": "cad",
+        "name": "bandovan-234.dxf",
+        "bytes": 220881
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "varvara-235": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "varvara-235-drawings.pdf",
+        "bytes": 609453,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "varvara-235.dwg",
+        "bytes": 96960
+      },
+      {
+        "kind": "cad",
+        "name": "varvara-235.dxf",
+        "bytes": 250468
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "suvar-236": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "suvar-236-drawings.pdf",
+        "bytes": 710276,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "suvar-236.dwg",
+        "bytes": 90912
+      },
+      {
+        "kind": "cad",
+        "name": "suvar-236.dxf",
+        "bytes": 237561
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "istisu-237": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "istisu-237-drawings.pdf",
+        "bytes": 699619,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "istisu-237.dwg",
+        "bytes": 65343
+      },
+      {
+        "kind": "cad",
+        "name": "istisu-237.dxf",
+        "bytes": 161112
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "duvanni-238": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "duvanni-238-drawings.pdf",
+        "bytes": 609253,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "duvanni-238.dwg",
+        "bytes": 77926
+      },
+      {
+        "kind": "cad",
+        "name": "duvanni-238.dxf",
+        "bytes": 197553
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "garachala-239": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "garachala-239-drawings.pdf",
+        "bytes": 661820,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "garachala-239.dwg",
+        "bytes": 76705
+      },
+      {
+        "kind": "cad",
+        "name": "garachala-239.dxf",
+        "bytes": 192451
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "samur-240": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "samur-240-drawings.pdf",
+        "bytes": 685434,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "samur-240.dwg",
+        "bytes": 58981
+      },
+      {
+        "kind": "cad",
+        "name": "samur-240.dxf",
+        "bytes": 144943
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "bahmanli-241": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bahmanli-241-drawings.pdf",
+        "bytes": 644138,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "bahmanli-241.dwg",
+        "bytes": 48820
+      },
+      {
+        "kind": "cad",
+        "name": "bahmanli-241.dxf",
+        "bytes": 118286
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "mahammadli-242": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "mahammadli-242-drawings.pdf",
+        "bytes": 524400,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "mahammadli-242.dwg",
+        "bytes": 64625
+      },
+      {
+        "kind": "cad",
+        "name": "mahammadli-242.dxf",
+        "bytes": 157129
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "jeyrankechmaz-243": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "jeyrankechmaz-243-drawings.pdf",
+        "bytes": 564847,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "jeyrankechmaz-243.dwg",
+        "bytes": 74224
+      },
+      {
+        "kind": "cad",
+        "name": "jeyrankechmaz-243.dxf",
+        "bytes": 184167
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "saribash-244": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "saribash-244-drawings.pdf",
+        "bytes": 624896,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "saribash-244.dwg",
+        "bytes": 78095
+      },
+      {
+        "kind": "cad",
+        "name": "saribash-244.dxf",
+        "bytes": 197457
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-03"
+  },
+  "gandov-245": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gandov-245-drawings.pdf",
+        "bytes": 698527,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gandov-245.dwg",
+        "bytes": 65670
+      },
+      {
+        "kind": "cad",
+        "name": "gandov-245.dxf",
+        "bytes": 165271
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "gizilburun-246": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gizilburun-246-drawings.pdf",
+        "bytes": 595737,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gizilburun-246.dwg",
+        "bytes": 68644
+      },
+      {
+        "kind": "cad",
+        "name": "gizilburun-246.dxf",
+        "bytes": 169019
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "sumaghalli-247": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sumaghalli-247-drawings.pdf",
+        "bytes": 732042,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "sumaghalli-247.dwg",
+        "bytes": 72042
+      },
+      {
+        "kind": "cad",
+        "name": "sumaghalli-247.dxf",
+        "bytes": 178806
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "galajiq-248": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "galajiq-248-drawings.pdf",
+        "bytes": 746234,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "galajiq-248.dwg",
+        "bytes": 59884
+      },
+      {
+        "kind": "cad",
+        "name": "galajiq-248.dxf",
+        "bytes": 145041
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "mushfigabad-249": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "mushfigabad-249-drawings.pdf",
+        "bytes": 609070,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "mushfigabad-249.dwg",
+        "bytes": 67032
+      },
+      {
+        "kind": "cad",
+        "name": "mushfigabad-249.dxf",
+        "bytes": 166485
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "korgoz-250": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "korgoz-250-drawings.pdf",
+        "bytes": 729258,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "korgoz-250.dwg",
+        "bytes": 68710
+      },
+      {
+        "kind": "cad",
+        "name": "korgoz-250.dxf",
+        "bytes": 170245
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "hajizeynalabdin-251": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "hajizeynalabdin-251-drawings.pdf",
+        "bytes": 612742,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "hajizeynalabdin-251.dwg",
+        "bytes": 69254
+      },
+      {
+        "kind": "cad",
+        "name": "hajizeynalabdin-251.dxf",
+        "bytes": 169832
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "gilgilchay-252": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gilgilchay-252-drawings.pdf",
+        "bytes": 583178,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gilgilchay-252.dwg",
+        "bytes": 65681
+      },
+      {
+        "kind": "cad",
+        "name": "gilgilchay-252.dxf",
+        "bytes": 161296
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
+  },
+  "shirvanovka-253": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shirvanovka-253-drawings.pdf",
+        "bytes": 604893,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shirvanovka-253.dwg",
+        "bytes": 71472
+      },
+      {
+        "kind": "cad",
+        "name": "shirvanovka-253.dxf",
+        "bytes": 176921
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-03"
   }
 }
