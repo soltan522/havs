@@ -5542,5 +5542,445 @@
     ],
     "sheets": 6,
     "builtAt": "2026-11-03"
+  },
+  "nehram-254": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nehram-254-drawings.pdf",
+        "bytes": 754502,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "nehram-254.dwg",
+        "bytes": 86068
+      },
+      {
+        "kind": "cad",
+        "name": "nehram-254.dxf",
+        "bytes": 215952
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "shahbulag-255": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shahbulag-255-drawings.pdf",
+        "bytes": 681298,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "shahbulag-255.dwg",
+        "bytes": 90525
+      },
+      {
+        "kind": "cad",
+        "name": "shahbulag-255.dxf",
+        "bytes": 238875
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "kurdmashi-256": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "kurdmashi-256-drawings.pdf",
+        "bytes": 739977,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "kurdmashi-256.dwg",
+        "bytes": 62226
+      },
+      {
+        "kind": "cad",
+        "name": "kurdmashi-256.dxf",
+        "bytes": 152710
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "mollaisagli-257": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "mollaisagli-257-drawings.pdf",
+        "bytes": 764202,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "mollaisagli-257.dwg",
+        "bytes": 72776
+      },
+      {
+        "kind": "cad",
+        "name": "mollaisagli-257.dxf",
+        "bytes": 182660
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "bahramtapa-258": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bahramtapa-258-drawings.pdf",
+        "bytes": 578271,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "bahramtapa-258.dwg",
+        "bytes": 92689
+      },
+      {
+        "kind": "cad",
+        "name": "bahramtapa-258.dxf",
+        "bytes": 237766
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "hasansu-259": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "hasansu-259-drawings.pdf",
+        "bytes": 620675,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "hasansu-259.dwg",
+        "bytes": 85465
+      },
+      {
+        "kind": "cad",
+        "name": "hasansu-259.dxf",
+        "bytes": 218981
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "yeni-hayat-260": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "yeni-hayat-260-drawings.pdf",
+        "bytes": 626371,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "yeni-hayat-260.dwg",
+        "bytes": 67460
+      },
+      {
+        "kind": "cad",
+        "name": "yeni-hayat-260.dxf",
+        "bytes": 166139
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "narbaghi-261": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "narbaghi-261-drawings.pdf",
+        "bytes": 629143,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "narbaghi-261.dwg",
+        "bytes": 63976
+      },
+      {
+        "kind": "cad",
+        "name": "narbaghi-261.dxf",
+        "bytes": 158695
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "shikhakaran-262": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shikhakaran-262-drawings.pdf",
+        "bytes": 553923,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shikhakaran-262.dwg",
+        "bytes": 74328
+      },
+      {
+        "kind": "cad",
+        "name": "shikhakaran-262.dxf",
+        "bytes": 187385
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "separadi-263": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "separadi-263-drawings.pdf",
+        "bytes": 537573,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "separadi-263.dwg",
+        "bytes": 71437
+      },
+      {
+        "kind": "cad",
+        "name": "separadi-263.dxf",
+        "bytes": 177904
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "navahi-264": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "navahi-264-drawings.pdf",
+        "bytes": 545538,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "navahi-264.dwg",
+        "bytes": 70746
+      },
+      {
+        "kind": "cad",
+        "name": "navahi-264.dxf",
+        "bytes": 175852
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "shikhli-265": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shikhli-265-drawings.pdf",
+        "bytes": 660516,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shikhli-265.dwg",
+        "bytes": 68276
+      },
+      {
+        "kind": "cad",
+        "name": "shikhli-265.dxf",
+        "bytes": 167428
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "topalhasanli-266": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "topalhasanli-266-drawings.pdf",
+        "bytes": 687723,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "topalhasanli-266.dwg",
+        "bytes": 70953
+      },
+      {
+        "kind": "cad",
+        "name": "topalhasanli-266.dxf",
+        "bytes": 175434
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-04"
+  },
+  "nagarakhana-267": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nagarakhana-267-drawings.pdf",
+        "bytes": 735532,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "nagarakhana-267.dwg",
+        "bytes": 90277
+      },
+      {
+        "kind": "cad",
+        "name": "nagarakhana-267.dxf",
+        "bytes": 232378
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-11-04"
+  },
+  "durja-268": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "durja-268-drawings.pdf",
+        "bytes": 596131,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "durja-268.dwg",
+        "bytes": 102962
+      },
+      {
+        "kind": "cad",
+        "name": "durja-268.dxf",
+        "bytes": 263373
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-11-04"
+  },
+  "vanand-269": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "vanand-269-drawings.pdf",
+        "bytes": 724842,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "vanand-269.dwg",
+        "bytes": 85832
+      },
+      {
+        "kind": "cad",
+        "name": "vanand-269.dxf",
+        "bytes": 221478
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "bilav-270": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "bilav-270-drawings.pdf",
+        "bytes": 755479,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "bilav-270.dwg",
+        "bytes": 95581
+      },
+      {
+        "kind": "cad",
+        "name": "bilav-270.dxf",
+        "bytes": 247091
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "dallar-271": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "dallar-271-drawings.pdf",
+        "bytes": 542994,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "dallar-271.dwg",
+        "bytes": 86515
+      },
+      {
+        "kind": "cad",
+        "name": "dallar-271.dxf",
+        "bytes": 217822
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "atachay-272": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "atachay-272-drawings.pdf",
+        "bytes": 549700,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "atachay-272.dwg",
+        "bytes": 83016
+      },
+      {
+        "kind": "cad",
+        "name": "atachay-272.dxf",
+        "bytes": 209472
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
+  },
+  "kurdili-273": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "kurdili-273-drawings.pdf",
+        "bytes": 653747,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "kurdili-273.dwg",
+        "bytes": 79479
+      },
+      {
+        "kind": "cad",
+        "name": "kurdili-273.dxf",
+        "bytes": 201676
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-04"
   }
 }
