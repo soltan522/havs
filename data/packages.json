@@ -6422,5 +6422,335 @@
     ],
     "sheets": 7,
     "builtAt": "2026-11-05"
+  },
+  "afurja-294": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "afurja-294-drawings.pdf",
+        "bytes": 797757,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "afurja-294.dwg",
+        "bytes": 81686
+      },
+      {
+        "kind": "cad",
+        "name": "afurja-294.dxf",
+        "bytes": 205753
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-06"
+  },
+  "novruzlu-295": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "novruzlu-295-drawings.pdf",
+        "bytes": 668417,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "novruzlu-295.dwg",
+        "bytes": 85272
+      },
+      {
+        "kind": "cad",
+        "name": "novruzlu-295.dxf",
+        "bytes": 220141
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-06"
+  },
+  "sulut-296": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sulut-296-drawings.pdf",
+        "bytes": 695013,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "sulut-296.dwg",
+        "bytes": 86882
+      },
+      {
+        "kind": "cad",
+        "name": "sulut-296.dxf",
+        "bytes": 220835
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-06"
+  },
+  "sagiyan-297": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sagiyan-297-drawings.pdf",
+        "bytes": 754352,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "sagiyan-297.dwg",
+        "bytes": 72997
+      },
+      {
+        "kind": "cad",
+        "name": "sagiyan-297.dxf",
+        "bytes": 181595
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "nasirvaz-298": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "nasirvaz-298-drawings.pdf",
+        "bytes": 642565,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "nasirvaz-298.dwg",
+        "bytes": 91407
+      },
+      {
+        "kind": "cad",
+        "name": "nasirvaz-298.dxf",
+        "bytes": 237546
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-06"
+  },
+  "dasta-299": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "dasta-299-drawings.pdf",
+        "bytes": 583193,
+        "pages": 7
+      },
+      {
+        "kind": "dwg",
+        "name": "dasta-299.dwg",
+        "bytes": 81787
+      },
+      {
+        "kind": "cad",
+        "name": "dasta-299.dxf",
+        "bytes": 204793
+      }
+    ],
+    "sheets": 7,
+    "builtAt": "2026-11-06"
+  },
+  "shikhlar-300": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shikhlar-300-drawings.pdf",
+        "bytes": 678277,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "shikhlar-300.dwg",
+        "bytes": 59078
+      },
+      {
+        "kind": "cad",
+        "name": "shikhlar-300.dxf",
+        "bytes": 143551
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "gusarchay-301": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gusarchay-301-drawings.pdf",
+        "bytes": 593054,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gusarchay-301.dwg",
+        "bytes": 74544
+      },
+      {
+        "kind": "cad",
+        "name": "gusarchay-301.dxf",
+        "bytes": 189145
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "arabgadim-302": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "arabgadim-302-drawings.pdf",
+        "bytes": 652345,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "arabgadim-302.dwg",
+        "bytes": 55052
+      },
+      {
+        "kind": "cad",
+        "name": "arabgadim-302.dxf",
+        "bytes": 133981
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "sundu-303": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "sundu-303-drawings.pdf",
+        "bytes": 636643,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "sundu-303.dwg",
+        "bytes": 54680
+      },
+      {
+        "kind": "cad",
+        "name": "sundu-303.dxf",
+        "bytes": 131986
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "hazra-304": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "hazra-304-drawings.pdf",
+        "bytes": 672714,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "hazra-304.dwg",
+        "bytes": 51420
+      },
+      {
+        "kind": "cad",
+        "name": "hazra-304.dxf",
+        "bytes": 123728
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "gumbashi-305": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "gumbashi-305-drawings.pdf",
+        "bytes": 563779,
+        "pages": 6
+      },
+      {
+        "kind": "dwg",
+        "name": "gumbashi-305.dwg",
+        "bytes": 44742
+      },
+      {
+        "kind": "cad",
+        "name": "gumbashi-305.dxf",
+        "bytes": 104930
+      }
+    ],
+    "sheets": 6,
+    "builtAt": "2026-11-06"
+  },
+  "goyazan-306": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "goyazan-306-drawings.pdf",
+        "bytes": 708624,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "goyazan-306.dwg",
+        "bytes": 89563
+      },
+      {
+        "kind": "cad",
+        "name": "goyazan-306.dxf",
+        "bytes": 225357
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-11-06"
+  },
+  "lakit-307": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "lakit-307-drawings.pdf",
+        "bytes": 707618,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "lakit-307.dwg",
+        "bytes": 110625
+      },
+      {
+        "kind": "cad",
+        "name": "lakit-307.dxf",
+        "bytes": 289581
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-11-06"
+  },
+  "shushakand-308": {
+    "files": [
+      {
+        "kind": "pdf",
+        "name": "shushakand-308-drawings.pdf",
+        "bytes": 596423,
+        "pages": 8
+      },
+      {
+        "kind": "dwg",
+        "name": "shushakand-308.dwg",
+        "bytes": 103791
+      },
+      {
+        "kind": "cad",
+        "name": "shushakand-308.dxf",
+        "bytes": 265149
+      }
+    ],
+    "sheets": 8,
+    "builtAt": "2026-11-06"
   }
 }
